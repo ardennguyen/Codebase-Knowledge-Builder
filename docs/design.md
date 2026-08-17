@@ -19,7 +19,7 @@ nav_order: 2
 - A publicly accessible GitHub repository URL or a local directory path.
 - A project name (optional, will be derived from the URL/directory if not provided).
 - Desired language for the tutorial (optional, defaults to English).
-- Token scaling configurations (`--max-tokens`, `--batch`, `--force-batch`).
+- Advanced configurations for token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--advanced`, `--thinking-level`, `--max-abstractions`), caching (`--no-cache`), and execution cleanup (`--cleanup`).
 
 **Output:**
 - A directory named after the project containing:

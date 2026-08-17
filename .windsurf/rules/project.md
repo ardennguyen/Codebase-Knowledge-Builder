@@ -138,14 +138,19 @@ Agentic Coding should be a collaboration between Human System Design and Agent I
 ## Example LLM Project File Structure
 
 ```
-my_project/
+codebase_kb/
 ├── main.py
 ├── nodes.py
 ├── flow.py
 ├── utils/
 │   ├── __init__.py
 │   ├── call_llm.py
-│   └── search_web.py
+│   ├── crawl_local_files.py
+│   ├── crawl_github_files.py
+│   └── token_utils.py
+├── prompts/
+│   ├── tutorial/
+│   └── advanced/
 ├── requirements.txt
 └── docs/
     └── design.md
