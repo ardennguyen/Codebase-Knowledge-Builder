@@ -93,22 +93,26 @@ def crawl_local_files(
         processed_files += 1 # Increment processed count regardless of inclusion/exclusion
 
         status = "processed"
+        color = "\033[92m" # Green by default
+
         if not included or excluded:
             status = "skipped (excluded)"
+            color = "\033[90m" # Gray for skipped
             # Print progress for skipped files due to exclusion
             if total_files > 0:
                 percentage = (processed_files / total_files) * 100
                 rounded_percentage = int(percentage)
-                print(f"\033[92mProgress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
+                print(f"{color}Progress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
             continue # Skip to next file if not included or excluded
 
         if max_file_size and os.path.getsize(filepath) > max_file_size:
             status = "skipped (size limit)"
+            color = "\033[93m" # Yellow for size limit
             # Print progress for skipped files due to size limit
             if total_files > 0:
                 percentage = (processed_files / total_files) * 100
                 rounded_percentage = int(percentage)
-                print(f"\033[92mProgress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
+                print(f"{color}Progress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
             continue # Skip large files
 
         # --- File is being processed ---        
@@ -119,14 +123,16 @@ def crawl_local_files(
         except Exception as e:
             print(f"Warning: Could not read file {filepath}: {e}")
             status = "skipped (read error)"
+            color = "\033[91m" # Red for error
 
         # --- Print progress for processed or error files ---
         if total_files > 0:
             percentage = (processed_files / total_files) * 100
             rounded_percentage = int(percentage)
-            print(f"\033[92mProgress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
+            print(f"{color}Progress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
 
     return {"files": files_dict}
+
 
 
 if __name__ == "__main__":
