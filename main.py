@@ -73,6 +73,8 @@ def main():
     parser.add_argument("--language", default="english", help="Language for the generated tutorial (default: english)")
     # Add use_cache parameter to control LLM caching
     parser.add_argument("--no-cache", action="store_true", help="Disable LLM response caching (default: caching enabled)")
+    # Add cleanup parameter
+    parser.add_argument("--cleanup", action="store_true", help="Clean up logs and cache JSON at the end of the script (default: No)")
     # Add max_abstraction_num parameter to control the number of abstractions
     parser.add_argument("--max-abstractions", type=int, default=10, help="Maximum number of abstractions to identify (default: 10)")
     # Add thinking_level parameter for LLM reasoning capabilities
@@ -180,6 +182,26 @@ def main():
 
     # Run the flow
     tutorial_flow.run(shared)
+    
+    # Cleanup logs and cache if requested
+    if args.cleanup:
+        print("\nCleaning up cache and logs...")
+        cache_path = "llm_cache.json"
+        if os.path.exists(cache_path):
+            try:
+                os.remove(cache_path)
+                print(f" - Removed {cache_path}")
+            except Exception as e:
+                print(f" - Failed to remove {cache_path}: {e}")
+                
+        log_dir = os.environ.get("LOG_DIR", "logs")
+        if os.path.exists(log_dir) and os.path.isdir(log_dir):
+            import shutil
+            try:
+                shutil.rmtree(log_dir)
+                print(f" - Removed {log_dir} directory")
+            except Exception as e:
+                print(f" - Failed to remove {log_dir}: {e}")
 
 if __name__ == "__main__":
     main()

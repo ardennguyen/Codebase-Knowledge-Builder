@@ -50,6 +50,7 @@ Ever stared at a new codebase written by others feeling completely lost? This pr
 - `--advanced` - Load advanced prompts from `prompts/advanced/` directory instead of the tutorial prompts.
 - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
 - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
+- `--cleanup` - Clean up logs and cache JSON at the end of the script (default: No).
 
 The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an `index.md`, and a compiled `full_content.md` containing the complete tutorial with a Table of Contents.
 
