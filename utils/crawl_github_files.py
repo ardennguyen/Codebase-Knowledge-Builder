@@ -5,6 +5,7 @@ import tempfile
 import git
 import time
 import fnmatch
+import pathspec
 from typing import Union, Set, List, Dict, Tuple, Any
 from urllib.parse import urlparse
 
@@ -42,7 +43,7 @@ def crawl_github_files(
     if exclude_patterns and isinstance(exclude_patterns, str):
         exclude_patterns = {exclude_patterns}
 
-    def should_include_file(file_path: str, file_name: str) -> bool:
+    def should_include_file(file_path: str, file_name: str, gitignore_spec=None) -> bool:
         """Determine if a file should be included based on patterns"""
         # If no include patterns are specified, include all files
         if not include_patterns:
@@ -50,6 +51,11 @@ def crawl_github_files(
         else:
             # Check if file matches any include pattern
             include_file = any(fnmatch.fnmatch(file_name, pattern) for pattern in include_patterns)
+
+        # Check gitignore if provided
+        if include_file and gitignore_spec:
+            if gitignore_spec.match_file(file_path):
+                return False
 
         # If exclude patterns are specified, check if file should be excluded
         if exclude_patterns and include_file:
@@ -81,7 +87,35 @@ def crawl_github_files(
             files = {}
             skipped_files = []
 
+            # --- Load .gitignore ---
+            gitignore_path = os.path.join(tmpdirname, ".gitignore")
+            gitignore_spec = None
+            if os.path.exists(gitignore_path):
+                try:
+                    with open(gitignore_path, "r", encoding="utf-8-sig") as f:
+                        gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", f.readlines())
+                    print(f"Loaded .gitignore patterns from repository.")
+                except Exception as e:
+                    pass
+
             for root, dirs, filenames in os.walk(tmpdirname):
+                # Filter directories using .gitignore and exclude_patterns early
+                excluded_dirs = set()
+                for d in dirs:
+                    dirpath_rel = os.path.relpath(os.path.join(root, d), tmpdirname)
+                    if gitignore_spec and gitignore_spec.match_file(dirpath_rel):
+                        excluded_dirs.add(d)
+                        continue
+                    if exclude_patterns:
+                        for pattern in exclude_patterns:
+                            if fnmatch.fnmatch(dirpath_rel, pattern) or fnmatch.fnmatch(d, pattern):
+                                excluded_dirs.add(d)
+                                break
+                                
+                for d in dirs.copy():
+                    if d in excluded_dirs:
+                        dirs.remove(d)
+
                 for filename in filenames:
                     abs_path = os.path.join(root, filename)
                     rel_path = os.path.relpath(abs_path, tmpdirname)
@@ -98,7 +132,7 @@ def crawl_github_files(
                         continue
 
                     # Check include/exclude patterns
-                    if not should_include_file(rel_path, filename):
+                    if not should_include_file(rel_path, filename, gitignore_spec=gitignore_spec):
                         print(f"Skipping {rel_path}: does not match include/exclude patterns")
                         continue
 
@@ -217,6 +251,21 @@ def crawl_github_files(
     files = {}
     skipped_files = []
     
+    # --- Try to fetch .gitignore ---
+    gitignore_spec = None
+    try:
+        gi_url = f"https://api.github.com/repos/{owner}/{repo}/contents/.gitignore"
+        gi_params = {"ref": ref} if ref != None else {}
+        gi_resp = requests.get(gi_url, headers=headers, params=gi_params, timeout=(10, 10))
+        if gi_resp.status_code == 200:
+            gi_data = gi_resp.json()
+            if "content" in gi_data and gi_data.get("encoding") == "base64":
+                gi_content = base64.b64decode(gi_data["content"]).decode('utf-8')
+                gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", gi_content.splitlines())
+                print("Loaded .gitignore patterns from repository via API.")
+    except Exception:
+        pass
+    
     def fetch_contents(path):
         """Fetch contents of the repository at a specific path and commit"""
         url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
@@ -270,7 +319,7 @@ def crawl_github_files(
             
             if item["type"] == "file":
                 # Check if file should be included based on patterns
-                if not should_include_file(rel_path, item["name"]):
+                if not should_include_file(rel_path, item["name"], gitignore_spec=gitignore_spec):
                     print(f"Skipping {rel_path}: Does not match include/exclude patterns")
                     continue
                 
@@ -320,19 +369,21 @@ def crawl_github_files(
                         print(f"Failed to get content for {rel_path}: {content_response.status_code}")
             
             elif item["type"] == "dir":
-                # OLD IMPLEMENTATION (comment this block to test new implementation)
-                # Always recurse into directories without checking exclusions first
-                # fetch_contents(item_path)
-
-                # NEW IMPLEMENTATION (uncomment this block to test optimized version)
-                # # Check if directory should be excluded before recursing
-                if exclude_patterns:
+                # NEW IMPLEMENTATION
+                # Check if directory should be excluded before recursing
+                dir_excluded = False
+                
+                if gitignore_spec and gitignore_spec.match_file(rel_path):
+                    dir_excluded = True
+                    
+                if not dir_excluded and exclude_patterns:
                     dir_excluded = any(fnmatch.fnmatch(item_path, pattern) or
                                     fnmatch.fnmatch(rel_path, pattern) for pattern in exclude_patterns)
-                    if dir_excluded:
-                        continue
+                                    
+                if dir_excluded:
+                    continue
                 
-                # # Only recurse if directory is not excluded
+                # Only recurse if directory is not excluded
                 fetch_contents(item_path)
     
     # Start crawling from the specified path

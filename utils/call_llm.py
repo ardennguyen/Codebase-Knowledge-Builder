@@ -197,7 +197,7 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
     except ValueError:
         raise Exception(f"Failed to parse response as JSON from {provider}. The server might have returned an invalid response.")
 
-# By default, we Google Gemini 2.5 pro, as it shows great performance for code understanding
+# By default, we use Google Gemini 3.7 flash, as it shows great performance for code understanding
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) -> str:
     # Log the prompt
     logger.info(f"PROMPT: {prompt}")

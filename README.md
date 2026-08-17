@@ -49,7 +49,8 @@
     - `--thinking-level` - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
     - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically from the model).
     - `--advanced` - Load advanced prompts from `prompts/advanced/` directory instead of the tutorial prompts.
-
+    - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
+    - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
 The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an `index.md`, and a compiled `full_content.md` containing the complete tutorial with a Table of Contents.
 
 
@@ -143,7 +144,8 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--thinking-level` - Mức độ nỗ lực suy luận cho các model Gemini, OpenRouter và Ollama (ví dụ: low, medium, high). Để trống để sử dụng mặc định của model.
     - `--max-tokens` - Số lượng token tối đa cho context window (mặc định: tự động lấy từ thông tin của model).
     - `--advanced` - Tải các prompt nâng cao từ thư mục `prompts/advanced/` thay vì các prompt tạo hướng dẫn (tutorial).
-
+    - `--batch` - Số lượng tệp tối đa mỗi lô khi sử dụng chế độ map-reduce (mặc định: 50).
+    - `--force-batch` - Bắt buộc sử dụng chế độ map-reduce bất kể giới hạn context.
 Ứng dụng sẽ thu thập dữ liệu từ kho lưu trữ, phân tích cấu trúc mã nguồn, tạo nội dung hướng dẫn bằng ngôn ngữ được chỉ định và lưu kết quả vào thư mục đầu ra (mặc định: ./output). Thư mục này bao gồm các tệp chương riêng lẻ, tệp `index.md`, và tệp `full_content.md` tổng hợp toàn bộ nội dung hướng dẫn với Mục lục.
 
 <details>

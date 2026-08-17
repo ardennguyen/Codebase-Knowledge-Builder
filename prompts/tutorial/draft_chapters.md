@@ -25,6 +25,8 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - Explain how to use this abstraction to solve the use case{instruction_lang_note}. Give example inputs and outputs for code snippets (if the output isn't values, describe at a high level what will happen{instruction_lang_note}).
 
+- IMPORTANT: You MUST extract and include the ACTUAL code snippets from the provided file context. Do not write generic examples or cut code short; present the exact implementation.
+
 - Each code block should be BELOW 10 lines! If longer code blocks are needed, break them down into smaller pieces and walk through them one-by-one. Aggresively simplify the code to make it minimal. Use comments{code_comment_note} to skip non-important implementation details. Each code block should have a beginner friendly explanation right after it{instruction_lang_note}.
 
 - Describe the internal implementation to help understand what's under the hood{instruction_lang_note}. First provide a non-code or code-light walkthrough on what happens step-by-step when the abstraction is called{instruction_lang_note}. It's highly recommended to generate a Mermaid diagram to visualize this. Choose the most appropriate Mermaid diagram type based on the specific code context (e.g., use `flowchart` for logic flows, `stateDiagram` for state machines, `sequenceDiagram` for interactions, `erDiagram` for data models, or `classDiagram` for object structures). Keep the diagram minimal and clean to ensure clarity. {mermaid_lang_note}.

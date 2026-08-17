@@ -7,6 +7,8 @@ from pocketflow import Node, BatchNode
 from utils.crawl_github_files import crawl_github_files
 from utils.call_llm import call_llm, get_model_context_length
 from utils.crawl_local_files import crawl_local_files
+from utils.token_utils import log_token_estimation
+from collections import defaultdict
 
 
 # Helper to get content for specific file indices
@@ -19,6 +21,230 @@ def get_content_for_indices(files_data, indices):
                 content  # Use index + path as key for context
             )
     return content_map
+
+
+
+class ContextRouter(Node):
+    def prep(self, shared):
+        files_data = shared["files"]
+        max_tokens = shared.get("max_tokens")
+        if max_tokens is None:
+            provider = os.environ.get("LLM_PROVIDER")
+            if provider == "GEMINI" or not provider:
+                endpoint = "https://generativelanguage.googleapis.com"
+                model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
+                api_key = os.getenv("GEMINI_API_KEY", "")
+            else:
+                endpoint = os.environ.get(f"{provider}_BASE_URL", "")
+                model_name = os.environ.get(f"{provider}_MODEL", "")
+                api_key = os.environ.get(f"{provider}_API_KEY", "")
+            max_tokens = get_model_context_length(endpoint, model_name, api_key)
+        
+        shared["max_tokens"] = max_tokens
+        
+        try:
+            import tiktoken
+            enc = tiktoken.get_encoding("cl100k_base")
+        except Exception:
+            enc = None
+
+        total_tokens = 0
+        for i, (path, content) in enumerate(files_data):
+            entry = f"--- File Index {i}: {path} ---\n{content}\n\n"
+            if enc:
+                total_tokens += len(enc.encode(entry, disallowed_special=()))
+            else:
+                total_tokens += len(entry) // 4
+
+        safety_limit = int(max_tokens * 0.95)
+        force_batch = shared.get("force_batch", False)
+        
+        if total_tokens > safety_limit or force_batch:
+            print(f"\033[93m[ContextRouter] Total tokens ({total_tokens}) exceeds safety limit ({safety_limit}) or --force-batch set. Using Map-Reduce.\033[0m")
+            return ("batch", files_data, safety_limit, shared.get("batch_size", 50))
+        else:
+            print(f"\033[92m[ContextRouter] Total tokens ({total_tokens}) fits in context. Proceeding normally.\033[0m")
+            return ("direct", files_data, safety_limit, shared.get("batch_size", 50))
+
+    def exec(self, prep_res):
+        route, files_data, safety_limit, batch_size = prep_res
+        if route == "direct":
+            return "direct"
+        
+        dir_groups = defaultdict(list)
+        for i, (path, content) in enumerate(files_data):
+            dir_groups[os.path.dirname(path)].append((i, path, content))
+            
+        batches = []
+        current_batch = []
+        for dirname, group_files in dir_groups.items():
+            for f in group_files:
+                current_batch.append(f)
+                if len(current_batch) >= batch_size:
+                    batches.append(current_batch)
+                    current_batch = []
+        if current_batch:
+            batches.append(current_batch)
+            
+        return batches
+
+    def post(self, shared, prep_res, exec_res):
+        if exec_res == "direct":
+            return "direct"
+        shared["file_batches"] = exec_res
+        return "batch"
+
+
+class MapAbstractions(BatchNode):
+    def prep(self, shared):
+        return [
+            {
+                "batch_index": i,
+                "files": batch,
+                "project_name": shared["project_name"],
+                "language": shared.get("language", "english"),
+                "use_cache": shared.get("use_cache", True),
+                "thinking_level": shared.get("thinking_level", None),
+                "advanced_mode": shared.get("advanced_mode", False),
+                "max_tokens": shared.get("max_tokens", 100000)
+            }
+            for i, batch in enumerate(shared["file_batches"])
+        ]
+
+    def exec(self, item):
+        batch_index = item["batch_index"]
+        files = item["files"]
+        print(f"Mapping abstractions for batch {batch_index} ({len(files)} files)...")
+        
+        context = ""
+        file_listing_for_prompt = []
+        for i, path, content in files:
+            context += f"--- File Index {i}: {path} ---\n{content}\n\n"
+            file_listing_for_prompt.append(f"- {i} # {path}")
+            
+        file_listing = "\n".join(file_listing_for_prompt)
+        
+        prompt_dir = "advanced" if item["advanced_mode"] else "tutorial"
+        prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "map_abstractions.md")
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            prompt_template = f.read()
+
+        language = item.get("language", "english")
+        language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
+        name_lang_hint = f" (in {language})" if language.lower() != "english" else ""
+        desc_lang_hint = f" (in {language})" if language.lower() != "english" else ""
+
+        prompt = prompt_template.format(
+            project_name=item["project_name"],
+            context=context,
+            file_listing_for_prompt=file_listing,
+            language_instruction=language_instruction,
+            name_lang_hint=name_lang_hint,
+            desc_lang_hint=desc_lang_hint
+        )
+        
+        log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
+        response = call_llm(prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"])
+
+        try:
+            yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
+            abstractions = yaml.safe_load(yaml_str)
+        except Exception as e:
+            raise ValueError(f"Failed to parse YAML: {e}")
+
+        validated_abstractions = []
+        if isinstance(abstractions, list):
+            for obj in abstractions:
+                if isinstance(obj, dict) and "name" in obj and "description" in obj and "file_indices" in obj:
+                    import re
+                    validated_indices = []
+                    for idx_entry in obj["file_indices"]:
+                        nums = re.findall(r'\d+', str(idx_entry))
+                        if nums:
+                            validated_indices.append(int(nums[0]))
+                    if validated_indices:
+                        validated_abstractions.append({
+                            "name": obj["name"],
+                            "description": obj["description"],
+                            "files": sorted(list(set(validated_indices)))
+                        })
+        return validated_abstractions
+
+    def post(self, shared, prep_res, exec_res_list):
+        all_abstractions = []
+        for batch_abs in exec_res_list:
+            all_abstractions.extend(batch_abs)
+        shared["mapped_abstractions"] = all_abstractions
+
+
+class ReduceAbstractions(Node):
+    def prep(self, shared):
+        return (
+            shared["mapped_abstractions"],
+            shared["project_name"],
+            shared.get("language", "english"),
+            shared.get("use_cache", True),
+            shared.get("max_abstraction_num", 10),
+            shared.get("thinking_level", None),
+            shared.get("advanced_mode", False),
+            shared.get("max_tokens", 100000)
+        )
+
+    def exec(self, prep_res):
+        mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens = prep_res
+        
+        context = ""
+        for i, abs_obj in enumerate(mapped_abstractions):
+            context += f"- Partial Abstraction {i}: {abs_obj['name']}\n  Description: {abs_obj['description']}\n  Files: {abs_obj['files']}\n\n"
+
+        prompt_dir = "advanced" if advanced_mode else "tutorial"
+        prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "reduce_abstractions.md")
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            prompt_template = f.read()
+            
+        language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
+        name_lang_hint = f" (in {language})" if language.lower() != "english" else ""
+        desc_lang_hint = f" (in {language})" if language.lower() != "english" else ""
+        
+        prompt = prompt_template.format(
+            project_name=project_name,
+            partial_abstractions=context,
+            max_abstraction_num=max_abstraction_num,
+            language_instruction=language_instruction,
+            name_lang_hint=name_lang_hint,
+            desc_lang_hint=desc_lang_hint
+        )
+        
+        log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+        print(f"Reducing {len(mapped_abstractions)} partial abstractions into global architecture...")
+        response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+
+        try:
+            yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
+            abstractions = yaml.safe_load(yaml_str)
+        except Exception as e:
+            raise ValueError(f"Failed to parse YAML: {e}")
+
+        validated_abstractions = []
+        if isinstance(abstractions, list):
+            for obj in abstractions:
+                if isinstance(obj, dict) and "name" in obj and "description" in obj and "files" in obj:
+                    import re
+                    validated_indices = []
+                    for idx_entry in obj["files"]:
+                        nums = re.findall(r'\d+', str(idx_entry))
+                        if nums:
+                            validated_indices.append(int(nums[0]))
+                    if validated_indices:
+                        validated_abstractions.append({
+                            "name": obj["name"],
+                            "description": obj["description"],
+                            "files": sorted(list(set(validated_indices)))
+                        })
+        return validated_abstractions
+
+    def post(self, shared, prep_res, exec_res):
+        shared["abstractions"] = exec_res
 
 
 class FetchRepo(Node):
@@ -100,7 +326,7 @@ class IdentifyAbstractions(Node):
                 provider = os.environ.get("LLM_PROVIDER")
                 if provider == "GEMINI" or not provider:
                     endpoint = "https://generativelanguage.googleapis.com"
-                    model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
+                    model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
                     api_key = os.getenv("GEMINI_API_KEY", "")
                 else:
                     endpoint = os.environ.get(f"{provider}_BASE_URL", "")
@@ -154,6 +380,9 @@ class IdentifyAbstractions(Node):
             max_abstraction_num,
             thinking_level,
             shared.get("advanced_mode", False),
+            shared.get("max_tokens", 100000),
+            shared.get("max_tokens", 100000),
+            shared.get("max_tokens", 100000),
         )  # Return all parameters
 
     def exec(self, prep_res):
@@ -168,9 +397,11 @@ class IdentifyAbstractions(Node):
                 max_abstraction_num,
                 thinking_level,
                 advanced_mode,
+                max_tokens,
+                max_tokens,
+                max_tokens,
             ) = prep_res  # Unpack all parameters
-            print(f"Identifying abstractions using LLM...")
-
+            
             # Add language instruction and hints only if not English
             language_instruction = ""
             name_lang_hint = ""
@@ -196,6 +427,8 @@ class IdentifyAbstractions(Node):
                 file_listing_for_prompt=file_listing_for_prompt
             )
 
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+            print(f"Identifying abstractions using LLM...")
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)  # Use cache only if enabled and not retrying
 
             # --- Validation ---
@@ -322,6 +555,9 @@ class AnalyzeRelationships(Node):
             use_cache,
             thinking_level,
             shared.get("advanced_mode", False),
+            shared.get("max_tokens", 100000),
+            shared.get("max_tokens", 100000),
+            shared.get("max_tokens", 100000),
         )  # Return use_cache
 
     def exec(self, prep_res):
@@ -335,8 +571,10 @@ class AnalyzeRelationships(Node):
                 use_cache,
                 thinking_level,
                 advanced_mode,
+                max_tokens,
+                max_tokens,
+                max_tokens,
              ) = prep_res  # Unpack use_cache
-            print(f"Analyzing relationships using LLM...")
 
             # Add language instruction and hints only if not English
             language_instruction = ""
@@ -360,6 +598,8 @@ class AnalyzeRelationships(Node):
                 language_instruction=language_instruction,
                 lang_hint=lang_hint
             )
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+            print(f"Analyzing relationships using LLM...")
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
 
             # --- Validation ---
@@ -488,6 +728,9 @@ class OrderChapters(Node):
             use_cache,
             thinking_level,
             shared.get("advanced_mode", False),
+            shared.get("max_tokens", 100000),
+            shared.get("max_tokens", 100000),
+            shared.get("max_tokens", 100000),
         )  # Return use_cache
 
     def exec(self, prep_res):
@@ -501,8 +744,10 @@ class OrderChapters(Node):
                 use_cache,
                 thinking_level,
                 advanced_mode,
+                max_tokens,
+                max_tokens,
+                max_tokens,
             ) = prep_res  # Unpack use_cache
-            print("Determining chapter order using LLM...")
             # No language variation needed here in prompt instructions, just ordering based on structure
             # The input names might be translated, hence the note.
 
@@ -517,6 +762,8 @@ class OrderChapters(Node):
                 abstraction_listing=abstraction_listing,
                 context=context
             )
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+            print("Determining chapter order using LLM...")
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
 
             # --- Validation ---
@@ -658,6 +905,8 @@ class WriteChapters(BatchNode):
                         "use_cache": use_cache, # Pass use_cache flag
                         "thinking_level": thinking_level,
                         "advanced_mode": shared.get("advanced_mode", False),
+                        "max_tokens": shared.get("max_tokens", 100000),
+
                         # previous_chapters_summary will be added dynamically in exec
                     }
                 )
@@ -684,7 +933,7 @@ class WriteChapters(BatchNode):
             use_cache = item.get("use_cache", True) # Read use_cache from item
             thinking_level = item.get("thinking_level", None)
             advanced_mode = item.get("advanced_mode", False)
-            print(f"Writing chapter {chapter_num} for: {abstraction_name} using LLM...")
+            max_tokens = item.get("max_tokens", 100000)
 
             # Prepare file context string from the map
             file_context_str = "\n\n".join(
@@ -744,6 +993,8 @@ class WriteChapters(BatchNode):
                 mermaid_lang_note=mermaid_lang_note,
                 tone_note=tone_note
             )
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+            print(f"Writing chapter {chapter_num} for: {abstraction_name.strip()} using LLM...")
             chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
             # Basic validation/cleanup
             actual_heading = f"# Chapter {chapter_num}: {abstraction_name}"  # Use potentially translated name

@@ -10,26 +10,48 @@ dotenv.load_dotenv()
 DEFAULT_INCLUDE_PATTERNS = {"*"}
 
 DEFAULT_EXCLUDE_PATTERNS = {
-    "assets/*", "data/*", "images/*", "public/*", "static/*", "temp/*",
-    "*docs/*",
-    "*venv/*",
-    "*.venv/*",
-    "*test*",
-    "*tests/*",
-    "*examples/*",
-    "v1/*",
-    "*dist/*",
-    "*build/*",
-    "*experimental/*",
-    "*deprecated/*",
-    "*misc/*",
-    "*legacy/*",
-    ".git/*", ".github/*", ".next/*", ".vscode/*",
-    "*obj/*",
-    "*bin/*",
-    "*node_modules/*",
-    "*.log",
-    "__pycache__/*"
+    # 1. Media, Data, and Static Assets
+    "assets/*", "data/*", "images/*", "public/*", "static/*", "temp/*", "tmp/*", "media/*",
+    "*.jpg", "*.jpeg", "*.png", "*.gif", "*.ico", "*.svg", "*.webp",
+    "*.mp4", "*.webm", "*.mov", "*.mp3", "*.wav",
+    "*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx", "*.ppt", "*.pptx",
+    "*.zip", "*.tar", "*.gz", "*.rar", "*.7z",
+
+    # 2. Build, Distribution, and Framework Caches
+    "*dist/*", "*build/*", "*out/*", "*target/*", "*bin/*", "*obj/*",
+    ".next/*", ".nuxt/*", ".svelte-kit/*", ".expo/*", 
+    "*docs/*", "*test*", "*tests/*", "*examples/*",
+    "v1/*", "*experimental/*", "*deprecated/*", "*misc/*", "*legacy/*",
+    "*.log", "*.bak", "*.tmp", "*.swp",
+
+    # 3. Environments, Dependencies & Lockfiles
+    "*venv/*", "*.venv/*", "env/*", ".env", ".env.*",
+    "*node_modules/*", "bower_components/*", "jspm_packages/*",
+    "vendor/*", "packages/*", 
+    "*.lock", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "poetry.lock", "mix.lock", "Pipfile.lock",
+
+    # 4. Language-Specific Exclusions
+    "__pycache__/*", "*.pyc", "*.pyo", "*.pyd", ".pytest_cache/*", ".tox/*", ".coverage", "htmlcov/*", # Python
+    ".gradle/*", "*.class", "*.jar", "*.war", "*.ear", "*.nar", # Java / JVM
+    "*.o", "*.obj", "*.dll", "*.exe", "*.so", "*.dylib", "*.lib", "*.a", # C/C++/Native
+    "ios/Pods/*", "android/.gradle/*", "android/app/build/*", # Mobile
+
+    # 5. OS & Version Control
+    ".git/*", ".github/*", ".svn/*", ".hg/*",
+    ".DS_Store", "Thumbs.db", "desktop.ini",
+
+    # 6. Classic IDEs
+    ".vscode/*", ".idea/*", "*.iml", ".eclipse/*", ".settings/*", ".classpath", ".project", ".vs/*",
+
+    # 7. AI Agents & Modern AI IDEs
+    ".cursor/*", ".cursorrules",
+    ".windsurf/*", ".windsurfrules",
+    ".cline/*", ".clinerules",
+    ".roo/*", ".roorules",
+    ".agent/*", ".agents/*",
+    ".continue/*", ".aide/*",
+    ".gemini/*", ".antigravity/*",
+    ".claude/*", ".copilot/*",
 }
 
 # --- Main Function ---
@@ -59,6 +81,9 @@ def main():
     parser.add_argument("--max-tokens", type=int, default=None, help="Maximum number of tokens for the context window (default: fetched dynamically).")
     # Add advanced prompt mode
     parser.add_argument("--advanced", action="store_true", help="Load advanced prompts from prompts/advanced/ directory")
+    # Add batching parameters
+    parser.add_argument("--batch", type=int, default=50, help="Max files per batch in map-reduce mode")
+    parser.add_argument("--force-batch", action="store_true", help="Force map-reduce mode regardless of context size")
 
     args = parser.parse_args()
 
@@ -99,6 +124,10 @@ def main():
         
         # Advanced mode
         "advanced_mode": args.advanced,
+        
+        # Batching settings
+        "batch_size": args.batch,
+        "force_batch": args.force_batch,
 
         # Outputs will be populated by the nodes
         "files": [],
@@ -109,9 +138,42 @@ def main():
         "final_output_dir": None
     }
 
-    # Display starting message with repository/directory and language
+    # Get LLM configuration for display
+    provider = os.environ.get("LLM_PROVIDER")
+    if provider:
+        model_name = os.environ.get(f"{provider}_MODEL", "unknown")
+        endpoint_url = os.environ.get(f"{provider}_BASE_URL", "unknown")
+        api_key = os.environ.get(f"{provider}_API_KEY", "")
+    else:
+        # Fallback to Gemini if neither provider is explicitly set but it's used
+        if os.environ.get("GEMINI_PROJECT_ID") or os.environ.get("GEMINI_API_KEY"):
+            provider = "GEMINI"
+            model_name = os.environ.get("GEMINI_MODEL", "gemini-3.7-flash")
+            endpoint_url = "generativelanguage.googleapis.com"
+            api_key = os.environ.get("GEMINI_API_KEY", "")
+        else:
+            provider = "UNKNOWN"
+            model_name = "unknown"
+            endpoint_url = "unknown"
+            api_key = ""
+
+    from utils.call_llm import get_model_context_length
+    context_length = args.max_tokens if args.max_tokens else get_model_context_length(endpoint_url, model_name, api_key)
+
+    # Display configuration
     print(f"Starting tutorial generation for: {args.repo or args.dir} in {args.language.capitalize()} language")
-    print(f"LLM caching: {'Disabled' if args.no_cache else 'Enabled'}")
+    print(f"--- Configuration ---")
+    print(f"AI Provider    : {provider}")
+    print(f"AI Endpoint    : {endpoint_url}")
+    print(f"AI Model       : {model_name}")
+    print(f"Context Length : {context_length:,} tokens")
+    print(f"Thinking Level : {args.thinking_level if args.thinking_level else 'None'}")
+    print(f"Advanced Prompts: {'Enabled' if args.advanced else 'Disabled'}")
+    print(f"Batch Size     : {args.batch} files/batch")
+    print(f"Force Batch    : {'Enabled' if args.force_batch else 'Disabled'}")
+    print(f"Max Abstractions: {args.max_abstractions}")
+    print(f"LLM Caching    : {'Disabled' if args.no_cache else 'Enabled'}")
+    print(f"---------------------")
 
     # Create the flow instance
     tutorial_flow = create_tutorial_flow()

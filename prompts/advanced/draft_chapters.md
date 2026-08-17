@@ -23,6 +23,8 @@ Instructions for the section (Generate content in {language} unless specified ot
 
 - Dive into the API and implementation details. Explain the core classes, interfaces, and methods{instruction_lang_note}. Assume the reader is an advanced software engineer.
 
+- IMPORTANT: You MUST extract and include the ACTUAL code snippets from the provided file context. Do not write generic examples or cut code short; present the exact implementation.
+
 - Provide representative code blocks illustrating how to interface with or extend this component{instruction_lang_note}. Code blocks can be as detailed as necessary, but omit boilerplate. Include inline comments focusing on non-obvious complexities, edge cases, or performance considerations{code_comment_note}.
 
 - Describe the internal execution flow or state transitions{instruction_lang_note}. It's highly recommended to generate a Mermaid diagram to visualize this. Choose the most appropriate Mermaid diagram type based on the specific code context (e.g., use `flowchart` for logical routing, `stateDiagram` for state machines, `sequenceDiagram` for distributed interactions, `erDiagram` for data schemas, or `classDiagram` for inheritance and composition). Keep the diagram technically precise. {mermaid_lang_note}.
