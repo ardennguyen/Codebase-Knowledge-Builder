@@ -146,6 +146,9 @@ def crawl_github_files(
         url = f"https://api.github.com/repos/{owner}/{repo}/branches"
         response = requests.get(url, headers=headers, timeout=(30, 30))
 
+        if response.status_code in (403, 429) and not token:
+            raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
+
         if response.status_code == 404:
             if not token:
                 print(f"Error 404: Repository not found or is private.\n"
@@ -166,6 +169,9 @@ def crawl_github_files(
 
         url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{tree}"
         response = requests.get(url, headers=headers, timeout=(30, 30))
+
+        if response.status_code in (403, 429) and not token:
+            raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
 
         return True if response.status_code == 200 else False 
 
@@ -218,7 +224,9 @@ def crawl_github_files(
         
         response = requests.get(url, headers=headers, params=params, timeout=(30, 30))
         
-        if response.status_code == 403 and 'rate limit exceeded' in response.text.lower():
+        if response.status_code in (403, 429) and 'rate limit exceeded' in response.text.lower():
+            if not token:
+                raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
             reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
             wait_time = max(reset_time - time.time(), 0) + 1
             print(f"Rate limit exceeded. Waiting for {wait_time:.0f} seconds...")

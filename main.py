@@ -7,11 +7,7 @@ from flow import create_tutorial_flow
 dotenv.load_dotenv()
 
 # Default file patterns
-DEFAULT_INCLUDE_PATTERNS = {
-    "*.py", "*.js", "*.jsx", "*.ts", "*.tsx", "*.go", "*.java", "*.pyi", "*.pyx",
-    "*.c", "*.cc", "*.cpp", "*.h", "*.md", "*.rst", "*Dockerfile",
-    "*Makefile", "*.yaml", "*.yml",
-}
+DEFAULT_INCLUDE_PATTERNS = {"*"}
 
 DEFAULT_EXCLUDE_PATTERNS = {
     "assets/*", "data/*", "images/*", "public/*", "static/*", "temp/*",
@@ -32,7 +28,8 @@ DEFAULT_EXCLUDE_PATTERNS = {
     "*obj/*",
     "*bin/*",
     "*node_modules/*",
-    "*.log"
+    "*.log",
+    "__pycache__/*"
 }
 
 # --- Main Function ---
@@ -58,6 +55,10 @@ def main():
     parser.add_argument("--max-abstractions", type=int, default=10, help="Maximum number of abstractions to identify (default: 10)")
     # Add thinking_level parameter for LLM reasoning capabilities
     parser.add_argument("--thinking-level", default=None, help="Thinking effort level for OpenRouter models (e.g., low, medium, high). Default is auto.")
+    # Add max_tokens parameter
+    parser.add_argument("--max-tokens", type=int, default=None, help="Maximum number of tokens for the context window (default: fetched dynamically).")
+    # Add advanced prompt mode
+    parser.add_argument("--advanced", action="store_true", help="Load advanced prompts from prompts/advanced/ directory")
 
     args = parser.parse_args()
 
@@ -78,7 +79,7 @@ def main():
 
         # Add include/exclude patterns and max file size
         "include_patterns": set(args.include) if args.include else DEFAULT_INCLUDE_PATTERNS,
-        "exclude_patterns": set(args.exclude) if args.exclude else DEFAULT_EXCLUDE_PATTERNS,
+        "exclude_patterns": DEFAULT_EXCLUDE_PATTERNS.union(set(args.exclude)) if args.exclude else DEFAULT_EXCLUDE_PATTERNS,
         "max_file_size": args.max_size,
 
         # Add language for multi-language support
@@ -92,6 +93,12 @@ def main():
 
         # Add thinking_level for LLM reasoning capabilities
         "thinking_level": args.thinking_level,
+        
+        # Add max tokens override
+        "max_tokens": args.max_tokens,
+        
+        # Advanced mode
+        "advanced_mode": args.advanced,
 
         # Outputs will be populated by the nodes
         "files": [],

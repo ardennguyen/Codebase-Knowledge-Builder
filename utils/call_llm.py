@@ -70,6 +70,34 @@ def _get_openrouter_model_info(model_id: str) -> dict:
     return next((m for m in _openrouter_models_cache if m.get("id") == model_id), None)
 
 
+def get_model_context_length(endpoint_url: str, model_name: str, api_key: str = "") -> int:
+    """
+    Fetch the maximum context length of a model based on the endpoint.
+    If endpoint is Gemini API, safely default to 1,000,000 tokens.
+    If endpoint is openrouter.ai, make GET to /api/v1/models and extract.
+    Default to 100,000.
+    """
+    default_limit = 100000
+    try:
+        if not endpoint_url:
+            return default_limit
+            
+        if "generativelanguage.googleapis.com" in endpoint_url or "gemini" in model_name.lower():
+            # Safely default to 1M tokens for Gemini models
+            return 1000000
+            
+        if "openrouter.ai" in endpoint_url:
+            resp = requests.get("https://openrouter.ai/api/v1/models", timeout=5)
+            data = resp.json().get("data", [])
+            for m in data:
+                if m.get("id") == model_name:
+                    return m.get("context_length", default_limit)
+    except Exception as e:
+        logger.warning(f"Failed to fetch context length for {model_name} at {endpoint_url}: {e}")
+        
+    return default_limit
+
+
 def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
     """
     Call an LLM provider based on environment variables.
@@ -140,12 +168,17 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
         payload["temperature"] = 1.0
 
     try:
-        response = requests.post(url, headers=headers, json=payload)
-        response_json = response.json() # Log the response
+        response = requests.post(url, headers=headers, json=payload, timeout=(10, 300))
+        try:
+            response_json = response.json() # Log the response
+        except (ValueError, requests.exceptions.JSONDecodeError):
+            print(f"\033[93mWarning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}\033[0m")
+            logger.warning(f"Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}")
+            raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}")
         logger.info("RESPONSE:\n%s", json.dumps(response_json, indent=2))
         #logger.info(f"RESPONSE: {response.json()}")
         response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
+        return response_json["choices"][0]["message"]["content"]
     except requests.exceptions.HTTPError as e:
         error_message = f"HTTP error occurred: {e}"
         try:
