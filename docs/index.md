@@ -15,7 +15,7 @@ Ever stared at a new codebase written by others feeling completely lost? This pr
    git clone https://github.com/ardennguyen/Codebase-Knowledge-Builder
    ```
 
-2. Install dependencies:
+2. Install dependencies (we highly recommend using a virtual environment of your choice like `venv`, `conda`, `uv`, or `pyenv` to avoid polluting your global system):
    ```bash
    pip install -r requirements.txt
    ```

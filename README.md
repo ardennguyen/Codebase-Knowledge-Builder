@@ -13,7 +13,7 @@
    git clone https://github.com/ardennguyen/Codebase-Knowledge-Builder
    ```
 
-2. Install dependencies:
+2. Install dependencies (we highly recommend using a virtual environment of your choice like `venv`, `conda`, `uv`, or `pyenv` to avoid polluting your global system):
    ```bash
    pip install -r requirements.txt
    ```
@@ -109,7 +109,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
    git clone https://github.com/ardennguyen/Codebase-Knowledge-Builder
    ```
 
-2. Cài đặt các thư viện phụ thuộc:
+2. Cài đặt các thư viện phụ thuộc (chúng tôi đặc biệt khuyến nghị sử dụng môi trường ảo như `venv`, `conda`, `uv`, hoặc `pyenv` để tránh xung đột với hệ thống):
    ```bash
    pip install -r requirements.txt
    ```
