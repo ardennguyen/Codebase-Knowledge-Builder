@@ -40,8 +40,8 @@
     - `-n, --name` - Project name (optional, derived from URL/directory if omitted)
     - `-t, --token` - GitHub token (or set GITHUB_TOKEN environment variable)
     - `-o, --output` - Output directory (default: ./output)
-    - `-i, --include` - Files to include (e.g., "`*.py`" "`*.js`")
-    - `-e, --exclude` - Files to exclude (e.g., "`tests/*`" "`docs/*`")
+    - `-i, --include` - Files to include (e.g., `*.py` `*.js`). Defaults to `*` (all files).
+    - `-e, --exclude` - Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native `.gitignore` rules.
     - `-s, --max-size` - Maximum file size in bytes (default: 100KB)
     - `--language` - Language for the generated tutorial (default: "english")
     - `--max-abstractions` - Maximum number of abstractions to identify (default: 10)
@@ -51,6 +51,7 @@
     - `--advanced` - Load advanced prompts from `prompts/advanced/` directory instead of the tutorial prompts.
     - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
     - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
+
 The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an `index.md`, and a compiled `full_content.md` containing the complete tutorial with a Table of Contents.
 
 
@@ -135,8 +136,8 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `-n, --name` - Tên dự án (tùy chọn, được trích xuất từ URL/thư mục nếu để trống)
     - `-t, --token` - Token GitHub (hoặc thiết lập biến môi trường GITHUB_TOKEN)
     - `-o, --output` - Thư mục đầu ra (mặc định: ./output)
-    - `-i, --include` - Các tệp cần bao gồm (ví dụ: "`*.py`" "`*.js`")
-    - `-e, --exclude` - Các tệp cần loại trừ (ví dụ: "`tests/*`" "`docs/*`")
+    - `-i, --include` - Các tệp cần bao gồm (ví dụ: `*.py` `*.js`). Mặc định: `*` (tất cả các tệp).
+    - `-e, --exclude` - Các tệp cần loại trừ. Các mẫu (patterns) tùy chỉnh được tự động gộp với danh sách loại trừ toàn cầu (chứa các thư mục build cache, node_modules, binaries, media, biến môi trường AI) VÀ các quy tắc `.gitignore` gốc của dự án.
     - `-s, --max-size` - Kích thước tệp tối đa tính bằng byte (mặc định: 100KB)
     - `--language` - Ngôn ngữ cho bản hướng dẫn được tạo ra (mặc định: "english")
     - `--max-abstractions` - Số lượng các khái niệm trừu tượng tối đa để xác định (mặc định: 10)
@@ -146,6 +147,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--advanced` - Tải các prompt nâng cao từ thư mục `prompts/advanced/` thay vì các prompt tạo hướng dẫn (tutorial).
     - `--batch` - Số lượng tệp tối đa mỗi lô khi sử dụng chế độ map-reduce (mặc định: 50).
     - `--force-batch` - Bắt buộc sử dụng chế độ map-reduce bất kể giới hạn context.
+
 Ứng dụng sẽ thu thập dữ liệu từ kho lưu trữ, phân tích cấu trúc mã nguồn, tạo nội dung hướng dẫn bằng ngôn ngữ được chỉ định và lưu kết quả vào thư mục đầu ra (mặc định: ./output). Thư mục này bao gồm các tệp chương riêng lẻ, tệp `index.md`, và tệp `full_content.md` tổng hợp toàn bộ nội dung hướng dẫn với Mục lục.
 
 <details>

@@ -66,8 +66,8 @@ def main():
     parser.add_argument("-n", "--name", help="Project name (optional, derived from repo/directory if omitted).")
     parser.add_argument("-t", "--token", help="GitHub personal access token (optional, reads from GITHUB_TOKEN env var if not provided).")
     parser.add_argument("-o", "--output", default="output", help="Base directory for output (default: ./output).")
-    parser.add_argument("-i", "--include", nargs="+", help="Include file patterns (e.g. '*.py' '*.js'). Defaults to common code files if not specified.")
-    parser.add_argument("-e", "--exclude", nargs="+", help="Exclude file patterns (e.g. 'tests/*' 'docs/*'). Defaults to test/build directories if not specified.")
+    parser.add_argument("-i", "--include", nargs="+", help="Files to include (e.g., '*.py' '*.js'). Defaults to '*' (all files).")
+    parser.add_argument("-e", "--exclude", nargs="+", help="Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native .gitignore rules.")
     parser.add_argument("-s", "--max-size", type=int, default=100000, help="Maximum file size in bytes (default: 100000, about 100KB).")
     # Add language parameter for multi-language support
     parser.add_argument("--language", default="english", help="Language for the generated tutorial (default: english)")
