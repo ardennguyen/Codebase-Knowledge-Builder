@@ -41,7 +41,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     ".DS_Store", "Thumbs.db", "desktop.ini",
 
     # 6. Classic IDEs
-    ".vscode/*", ".idea/*", "*.iml", ".eclipse/*", ".settings/*", ".classpath", ".project", ".vs", ".vs/*",
+    ".vscode/*", ".idea/*", "*.iml", ".eclipse/*", ".settings/*", ".classpath", ".project", ".vs/*",
 
     # 7. AI Agents & Modern AI IDEs
     ".cursor/*", ".cursorrules",
