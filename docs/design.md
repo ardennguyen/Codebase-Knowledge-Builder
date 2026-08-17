@@ -101,6 +101,8 @@ shared = {
     "use_cache": True, # Whether to use cached LLM responses
     "max_abstraction_num": 10, # Maximum number of abstractions to identify
     "thinking_level": None, # Optional reasoning level for supported LLMs
+    "max_tokens": None, # Optional token limit for the context window
+    "advanced_mode": False, # Whether to use advanced prompts
 
     # --- Intermediate/Output Data ---
     "files": [], # Output of FetchRepo: List of tuples (file_path: str, file_content: str)
@@ -160,9 +162,9 @@ shared = {
         *   `post(shared, prep_res, exec_res_list)`: `exec_res_list` contains the generated chapter Markdown content strings (potentially translated), ordered correctly. Assign this list directly to `shared["chapters"]`. Clean up `self.chapters_written_so_far`.
 
 6.  **`CombineTutorial`**
-    *   *Purpose*: Assemble the final tutorial files, including a Mermaid diagram using potentially translated labels/names. Fixed text remains English.
+    *   *Purpose*: Assemble the final tutorial files, including a Mermaid diagram using potentially translated labels/names, and a single compiled full_content.md. Fixed text remains English.
     *   *Type*: Regular
     *   *Steps*:
-        *   `prep`: Read `project_name`, `relationships` (potentially translated summary/labels), `chapter_order` (indices), `abstractions` (potentially translated name/desc), `chapters` (list of potentially translated content), `repo_url`, and `output_dir` from shared store. Generate a Mermaid `flowchart TD` string based on `relationships["details"]`, using indices to identify nodes (potentially translated names) and the concise `label` (potentially translated) for edges. Construct the content for `index.md` (including potentially translated summary, Mermaid diagram, and ordered links to chapters using potentially translated names derived using `chapter_order` and `abstractions`). Define the output directory path (e.g., `./output_dir/project_name`). Prepare a list of `{ "filename": "01_...", "content": "..." }` for chapters, adding the English attribution footer to each chapter's content. Add the English attribution footer to the index content.
-        *   `exec`: Create the output directory. Write the generated `index.md` content. Iterate through the prepared chapter file list and write each chapter's content to its corresponding `.md` file in the output directory.
+        *   `prep`: Read `project_name`, `relationships` (potentially translated summary/labels), `chapter_order` (indices), `abstractions` (potentially translated name/desc), `chapters` (list of potentially translated content), `repo_url`, and `output_dir` from shared store. Generate a Mermaid `flowchart TD` string based on `relationships["details"]`, using indices to identify nodes (potentially translated names) and the concise `label` (potentially translated) for edges. Construct the content for `index.md` (including potentially translated summary, Mermaid diagram, and ordered links to chapters using potentially translated names derived using `chapter_order` and `abstractions`). Define the output directory path (e.g., `./output_dir/project_name`). Prepare a list of `{ "filename": "01_...", "content": "..." }` for chapters, adding the English attribution footer to each chapter's content. Add the English attribution footer to the index content. Prepare a concatenated `full_content.md` with a Table of Contents (TOC) and anchor links.
+        *   `exec`: Create the output directory. Write the generated `index.md` content. Iterate through the prepared chapter file list and write each chapter's content to its corresponding `.md` file in the output directory. Write the concatenated string to `full_content.md`.
         *   `post`: Write the final `output_path` to `shared["final_output_dir"]`. Log completion.

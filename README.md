@@ -46,9 +46,11 @@
     - `--language` - Language for the generated tutorial (default: "english")
     - `--max-abstractions` - Maximum number of abstractions to identify (default: 10)
     - `--no-cache` - Disable LLM response caching (default: caching enabled)
-    - `--thinking-level` - Thinking effort level for OpenRouter and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
+    - `--thinking-level` - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
+    - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically from the model).
+    - `--advanced` - Load advanced prompts from `prompts/advanced/` directory instead of the tutorial prompts.
 
-The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output).
+The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an `index.md`, and a compiled `full_content.md` containing the complete tutorial with a Table of Contents.
 
 
 <details>
@@ -138,9 +140,11 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--language` - Ngôn ngữ cho bản hướng dẫn được tạo ra (mặc định: "english")
     - `--max-abstractions` - Số lượng các khái niệm trừu tượng tối đa để xác định (mặc định: 10)
     - `--no-cache` - Vô hiệu hóa bộ nhớ cache cho phản hồi LLM (mặc định: cache được bật)
-    - `--thinking-level` - Mức độ nỗ lực suy luận cho các model OpenRouter và Ollama (ví dụ: low, medium, high). Để trống để sử dụng mặc định của model.
+    - `--thinking-level` - Mức độ nỗ lực suy luận cho các model Gemini, OpenRouter và Ollama (ví dụ: low, medium, high). Để trống để sử dụng mặc định của model.
+    - `--max-tokens` - Số lượng token tối đa cho context window (mặc định: tự động lấy từ thông tin của model).
+    - `--advanced` - Tải các prompt nâng cao từ thư mục `prompts/advanced/` thay vì các prompt tạo hướng dẫn (tutorial).
 
-Ứng dụng sẽ thu thập dữ liệu từ kho lưu trữ, phân tích cấu trúc mã nguồn, tạo nội dung hướng dẫn bằng ngôn ngữ được chỉ định và lưu kết quả vào thư mục đầu ra (mặc định: ./output).
+Ứng dụng sẽ thu thập dữ liệu từ kho lưu trữ, phân tích cấu trúc mã nguồn, tạo nội dung hướng dẫn bằng ngôn ngữ được chỉ định và lưu kết quả vào thư mục đầu ra (mặc định: ./output). Thư mục này bao gồm các tệp chương riêng lẻ, tệp `index.md`, và tệp `full_content.md` tổng hợp toàn bộ nội dung hướng dẫn với Mục lục.
 
 <details>
  
