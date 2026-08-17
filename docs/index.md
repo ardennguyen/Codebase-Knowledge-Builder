@@ -30,8 +30,8 @@ Ever stared at a new codebase written by others feeling completely lost? This pr
     # Or, analyze a local directory
     python main.py --dir /path/to/your/codebase --include "*.py" --exclude "*test*"
 
-    # Or, generate a tutorial in Chinese
-    python main.py --repo https://github.com/username/repo --language "Chinese"
+    # Or, generate a tutorial in Vietnamese
+    python main.py --repo https://github.com/username/repo --language "Vietnamese"
     ```
 
 ### CLI Options

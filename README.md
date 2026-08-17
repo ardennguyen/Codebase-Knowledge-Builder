@@ -32,8 +32,8 @@
     # Or, analyze a local directory
     python main.py --dir /path/to/your/codebase --include "*.py" --exclude "*test*"
 
-    # Or, generate a tutorial in Chinese
-    python main.py --repo https://github.com/username/repo --language "Chinese"
+    # Or, generate a tutorial in Vietnamese
+    python main.py --repo https://github.com/username/repo --language "Vietnamese"
     ```
 
     - `--repo` or `--dir` - Specify either a GitHub repo URL or a local directory path (required, mutually exclusive)
