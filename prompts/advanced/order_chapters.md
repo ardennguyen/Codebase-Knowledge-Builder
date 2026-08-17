@@ -6,15 +6,15 @@ Abstractions (Index # Name){list_lang_note}:
 Context about relationships and project summary:
 {context}
 
-If you are going to make a tutorial for ```` {project_name} ````, what is the best order to explain these abstractions, from first to last?
-Ideally, first explain those that are the most important or foundational, perhaps user-facing concepts or entry points. Then move to more detailed, lower-level implementation details or supporting concepts.
+If you are generating a comprehensive Architecture & API Reference document for ```` {project_name} ````, what is the best order to present these components, from first to last?
+Ideally, start with core infrastructural components, entry points, or data models, then progress logically through system layers (e.g., from network/API layer down to database/storage, or vice-versa) to build a complete architectural picture.
 
 Output the ordered list of abstraction indices, including the name in a comment for clarity. Use the format `idx # AbstractionName`.
 
 ```yaml
-- 2 # FoundationalConcept
-- 0 # CoreClassA
-- 1 # CoreClassB (uses CoreClassA)
+- 2 # CoreDataModel
+- 0 # StorageEngine
+- 1 # APILayer (depends on StorageEngine)
 - ...
 ```
 
