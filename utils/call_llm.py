@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types
 import os
 import logging
 import json
@@ -212,7 +213,7 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) ->
 
     provider = get_llm_provider()
     if provider == "GEMINI":
-        response_text = _call_llm_gemini(prompt)
+        response_text = _call_llm_gemini(prompt, thinking_level=thinking_level)
     else:  # generic method using a URL that is OpenAI compatible API (Ollama, ...)
         response_text = _call_llm_provider(prompt, thinking_level=thinking_level)
 
@@ -230,7 +231,7 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) ->
     return response_text
 
 
-def _call_llm_gemini(prompt: str) -> str:
+def _call_llm_gemini(prompt: str, thinking_level: str = None) -> str:
     if os.getenv("GEMINI_PROJECT_ID"):
         client = genai.Client(
             vertexai=True,
@@ -241,12 +242,27 @@ def _call_llm_gemini(prompt: str) -> str:
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     else:
         raise ValueError("Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment")
-    model = os.getenv("GEMINI_MODEL", "gemini-2.5-pro-exp-03-25")
-    response = client.models.generate_content(
-        model=model,
-        contents=[prompt]
-    )
-    return response.text
+    model = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
+    
+    kwargs = {
+        "model": model,
+        "contents": [prompt]
+    }
+    
+    if thinking_level:
+        # Map string levels to budgets for the installed SDK version
+        budget_map = {"low": 1024, "medium": 4096, "high": 8192}
+        budget = budget_map.get(thinking_level.lower(), 4096)
+        thinking_config = types.ThinkingConfig(include_thoughts=True, thinking_budget=budget)
+        kwargs["config"] = types.GenerateContentConfig(thinking_config=thinking_config)
+
+    response = client.models.generate_content(**kwargs)
+    
+    # Extract only text parts to avoid "non-text parts: ['thought_signature']" warnings
+    if response.candidates and response.candidates[0].content.parts:
+        text_parts = [part.text for part in response.candidates[0].content.parts if part.text is not None]
+        return "".join(text_parts)
+    return ""
 
 if __name__ == "__main__":
     test_prompt = "Hello, how are you?"
