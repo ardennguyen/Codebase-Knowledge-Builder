@@ -41,7 +41,7 @@ Ever stared at a new codebase written by others feeling completely lost? This pr
 - `-o, --output` - Output directory (default: ./output)
 - `-i, --include` - Files to include (e.g., `*.py` `*.js`). Defaults to `*` (all files).
 - `-e, --exclude` - Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native `.gitignore` rules.
-- `-s, --max-size` - Maximum file size in bytes (default: 100KB)
+- `-s, --max-size` - Maximum file size in bytes (default: 200KB)
 - `--language` - Language for the generated tutorial (default: "english")
 - `--max-abstractions` - Maximum number of abstractions to identify (default: 10)
 - `--no-cache` - Disable LLM response caching (default: caching enabled)

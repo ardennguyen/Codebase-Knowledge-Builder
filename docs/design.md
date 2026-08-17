@@ -99,7 +99,7 @@ shared = {
     "repo_url": None, "local_dir": None, "project_name": None,
     "github_token": None, "output_dir": "output",
     "include_patterns": set(), "exclude_patterns": set(),
-    "max_file_size": 100000, "language": "english",
+    "max_file_size": 200000, "language": "english",
     "use_cache": True, "max_abstraction_num": 10,
     "thinking_level": None, "advanced_mode": False,
     "max_tokens": None, # Dynamic window threshold

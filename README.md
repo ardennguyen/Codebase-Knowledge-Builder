@@ -42,7 +42,7 @@
     - `-o, --output` - Output directory (default: ./output)
     - `-i, --include` - Files to include (e.g., `*.py` `*.js`). Defaults to `*` (all files).
     - `-e, --exclude` - Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native `.gitignore` rules.
-    - `-s, --max-size` - Maximum file size in bytes (default: 100KB)
+    - `-s, --max-size` - Maximum file size in bytes (default: 200KB)
     - `--language` - Language for the generated tutorial (default: "english")
     - `--max-abstractions` - Maximum number of abstractions to identify (default: 10)
     - `--no-cache` - Disable LLM response caching (default: caching enabled)
@@ -139,7 +139,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `-o, --output` - Thư mục đầu ra (mặc định: ./output)
     - `-i, --include` - Các tệp cần bao gồm (ví dụ: `*.py` `*.js`). Mặc định: `*` (tất cả các tệp).
     - `-e, --exclude` - Các tệp cần loại trừ. Các mẫu (patterns) tùy chỉnh được tự động gộp với danh sách loại trừ toàn cầu (chứa các thư mục build cache, node_modules, binaries, media, biến môi trường AI) VÀ các quy tắc `.gitignore` gốc của dự án.
-    - `-s, --max-size` - Kích thước tệp tối đa tính bằng byte (mặc định: 100KB)
+    - `-s, --max-size` - Kích thước tệp tối đa tính bằng byte (mặc định: 200KB)
     - `--language` - Ngôn ngữ cho bản hướng dẫn được tạo ra (mặc định: "english")
     - `--max-abstractions` - Số lượng các khái niệm trừu tượng tối đa để xác định (mặc định: 10)
     - `--no-cache` - Vô hiệu hóa bộ nhớ cache cho phản hồi LLM (mặc định: cache được bật)

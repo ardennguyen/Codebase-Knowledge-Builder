@@ -41,7 +41,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     ".DS_Store", "Thumbs.db", "desktop.ini",
 
     # 6. Classic IDEs
-    ".vscode/*", ".idea/*", "*.iml", ".eclipse/*", ".settings/*", ".classpath", ".project", ".vs/*",
+    ".vscode/*", ".idea/*", "*.iml", ".eclipse/*", ".settings/*", ".classpath", ".project", ".vs", ".vs/*",
 
     # 7. AI Agents & Modern AI IDEs
     ".cursor/*", ".cursorrules",
@@ -68,7 +68,7 @@ def main():
     parser.add_argument("-o", "--output", default="output", help="Base directory for output (default: ./output).")
     parser.add_argument("-i", "--include", nargs="+", help="Files to include (e.g., '*.py' '*.js'). Defaults to '*' (all files).")
     parser.add_argument("-e", "--exclude", nargs="+", help="Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native .gitignore rules.")
-    parser.add_argument("-s", "--max-size", type=int, default=100000, help="Maximum file size in bytes (default: 100000, about 100KB).")
+    parser.add_argument("-s", "--max-size", type=int, default=200000, help="Maximum file size in bytes (default: 200000, about 200KB).")
     # Add language parameter for multi-language support
     parser.add_argument("--language", default="english", help="Language for the generated tutorial (default: english)")
     # Add use_cache parameter to control LLM caching
