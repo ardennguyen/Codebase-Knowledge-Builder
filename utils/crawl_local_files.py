@@ -52,7 +52,8 @@ def crawl_local_files(
 
             if exclude_patterns:
                 for pattern in exclude_patterns:
-                    if fnmatch.fnmatch(dirpath_rel, pattern) or fnmatch.fnmatch(d, pattern):
+                    dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
+                    if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
                         excluded_dirs.add(d)
                         break
 

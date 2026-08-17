@@ -108,7 +108,8 @@ def crawl_github_files(
                         continue
                     if exclude_patterns:
                         for pattern in exclude_patterns:
-                            if fnmatch.fnmatch(dirpath_rel, pattern) or fnmatch.fnmatch(d, pattern):
+                            dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
+                            if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
                                 excluded_dirs.add(d)
                                 break
                                 
@@ -377,8 +378,11 @@ def crawl_github_files(
                     dir_excluded = True
                     
                 if not dir_excluded and exclude_patterns:
-                    dir_excluded = any(fnmatch.fnmatch(item_path, pattern) or
-                                    fnmatch.fnmatch(rel_path, pattern) for pattern in exclude_patterns)
+                    for pattern in exclude_patterns:
+                        dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
+                        if fnmatch.fnmatch(item_path, dir_pattern) or fnmatch.fnmatch(rel_path, dir_pattern):
+                            dir_excluded = True
+                            break
                                     
                 if dir_excluded:
                     continue
