@@ -18,15 +18,15 @@ DEFAULT_EXCLUDE_PATTERNS = {
     "*.zip", "*.tar", "*.gz", "*.rar", "*.7z",
 
     # 2. Build, Distribution, and Framework Caches
-    "*dist/*", "*build/*", "*out/*", "*target/*", "*bin/*", "*obj/*",
+    "dist/*", "build/*", "out/*", "target/*", "bin/*", "obj/*",
     ".next/*", ".nuxt/*", ".svelte-kit/*", ".expo/*", 
-    "*docs/*", "*test*", "*tests/*", "*examples/*",
-    "v1/*", "*experimental/*", "*deprecated/*", "*misc/*", "*legacy/*",
+    "docs/*", "test/*", "tests/*", "examples/*",
+    "v1/*", "experimental/*", "deprecated/*", "misc/*", "legacy/*",
     "*.log", "*.bak", "*.tmp", "*.swp",
 
     # 3. Environments, Dependencies & Lockfiles
-    "*venv/*", "*.venv/*", "env/*", ".env", ".env.*",
-    "*node_modules/*", "bower_components/*", "jspm_packages/*",
+    "venv/*", ".venv/*", "env/*", ".env", ".env.*",
+    "node_modules/*", "bower_components/*", "jspm_packages/*",
     "vendor/*", "packages/*", 
     "*.lock", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "poetry.lock", "mix.lock", "Pipfile.lock",
 
