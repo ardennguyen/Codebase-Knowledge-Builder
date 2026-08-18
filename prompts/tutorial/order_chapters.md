@@ -9,6 +9,11 @@ Context about relationships and project summary:
 If you are going to make a tutorial for ```` {project_name} ````, what is the best order to explain these abstractions, from first to last?
 Ideally, first explain those that are the most important or foundational, perhaps user-facing concepts or entry points. Then move to more detailed, lower-level implementation details or supporting concepts.
 
+ORDERING CONSTRAINTS:
+- If A depends on B (A calls B, A reads data from B, A inherits from B), prefer explaining B before A.
+- Start with what the user "touches first" (entry points, configuration, core data models).
+- End with cross-cutting or analytical components (logging, monitoring, reporting).
+
 Output the ordered list of abstraction indices, including the name in a comment for clarity. Use the format `idx # AbstractionName`.
 
 ```yaml

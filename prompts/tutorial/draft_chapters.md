@@ -27,17 +27,26 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - IMPORTANT: You MUST extract and include the ACTUAL code snippets from the provided file context. Do not write generic examples or cut code short; present the exact implementation.
 
-- Each code block should be BELOW 10 lines! If longer code blocks are needed, break them down into smaller pieces and walk through them one-by-one. Aggresively simplify the code to make it minimal. Use comments{code_comment_note} to skip non-important implementation details. Each code block should have a beginner friendly explanation right after it{instruction_lang_note}.
+- CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear{code_comment_note}. Never translate, rephrase, or modify code or inline comments. Your own explanations belong in prose paragraphs outside the code fence.
 
-- Describe the internal implementation to help understand what's under the hood{instruction_lang_note}. First provide a non-code or code-light walkthrough on what happens step-by-step when the abstraction is called{instruction_lang_note}. It's highly recommended to generate a Mermaid diagram to visualize this. Choose the most appropriate Mermaid diagram type based on the specific code context (e.g., use `flowchart` for logic flows, `stateDiagram` for state machines, `sequenceDiagram` for interactions, `erDiagram` for data models, or `classDiagram` for object structures). Keep the diagram minimal and clean to ensure clarity. {mermaid_lang_note}.
+- Keep explanatory code snippets to 10-20 lines each with a prose explanation paragraph after each one. However, when showing a complete class or method that must be understood as a whole, it is acceptable to include up to 40 lines in one block — use `// ...` comments to skip unimportant boilerplate within it. Every code block MUST have an explanation paragraph immediately after it{instruction_lang_note}.
+
+- Describe the internal implementation to help understand what's under the hood{instruction_lang_note}. First provide a non-code or code-light walkthrough on what happens step-by-step when the abstraction is called{instruction_lang_note}. It's highly recommended to generate a Mermaid diagram to visualize this. Choose the Mermaid diagram type based on what aspect of the code you're illustrating:
+  * `sequenceDiagram` — for request/response flows that cross multiple components or services
+  * `flowchart` — for decision logic, branching, or pipeline stages within a single component
+  * `erDiagram` — for data model relationships (database schemas, entity hierarchies)
+  * `classDiagram` — for inheritance, composition, or factory patterns
+  * `stateDiagram` — for entity lifecycle states (e.g., pending → confirmed → settled)
+  Include at least 2 different diagram types per chapter when the component warrants it.
+  Keep the diagrams minimal and clean to ensure clarity. {mermaid_lang_note}.
 
 - Then dive deeper into code for the internal implementation with references to files. Provide example code blocks, but make them similarly simple and beginner-friendly. Explain{instruction_lang_note}.
 
 - IMPORTANT: When you need to refer to other core abstractions covered in other chapters, ALWAYS use proper Markdown links like this: [Chapter Title](filename.md). Use the Complete Tutorial Structure above to find the correct filename and the chapter title{link_lang_note}. Translate the surrounding text.
 
-- Use mermaid diagrams to illustrate complex concepts (```mermaid``` format). {mermaid_lang_note}.
-
 - Heavily use analogies and examples throughout{instruction_lang_note} to help beginners understand.
+
+- CHAPTER LENGTH: Aim for 3,000-6,000 words per chapter. If the component spans many files, focus on the 3-5 most representative files and briefly reference the rest by name and role. Pick ONE primary use-case scenario and trace it end-to-end rather than exhaustively documenting every method.
 
 - End the chapter with a brief conclusion that summarizes what was learned{instruction_lang_note} and provides a transition to the next chapter{instruction_lang_note}. If there is a next chapter, use a proper Markdown link: [Next Chapter Title](next_chapter_filename){link_lang_note}.
 

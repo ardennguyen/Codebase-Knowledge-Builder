@@ -92,7 +92,28 @@ class ContextRouter(Node):
         if exec_res == "direct":
             return "direct"
         shared["file_batches"] = exec_res
+        # Build directory tree for cross-batch awareness
+        files_data = shared["files"]
+        tree = self._build_directory_tree(files_data)
+        shared["directory_tree"] = tree
         return "batch"
+
+    @staticmethod
+    def _build_directory_tree(files_data):
+        """Build a compact directory tree string from the list of (path, content) tuples."""
+        from collections import defaultdict
+        dir_files = defaultdict(list)
+        for i, (path, _content) in enumerate(files_data):
+            dirname = os.path.dirname(path) or "."
+            basename = os.path.basename(path)
+            dir_files[dirname].append(f"{basename} (idx:{i})")
+
+        lines = []
+        for dirname in sorted(dir_files.keys()):
+            lines.append(f"{dirname}/")
+            for fname in sorted(dir_files[dirname]):
+                lines.append(f"  {fname}")
+        return "\n".join(lines)
 
 
 class MapAbstractions(BatchNode):
@@ -106,7 +127,8 @@ class MapAbstractions(BatchNode):
                 "use_cache": shared.get("use_cache", True),
                 "thinking_level": shared.get("thinking_level", None),
                 "advanced_mode": shared.get("advanced_mode", False),
-                "max_tokens": shared.get("max_tokens", 100000)
+                "max_tokens": shared.get("max_tokens", 100000),
+                "directory_tree": shared.get("directory_tree", "")
             }
             for i, batch in enumerate(shared["file_batches"])
         ]
@@ -140,7 +162,8 @@ class MapAbstractions(BatchNode):
             file_listing_for_prompt=file_listing,
             language_instruction=language_instruction,
             name_lang_hint=name_lang_hint,
-            desc_lang_hint=desc_lang_hint
+            desc_lang_hint=desc_lang_hint,
+            directory_tree=item.get("directory_tree", "Not available")
         )
         
         log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
@@ -534,17 +557,98 @@ class AnalyzeRelationships(Node):
             )  # Use potentially translated name here too
             all_relevant_indices.update(abstr["files"])
 
-        context += "\\nRelevant File Snippets (Referenced by Index and Path):\\n"
-        # Get content for relevant files using helper
-        relevant_files_content_map = get_content_for_indices(
-            files_data, sorted(list(all_relevant_indices))
-        )
-        # Format file content for context
-        file_context_str = "\\n\\n".join(
-            f"--- File: {idx_path} ---\\n{content}"
-            for idx_path, content in relevant_files_content_map.items()
-        )
-        context += file_context_str
+        context += "\\nRelevant File Snippets (per abstraction, budget-aware):\\n"
+        # Dynamically include as many files as possible per abstraction.
+        # Budget is split EVENLY across abstractions so later ones aren't starved.
+        # Unused budget from one abstraction rolls over to the next.
+        max_tokens = shared.get("max_tokens", 100000)
+        safety_limit = int(max_tokens * 0.95)
+        prompt_overhead = 2000  # approximate tokens for prompt template + response
+
+        try:
+            enc = tiktoken.get_encoding("cl100k_base")
+            current_tokens = len(enc.encode(context, disallowed_special=()))
+        except Exception:
+            enc = None
+            current_tokens = len(context) // 4
+
+        total_budget = safety_limit - current_tokens - prompt_overhead
+        num_abstractions = len(abstractions)
+
+        def estimate_tokens(text):
+            if enc:
+                return len(enc.encode(text, disallowed_special=()))
+            return len(text) // 4
+
+        # Pre-compute file token sizes for all abstractions
+        abstr_file_data = []  # list of [(idx, path, content, tokens), ...] per abstraction
+        for abstr in abstractions:
+            sized = []
+            for idx in abstr["files"]:
+                if 0 <= idx < len(files_data):
+                    path, file_content = files_data[idx]
+                    entry = f"\\n--- File: {idx} # {path} ---\\n{file_content}\\n"
+                    sized.append((idx, path, file_content, estimate_tokens(entry)))
+            # Sort largest first (most architecturally significant)
+            sized.sort(key=lambda x: x[3], reverse=True)
+            abstr_file_data.append(sized)
+
+        # Two-pass allocation:
+        # Pass 1: give each abstraction an equal share, track unused
+        # Pass 2: redistribute unused budget to abstractions that need more
+        per_abstr_budget = total_budget // max(num_abstractions, 1)
+        included_indices = set()
+        # Track what each abstraction selected and what's left over
+        abstr_results = []  # list of (included_files, remaining_files, unused_budget)
+
+        for i, sized in enumerate(abstr_file_data):
+            budget = per_abstr_budget
+            included_files = []
+            remaining_files = []
+            for idx, path, file_content, tokens in sized:
+                if idx in included_indices:
+                    included_files.append((idx, path, None, 0))
+                    continue
+                if tokens <= budget:
+                    included_files.append((idx, path, file_content, tokens))
+                    budget -= tokens
+                    included_indices.add(idx)
+                else:
+                    remaining_files.append((idx, path, file_content, tokens))
+            abstr_results.append((included_files, remaining_files, budget))
+
+        # Pass 2: redistribute unused budget to abstractions with remaining files
+        total_unused = sum(r[2] for r in abstr_results)
+        if total_unused > 0:
+            for i, (included_files, remaining_files, _unused) in enumerate(abstr_results):
+                if not remaining_files or total_unused <= 0:
+                    continue
+                still_remaining = []
+                for idx, path, file_content, tokens in remaining_files:
+                    if idx in included_indices:
+                        included_files.append((idx, path, None, 0))
+                        continue
+                    if tokens <= total_unused:
+                        included_files.append((idx, path, file_content, tokens))
+                        total_unused -= tokens
+                        included_indices.add(idx)
+                    else:
+                        still_remaining.append((idx, path, file_content, tokens))
+                abstr_results[i] = (included_files, still_remaining, 0)
+
+        # Build context output
+        for i, abstr in enumerate(abstractions):
+            included_files, remaining_files, _ = abstr_results[i]
+            if included_files or remaining_files:
+                context += f"\\n--- Abstraction {i}: {abstr['name']} ---\\n"
+                for idx, path, file_content, _tokens in included_files:
+                    if file_content is not None:
+                        context += f"\\n--- File: {idx} # {path} ---\\n{file_content}\\n"
+                    else:
+                        context += f"  (File {idx} # {path} -- already shown above)\\n"
+                if remaining_files:
+                    rest_list = ", ".join(f"{idx} # {p}" for idx, p, _c, _t in remaining_files)
+                    context += f"  Other files (path only, budget exhausted): {rest_list}\\n"
 
         return (
             context,
@@ -963,7 +1067,7 @@ class WriteChapters(BatchNode):
                 prev_summary_note = f" (Note: This summary might be in {lang_cap})"
                 instruction_lang_note = f" (in {lang_cap})"
                 mermaid_lang_note = f" (Use {lang_cap} for labels/text if appropriate)"
-                code_comment_note = f" (Translate to {lang_cap} if possible, otherwise keep minimal English for clarity)"
+                code_comment_note = f" (PRESERVE original code comments exactly as-is. Add your explanatory notes OUTSIDE code blocks in {lang_cap}, not inside them.)"
                 link_lang_note = (
                     f" (Use the {lang_cap} chapter title from the structure above)"
                 )
@@ -1117,6 +1221,9 @@ class CombineTutorial(Node):
                     f"Warning: Mismatch between chapter order, abstractions, or content at index {i} (abstraction index {abstraction_index}). Skipping file generation for this entry."
                 )
 
+        # Add full content link at the end of index
+        index_content += f"\n---\n\n**Full Content:** [full_content.md](full_content.md)\n"
+
         return {
             "output_path": output_path,
             "output_base_dir": output_base_dir,
@@ -1166,7 +1273,7 @@ class CombineTutorial(Node):
                 full_content_lines.append('\n---\n')
                 
             full_content = "\n".join(toc_lines) + "\n\n" + "\n".join(full_content_lines)
-            full_content_filepath = os.path.join(output_base_dir, "full_content.md")
+            full_content_filepath = os.path.join(output_path, "full_content.md")
             with open(full_content_filepath, "w", encoding="utf-8") as f:
                 f.write(full_content)
             print(f"  - Wrote {full_content_filepath}")

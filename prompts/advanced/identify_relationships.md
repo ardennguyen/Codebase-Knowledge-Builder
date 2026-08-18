@@ -11,7 +11,10 @@ Context (Abstractions, Descriptions, Code):
 2. A list (`relationships`) describing the key technical interactions, dependencies, or data flows between these abstractions. For each relationship, specify:
     - `from_abstraction`: Index of the source abstraction (e.g., `0 # AbstractionName1`)
     - `to_abstraction`: Index of the target abstraction (e.g., `1 # AbstractionName2`)
-    - `label`: A brief, technically precise label for the interaction **in just a few words**{lang_hint} (e.g., "Instantiates", "Implements", "Passes AST to", "Observes").
+    - `label`: A brief, technically precise label for the interaction **in just a few words**{lang_hint}.
+      The label should tell an onboarding engineer what specifically flows between components and through what mechanism.
+      Examples of good labels: "calls via RPC for lookup", "subscribes to config-change events", "encrypts tokens using", "delegates background tasks to"
+      Examples of bad labels: "uses", "manages", "depends on" (too vague for architecture understanding)
     Ideally the relationship should be backed by one abstraction directly depending on, calling, or passing parameters to another.
     Exclude trivial interactions.
 
@@ -26,10 +29,10 @@ summary: |
 relationships:
   - from_abstraction: 0 # AbstractionName1
     to_abstraction: 1 # AbstractionName2
-    label: "Instantiates"{lang_hint}
+    label: "calls via RPC for lookup"{lang_hint}
   - from_abstraction: 2 # AbstractionName3
     to_abstraction: 0 # AbstractionName1
-    label: "Injects dependency"{lang_hint}
+    label: "injects as dependency"{lang_hint}
   # ... other relationships
 ```
 

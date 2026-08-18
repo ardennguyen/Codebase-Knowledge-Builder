@@ -6,8 +6,16 @@ Abstractions (Index # Name){list_lang_note}:
 Context about relationships and project summary:
 {context}
 
-If you are generating a comprehensive Architecture & API Reference document for ```` {project_name} ````, what is the best order to present these components, from first to last?
-Ideally, start with core infrastructural components, entry points, or data models, then progress logically through system layers (e.g., from network/API layer down to database/storage, or vice-versa) to build a complete architectural picture.
+The reader is a senior engineer or PM onboarding mid-project. Order for maximum "aha, now I get the system" progression:
+
+ORDERING STRATEGY:
+1. Start with shared infrastructure that everything depends on (utilities, common libraries, connection management).
+2. Then security & identity (authentication, authorization, token management) — readers need to understand trust boundaries early.
+3. Then core domain services in dependency order (if service A calls service B, explain B first).
+4. Then integration/adapter layers (external gateways, third-party connectors).
+5. End with cross-cutting operational concerns (logging, analytics, monitoring, admin tools).
+
+The goal: after reading chapters 1-3, the reader can understand any code review. After all chapters, they can lead architecture discussions.
 
 Output the ordered list of abstraction indices, including the name in a comment for clarity. Use the format `idx # AbstractionName`.
 

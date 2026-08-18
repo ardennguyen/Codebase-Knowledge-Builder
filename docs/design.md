@@ -13,7 +13,7 @@ nav_order: 2
 > Notes for AI: Keep it simple and clear.
 > If the requirements are abstract, write concrete user stories
 
-**User Story:** As a developer onboarding to a new codebase, I want a tutorial automatically generated from its GitHub repository or local directory, optionally in a specific language. This tutorial should explain the core abstractions, their relationships (visualized), and how they work together, using beginner-friendly language, analogies, and multi-line descriptions where needed, so I can understand the project structure and key concepts quickly without manually digging through all the code. The system must also gracefully handle codebases of any size by dynamically switching to a Map-Reduce approach when context limits are reached.
+**User Story:** As a developer onboarding to a new codebase, I want a tutorial automatically generated from its GitHub repository or local directory, optionally in a specific language. The system supports two modes: a **tutorial mode** that explains core abstractions with beginner-friendly language, analogies, and code walkthroughs; and an **advanced mode** that produces architecture deep-dives aimed at senior developers or PMs joining a project mid-way, covering design patterns, key dependencies, and practical onboarding notes. The system must also gracefully handle codebases of any size by dynamically switching to a Map-Reduce approach when context limits are reached.
 
 **Input:**
 - A publicly accessible GitHub repository URL or a local directory path.
@@ -27,8 +27,9 @@ nav_order: 2
         - A high-level project summary (potentially translated).
         - A Mermaid flowchart diagram visualizing relationships between abstractions (using potentially translated names/labels).
         - An ordered list of links to chapter files (using potentially translated names).
+        - A link to `full_content.md` at the bottom.
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
-    - A `full_content.md` containing the merged chapters and TOC.
+    - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
 
 ## Flow Design
 
@@ -47,13 +48,13 @@ This project primarily uses a **Workflow** pattern with dynamic branching into a
 ### Flow high-level Design:
 
 1.  **`FetchRepo`**: Crawls the specified repository/directory using `crawl_github_files` or `crawl_local_files`.
-2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. If the total tokens exceed a safety threshold (95% of `max_tokens`) or if `--force-batch` is used, it chunks files by directory and routes to `"batch"`. Otherwise, it routes to `"direct"`.
+2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. If the total tokens exceed a safety threshold (95% of `max_tokens`) or if `--force-batch` is used, it chunks files by directory and routes to `"batch"`. Also builds a compact directory tree of all files (stored in `shared["directory_tree"]`) for cross-batch awareness. Otherwise, it routes to `"direct"`.
 3.  **Path A: Direct**
     *   **`IdentifyAbstractions`**: Analyzes the entire codebase at once to identify core abstractions.
 4.  **Path B: Map-Reduce**
-    *   **`MapAbstractions` (BatchNode)**: Analyzes each localized directory chunk to extract partial abstractions.
+    *   **`MapAbstractions` (BatchNode)**: Analyzes each localized directory chunk to extract partial abstractions. Each batch receives the full directory tree for cross-batch awareness.
     *   **`ReduceAbstractions`**: Merges overlapping/partial abstractions into a global list of architecture components.
-5.  **`AnalyzeRelationships`**: Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram.
+5.  **`AnalyzeRelationships`**: Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram. Uses token-budget-aware file inclusion: the budget is split evenly across abstractions, with unused budget redistributed in a second pass, maximizing code context without exceeding the context window.
 6.  **`OrderChapters`**: Determines the most logical sequence to present the abstractions.
 7.  **`WriteChapters` (BatchNode)**: Iterates through the ordered abstractions and writes detailed Markdown chapters using context-aware code inclusion.
 8.  **`CombineTutorial`**: Assembles the final outputs including `index.md`, individual chapter files, and a compiled `full_content.md`.
@@ -107,6 +108,7 @@ shared = {
 
     # --- Intermediate/Output Data ---
     "files": [], # List of (path, content) tuples
+    "directory_tree": "", # Compact tree of all files for cross-batch awareness
     "file_batches": [], # If routed to Map-Reduce, holds chunked file lists
     "mapped_abstractions": [], # Partial abstractions from Map step
     "abstractions": [], # Final unified list (from either Identify or Reduce)
@@ -122,11 +124,11 @@ shared = {
 > Notes for AI: All active nodes invoke `log_token_estimation` before calling the LLM.
 
 1.  **`FetchRepo`**: Download/read files.
-2.  **`ContextRouter`**: Establishes `max_tokens` (fetching dynamically from provider endpoints if needed). Groups files by `os.path.dirname` if tokens exceed `max_tokens * 0.95`. Returns `"batch"` or `"direct"`.
-3.  **`IdentifyAbstractions`**: (Direct Route) Extracts abstractions and related `file_indices`.
-4.  **`MapAbstractions`**: (Batch Route) BatchNode that runs chunked files through local abstraction prompts. Stores outputs in `mapped_abstractions`.
-5.  **`ReduceAbstractions`**: (Batch Route) Standard node that takes all `mapped_abstractions` and merges them via LLM into the final global `abstractions` list.
-6.  **`AnalyzeRelationships`**: Generates high-level project summary and interaction links (`from`, `to`, `label`).
-7.  **`OrderChapters`**: Identifies linear tutorial flow.
-8.  **`WriteChapters`**: BatchNode writing Markdown content for each abstraction.
-9.  **`CombineTutorial`**: Assembles outputs, table of contents, and mermaid diagram.
+2.  **`ContextRouter`**: Establishes `max_tokens` (fetching dynamically from provider endpoints if needed). Groups files by `os.path.dirname` if tokens exceed `max_tokens * 0.95`. Builds a compact directory tree (`shared["directory_tree"]`) for cross-batch context. Returns `"batch"` or `"direct"`.
+3.  **`IdentifyAbstractions`**: (Direct Route) Extracts abstractions and related `file_indices`. Prompts enforce coverage audit and granularity guidance.
+4.  **`MapAbstractions`**: (Batch Route) BatchNode that runs chunked files through local abstraction prompts. Each batch item receives the full `directory_tree` for cross-batch awareness (knowing which other files/directories exist outside the current batch). Stores outputs in `mapped_abstractions`.
+5.  **`ReduceAbstractions`**: (Batch Route) Standard node that takes all `mapped_abstractions` and merges them via LLM into the final global `abstractions` list. Anti-merge guardrails prevent over-consolidation (different layers, different consumers, or >30 files should not be merged).
+6.  **`AnalyzeRelationships`**: Generates high-level project summary and interaction links (`from`, `to`, `label`). Uses **token-budget-aware two-pass file inclusion**: Pass 1 splits the available token budget evenly across all abstractions; Pass 2 redistributes unused budget from abstractions that didn't use their full share. Files are sorted by content size descending (largest = most architecturally significant). Already-shown files are deduplicated across abstractions. Original code comments are preserved as-is (never translated).
+7.  **`OrderChapters`**: Identifies linear tutorial flow with dependency-aware constraints (prerequisites before dependents).
+8.  **`WriteChapters`**: BatchNode writing Markdown content for each abstraction. Code fidelity enforced: actual source code is preserved verbatim, comments kept as-is.
+9.  **`CombineTutorial`**: Assembles outputs into the project subdirectory: `index.md` (with full_content link at the bottom), individual chapter files, and `full_content.md` (table of contents + all chapters merged).
