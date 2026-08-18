@@ -51,6 +51,7 @@
     - `--advanced` - Use advanced prompts that generate architecture deep-dives instead of beginner tutorials. Aimed at senior developers or PMs joining a project mid-way, covering design patterns, key dependencies, and practical onboarding notes.
     - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
     - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
+    - `--debug` - Enable verbose debug output.
     - `--cleanup` - Clean up logs and cache JSON at the end of the script (default: No).
 
 The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an `index.md` (with a link to the full content), and a compiled `full_content.md` — all inside a project-named subdirectory.
@@ -148,6 +149,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--advanced` - Sử dụng prompt nâng cao để tạo tài liệu phân tích kiến trúc chuyên sâu thay vì hướng dẫn dành cho người mới. Phù hợp cho lập trình viên cao cấp hoặc PM tham gia dự án giữa chừng, bao gồm các design pattern, dependencies chính, và ghi chú thực tiễn cho việc onboarding.
     - `--batch` - Số lượng tệp tối đa mỗi lô khi sử dụng chế độ map-reduce (mặc định: 50).
     - `--force-batch` - Bắt buộc sử dụng chế độ map-reduce bất kể giới hạn context.
+    - `--debug` - Bật chế độ debug chi tiết.
     - `--cleanup` - Tự động xóa lịch sử logs và dữ liệu cache JSON sau khi hoàn thành tập lệnh (mặc định: Không).
 
 Ứng dụng sẽ thu thập dữ liệu từ kho lưu trữ, phân tích cấu trúc mã nguồn, tạo nội dung hướng dẫn bằng ngôn ngữ được chỉ định và lưu kết quả vào thư mục đầu ra (mặc định: ./output). Thư mục này bao gồm các tệp chương riêng lẻ, tệp `index.md` (có liên kết đến nội dung đầy đủ), và tệp `full_content.md` — tất cả nằm trong thư mục con mang tên dự án.

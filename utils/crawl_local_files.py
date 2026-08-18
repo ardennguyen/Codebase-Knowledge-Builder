@@ -27,6 +27,21 @@ def crawl_local_files(
 
     files_dict = {}
 
+    # --- ANSI colors ---
+    C_GREEN  = "\033[92m"
+    C_GRAY   = "\033[90m"
+    C_RED    = "\033[91m"
+    C_RESET  = "\033[0m"
+
+    # --- Counters ---
+    entry_num = 0
+    count_processed = 0
+    count_excluded = 0
+    count_size_limit = 0
+    count_non_text = 0
+    skipped_size_limit = []
+    skipped_non_text = []
+
     # --- Load .gitignore ---
     gitignore_path = os.path.join(directory, ".gitignore")
     gitignore_spec = None
@@ -39,98 +54,112 @@ def crawl_local_files(
         except Exception as e:
             print(f"Warning: Could not read or parse .gitignore file {gitignore_path}: {e}")
 
-    all_files = []
+    # --- Single-pass: walk, filter, and process inline ---
     for root, dirs, files in os.walk(directory):
-        # Filter directories using .gitignore and exclude_patterns early
+        # --- Directory filtering ---
         excluded_dirs = set()
-        for d in dirs:
+        for d in sorted(dirs):
             dirpath_rel = os.path.relpath(os.path.join(root, d), directory)
 
+            reason = None
             if gitignore_spec and gitignore_spec.match_file(dirpath_rel):
-                excluded_dirs.add(d)
-                continue
-
-            if exclude_patterns:
+                reason = "excluded (.gitignore)"
+            elif exclude_patterns:
                 for pattern in exclude_patterns:
                     dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
                     if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
-                        excluded_dirs.add(d)
+                        reason = "excluded"
                         break
+
+            if reason:
+                excluded_dirs.add(d)
+                entry_num += 1
+                count_excluded += 1
+                print(f"{C_GRAY}  [{entry_num}] {dirpath_rel}/ [{reason}]{C_RESET}")
 
         for d in dirs.copy():
             if d in excluded_dirs:
                 dirs.remove(d)
 
-        for filename in files:
+        # Sort remaining dirs for consistent traversal order
+        dirs.sort()
+
+        # --- File processing (inline, sorted) ---
+        for filename in sorted(files):
             filepath = os.path.join(root, filename)
-            all_files.append(filepath)
+            relpath = os.path.relpath(filepath, directory) if use_relative_paths else filepath
+            entry_num += 1
 
-    total_files = len(all_files)
-    processed_files = 0
+            # Check gitignore
+            if gitignore_spec and gitignore_spec.match_file(relpath):
+                count_excluded += 1
+                print(f"{C_GRAY}  [{entry_num}] {relpath} [excluded (.gitignore)]{C_RESET}")
+                continue
 
-    for filepath in all_files:
-        relpath = os.path.relpath(filepath, directory) if use_relative_paths else filepath
+            # Check exclude patterns
+            excluded = False
+            if exclude_patterns:
+                for pattern in exclude_patterns:
+                    if fnmatch.fnmatch(relpath, pattern):
+                        excluded = True
+                        break
+            if excluded:
+                count_excluded += 1
+                print(f"{C_GRAY}  [{entry_num}] {relpath} [excluded]{C_RESET}")
+                continue
 
-        # --- Exclusion check ---
-        excluded = False
-        if gitignore_spec and gitignore_spec.match_file(relpath):
-            excluded = True
+            # Check include patterns
+            if include_patterns:
+                matched = False
+                for pattern in include_patterns:
+                    if fnmatch.fnmatch(relpath, pattern):
+                        matched = True
+                        break
+                if not matched:
+                    count_excluded += 1
+                    print(f"{C_GRAY}  [{entry_num}] {relpath} [excluded (not in include list)]{C_RESET}")
+                    continue
 
-        if not excluded and exclude_patterns:
-            for pattern in exclude_patterns:
-                if fnmatch.fnmatch(relpath, pattern):
-                    excluded = True
-                    break
+            # Check size limit
+            if max_file_size and os.path.getsize(filepath) > max_file_size:
+                count_size_limit += 1
+                skipped_size_limit.append(relpath)
+                size_kb = os.path.getsize(filepath) / 1024
+                print(f"{C_RED}  [{entry_num}] {relpath} [size limit: {size_kb:.0f}KB]{C_RESET}")
+                continue
 
-        included = False
-        if include_patterns:
-            for pattern in include_patterns:
-                if fnmatch.fnmatch(relpath, pattern):
-                    included = True
-                    break
-        else:
-            included = True
+            # Try to read as text
+            try:
+                with open(filepath, "r", encoding="utf-8-sig") as f:
+                    content = f.read()
+                files_dict[relpath] = content
+                count_processed += 1
+                print(f"{C_GREEN}  [{entry_num}] {relpath} [processed]{C_RESET}")
+            except (UnicodeDecodeError, ValueError):
+                count_non_text += 1
+                skipped_non_text.append(relpath)
+                print(f"{C_RED}  [{entry_num}] {relpath} [cannot process: not a text file]{C_RESET}")
+            except Exception as e:
+                count_non_text += 1
+                skipped_non_text.append(relpath)
+                print(f"{C_RED}  [{entry_num}] {relpath} [cannot process: {e}]{C_RESET}")
 
-        processed_files += 1 # Increment processed count regardless of inclusion/exclusion
-
-        status = "processed"
-        color = "\033[92m" # Green by default
-
-        if not included or excluded:
-            status = "skipped (excluded)"
-            color = "\033[90m" # Gray for skipped
-            # Print progress for skipped files due to exclusion
-            if total_files > 0:
-                percentage = (processed_files / total_files) * 100
-                rounded_percentage = int(percentage)
-                print(f"{color}Progress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
-            continue # Skip to next file if not included or excluded
-
-        if max_file_size and os.path.getsize(filepath) > max_file_size:
-            status = "skipped (size limit)"
-            color = "\033[93m" # Yellow for size limit
-            # Print progress for skipped files due to size limit
-            if total_files > 0:
-                percentage = (processed_files / total_files) * 100
-                rounded_percentage = int(percentage)
-                print(f"{color}Progress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
-            continue # Skip large files
-
-        # --- File is being processed ---        
-        try:
-            with open(filepath, "r", encoding="utf-8-sig") as f:
-                content = f.read()
-            files_dict[relpath] = content
-        except Exception as e:
-            print(f"Warning: Could not read file {filepath}: {e}")
-            status = "skipped (read error)"
-            color = "\033[91m" # Red for error
-
-        # --- Print progress for processed or error files ---
-        if total_files > 0:
-            percentage = (processed_files / total_files) * 100
-            rounded_percentage = int(percentage)
-            print(f"{color}Progress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
+    # --- Summary ---
+    total_fetched = count_processed + count_excluded + count_size_limit + count_non_text
+    print(f"\n--- Crawl Summary ---")
+    print(f"  Total found : {total_fetched}")
+    print(f"{C_GREEN}  Processed   : {count_processed}{C_RESET}")
+    if count_excluded > 0:
+        print(f"{C_GRAY}  Excluded    : {count_excluded}{C_RESET}")
+    if count_size_limit > 0:
+        print(f"{C_RED}  Size limit  : {count_size_limit}{C_RESET}")
+        for f in skipped_size_limit:
+            print(f"{C_RED}    - {f}{C_RESET}")
+    if count_non_text > 0:
+        print(f"{C_RED}  Non-text    : {count_non_text}{C_RESET}")
+        for f in skipped_non_text:
+            print(f"{C_RED}    - {f}{C_RESET}")
+    print(f"---------------------")
 
     return {"files": files_dict}
 

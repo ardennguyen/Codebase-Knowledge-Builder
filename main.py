@@ -86,6 +86,8 @@ def main():
     # Add batching parameters
     parser.add_argument("--batch", type=int, default=50, help="Max files per batch in map-reduce mode")
     parser.add_argument("--force-batch", action="store_true", help="Force map-reduce mode regardless of context size")
+    # Debug mode
+    parser.add_argument("--debug", action="store_true", help="Enable verbose debug output")
 
     args = parser.parse_args()
 
@@ -131,6 +133,9 @@ def main():
         "batch_size": args.batch,
         "force_batch": args.force_batch,
 
+        # Debug mode
+        "debug": args.debug,
+
         # Outputs will be populated by the nodes
         "files": [],
         "abstractions": [],
@@ -175,6 +180,8 @@ def main():
     print(f"Force Batch    : {'Enabled' if args.force_batch else 'Disabled'}")
     print(f"Max Abstractions: {args.max_abstractions}")
     print(f"LLM Caching    : {'Disabled' if args.no_cache else 'Enabled'}")
+    if args.debug:
+        print(f"Debug Mode     : Enabled")
     print(f"---------------------")
 
     # Create the flow instance

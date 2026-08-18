@@ -87,6 +87,21 @@ def crawl_github_files(
             files = {}
             skipped_files = []
 
+            # --- ANSI colors ---
+            C_GREEN  = "\033[92m"
+            C_GRAY   = "\033[90m"
+            C_RED    = "\033[91m"
+            C_RESET  = "\033[0m"
+
+            # --- Counters ---
+            count_processed = 0
+            count_excluded = 0
+            count_size_limit = 0
+            count_non_text = 0
+            skipped_size_list = []
+            skipped_non_text_list = []
+            entry_num = 0
+
             # --- Load .gitignore ---
             gitignore_path = os.path.join(tmpdirname, ".gitignore")
             gitignore_spec = None
@@ -99,27 +114,43 @@ def crawl_github_files(
                     pass
 
             for root, dirs, filenames in os.walk(tmpdirname):
-                # Filter directories using .gitignore and exclude_patterns early
+                # Filter directories
                 excluded_dirs = set()
-                for d in dirs:
+                for d in sorted(dirs):
                     dirpath_rel = os.path.relpath(os.path.join(root, d), tmpdirname)
+                    reason = None
                     if gitignore_spec and gitignore_spec.match_file(dirpath_rel):
-                        excluded_dirs.add(d)
-                        continue
-                    if exclude_patterns:
+                        reason = "excluded (.gitignore)"
+                    elif exclude_patterns:
                         for pattern in exclude_patterns:
                             dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
                             if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
-                                excluded_dirs.add(d)
+                                reason = "excluded"
                                 break
-                                
+
+                    if reason:
+                        excluded_dirs.add(d)
+                        entry_num += 1
+                        count_excluded += 1
+                        print(f"{C_GRAY}  [{entry_num}] {dirpath_rel}/ [{reason}]{C_RESET}")
+
                 for d in dirs.copy():
                     if d in excluded_dirs:
                         dirs.remove(d)
 
-                for filename in filenames:
+                # Sort remaining dirs for consistent traversal order
+                dirs.sort()
+
+                for filename in sorted(filenames):
                     abs_path = os.path.join(root, filename)
                     rel_path = os.path.relpath(abs_path, tmpdirname)
+                    entry_num += 1
+
+                    # Check include/exclude patterns
+                    if not should_include_file(rel_path, filename, gitignore_spec=gitignore_spec):
+                        count_excluded += 1
+                        print(f"{C_GRAY}  [{entry_num}] {rel_path} [excluded]{C_RESET}")
+                        continue
 
                     # Check file size
                     try:
@@ -128,13 +159,10 @@ def crawl_github_files(
                         continue
 
                     if file_size > max_file_size:
-                        skipped_files.append((rel_path, file_size))
-                        print(f"Skipping {rel_path}: size {file_size} exceeds limit {max_file_size}")
-                        continue
-
-                    # Check include/exclude patterns
-                    if not should_include_file(rel_path, filename, gitignore_spec=gitignore_spec):
-                        print(f"Skipping {rel_path}: does not match include/exclude patterns")
+                        count_size_limit += 1
+                        skipped_size_list.append(rel_path)
+                        size_kb = file_size / 1024
+                        print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                         continue
 
                     # Read content
@@ -142,9 +170,33 @@ def crawl_github_files(
                         with open(abs_path, "r", encoding="utf-8-sig") as f:
                             content = f.read()
                         files[rel_path] = content
-                        print(f"Added {rel_path} ({file_size} bytes)")
+                        count_processed += 1
+                        print(f"{C_GREEN}  [{entry_num}] {rel_path} [processed]{C_RESET}")
+                    except (UnicodeDecodeError, ValueError):
+                        count_non_text += 1
+                        skipped_non_text_list.append(rel_path)
+                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: not a text file]{C_RESET}")
                     except Exception as e:
-                        print(f"Failed to read {rel_path}: {e}")
+                        count_non_text += 1
+                        skipped_non_text_list.append(rel_path)
+                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: {e}]{C_RESET}")
+
+            # --- Summary ---
+            total_fetched = count_processed + count_excluded + count_size_limit + count_non_text
+            print(f"\n--- Crawl Summary ---")
+            print(f"  Total found : {total_fetched}")
+            print(f"{C_GREEN}  Processed   : {count_processed}{C_RESET}")
+            if count_excluded > 0:
+                print(f"{C_GRAY}  Excluded    : {count_excluded}{C_RESET}")
+            if count_size_limit > 0:
+                print(f"{C_RED}  Size limit  : {count_size_limit}{C_RESET}")
+                for sf in skipped_size_list:
+                    print(f"{C_RED}    - {sf}{C_RESET}")
+            if count_non_text > 0:
+                print(f"{C_RED}  Non-text    : {count_non_text}{C_RESET}")
+                for sf in skipped_non_text_list:
+                    print(f"{C_RED}    - {sf}{C_RESET}")
+            print(f"---------------------")
 
             return {
                 "files": files,
@@ -251,6 +303,17 @@ def crawl_github_files(
     # Dictionary to store path -> content mapping
     files = {}
     skipped_files = []
+
+    # --- ANSI colors ---
+    C_GREEN  = "\033[92m"
+    C_GRAY   = "\033[90m"
+    C_RED    = "\033[91m"
+    C_RESET  = "\033[0m"
+
+    # --- Counters ---
+    api_counters = {"processed": 0, "excluded": 0, "size_limit": 0, "non_text": 0, "entry": 0}
+    api_skipped_size = []
+    api_skipped_non_text = []
     
     # --- Try to fetch .gitignore ---
     gitignore_spec = None
@@ -319,16 +382,22 @@ def crawl_github_files(
                 rel_path = item_path
             
             if item["type"] == "file":
+                api_counters["entry"] += 1
+                entry_num = api_counters["entry"]
+
                 # Check if file should be included based on patterns
                 if not should_include_file(rel_path, item["name"], gitignore_spec=gitignore_spec):
-                    print(f"Skipping {rel_path}: Does not match include/exclude patterns")
+                    api_counters["excluded"] += 1
+                    print(f"{C_GRAY}  [{entry_num}] {rel_path} [excluded]{C_RESET}")
                     continue
                 
                 # Check file size if available
                 file_size = item.get("size", 0)
                 if file_size > max_file_size:
-                    skipped_files.append((item_path, file_size))
-                    print(f"Skipping {rel_path}: File size ({file_size} bytes) exceeds limit ({max_file_size} bytes)")
+                    api_counters["size_limit"] += 1
+                    api_skipped_size.append(rel_path)
+                    size_kb = file_size / 1024
+                    print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                     continue
                 
                 # For files, get raw content
@@ -339,15 +408,20 @@ def crawl_github_files(
                     # Final size check in case content-length header is available but differs from metadata
                     content_length = int(file_response.headers.get('content-length', 0))
                     if content_length > max_file_size:
-                        skipped_files.append((item_path, content_length))
-                        print(f"Skipping {rel_path}: Content length ({content_length} bytes) exceeds limit ({max_file_size} bytes)")
+                        api_counters["size_limit"] += 1
+                        api_skipped_size.append(rel_path)
+                        size_kb = content_length / 1024
+                        print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                         continue
                         
                     if file_response.status_code == 200:
                         files[rel_path] = file_response.text
-                        print(f"Downloaded: {rel_path} ({file_size} bytes) ")
+                        api_counters["processed"] += 1
+                        print(f"{C_GREEN}  [{entry_num}] {rel_path} [processed]{C_RESET}")
                     else:
-                        print(f"Failed to download {rel_path}: {file_response.status_code}")
+                        api_counters["non_text"] += 1
+                        api_skipped_non_text.append(rel_path)
+                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: HTTP {file_response.status_code}]{C_RESET}")
                 else:
                     # Alternative method if download_url is not available
                     content_response = requests.get(item["url"], headers=headers, timeout=(30, 30))
@@ -357,34 +431,46 @@ def crawl_github_files(
                             # Check size of base64 content before decoding
                             if len(content_data["content"]) * 0.75 > max_file_size:  # Approximate size calculation
                                 estimated_size = int(len(content_data["content"]) * 0.75)
-                                skipped_files.append((item_path, estimated_size))
-                                print(f"Skipping {rel_path}: Encoded content exceeds size limit")
+                                api_counters["size_limit"] += 1
+                                api_skipped_size.append(rel_path)
+                                size_kb = estimated_size / 1024
+                                print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                                 continue
                                 
                             file_content = base64.b64decode(content_data["content"]).decode('utf-8')
                             files[rel_path] = file_content
-                            print(f"Downloaded: {rel_path} ({file_size} bytes)")
+                            api_counters["processed"] += 1
+                            print(f"{C_GREEN}  [{entry_num}] {rel_path} [processed]{C_RESET}")
                         else:
-                            print(f"Unexpected content format for {rel_path}")
+                            api_counters["non_text"] += 1
+                            api_skipped_non_text.append(rel_path)
+                            print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: unexpected format]{C_RESET}")
                     else:
-                        print(f"Failed to get content for {rel_path}: {content_response.status_code}")
+                        api_counters["non_text"] += 1
+                        api_skipped_non_text.append(rel_path)
+                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: HTTP {content_response.status_code}]{C_RESET}")
             
             elif item["type"] == "dir":
-                # NEW IMPLEMENTATION
                 # Check if directory should be excluded before recursing
                 dir_excluded = False
+                dir_reason = None
                 
                 if gitignore_spec and gitignore_spec.match_file(rel_path):
                     dir_excluded = True
+                    dir_reason = "excluded (.gitignore)"
                     
                 if not dir_excluded and exclude_patterns:
                     for pattern in exclude_patterns:
                         dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
                         if fnmatch.fnmatch(item_path, dir_pattern) or fnmatch.fnmatch(rel_path, dir_pattern):
                             dir_excluded = True
+                            dir_reason = "excluded"
                             break
                                     
                 if dir_excluded:
+                    api_counters["entry"] += 1
+                    api_counters["excluded"] += 1
+                    print(f"{C_GRAY}  [{api_counters['entry']}] {rel_path}/ [{dir_reason}]{C_RESET}")
                     continue
                 
                 # Only recurse if directory is not excluded
@@ -392,6 +478,23 @@ def crawl_github_files(
     
     # Start crawling from the specified path
     fetch_contents(specific_path)
+
+    # --- Summary ---
+    total_fetched = api_counters["processed"] + api_counters["excluded"] + api_counters["size_limit"] + api_counters["non_text"]
+    print(f"\n--- Crawl Summary ---")
+    print(f"  Total found : {total_fetched}")
+    print(f"{C_GREEN}  Processed   : {api_counters['processed']}{C_RESET}")
+    if api_counters["excluded"] > 0:
+        print(f"{C_GRAY}  Excluded    : {api_counters['excluded']}{C_RESET}")
+    if api_counters["size_limit"] > 0:
+        print(f"{C_RED}  Size limit  : {api_counters['size_limit']}{C_RESET}")
+        for sf in api_skipped_size:
+            print(f"{C_RED}    - {sf}{C_RESET}")
+    if api_counters["non_text"] > 0:
+        print(f"{C_RED}  Non-text    : {api_counters['non_text']}{C_RESET}")
+        for sf in api_skipped_non_text:
+            print(f"{C_RED}    - {sf}{C_RESET}")
+    print(f"---------------------")
     
     return {
         "files": files,

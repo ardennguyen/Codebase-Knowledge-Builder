@@ -19,7 +19,7 @@ nav_order: 2
 - A publicly accessible GitHub repository URL or a local directory path.
 - A project name (optional, will be derived from the URL/directory if not provided).
 - Desired language for the tutorial (optional, defaults to English).
-- Advanced configurations for token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--advanced`, `--thinking-level`, `--max-abstractions`), caching (`--no-cache`), and execution cleanup (`--cleanup`).
+- Advanced configurations for token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--advanced`, `--thinking-level`, `--max-abstractions`), caching (`--no-cache`), debugging (`--debug`), and execution cleanup (`--cleanup`).
 
 **Output:**
 - A directory named after the project containing:
@@ -42,13 +42,13 @@ nav_order: 2
 This project primarily uses a **Workflow** pattern with dynamic branching into a **Map-Reduce** pattern. The chapter writing step also utilizes a **BatchNode**.
 
 1.  **Workflow & Routing:** The overall process fetches code, estimates token payloads, and routes based on context limits. If the codebase fits the LLM window, it goes directly to abstraction identification.
-2.  **Map-Reduce:** If the codebase exceeds context limits (or if forced), the codebase is grouped into batches by directory. A `MapAbstractions` BatchNode processes each chunk individually, and a `ReduceAbstractions` Node merges them into a global list.
+2.  **Map-Reduce:** If the codebase exceeds context limits (or if forced), the codebase is grouped into token-aware, directory-isolated batches (each batch stays under the effective token limit and never mixes files from different directories). A `MapAbstractions` BatchNode processes each batch individually, and a `ReduceAbstractions` Node merges them into a global list.
 3.  **Batch Processing:** The `WriteChapters` node processes each identified abstraction independently (map) before final tutorial compilation.
 
 ### Flow high-level Design:
 
 1.  **`FetchRepo`**: Crawls the specified repository/directory using `crawl_github_files` or `crawl_local_files`.
-2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. If the total tokens exceed a safety threshold (95% of `max_tokens`) or if `--force-batch` is used, it chunks files by directory and routes to `"batch"`. Also builds a compact directory tree of all files (stored in `shared["directory_tree"]`) for cross-batch awareness. Otherwise, it routes to `"direct"`.
+2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. Dynamically calculates **prompt overhead** (template tokens + directory tree tokens) and computes an **effective limit** = `safety_limit - prompt_overhead`. If the file content tokens exceed this effective limit or if `--force-batch` is used, it chunks files into **token-aware, directory-isolated batches** (never mixing files from different directories) and routes to `"batch"`. Also builds a compact directory tree of all files (stored in `shared["directory_tree"]`) for cross-batch awareness. With `--debug`, displays detailed per-batch file lists and token breakdowns. Otherwise, it routes to `"direct"`.
 3.  **Path A: Direct**
     *   **`IdentifyAbstractions`**: Analyzes the entire codebase at once to identify core abstractions.
 4.  **Path B: Map-Reduce**
@@ -81,7 +81,7 @@ flowchart TD
 > 1. Understand the utility function definition thoroughly by reviewing the doc.
 > 2. Include only the necessary utility functions, based on nodes in the flow.
 
-1.  **`crawl_github_files` / `crawl_local_files`**: Handlers for fetching codebase directories/repos.
+1.  **`crawl_github_files` / `crawl_local_files`**: Handlers for fetching codebase directories/repos. Both produce verbose inline output during crawl with categorized status for each file: processed (green), excluded (gray), size limit (red), and non-text (red). Directories are sorted for deterministic order. A summary is printed at the end with counts for each category.
 2.  **`call_llm`** (`utils/call_llm.py`): The core LLM execution wrapper. Supports retries, JSON exception handling, caching, and reasoning tokens.
 3.  **`token_utils.py`**:
     *   **`log_token_estimation`**: Calculates tokens dynamically via `tiktoken` (falling back to simple character counting) and prints beautiful analytics metrics (`node_name`, `usage`, `capacity %`) to the CLI just before API execution.
@@ -105,6 +105,7 @@ shared = {
     "thinking_level": None, "advanced_mode": False,
     "max_tokens": None, # Dynamic window threshold
     "batch_size": 50, "force_batch": False, # Map-reduce flags
+    "debug": False, # Verbose debug output
 
     # --- Intermediate/Output Data ---
     "files": [], # List of (path, content) tuples
@@ -124,7 +125,7 @@ shared = {
 > Notes for AI: All active nodes invoke `log_token_estimation` before calling the LLM.
 
 1.  **`FetchRepo`**: Download/read files.
-2.  **`ContextRouter`**: Establishes `max_tokens` (fetching dynamically from provider endpoints if needed). Groups files by `os.path.dirname` if tokens exceed `max_tokens * 0.95`. Builds a compact directory tree (`shared["directory_tree"]`) for cross-batch context. Returns `"batch"` or `"direct"`.
+2.  **`ContextRouter`**: Establishes `max_tokens` (fetching dynamically from provider endpoints if needed). Calculates **prompt overhead** (max template tokens + directory tree tokens) and derives an **effective limit** = `(max_tokens * 0.95) - prompt_overhead`. Groups files into token-aware, directory-isolated batches (never mixing files from different directories; each batch stays under the effective limit and under `batch_size` file count). Builds a compact directory tree (`shared["directory_tree"]`) for cross-batch context. With `--debug`, logs per-batch file lists and token counts. Returns `"batch"` or `"direct"`.
 3.  **`IdentifyAbstractions`**: (Direct Route) Extracts abstractions and related `file_indices`. Prompts enforce coverage audit and granularity guidance.
 4.  **`MapAbstractions`**: (Batch Route) BatchNode that runs chunked files through local abstraction prompts. Each batch item receives the full `directory_tree` for cross-batch awareness (knowing which other files/directories exist outside the current batch). Stores outputs in `mapped_abstractions`.
 5.  **`ReduceAbstractions`**: (Batch Route) Standard node that takes all `mapped_abstractions` and merges them via LLM into the final global `abstractions` list. Anti-merge guardrails prevent over-consolidation (different layers, different consumers, or >30 files should not be merged).

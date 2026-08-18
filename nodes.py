@@ -42,49 +42,117 @@ class ContextRouter(Node):
         
         shared["max_tokens"] = max_tokens
         
+        # --- Token estimation setup ---
         try:
             import tiktoken
             enc = tiktoken.get_encoding("cl100k_base")
+            def count_tokens(text):
+                return len(enc.encode(text, disallowed_special=()))
         except Exception:
-            enc = None
+            def count_tokens(text):
+                return len(text) // 4
 
+        # --- Calculate prompt overhead FIRST ---
+        # 1. Prompt template (measure both, use the larger)
+        prompt_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
+        max_template_tokens = 0
+        for subdir in ["tutorial", "advanced"]:
+            template_path = os.path.join(prompt_dir, subdir, "map_abstractions.md")
+            if os.path.exists(template_path):
+                with open(template_path, "r", encoding="utf-8-sig") as f:
+                    t = count_tokens(f.read())
+                max_template_tokens = max(max_template_tokens, t)
+
+        # 2. Directory tree (built from all files, shared across batches)
+        directory_tree = self._build_directory_tree(files_data)
+        tree_tokens = count_tokens(directory_tree)
+
+        prompt_overhead = max_template_tokens + tree_tokens
+        print(f"\033[93m[ContextRouter] Prompt overhead: ~{prompt_overhead:,} tokens "
+              f"(template: {max_template_tokens:,}, dir tree: {tree_tokens:,})\033[0m")
+
+        # --- Count file content tokens ---
         total_tokens = 0
+        file_token_map = []
         for i, (path, content) in enumerate(files_data):
             entry = f"--- File Index {i}: {path} ---\n{content}\n\n"
-            if enc:
-                total_tokens += len(enc.encode(entry, disallowed_special=()))
-            else:
-                total_tokens += len(entry) // 4
+            tokens = count_tokens(entry)
+            total_tokens += tokens
+            file_token_map.append(tokens)
 
+        # --- Effective limit = safety margin minus overhead ---
         safety_limit = int(max_tokens * 0.95)
+        effective_limit = safety_limit - prompt_overhead
         force_batch = shared.get("force_batch", False)
         
-        if total_tokens > safety_limit or force_batch:
-            print(f"\033[93m[ContextRouter] Total tokens ({total_tokens}) exceeds safety limit ({safety_limit}) or --force-batch set. Using Map-Reduce.\033[0m")
-            return ("batch", files_data, safety_limit, shared.get("batch_size", 50))
+        if total_tokens > effective_limit and force_batch:
+            print(f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
+                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
+                  f"and --force-batch is set. Using Map-Reduce.\033[0m")
+        elif total_tokens > effective_limit:
+            print(f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
+                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
+                  f"Using Map-Reduce.\033[0m")
+        elif force_batch:
+            print(f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
+                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
+                  f"but --force-batch is set. Using Map-Reduce.\033[0m")
         else:
-            print(f"\033[92m[ContextRouter] Total tokens ({total_tokens}) fits in context. Proceeding normally.\033[0m")
-            return ("direct", files_data, safety_limit, shared.get("batch_size", 50))
+            print(f"\033[92m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
+                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
+                  f"Proceeding normally.\033[0m")
+            return ("direct", files_data, effective_limit, shared.get("batch_size", 50),
+                    None, None, directory_tree, False)
+
+        return ("batch", files_data, effective_limit, shared.get("batch_size", 50),
+                file_token_map, count_tokens, directory_tree, shared.get("debug", False))
 
     def exec(self, prep_res):
-        route, files_data, safety_limit, batch_size = prep_res
+        route, files_data, effective_limit, batch_size, file_token_map, count_tokens, directory_tree, debug = prep_res
         if route == "direct":
             return "direct"
-        
+
+        # Group by directory for coherence, with pre-computed tokens
         dir_groups = defaultdict(list)
         for i, (path, content) in enumerate(files_data):
-            dir_groups[os.path.dirname(path)].append((i, path, content))
-            
+            dir_groups[os.path.dirname(path)].append((i, path, content, file_token_map[i]))
+
+        # Build token-aware batches (never mix directories)
         batches = []
-        current_batch = []
-        for dirname, group_files in dir_groups.items():
-            for f in group_files:
-                current_batch.append(f)
-                if len(current_batch) >= batch_size:
+        for dirname in sorted(dir_groups.keys()):
+            current_batch = []
+            current_tokens = 0
+
+            for i, path, content, tokens in dir_groups[dirname]:
+                # Start new batch if adding this file would exceed effective limit or file count cap
+                if current_batch and (current_tokens + tokens > effective_limit or len(current_batch) >= batch_size):
                     batches.append(current_batch)
                     current_batch = []
-        if current_batch:
-            batches.append(current_batch)
+                    current_tokens = 0
+
+                current_batch.append((i, path, content))
+                current_tokens += tokens
+
+            # Flush remaining files in this directory
+            if current_batch:
+                batches.append(current_batch)
+
+        batch_word = "batch" if len(batches) == 1 else "batches"
+        print(f"\033[93m[ContextRouter] Split into {len(batches)} {batch_word}.\033[0m")
+
+        # Debug: show detailed batch info
+        if debug:
+            C_GREEN = "\033[92m"
+            C_RESET = "\033[0m"
+            for idx, batch in enumerate(batches):
+                content_tokens = sum(file_token_map[i] for i, p, c in batch)
+                print(f"\033[93m  [Debug] Batch {idx}: {len(batch)} files, "
+                      f"~{content_tokens:,} content tokens (limit: {effective_limit:,})\033[0m")
+                for i, p, c in batch:
+                    print(f"{C_GREEN}    - [{i}] {p}{C_RESET}")
+
+        # Store directory tree for later use
+        self._directory_tree = directory_tree
             
         return batches
 
@@ -92,10 +160,8 @@ class ContextRouter(Node):
         if exec_res == "direct":
             return "direct"
         shared["file_batches"] = exec_res
-        # Build directory tree for cross-batch awareness
-        files_data = shared["files"]
-        tree = self._build_directory_tree(files_data)
-        shared["directory_tree"] = tree
+        # Reuse directory tree built during prep()
+        shared["directory_tree"] = getattr(self, "_directory_tree", self._build_directory_tree(shared["files"]))
         return "batch"
 
     @staticmethod
@@ -167,6 +233,8 @@ class MapAbstractions(BatchNode):
         )
         
         log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
+        for i, path, _content in files:
+            print(f"\033[92m    - [{i}] {path}\033[0m")
         response = call_llm(prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"])
 
         try:
@@ -325,7 +393,6 @@ class FetchRepo(Node):
         files_list = list(result.get("files", {}).items())
         if len(files_list) == 0:
             raise ValueError("No matching files found. Check your directory and include/exclude patterns.")
-        print(f"Fetched {len(files_list)} files.")
         return files_list
 
     def post(self, shared, prep_res, exec_res):
