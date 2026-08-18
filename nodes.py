@@ -1137,7 +1137,7 @@ class CombineTutorial(Node):
         output_base_dir = shared.get("output_dir", "output")  # Default output dir
         output_path = os.path.join(output_base_dir, project_name)
         repo_url = shared.get("repo_url")  # Get the repository URL
-        # language = shared.get("language", "english") # No longer needed for fixed strings
+        language = shared.get("language", "english")
 
         # Get potentially translated data
         relationships_data = shared[
@@ -1180,19 +1180,34 @@ class CombineTutorial(Node):
         mermaid_diagram = "\n".join(mermaid_lines)
         # --- End Mermaid ---
 
+        # --- UI string translations for non-English output ---
+        ui_strings = {
+            "english":    {"tutorial": "Tutorial", "source_repo": "Source Repository", "chapters": "Chapters", "toc": "Table of Contents", "chapter": "Chapter", "full_content": "Full Content"},
+            "vietnamese": {"tutorial": "Hướng dẫn", "source_repo": "Kho mã nguồn", "chapters": "Các chương", "toc": "Mục lục", "chapter": "Chương", "full_content": "Nội dung đầy đủ"},
+            "chinese":    {"tutorial": "教程", "source_repo": "源代码仓库", "chapters": "章节", "toc": "目录", "chapter": "第", "full_content": "完整内容"},
+            "japanese":   {"tutorial": "チュートリアル", "source_repo": "ソースリポジトリ", "chapters": "章", "toc": "目次", "chapter": "章", "full_content": "全文"},
+            "korean":     {"tutorial": "튜토리얼", "source_repo": "소스 저장소", "chapters": "챕터", "toc": "목차", "chapter": "챕터", "full_content": "전체 내용"},
+            "french":     {"tutorial": "Tutoriel", "source_repo": "Dépôt source", "chapters": "Chapitres", "toc": "Table des matières", "chapter": "Chapitre", "full_content": "Contenu complet"},
+            "spanish":    {"tutorial": "Tutorial", "source_repo": "Repositorio fuente", "chapters": "Capítulos", "toc": "Tabla de contenidos", "chapter": "Capítulo", "full_content": "Contenido completo"},
+            "german":     {"tutorial": "Anleitung", "source_repo": "Quellrepository", "chapters": "Kapitel", "toc": "Inhaltsverzeichnis", "chapter": "Kapitel", "full_content": "Vollständiger Inhalt"},
+            "portuguese": {"tutorial": "Tutorial", "source_repo": "Repositório fonte", "chapters": "Capítulos", "toc": "Índice", "chapter": "Capítulo", "full_content": "Conteúdo completo"},
+            "russian":    {"tutorial": "Руководство", "source_repo": "Исходный репозиторий", "chapters": "Главы", "toc": "Оглавление", "chapter": "Глава", "full_content": "Полное содержание"},
+            "thai":       {"tutorial": "บทเรียน", "source_repo": "แหล่งโค้ด", "chapters": "บท", "toc": "สารบัญ", "chapter": "บท", "full_content": "เนื้อหาทั้งหมด"},
+            "indonesian": {"tutorial": "Tutorial", "source_repo": "Repositori Sumber", "chapters": "Bab", "toc": "Daftar Isi", "chapter": "Bab", "full_content": "Konten Lengkap"},
+        }
+        ui = ui_strings.get(language.lower(), ui_strings["english"])
+
         # --- Prepare index.md content ---
-        index_content = f"# Tutorial: {project_name}\n\n"
+        index_content = f"# {ui['tutorial']}: {project_name}\n\n"
         index_content += f"{relationships_data['summary']}\n\n"  # Use the potentially translated summary directly
-        # Keep fixed strings in English
-        index_content += f"**Source Repository:** [{repo_url}]({repo_url})\n\n"
+        index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
 
         # Add Mermaid diagram for relationships (diagram itself uses potentially translated names/labels)
         index_content += "```mermaid\n"
         index_content += mermaid_diagram + "\n"
         index_content += "```\n\n"
 
-        # Keep fixed strings in English
-        index_content += f"## Chapters\n\n"
+        index_content += f"## {ui['chapters']}\n\n"
 
         chapter_files = []
         # Generate chapter links based on the determined order, using potentially translated names
@@ -1222,13 +1237,14 @@ class CombineTutorial(Node):
                 )
 
         # Add full content link at the end of index
-        index_content += f"\n---\n\n**Full Content:** [full_content.md](full_content.md)\n"
+        index_content += f"\n---\n\n**{ui['full_content']}:** [full_content.md](full_content.md)\n"
 
         return {
             "output_path": output_path,
             "output_base_dir": output_base_dir,
             "index_content": index_content,
             "chapter_files": chapter_files,  # List of {"filename": str, "content": str}
+            "ui": ui,  # Translated UI strings
         }
 
     def exec(self, prep_res):
@@ -1237,6 +1253,7 @@ class CombineTutorial(Node):
             output_base_dir = prep_res["output_base_dir"]
             index_content = prep_res["index_content"]
             chapter_files = prep_res["chapter_files"]
+            ui = prep_res["ui"]
 
             print(f"Combining tutorial into directory: {output_path}")
             # Rely on Node's built-in retry/fallback
@@ -1256,7 +1273,7 @@ class CombineTutorial(Node):
                 print(f"  - Wrote {chapter_filepath}")
                 
             # Create full_content.md
-            toc_lines = ["# Table of Contents\n"]
+            toc_lines = [f"# {ui['toc']}\n"]
             full_content_lines = []
             
             for i, chapter_info in enumerate(chapter_files):
@@ -1265,7 +1282,7 @@ class CombineTutorial(Node):
                 if title_line.startswith('# '):
                     title = title_line[2:].strip()
                 else:
-                    title = f"Chapter {i+1}"
+                    title = f"{ui['chapter']} {i+1}"
                 
                 toc_lines.append(f"- [{title}](#chapter-{i+1})")
                 full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
