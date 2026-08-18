@@ -148,7 +148,7 @@ class MapAbstractions(BatchNode):
         
         prompt_dir = "advanced" if item["advanced_mode"] else "tutorial"
         prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "map_abstractions.md")
-        with open(prompt_path, "r", encoding="utf-8") as f:
+        with open(prompt_path, "r", encoding="utf-8-sig") as f:
             prompt_template = f.read()
 
         language = item.get("language", "english")
@@ -222,7 +222,7 @@ class ReduceAbstractions(Node):
 
         prompt_dir = "advanced" if advanced_mode else "tutorial"
         prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "reduce_abstractions.md")
-        with open(prompt_path, "r", encoding="utf-8") as f:
+        with open(prompt_path, "r", encoding="utf-8-sig") as f:
             prompt_template = f.read()
             
         language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
@@ -437,7 +437,7 @@ class IdentifyAbstractions(Node):
 
             prompt_dir = "advanced" if advanced_mode else "tutorial"
             prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "identify_abstractions.md")
-            with open(prompt_path, "r", encoding="utf-8") as f:
+            with open(prompt_path, "r", encoding="utf-8-sig") as f:
                 prompt_template = f.read()
 
             prompt = prompt_template.format(
@@ -691,7 +691,7 @@ class AnalyzeRelationships(Node):
 
             prompt_dir = "advanced" if advanced_mode else "tutorial"
             prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "identify_relationships.md")
-            with open(prompt_path, "r", encoding="utf-8") as f:
+            with open(prompt_path, "r", encoding="utf-8-sig") as f:
                 prompt_template = f.read()
 
             prompt = prompt_template.format(
@@ -857,7 +857,7 @@ class OrderChapters(Node):
 
             prompt_dir = "advanced" if advanced_mode else "tutorial"
             prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "order_chapters.md")
-            with open(prompt_path, "r", encoding="utf-8") as f:
+            with open(prompt_path, "r", encoding="utf-8-sig") as f:
                 prompt_template = f.read()
 
             prompt = prompt_template.format(
@@ -1075,7 +1075,7 @@ class WriteChapters(BatchNode):
 
             prompt_dir = "advanced" if advanced_mode else "tutorial"
             prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "draft_chapters.md")
-            with open(prompt_path, "r", encoding="utf-8") as f:
+            with open(prompt_path, "r", encoding="utf-8-sig") as f:
                 prompt_template = f.read()
 
             prompt = prompt_template.format(
