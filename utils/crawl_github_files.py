@@ -460,9 +460,10 @@ def crawl_github_files(
                     dir_reason = "excluded (.gitignore)"
                     
                 if not dir_excluded and exclude_patterns:
+                    dir_name = item["name"]  # basename of the directory
                     for pattern in exclude_patterns:
                         dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
-                        if fnmatch.fnmatch(item_path, dir_pattern) or fnmatch.fnmatch(rel_path, dir_pattern):
+                        if fnmatch.fnmatch(item_path, dir_pattern) or fnmatch.fnmatch(rel_path, dir_pattern) or fnmatch.fnmatch(dir_name, dir_pattern):
                             dir_excluded = True
                             dir_reason = "excluded"
                             break
