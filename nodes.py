@@ -23,34 +23,62 @@ def get_content_for_indices(files_data, indices):
     return content_map
 
 
+# --- Reusable Helpers ---
+
+def load_prompt_template(template_name, advanced_mode=False):
+    """Load a prompt template file from the prompts/ directory."""
+    prompt_dir = "advanced" if advanced_mode else "tutorial"
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "prompts", prompt_dir, f"{template_name}.md")
+    with open(path, "r", encoding="utf-8-sig") as f:
+        return f.read()
+
+
+def parse_yaml_response(response):
+    """Extract and parse YAML from an LLM response fenced in ```yaml blocks."""
+    try:
+        yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
+        return yaml.safe_load(yaml_str)
+    except Exception as e:
+        raise ValueError(f"Failed to parse YAML: {e}")
+
+
+def create_token_counter():
+    """Create a token counting function using tiktoken with char-count fallback."""
+    try:
+        enc = tiktoken.get_encoding("cl100k_base")
+        return lambda text: len(enc.encode(text, disallowed_special=()))
+    except Exception:
+        return lambda text: len(text) // 4
+
+
+def resolve_max_tokens(shared):
+    """Resolve max_tokens from shared store or auto-detect from provider env vars."""
+    max_tokens = shared.get("max_tokens")
+    if max_tokens is not None:
+        return max_tokens
+    provider = os.environ.get("LLM_PROVIDER")
+    if provider == "GEMINI" or not provider:
+        endpoint = "https://generativelanguage.googleapis.com"
+        model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
+        api_key = os.getenv("GEMINI_API_KEY", "")
+    else:
+        endpoint = os.environ.get(f"{provider}_BASE_URL", "")
+        model_name = os.environ.get(f"{provider}_MODEL", "")
+        api_key = os.environ.get(f"{provider}_API_KEY", "")
+    return get_model_context_length(endpoint, model_name, api_key)
+
+
 
 class ContextRouter(Node):
     def prep(self, shared):
         files_data = shared["files"]
-        max_tokens = shared.get("max_tokens")
-        if max_tokens is None:
-            provider = os.environ.get("LLM_PROVIDER")
-            if provider == "GEMINI" or not provider:
-                endpoint = "https://generativelanguage.googleapis.com"
-                model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
-                api_key = os.getenv("GEMINI_API_KEY", "")
-            else:
-                endpoint = os.environ.get(f"{provider}_BASE_URL", "")
-                model_name = os.environ.get(f"{provider}_MODEL", "")
-                api_key = os.environ.get(f"{provider}_API_KEY", "")
-            max_tokens = get_model_context_length(endpoint, model_name, api_key)
+        max_tokens = resolve_max_tokens(shared)
         
         shared["max_tokens"] = max_tokens
         
         # --- Token estimation setup ---
-        try:
-            import tiktoken
-            enc = tiktoken.get_encoding("cl100k_base")
-            def count_tokens(text):
-                return len(enc.encode(text, disallowed_special=()))
-        except Exception:
-            def count_tokens(text):
-                return len(text) // 4
+        count_tokens = create_token_counter()
 
         # --- Calculate prompt overhead FIRST ---
         # 1. Prompt template (measure both, use the larger)
@@ -212,10 +240,7 @@ class MapAbstractions(BatchNode):
             
         file_listing = "\n".join(file_listing_for_prompt)
         
-        prompt_dir = "advanced" if item["advanced_mode"] else "tutorial"
-        prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "map_abstractions.md")
-        with open(prompt_path, "r", encoding="utf-8-sig") as f:
-            prompt_template = f.read()
+        prompt_template = load_prompt_template("map_abstractions", item["advanced_mode"])
 
         language = item.get("language", "english")
         language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
@@ -237,11 +262,7 @@ class MapAbstractions(BatchNode):
             print(f"\033[92m    - [{i}] {path}\033[0m")
         response = call_llm(prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"])
 
-        try:
-            yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
-            abstractions = yaml.safe_load(yaml_str)
-        except Exception as e:
-            raise ValueError(f"Failed to parse YAML: {e}")
+        abstractions = parse_yaml_response(response)
 
         validated_abstractions = []
         if isinstance(abstractions, list):
@@ -288,10 +309,7 @@ class ReduceAbstractions(Node):
         for i, abs_obj in enumerate(mapped_abstractions):
             context += f"- Partial Abstraction {i}: {abs_obj['name']}\n  Description: {abs_obj['description']}\n  Files: {abs_obj['files']}\n\n"
 
-        prompt_dir = "advanced" if advanced_mode else "tutorial"
-        prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "reduce_abstractions.md")
-        with open(prompt_path, "r", encoding="utf-8-sig") as f:
-            prompt_template = f.read()
+        prompt_template = load_prompt_template("reduce_abstractions", advanced_mode)
             
         language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
         name_lang_hint = f" (in {language})" if language.lower() != "english" else ""
@@ -310,11 +328,7 @@ class ReduceAbstractions(Node):
         print(f"Reducing {len(mapped_abstractions)} partial abstractions into global architecture...")
         response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
 
-        try:
-            yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
-            abstractions = yaml.safe_load(yaml_str)
-        except Exception as e:
-            raise ValueError(f"Failed to parse YAML: {e}")
+        abstractions = parse_yaml_response(response)
 
         validated_abstractions = []
         if isinstance(abstractions, list):
@@ -411,26 +425,11 @@ class IdentifyAbstractions(Node):
         # Helper to create context from files, respecting limits (basic example)
         def create_llm_context(files_data):
             # Retrieve max tokens limit
-            max_tokens = shared.get("max_tokens")
-            if max_tokens is None:
-                provider = os.environ.get("LLM_PROVIDER")
-                if provider == "GEMINI" or not provider:
-                    endpoint = "https://generativelanguage.googleapis.com"
-                    model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
-                    api_key = os.getenv("GEMINI_API_KEY", "")
-                else:
-                    endpoint = os.environ.get(f"{provider}_BASE_URL", "")
-                    model_name = os.environ.get(f"{provider}_MODEL", "")
-                    api_key = os.environ.get(f"{provider}_API_KEY", "")
-                max_tokens = get_model_context_length(endpoint, model_name, api_key)
+            max_tokens = resolve_max_tokens(shared)
             
             safety_limit = int(max_tokens * 0.95)
             
-            try:
-                enc = tiktoken.get_encoding("cl100k_base")
-            except Exception as e:
-                print(f"\033[93mWarning: tiktoken encoding failed: {e}. Falling back to character count estimation.\033[0m")
-                enc = None
+            count_tokens = create_token_counter()
 
             context = ""
             file_info = []  # Store tuples of (index, path)
@@ -439,11 +438,7 @@ class IdentifyAbstractions(Node):
             for i, (path, content) in enumerate(files_data):
                 entry = f"--- File Index {i}: {path} ---\n{content}\n\n"
                 
-                if enc:
-                    entry_tokens = len(enc.encode(entry, disallowed_special=()))
-                else:
-                    # rough fallback estimation: 1 token ~ 4 chars
-                    entry_tokens = len(entry) // 4
+                entry_tokens = count_tokens(entry)
                 
                 if current_tokens + entry_tokens > safety_limit:
                     print(f"\033[93mWarning: Context truncated at file index {i} ({path}) to fit within limit of {safety_limit} tokens.\033[0m")
@@ -502,10 +497,7 @@ class IdentifyAbstractions(Node):
                 name_lang_hint = f" (value in {language.capitalize()})"
                 desc_lang_hint = f" (value in {language.capitalize()})"
 
-            prompt_dir = "advanced" if advanced_mode else "tutorial"
-            prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "identify_abstractions.md")
-            with open(prompt_path, "r", encoding="utf-8-sig") as f:
-                prompt_template = f.read()
+            prompt_template = load_prompt_template("identify_abstractions", advanced_mode)
 
             prompt = prompt_template.format(
                 project_name=project_name,
@@ -522,11 +514,7 @@ class IdentifyAbstractions(Node):
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)  # Use cache only if enabled and not retrying
 
             # --- Validation ---
-            try:
-                yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
-                abstractions = yaml.safe_load(yaml_str)
-            except Exception as e:
-                raise ValueError(f"Failed to parse YAML: {e}")
+            abstractions = parse_yaml_response(response)
 
             if not isinstance(abstractions, list):
                 raise ValueError("LLM Output is not a list")
@@ -632,20 +620,13 @@ class AnalyzeRelationships(Node):
         safety_limit = int(max_tokens * 0.95)
         prompt_overhead = 2000  # approximate tokens for prompt template + response
 
-        try:
-            enc = tiktoken.get_encoding("cl100k_base")
-            current_tokens = len(enc.encode(context, disallowed_special=()))
-        except Exception:
-            enc = None
-            current_tokens = len(context) // 4
+        estimate_tokens = create_token_counter()
+        current_tokens = estimate_tokens(context)
 
         total_budget = safety_limit - current_tokens - prompt_overhead
         num_abstractions = len(abstractions)
 
-        def estimate_tokens(text):
-            if enc:
-                return len(enc.encode(text, disallowed_special=()))
-            return len(text) // 4
+
 
         # Pre-compute file token sizes for all abstractions
         abstr_file_data = []  # list of [(idx, path, content, tokens), ...] per abstraction
@@ -756,10 +737,7 @@ class AnalyzeRelationships(Node):
                 lang_hint = f" (in {language.capitalize()})"
                 list_lang_note = f" (Names might be in {language.capitalize()})"  # Note for the input list
 
-            prompt_dir = "advanced" if advanced_mode else "tutorial"
-            prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "identify_relationships.md")
-            with open(prompt_path, "r", encoding="utf-8-sig") as f:
-                prompt_template = f.read()
+            prompt_template = load_prompt_template("identify_relationships", advanced_mode)
 
             prompt = prompt_template.format(
                 project_name=project_name,
@@ -774,11 +752,7 @@ class AnalyzeRelationships(Node):
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
 
             # --- Validation ---
-            try:
-                yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
-                relationships_data = yaml.safe_load(yaml_str)
-            except Exception as e:
-                raise ValueError(f"Failed to parse YAML: {e}")
+            relationships_data = parse_yaml_response(response)
 
             if not isinstance(relationships_data, dict) or not all(
                 k in relationships_data for k in ["summary", "relationships"]
@@ -922,10 +896,7 @@ class OrderChapters(Node):
             # No language variation needed here in prompt instructions, just ordering based on structure
             # The input names might be translated, hence the note.
 
-            prompt_dir = "advanced" if advanced_mode else "tutorial"
-            prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "order_chapters.md")
-            with open(prompt_path, "r", encoding="utf-8-sig") as f:
-                prompt_template = f.read()
+            prompt_template = load_prompt_template("order_chapters", advanced_mode)
 
             prompt = prompt_template.format(
                 project_name=project_name,
@@ -938,11 +909,7 @@ class OrderChapters(Node):
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
 
             # --- Validation ---
-            try:
-                yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
-                ordered_indices_raw = yaml.safe_load(yaml_str)
-            except Exception as e:
-                raise ValueError(f"Failed to parse YAML: {e}")
+            ordered_indices_raw = parse_yaml_response(response)
 
             if not isinstance(ordered_indices_raw, list):
                 raise ValueError("LLM output is not a list")
@@ -1140,10 +1107,7 @@ class WriteChapters(BatchNode):
                 )
                 tone_note = f" (appropriate for {lang_cap} readers)"
 
-            prompt_dir = "advanced" if advanced_mode else "tutorial"
-            prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, "draft_chapters.md")
-            with open(prompt_path, "r", encoding="utf-8-sig") as f:
-                prompt_template = f.read()
+            prompt_template = load_prompt_template("draft_chapters", advanced_mode)
 
             prompt = prompt_template.format(
                 language_instruction=language_instruction,
