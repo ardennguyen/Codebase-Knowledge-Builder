@@ -437,15 +437,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#module-level-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Module-Level Functions
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+    <nav class="md-nav" aria-label="Module-Level Functions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -457,10 +457,60 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="main()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Implementation:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-arguments-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Arguments Reference:
+      
+    </span>
+  </a>
+  
 </li>
         
       </ul>
     </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-execution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Execution Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
   
 </li>
       
@@ -488,34 +538,6 @@
     
   
     nodes
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../utils/__init__/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    utils.__init__
   
 
     
@@ -725,15 +747,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+  <a href="#module-level-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Module-Level Functions
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+    <nav class="md-nav" aria-label="Module-Level Functions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -745,10 +767,60 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="main()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Implementation:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-arguments-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Arguments Reference:
+      
+    </span>
+  </a>
+  
 </li>
         
       </ul>
     </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-execution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Execution Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
   
 </li>
       
@@ -772,48 +844,354 @@
 <h1 id="main">main</h1>
 <p><strong>File Path:</strong> <code>main.py</code></p>
 <h2 id="overview">Overview</h2>
-<p>The <code>main</code> module serves as the primary command-line interface (CLI) entry point for the <code>Codebase-Knowledge-Builder</code> tool. It handles command-line argument parsing, environment variable initialization, fallback pattern matching configurations, context limit resolution, and orchestration of the execution graph via <a href="../flow/">create_tutorial_flow()</a>.</p>
-<p>It configures a shared context dictionary containing all execution parameters (target repository or directory, inclusion/exclusion rules, LLM model settings, generation modes, and caching flags) and passes it to the <code>pocketflow</code> workflow engine. Additionally, it handles optional post-run cleanup of logs and cached LLM responses.</p>
+<p>The <code>main</code> module serves as the command-line interface (CLI) entry point and execution harness for <code>Codebase-Knowledge-Builder</code>. It orchestrates environment loading, command-line argument parsing, default file filter configuration, LLM provider context detection, runtime logging setup, and invocation of the computational graph constructed in <a href="../flow/">flow</a>.</p>
+<p>The script initializes the shared context data structure passed to all downstream processing <a href="../nodes/">nodes</a> in the DAG, executes the pipeline via <code>tutorial_flow.run(shared)</code>, and handles optional post-execution artifact cleanup.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                  +--------------------------+
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                  | CLI Args &amp; .env Loading  |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                  +------------+-------------+
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                               |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                               v
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                  +--------------------------+
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                  |  Shared Context Creation |
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                  +------------+-------------+
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                               |
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                               v
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                  +--------------------------+
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                  | LLM Provider Detection   |
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                  |  &amp; Logging Configuration |
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>                  +------------+-------------+
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                               |
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>                               v
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>                  +--------------------------+
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                  |   create_tutorial_flow   | (from flow.py)
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>                  +------------+-------------+
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>                               |
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                               v
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                  +--------------------------+
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                  |    tutorial_flow.run     |
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                  +------------+-------------+
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>                               |
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                               v
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                  +--------------------------+
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                  | Optional Cleanup Routine |
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>                  +--------------------------+
+</code></pre></div>
+<hr />
 <h2 id="module-constants">Module Constants</h2>
 <h3 id="default_include_patterns"><code>DEFAULT_INCLUDE_PATTERNS</code></h3>
 <ul>
-<li><strong>Type</strong>: <code>set</code></li>
-<li><strong>Value</strong>: <code>{"*"}</code></li>
-<li><strong>Description</strong>: Default glob pattern set used when no explicit include patterns are passed via the <code>--include</code> argument. Matches all discovered codebase files.</li>
+<li><strong>Type:</strong> <code>set[str]</code></li>
+<li><strong>Value:</strong> <code>{"*"}</code></li>
+<li><strong>Description:</strong> The default glob pattern applied to codebase scanning when no explicit <code>--include</code> patterns are provided via the CLI. Ensures all files are processed by default.</li>
 </ul>
 <h3 id="default_exclude_patterns"><code>DEFAULT_EXCLUDE_PATTERNS</code></h3>
 <ul>
-<li><strong>Type</strong>: <code>set</code></li>
-<li><strong>Description</strong>: Global exclusion patterns covering media assets, data files, build distribution caches, lockfiles, dependency folders, native binary artifacts, test suites, IDE metadata, and modern AI tool directories (e.g., Cursor, Windsurf, Cline, Copilot).</li>
+<li><strong>Type:</strong> <code>set[str]</code></li>
+<li><strong>Description:</strong> A comprehensive collection of glob patterns defining static assets, distribution build directories, dependency directories, language-specific runtime/cache artifacts, version control directories, IDE metadata, and AI coding agent system folders that should be ignored during crawling.</li>
 </ul>
+<p>Categories covered:
+1. <strong>Media, Data, and Static Assets</strong>: <code>assets/*</code>, <code>data/*</code>, <code>images/*</code>, <code>public/*</code>, <code>static/*</code>, <code>temp/*</code>, <code>tmp/*</code>, <code>media/*</code>, <code>*.jpg</code>, <code>*.jpeg</code>, <code>*.png</code>, <code>*.gif</code>, <code>*.ico</code>, <code>*.svg</code>, <code>*.webp</code>, <code>*.mp4</code>, <code>*.webm</code>, <code>*.mov</code>, <code>*.mp3</code>, <code>*.wav</code>, <code>*.pdf</code>, <code>*.doc</code>, <code>*.docx</code>, <code>*.xls</code>, <code>*.xlsx</code>, <code>*.ppt</code>, <code>*.pptx</code>, <code>*.zip</code>, <code>*.tar</code>, <code>*.gz</code>, <code>*.rar</code>, <code>*.7z</code>.
+2. <strong>Build, Distribution, and Framework Caches</strong>: <code>dist/*</code>, <code>build/*</code>, <code>out/*</code>, <code>output/*</code>, <code>target/*</code>, <code>bin/*</code>, <code>obj/*</code>, <code>.next/*</code>, <code>.nuxt/*</code>, <code>.svelte-kit/*</code>, <code>.expo/*</code>, <code>docs/*</code>, <code>test/*</code>, <code>tests/*</code>, <code>examples/*</code>, <code>v1/*</code>, <code>experimental/*</code>, <code>deprecated/*</code>, <code>misc/*</code>, <code>legacy/*</code>, <code>*.log</code>, <code>*.bak</code>, <code>*.tmp</code>, <code>*.swp</code>.
+3. <strong>Environments, Dependencies &amp; Lockfiles</strong>: <code>venv/*</code>, <code>.venv/*</code>, <code>env/*</code>, <code>.env</code>, <code>.env.*</code>, <code>node_modules/*</code>, <code>bower_components/*</code>, <code>jspm_packages/*</code>, <code>vendor/*</code>, <code>packages/*</code>, <code>*.lock</code>, <code>package-lock.json</code>, <code>yarn.lock</code>, <code>pnpm-lock.yaml</code>, <code>Cargo.lock</code>, <code>Gemfile.lock</code>, <code>poetry.lock</code>, <code>mix.lock</code>, <code>Pipfile.lock</code>.
+4. <strong>Language-Specific Exclusions</strong>: Python (<code>__pycache__/*</code>, <code>*.pyc</code>, <code>*.pyo</code>, <code>*.pyd</code>, <code>.pytest_cache/*</code>, <code>.tox/*</code>, <code>.coverage</code>, <code>htmlcov/*</code>), JVM (<code>.gradle/*</code>, <code>*.class</code>, <code>*.jar</code>, <code>*.war</code>, <code>*.ear</code>, <code>*.nar</code>), C/C++/Native (<code>*.o</code>, <code>*.obj</code>, <code>*.dll</code>, <code>*.exe</code>, <code>*.so</code>, <code>*.dylib</code>, <code>*.lib</code>, <code>*.a</code>), Mobile (<code>ios/Pods/*</code>, <code>android/.gradle/*</code>, <code>android/app/build/*</code>).
+5. <strong>OS &amp; Version Control</strong>: <code>.git/*</code>, <code>.github/*</code>, <code>.svn/*</code>, <code>.hg/*</code>, <code>.DS_Store</code>, <code>Thumbs.db</code>, <code>desktop.ini</code>.
+6. <strong>Classic IDEs</strong>: <code>.vscode/*</code>, <code>.idea/*</code>, <code>*.iml</code>, <code>.eclipse/*</code>, <code>.settings/*</code>, <code>.classpath</code>, <code>.project</code>, <code>.vs/*</code>.
+7. <strong>AI Agents &amp; Modern AI IDEs</strong>: <code>.cursor/*</code>, <code>.cursorrules</code>, <code>.windsurf/*</code>, <code>.windsurfrules</code>, <code>.cline/*</code>, <code>.clinerules</code>, <code>.roo/*</code>, <code>.roorules</code>, <code>.agent/*</code>, <code>.agents/*</code>, <code>.continue/*</code>, <code>.aide/*</code>, <code>.gemini/*</code>, <code>.antigravity/*</code>, <code>.claude/*</code>, <code>.copilot/*</code>.</p>
 <hr />
-<h2 id="functions">Functions</h2>
+<h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="main_1"><code>main()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def main() -&gt; None:</code></p>
 <p><strong>Description</strong>:<br />
-Executes the top-level CLI workflow for generating codebase documentation and tutorials:
-1. <strong>Environment Setup</strong>: Loads environment variables from <code>.env</code> using <code>dotenv.load_dotenv()</code>.
-2. <strong>CLI Parsing</strong>: Configures and parses command-line arguments using <code>argparse.ArgumentParser</code>. Supports mutually exclusive target source inputs (<code>--repo</code> for remote GitHub repositories or <code>--dir</code> for local paths), output directory selection, pattern filtering, documentation modes (<code>tutorial</code>, <code>advanced</code>, <code>api-reference</code>, <code>sdk</code>), token overrides, caching, and batching limits.
-3. <strong>Authentication &amp; Token Resolution</strong>: Resolves GitHub access tokens from the CLI argument <code>--token</code> or the <code>GITHUB_TOKEN</code> environment variable.
-4. <strong>Context Window &amp; Provider Resolution</strong>: Detects active LLM configuration (<code>LLM_PROVIDER</code>, endpoint URLs, and API keys) and queries context limits using <a href="../utils/call_llm/">get_model_context_length()</a> if <code>--max-tokens</code> is not explicitly set.
-5. <strong>Shared Store Instantiation</strong>: Constructs the <code>shared</code> dictionary that nodes read from and write to across pipeline execution.
-6. <strong>Execution Graph</strong>: Instantiates the workflow graph using <a href="../flow/">create_tutorial_flow()</a> and executes it against the shared state.
-7. <strong>Post-execution Cleanup</strong>: If the <code>--cleanup</code> flag is set, deletes the <code>llm_cache.json</code> file and removes the configured log directory.</p>
+Executes the primary CLI application logic. It parses arguments, resolves target repository/directory settings, dynamically inspects environment variables for provider configuration, configures logging via <a href="../utils/call_llm/">utils.call_llm</a>, builds the shared flow context dictionary, runs the workflow DAG generated by <a href="../flow/">flow</a>, and performs cleanup if requested.</p>
+<h4 id="core-implementation">Core Implementation:</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Generate a tutorial for a GitHub codebase or local directory."</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="c1"># Create mutually exclusive group for source</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">source_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">source_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--repo"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"URL of the public GitHub repository."</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">source_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--dir"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to local directory."</span><span class="p">)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="c1"># ... [Argument parsing configuration] ...</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="c1"># Get GitHub token from argument or environment variable if using repo</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">github_token</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="n">github_token</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">token</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'GITHUB_TOKEN'</span><span class="p">)</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">github_token</span><span class="p">:</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">"Warning: No GitHub token provided. You might hit rate limits for public repositories."</span><span class="p">)</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="c1"># Resolve mode (backward compatibility for --advanced)</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="n">doc_mode</span> <span class="o">=</span> <span class="s2">"advanced"</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">advanced</span> <span class="k">else</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="c1"># Enforce incremental cache constraints</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">incremental</span> <span class="ow">and</span> <span class="n">doc_mode</span> <span class="o">!=</span> <span class="s2">"api-reference"</span><span class="p">:</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n\033</span><span class="s2">[93m[Warning] --incremental caching is only effective in 'api-reference' mode due to stable 1:1 file mapping. Disabling incremental cache for this run.</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="n">args</span><span class="o">.</span><span class="n">incremental</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>    <span class="c1"># Prepare shared store to be passed between nodes</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>    <span class="n">shared</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="s2">"repo_url"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="s2">"local_dir"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        <span class="s2">"project_name"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>        <span class="s2">"github_token"</span><span class="p">:</span> <span class="n">github_token</span><span class="p">,</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="s2">"output_dir"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>        <span class="s2">"include_patterns"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">include</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">include</span> <span class="k">else</span> <span class="n">DEFAULT_INCLUDE_PATTERNS</span><span class="p">,</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>        <span class="s2">"exclude_patterns"</span><span class="p">:</span> <span class="n">DEFAULT_EXCLUDE_PATTERNS</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">exclude</span><span class="p">))</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">exclude</span> <span class="k">else</span> <span class="n">DEFAULT_EXCLUDE_PATTERNS</span><span class="p">,</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>        <span class="s2">"max_file_size"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">max_size</span><span class="p">,</span>
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>        <span class="s2">"language"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">language</span><span class="p">,</span>
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>        <span class="s2">"use_cache"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_cache</span><span class="p">,</span>
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>        <span class="s2">"max_abstraction_num"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">max_abstractions</span><span class="p">,</span>
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>        <span class="s2">"thinking_level"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">thinking_level</span><span class="p">,</span>
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>        <span class="s2">"max_tokens"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">max_tokens</span><span class="p">,</span>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>        <span class="s2">"mode"</span><span class="p">:</span> <span class="n">doc_mode</span><span class="p">,</span>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>        <span class="s2">"mkdocs"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">mkdocs</span><span class="p">,</span>
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>        <span class="s2">"incremental"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">incremental</span><span class="p">,</span>
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>        <span class="s2">"advanced_mode"</span><span class="p">:</span> <span class="n">doc_mode</span> <span class="o">==</span> <span class="s2">"advanced"</span><span class="p">,</span>
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>        <span class="s2">"batch_size"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">batch</span><span class="p">,</span>
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>        <span class="s2">"force_batch"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">force_batch</span><span class="p">,</span>
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>        <span class="s2">"debug"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>        <span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span>
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>        <span class="s2">"abstractions"</span><span class="p">:</span> <span class="p">[],</span>
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>        <span class="s2">"relationships"</span><span class="p">:</span> <span class="p">{},</span>
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>        <span class="s2">"chapter_order"</span><span class="p">:</span> <span class="p">[],</span>
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>        <span class="s2">"chapters"</span><span class="p">:</span> <span class="p">[],</span>
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>        <span class="s2">"final_output_dir"</span><span class="p">:</span> <span class="kc">None</span>
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>    <span class="p">}</span>
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>    <span class="c1"># ... [LLM config &amp; context length resolution] ...</span>
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>    <span class="c1"># Create the flow instance</span>
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>    <span class="n">tutorial_flow</span> <span class="o">=</span> <span class="n">create_tutorial_flow</span><span class="p">()</span>
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>    <span class="c1"># Run the flow</span>
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>    <span class="n">tutorial_flow</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">shared</span><span class="p">)</span>
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>    <span class="c1"># Cleanup logs and cache if requested</span>
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cleanup</span><span class="p">:</span>
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>        <span class="c1"># ... [Cleanup implementation] ...</span>
+</code></pre></div>
+<h4 id="cli-arguments-reference">CLI Arguments Reference:</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Argument</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>--repo</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">URL of the public GitHub repository (mutually exclusive with <code>--dir</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--dir</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Local directory path (mutually exclusive with <code>--repo</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-n</code>, <code>--name</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Project name override (derived from path/URL if omitted).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-t</code>, <code>--token</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">GitHub Personal Access Token (falls back to <code>GITHUB_TOKEN</code> environment variable).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-o</code>, <code>--output</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>"output"</code></td>
+<td style="text-align: left;">Base output directory path.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-i</code>, <code>--include</code></td>
+<td style="text-align: left;"><code>list[str]</code></td>
+<td style="text-align: left;"><code>["*"]</code></td>
+<td style="text-align: left;">File patterns to include.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-e</code>, <code>--exclude</code></td>
+<td style="text-align: left;"><code>list[str]</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">File patterns to exclude (merged into <code>DEFAULT_EXCLUDE_PATTERNS</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-s</code>, <code>--max-size</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>200000</code></td>
+<td style="text-align: left;">Maximum file size in bytes (200 KB default).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--language</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>"english"</code></td>
+<td style="text-align: left;">Target language for the output tutorial/documentation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--no-cache</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Disables prompt/response caching for LLM invocations.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--cleanup</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Deletes <code>llm_cache.json</code> and the <code>logs/</code> directory upon completion.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--max-abstractions</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>10</code></td>
+<td style="text-align: left;">Maximum number of architectural abstractions to extract.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--thinking-level</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Thinking effort for reasoning models (<code>low</code>, <code>medium</code>, <code>high</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--max-tokens</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Manual override for model context window length.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--mode</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>"tutorial"</code></td>
+<td style="text-align: left;">Generation style (<code>tutorial</code>, <code>advanced</code>, <code>api-reference</code>, <code>sdk</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--advanced</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Legacy flag equivalent to <code>--mode advanced</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--mkdocs</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Formats output with YAML frontmatter and generates an <code>mkdocs.yml</code> navigation snippet.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--incremental</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Enables MD5 file hashing cache to skip unchanged files in <code>api-reference</code> mode.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--batch</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>50</code></td>
+<td style="text-align: left;">Maximum number of files per batch in map-reduce abstraction extraction.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--force-batch</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Forces map-reduce execution regardless of context window availability.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--debug</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Enables verbose debug logs across all execution nodes.</td>
+</tr>
+</tbody>
+</table>
 <p><strong>Parameters</strong>:<br />
-<em>None</em> (Reads directly from <code>sys.argv</code> via <code>argparse.ArgumentParser</code>).</p>
+<em>None</em> (reads parameters from <code>sys.argv</code>).</p>
 <p><strong>Returns</strong>:<br />
 * <code>None</code></p>
 <p><strong>Raises</strong>:<br />
-* <code>SystemExit</code>: Raised by <code>argparse</code> if mandatory arguments (such as <code>--repo</code> or <code>--dir</code>) are missing or if <code>--help</code> is requested.
-* <code>Exception</code>: May propagate unhandled operational or I/O exceptions during flow execution or cleanup.</p>
+* <code>SystemExit</code>: Raised by <code>argparse</code> when required arguments are missing or invalid CLI flags are provided.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Generate a standard tutorial from a public GitHub repository</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>main.py<span class="w"> </span>--repo<span class="w"> </span>https://github.com/octocat/Hello-World<span class="w"> </span>--language<span class="w"> </span>english
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Generate API reference documentation for a local directory with incremental caching</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python<span class="w"> </span>main.py<span class="w"> </span>--dir<span class="w"> </span>./my-project<span class="w"> </span>--mode<span class="w"> </span>api-reference<span class="w"> </span>--incremental<span class="w"> </span>--mkdocs
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">main</span><span class="p">()</span>
 </code></pre></div></p>
+<hr />
+<h2 id="detailed-execution-flow">Detailed Execution Flow</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>                  +-------------------+
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>                  |   CLI Execution   |
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>                  +---------+---------+
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>                            |
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>                            v
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>               +----------------------------+
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>               | Parse Args &amp; Load .env     |
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>               +-------------+--------------+
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>                             |
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>                             v
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>               +----------------------------+
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>               | Mode / Flag Sanitization   |
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>               | (e.g. check incremental)   |
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>               +-------------+--------------+
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>                             |
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                             v
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>               +----------------------------+
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>               | Initialize Shared Context  |
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>               +-------------+--------------+
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>                             |
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>                             v
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>               +----------------------------+
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>               | Provider &amp; Context Length  |
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>               | Discovery via call_llm     |
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>               +-------------+--------------+
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>                             |
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>                             v
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>               +----------------------------+
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>               | Configure Logging          |
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>               +-------------+--------------+
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>                             |
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>                             v
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>               +----------------------------+
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>               | create_tutorial_flow()     |
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>               +-------------+--------------+
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>                             |
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>                             v
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>               +----------------------------+
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>               | flow.run(shared)           |
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>               +-------------+--------------+
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>                             |
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>                             v
+<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>               +----------------------------+
+<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>               | Cleanup Logs/Cache if set  |
+<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>               +----------------------------+
+</code></pre></div>
+<ol>
+<li><strong>Environment Initialization</strong>: Invokes <code>dotenv.load_dotenv()</code> to import environment configurations from <code>.env</code>.</li>
+<li><strong>CLI Parsing &amp; Validation</strong>:</li>
+<li>Validates that either <code>--repo</code> or <code>--dir</code> is provided.</li>
+<li>Normalizes legacy <code>--advanced</code> to <code>doc_mode = "advanced"</code>.</li>
+<li>Validates <code>--incremental</code> usage: if <code>mode != "api-reference"</code>, issues a warning and disables the flag.</li>
+<li><strong>Shared Context Population</strong>: Builds the dictionary containing execution parameters, custom/default include-exclude patterns, batch thresholds, and storage keys for pipeline nodes (<a href="../nodes/">nodes</a>).</li>
+<li><strong>Provider &amp; Context Resolution</strong>: Inspects provider environment variables (<code>LLM_PROVIDER</code>, <code>GEMINI_PROJECT_ID</code>, <code>GEMINI_API_KEY</code>) and queries <code>get_model_context_length</code> from <a href="../utils/call_llm/">utils.call_llm</a> to determine token limits.</li>
+<li><strong>Logging Initialization</strong>: Calls <code>configure_logging(project_name=log_project_name, mode=doc_mode)</code> from <a href="../utils/call_llm/">utils.call_llm</a> to set up per-run log files in <code>logs/{project}_{mode}_{datetime}.log</code>.</li>
+<li><strong>Flow Pipeline Execution</strong>: Calls <code>create_tutorial_flow()</code> from <a href="../flow/">flow</a> and triggers execution via <code>tutorial_flow.run(shared)</code>.</li>
+<li><strong>Post-Run Cleanup</strong>: If <code>--cleanup</code> is specified, deletes <code>llm_cache.json</code> and purges the <code>LOG_DIR</code> directory via <code>shutil.rmtree</code>.</li>
+</ol>
+<hr />
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../flow/">flow</a> — Constructs the <code>pocketflow.Flow</code> graph executed by <code>main()</code>.</li>
+<li><a href="../nodes/">nodes</a> — Implements each computational node operating on the <code>shared</code> dictionary.</li>
+<li><a href="../utils/call_llm/">utils.call_llm</a> — Manages provider context discovery, logging configuration, and LLM requests.</li>
+<li><a href="../utils/crawl_github_files/">utils.crawl_github_files</a> — Crawls remote repositories using the configured GitHub token and inclusion/exclusion patterns.</li>
+<li><a href="../utils/crawl_local_files/">utils.crawl_local_files</a> — Crawls local directories matching filtering rules.</li>
+</ul>
 
 
 
