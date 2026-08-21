@@ -22,7 +22,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install mkdocs-material pyyaml google-generativeai PyGithub beautifulsoup4
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Cache Documentation and Manifest
