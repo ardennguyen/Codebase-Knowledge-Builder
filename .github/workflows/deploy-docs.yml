@@ -45,8 +45,12 @@ jobs:
         run: |
           python main.py --dir . --mode api-reference --mkdocs --incremental
 
-      - name: Setup base mkdocs.yml
+      - name: Setup base mkdocs.yml and copy original docs
         run: |
+          # Copy all static markdown docs into the generated output directory
+          cp -R docs/* output/Codebase-Knowledge-Builder/docs/
+          
+          # Create the base mkdocs config with a root nav structure
           cat << 'EOF' > output/Codebase-Knowledge-Builder/mkdocs.yml
           site_name: Codebase Knowledge Builder API Reference
           theme:
@@ -59,11 +63,16 @@ jobs:
                 use_pygments: true
             - pymdownx.superfences
             - pymdownx.inlinehilite
+          nav:
+            - Home: index.md
+            - Architecture & Design: design.md
           EOF
 
       - name: Merge Navigation Configuration
         run: |
-          cat output/Codebase-Knowledge-Builder/docs/nav_snippet.yml >> output/Codebase-Knowledge-Builder/mkdocs.yml
+          # The generated nav_snippet.yml has "nav:" on the first line. 
+          # We strip it and append the rest to our base config so it merges flawlessly.
+          sed '1d' output/Codebase-Knowledge-Builder/docs/nav_snippet.yml >> output/Codebase-Knowledge-Builder/mkdocs.yml
 
       - name: Deploy to GitHub Pages
         working-directory: output/Codebase-Knowledge-Builder
