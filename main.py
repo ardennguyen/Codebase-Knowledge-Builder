@@ -180,8 +180,21 @@ def main():
             endpoint_url = "unknown"
             api_key = ""
 
-    from utils.call_llm import get_model_context_length
+    from utils.call_llm import get_model_context_length, configure_logging
     context_length = args.max_tokens if args.max_tokens else get_model_context_length(endpoint_url, model_name, api_key)
+
+    # Derive project name for logging (before flow runs, which may override shared["project_name"])
+    if args.name:
+        log_project_name = args.name
+    elif args.dir:
+        log_project_name = os.path.basename(os.path.normpath(args.dir))
+    elif args.repo:
+        log_project_name = args.repo.rstrip("/").split("/")[-1]
+    else:
+        log_project_name = "project"
+
+    # Configure per-run logging: logs/{project}_{mode}_{datetime}.log
+    log_file = configure_logging(project_name=log_project_name, mode=doc_mode)
 
     # Display configuration
     print(f"Starting tutorial generation for: {args.repo or args.dir} in {args.language.capitalize()} language")
@@ -203,6 +216,7 @@ def main():
     print(f"LLM Caching    : {'Disabled' if args.no_cache else 'Enabled'}")
     if args.debug:
         print(f"Debug Mode     : Enabled")
+    print(f"Log File       : {log_file}")
     print(f"---------------------")
 
     # Create the flow instance

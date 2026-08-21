@@ -1,11 +1,10 @@
 import os
 import re
 import yaml
-import logging
 import tiktoken
 from pocketflow import Node, BatchNode
 from utils.crawl_github_files import crawl_github_files
-from utils.call_llm import call_llm, get_model_context_length
+from utils.call_llm import call_llm, get_model_context_length, logger as llm_logger
 from utils.crawl_local_files import crawl_local_files
 from utils.token_utils import log_token_estimation
 from collections import defaultdict
@@ -109,8 +108,7 @@ Return ONLY a YAML list of the file indices that should be documented as code mo
             return [int(idx) for idx in valid_indices]
         except Exception as e:
             print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
-            import logging
-            logging.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -213,6 +211,8 @@ class ContextRouter(Node):
 
     def exec(self, prep_res):
         route, files_data, effective_limit, batch_size, file_token_map, count_tokens, directory_tree, debug = prep_res
+        llm_logger.info(f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}")
+        
         if route == "direct":
             return "direct"
         if route == "deterministic":
@@ -245,6 +245,7 @@ class ContextRouter(Node):
 
         batch_word = "batch" if len(batches) == 1 else "batches"
         print(f"\033[93m[ContextRouter] Split into {len(batches)} {batch_word}.\033[0m")
+        llm_logger.info(f"NODE COMPLETE | node=ContextRouter | route={route} | batches={len(batches)}")
 
         # Debug: show detailed batch info
         if debug:
@@ -463,6 +464,9 @@ class FetchRepo(Node):
         }
 
     def exec(self, prep_res):
+        source = prep_res["repo_url"] or prep_res["local_dir"]
+        llm_logger.info(f"NODE EXEC | node=FetchRepo | action=crawl_files | source={source}")
+        
         if prep_res["repo_url"]:
             print(f"Crawling repository: {prep_res['repo_url']}...")
             result = crawl_github_files(
@@ -488,6 +492,8 @@ class FetchRepo(Node):
         files_list = list(result.get("files", {}).items())
         if len(files_list) == 0:
             raise ValueError("No matching files found. Check your directory and include/exclude patterns.")
+        
+        llm_logger.info(f"NODE COMPLETE | node=FetchRepo | files_found={len(files_list)}")
         return files_list
 
     def post(self, shared, prep_res, exec_res):
@@ -653,7 +659,7 @@ class IdentifyAbstractions(Node):
             return validated_abstractions
         except Exception as e:
             print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
-            logging.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -874,8 +880,7 @@ class AnalyzeRelationships(Node):
                         0 <= from_idx < num_abstractions and 0 <= to_idx < num_abstractions
                     ):
                         print(f"\033[93mWarning: Invalid index in relationship: from={from_idx}, to={to_idx}. Max index is {num_abstractions-1}. Skipping.\033[0m")
-                        import logging
-                        logging.warning(f"Invalid index in relationship: from={from_idx}, to={to_idx}")
+                        llm_logger.warning(f"Invalid index in relationship: from={from_idx}, to={to_idx}")
                         continue
                     validated_relationships.append(
                         {
@@ -895,8 +900,7 @@ class AnalyzeRelationships(Node):
             }
         except Exception as e:
             print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
-            import logging
-            logging.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -1024,8 +1028,7 @@ class OrderChapters(Node):
             return ordered_indices  # Return the list of indices
         except Exception as e:
             print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
-            import logging
-            logging.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -1290,8 +1293,7 @@ class WriteChapters(BatchNode):
             return {"content": chapter_content, "hash": current_hash, "name": abstraction_name}
         except Exception as e:
             print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
-            import logging
-            logging.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
             raise e
 
     def post(self, shared, prep_res, exec_res_list):
@@ -1479,6 +1481,7 @@ class CombineTutorial(Node):
             chapter_files = prep_res["chapter_files"]
             ui = prep_res["ui"]
 
+            llm_logger.info(f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}")
             print(f"Combining tutorial into directory: {output_path}")
             os.makedirs(output_path, exist_ok=True)
             
@@ -1539,11 +1542,11 @@ class CombineTutorial(Node):
                     f.write(full_content)
                 print(f"  - Wrote {full_content_filepath}")
 
+            llm_logger.info(f"NODE COMPLETE | node=CombineTutorial | output={output_path} | files_written={len(chapter_files) + 1}")
             return output_path  # Return the final path
         except Exception as e:
             print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
-            import logging
-            logging.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
             raise e
 
     def post(self, shared, prep_res, exec_res):

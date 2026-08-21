@@ -10,22 +10,46 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Configure logging
-log_directory = os.getenv("LOG_DIR", "logs")
-os.makedirs(log_directory, exist_ok=True)
-log_file = os.path.join(
-    log_directory, f"llm_calls_{datetime.now().strftime('%Y%m%d')}.log"
-)
-
-# Set up logger
+# Configure logging - deferred until main.py calls configure_logging()
+# At import time, set up logger with NullHandler (no file output yet)
 logger = logging.getLogger("llm_logger")
 logger.setLevel(logging.INFO)
 logger.propagate = False  # Prevent propagation to root logger
-file_handler = logging.FileHandler(log_file, encoding='utf-8')
-file_handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-)
-logger.addHandler(file_handler)
+logger.addHandler(logging.NullHandler())  # Absorb logs until configured
+
+
+def configure_logging(project_name="project", mode="tutorial"):
+    """Configure file-based logging for this run.
+    
+    Creates a new log file per invocation:
+        logs/{project_name}_{mode}_{YYYYMMDD_HHmmss}.log
+    
+    Must be called from main() after parsing CLI arguments.
+    """
+    log_directory = os.getenv("LOG_DIR", "logs")
+    os.makedirs(log_directory, exist_ok=True)
+    
+    # Sanitize project name for filesystem safety
+    safe_project = "".join(c if c.isalnum() or c in "-_." else "_" for c in project_name)
+    safe_mode = mode.replace("-", "_")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = os.path.join(log_directory, f"{safe_project}_{safe_mode}_{timestamp}.log")
+    
+    # Remove any existing handlers (e.g., NullHandler) and add the file handler
+    logger.handlers.clear()
+    file_handler = logging.FileHandler(log_file, encoding='utf-8')
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    )
+    logger.addHandler(file_handler)
+    
+    # Log run metadata at the start of every log file
+    logger.info(f"{'='*80}")
+    logger.info(f"RUN STARTED | project={project_name} | mode={mode} | timestamp={timestamp}")
+    logger.info(f"Log file: {log_file}")
+    logger.info(f"{'='*80}")
+    
+    return log_file
 
 # Simple cache configuration
 cache_file = "llm_cache.json"
@@ -109,7 +133,6 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
     - <provider>_API_KEY: API key (e.g., OLLAMA_API_KEY, OPENROUTER_API_KEY; optional for providers that don't require it)
     The endpoint /v1/chat/completions will be appended to the base URL.
     """
-    logger.info(f"PROMPT: {prompt}") # log the prompt
 
     # Read the provider from environment variable
     provider = os.environ.get("LLM_PROVIDER")
@@ -176,9 +199,14 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
             print(f"\033[93mWarning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}\033[0m")
             logger.warning(f"Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}")
             raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}")
-        logger.info("RESPONSE:\n%s", json.dumps(response_json, indent=2))
-        #logger.info(f"RESPONSE: {response.json()}")
         response.raise_for_status()
+        
+        # Defensive check: API may return 200 with error/rate-limit payload missing 'choices'
+        if "choices" not in response_json or not response_json["choices"]:
+            error_detail = response_json.get("error", response_json)
+            logger.warning(f"API returned 200 but no 'choices' in response: {error_detail}")
+            raise ValueError(f"API response missing 'choices' key. Response: {error_detail}")
+        
         return response_json["choices"][0]["message"]["content"]
     except requests.exceptions.HTTPError as e:
         error_message = f"HTTP error occurred: {e}"
@@ -199,35 +227,47 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
 
 # By default, we use Google Gemini 3.7 flash, as it shows great performance for code understanding
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) -> str:
-    # Log the prompt
-    logger.info(f"PROMPT: {prompt}")
+    import time
+
+    provider = get_llm_provider()
+    model = os.environ.get(f"{provider}_MODEL", os.environ.get("GEMINI_MODEL", "unknown"))
+    prompt_len = len(prompt)
+
+    logger.info(f"{'='*80}")
+    logger.info(f"LLM CALL START | provider={provider} | model={model} | thinking={thinking_level} | cache={'enabled' if use_cache else 'disabled'} | prompt_chars={prompt_len:,}")
+    logger.info(f"PROMPT:\n{prompt}")
 
     # Check cache if enabled
     if use_cache:
-        # Load cache from disk
         cache = load_cache()
-        # Return from cache if exists
         if prompt in cache:
-            logger.info(f"RESPONSE: {cache[prompt]}")
-            return cache[prompt]
+            cached_response = cache[prompt]
+            logger.info(f"CACHE HIT | response_chars={len(cached_response):,}")
+            logger.info(f"RESPONSE (cached):\n{cached_response}")
+            logger.info(f"LLM CALL END | result=cache_hit")
+            return cached_response
 
-    provider = get_llm_provider()
+    # Make the actual LLM call
+    start_time = time.time()
+    logger.info(f"API CALL | sending request to {provider}...")
+
     if provider == "GEMINI":
         response_text = _call_llm_gemini(prompt, thinking_level=thinking_level)
     else:  # generic method using a URL that is OpenAI compatible API (Ollama, ...)
         response_text = _call_llm_provider(prompt, thinking_level=thinking_level)
 
-    # Log the response
-    logger.info(f"RESPONSE: {response_text}")
+    elapsed = time.time() - start_time
+    logger.info(f"API CALL COMPLETE | elapsed={elapsed:.1f}s | response_chars={len(response_text):,}")
+    logger.info(f"RESPONSE:\n{response_text}")
 
     # Update cache if enabled
     if use_cache:
-        # Load cache again to avoid overwrites
         cache = load_cache()
-        # Add to cache and save
         cache[prompt] = response_text
         save_cache(cache)
+        logger.info(f"CACHE WRITE | saved response to cache")
 
+    logger.info(f"LLM CALL END | result=success | elapsed={elapsed:.1f}s")
     return response_text
 
 
