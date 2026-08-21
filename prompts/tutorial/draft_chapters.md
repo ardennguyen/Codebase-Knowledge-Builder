@@ -25,6 +25,13 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - Explain how to use this abstraction to solve the use case{instruction_lang_note}. Give example inputs and outputs for code snippets (if the output isn't values, describe at a high level what will happen{instruction_lang_note}).
 
+- FUNCTIONAL DECOMPOSITION: Do NOT give a high-level overview and then dump the source code. Instead, identify each major feature, handler, or workflow in this component and give each its own `###` subsection. For each one:
+  1. Explain what it does in plain language with an analogy
+  2. Walk through the internal steps it performs
+  3. Show the key 10-20 lines of actual code that implement it (use `// ...` to skip boilerplate)
+  4. Explain the code immediately after the block
+  If a single class implements multiple distinct operations, each operation MUST get its own subsection — do not lump them together.
+
 - IMPORTANT: You MUST extract and include the ACTUAL code snippets from the provided file context. Do not write generic examples or cut code short; present the exact implementation.
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear{code_comment_note}. Never translate, rephrase, or modify code or inline comments. Your own explanations belong in prose paragraphs outside the code fence.
@@ -39,6 +46,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   * `stateDiagram` — for entity lifecycle states (e.g., pending → confirmed → settled)
   Include at least 2 different diagram types per chapter when the component warrants it.
   Keep the diagrams minimal and clean to ensure clarity. {mermaid_lang_note}.
+  MERMAID RENDERING RULES: Keep node labels SHORT (max 40 characters) — abbreviate long names. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
 
 - Then dive deeper into code for the internal implementation with references to files. Provide example code blocks, but make them similarly simple and beginner-friendly. Explain{instruction_lang_note}.
 
@@ -46,7 +54,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - Heavily use analogies and examples throughout{instruction_lang_note} to help beginners understand.
 
-- CHAPTER LENGTH: Aim for 3,000-6,000 words per chapter. If the component spans many files, focus on the 3-5 most representative files and briefly reference the rest by name and role. Pick ONE primary use-case scenario and trace it end-to-end rather than exhaustively documenting every method.
+- CHAPTER LENGTH: Aim for 3,000-6,000 words per chapter. This limit includes prose AND code. If the component spans many files, focus on the 3-5 most representative files and briefly reference the rest by name and role. Pick ONE primary use-case scenario and trace it end-to-end rather than exhaustively documenting every method.
 
 - End the chapter with a brief conclusion that summarizes what was learned{instruction_lang_note} and provides a transition to the next chapter{instruction_lang_note}. If there is a next chapter, use a proper Markdown link: [Next Chapter Title](next_chapter_filename){link_lang_note}.
 

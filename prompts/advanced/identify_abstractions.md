@@ -21,7 +21,7 @@ GRANULARITY GUIDANCE:
 
 For each abstraction, provide:
 1. A precise, technically accurate `name`{name_lang_hint}.
-2. A technical `description` for an experienced engineer onboarding onto this project, in around 200-300 words{desc_lang_hint}.
+2. A technical `description` for an experienced engineer onboarding onto this project, in around 200-400 words{desc_lang_hint}.
    Include: (a) its architectural role and WHY it exists as a separate component, (b) design patterns used and WHY they were chosen,
    (c) its key classes/interfaces with their responsibilities, (d) its critical dependencies on other components,
    (e) what would break or degrade if this component went down.

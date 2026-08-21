@@ -32,11 +32,25 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   * Non-obvious design decisions visible in the code (naming conventions, error handling strategy, caching policy, etc.)
   * Concurrency model, thread safety considerations, and any shared mutable state
 
-- IMPORTANT: You MUST extract and include the ACTUAL code snippets from the provided file context. Do not write generic examples or cut code short; present the exact implementation.
+- FUNCTIONAL DECOMPOSITION (CRITICAL): Do NOT write a brief architectural overview and then dump the source code. Instead, identify EVERY major feature, option, handler, or workflow in this component and give each its own `###` subsection. For each feature/handler:
+  1. State what it does and when it is triggered (button click, event, API call, etc.)
+  2. Trace the control flow step-by-step through the key internal methods it calls
+  3. Show ONLY the 10-30 most significant lines of code for that feature (extracted selectively with `// ...` for boilerplate)
+  4. Explain the logic, edge cases, and error handling AFTER the code block
+  If a single class file implements 8 distinct operations (e.g., Option 1 through Option 8), each operation MUST get its own subsection with its own code analysis — do not lump them together.
+
+- IMPORTANT: You MUST extract and include ACTUAL code snippets from the provided file context — never invent examples. However, DO NOT dump entire source files. Instead, selectively extract the most architecturally significant methods, classes, or code sections.
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear{code_comment_note}. Your explanatory notes go in prose paragraphs OUTSIDE the code fence, not as modified inline comments.
 
-- Provide the actual source code for the most important files in this component{instruction_lang_note}. Code blocks can be as long as needed for complete classes. For files that are less critical, provide a summary table instead of full code.
+- CODE BLOCK SIZE: Keep individual code blocks to 20-60 lines each. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or trivial accessors. For each code block, include a prose analysis paragraph immediately after explaining WHY the code is structured that way, what design decisions are visible, and what an engineer should pay attention to.
+
+- SELECTIVE CODE EXTRACTION: For each file in this component, extract ONLY:
+  * The class/struct declaration and its most critical 3-5 methods (the ones that carry the core logic)
+  * Any non-obvious initialization, configuration, or state management code
+  * Error handling or edge-case logic that reveals architectural decisions
+  Do NOT paste entire files. If a file has 50 methods, show the 5 most important ones and describe the rest in a brief summary table:
+  | Method/Property | Responsibility | Key Behavior |
 
 - Describe the internal execution flow or state transitions{instruction_lang_note}. It's highly recommended to generate Mermaid diagrams. Choose the diagram type based on what aspect of the code you're illustrating:
   * `sequenceDiagram` — for request/response flows that cross multiple components or services
@@ -46,6 +60,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   * `stateDiagram` — for entity lifecycle states (e.g., pending → confirmed → settled)
   Use AT LEAST 2 different diagram types per chapter when appropriate.
   Keep the diagrams technically precise. {mermaid_lang_note}.
+  MERMAID RENDERING RULES: Keep node labels SHORT (max 40 characters) — abbreviate long names. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead (e.g., "and" not "&"). For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
 
 - Explicitly call out any important dependencies, constraints, concurrency models, or scaling characteristics{instruction_lang_note}.
 
@@ -57,7 +72,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   * Known quirks or technical debt visible in the code
   * How this component typically surfaces in code reviews (what changes are common)
 
-- CHAPTER LENGTH: Aim for 5,000-10,000 words per chapter. For components with many files (>15), show full code for the 3-5 most architecturally significant files. For the rest, provide a summary table:
+- CHAPTER LENGTH: Aim for 5,000-10,000 words per chapter. This limit includes prose AND code — use selective extraction to stay within it. For components with many files (>15), show extracted code for the 3-5 most architecturally significant files. For the rest, provide a summary table:
   | File | Key Class/Type | Responsibility | Key Methods/Fields |
   rather than full code listings.
 

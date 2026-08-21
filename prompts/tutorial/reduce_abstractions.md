@@ -25,7 +25,7 @@ still covers every file index from the input. Do not silently drop files during 
 
 For each merged abstraction, provide:
 1. A concise `name`{name_lang_hint}.
-2. A beginner-friendly `description` summarizing the merged concepts, their architectural role, and core logic with a simple analogy, in around 150-200 words{desc_lang_hint}.
+2. A beginner-friendly `description` summarizing the merged concepts, their architectural role, and core logic with a simple analogy, in around 150-250 words{desc_lang_hint}.
 3. A merged list of `files` combining all file indices and paths from the input abstractions.
 
 Format the output as a YAML list of dictionaries:

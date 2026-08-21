@@ -1351,7 +1351,7 @@ class CombineTutorial(Node):
         for i, abstr in enumerate(abstractions):
             node_id = f"A{i}"
             # Use potentially translated name, sanitize for Mermaid ID and label
-            sanitized_name = abstr["name"].replace('"', "")
+            sanitized_name = abstr["name"].replace('"', "").replace("\n", " ").strip()
             node_label = sanitized_name  # Using sanitized name only
             mermaid_lines.append(
                 f'    {node_id}["{node_label}"]'
@@ -1400,7 +1400,7 @@ class CombineTutorial(Node):
             
             for i, abstraction_index in enumerate(chapter_order):
                 if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
-                    abstraction_name = abstractions[abstraction_index]["name"]
+                    abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
                     original_path = abstractions[abstraction_index].get("original_path")
                     
                     if original_path:
@@ -1448,7 +1448,7 @@ class CombineTutorial(Node):
             chapter_files = []
             for i, abstraction_index in enumerate(chapter_order):
                 if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
-                    abstraction_name = abstractions[abstraction_index]["name"]
+                    abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
                     safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
                     filename = f"{i+1:02d}_{safe_name}.md"
                     index_content += f"{i+1}. [{abstraction_name}]({filename})\n"

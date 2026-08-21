@@ -25,7 +25,7 @@ still covers every file index from the input. Do not silently drop files during 
 
 For each merged abstraction, provide:
 1. A concise `name`{name_lang_hint}.
-2. A comprehensive `description` summarizing the merged concepts and their architectural role, in around 200-300 words{desc_lang_hint}.
+2. A comprehensive `description` summarizing the merged concepts and their architectural role, in around 200-400 words{desc_lang_hint}.
    Include key classes/interfaces, design patterns, and critical dependencies.
 3. A merged list of `files` combining all file indices and paths from the input abstractions.
 
