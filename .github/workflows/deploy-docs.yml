@@ -37,7 +37,10 @@ jobs:
 
       - name: Generate API Specs via Codebase KB
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          OPENROUTER_BASE_URL: ${{ secrets.OPENROUTER_BASE_URL }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python main.py --dir . --mode api-reference --mkdocs --incremental
@@ -45,7 +48,7 @@ jobs:
       - name: Setup base mkdocs.yml
         run: |
           cat << 'EOF' > output/Codebase-Knowledge-Builder/mkdocs.yml
-          site_name: SDK Documentation
+          site_name: Codebase Knowledge Builder API Reference
           theme:
             name: material
             features:
