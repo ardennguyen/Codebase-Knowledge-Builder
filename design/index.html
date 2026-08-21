@@ -23,7 +23,7 @@
     
     
       
-        <title>System Design - Codebase Knowledge Builder API Reference</title>
+        <title>Architecture & Design - Codebase Knowledge Builder API Reference</title>
       
     
     
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              System Design
+              Architecture & Design
             
           </span>
         </div>
@@ -967,10 +967,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#load_prompt_templatetemplate_name-advanced_modefalse-str" class="md-nav__link">
+  <a href="#load_prompt_templatetemplate_name-advanced_modefalse-modenone-str" class="md-nav__link">
     <span class="md-ellipsis">
       
-        load_prompt_template(template_name, advanced_mode=False) → str
+        load_prompt_template(template_name, advanced_mode=False, mode=None) → str
       
     </span>
   </a>
@@ -1168,6 +1168,34 @@
     
   
     nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/utils/__init__/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.__init__
   
 
     
@@ -2011,10 +2039,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#load_prompt_templatetemplate_name-advanced_modefalse-str" class="md-nav__link">
+  <a href="#load_prompt_templatetemplate_name-advanced_modefalse-modenone-str" class="md-nav__link">
     <span class="md-ellipsis">
       
-        load_prompt_template(template_name, advanced_mode=False) → str
+        load_prompt_template(template_name, advanced_mode=False, mode=None) → str
       
     </span>
   </a>
@@ -2112,12 +2140,12 @@
 <p>Notes for AI: Keep it simple and clear.
 If the requirements are abstract, write concrete user stories</p>
 </blockquote>
-<p><strong>User Story:</strong> As a developer onboarding to a new codebase, I want a tutorial automatically generated from its GitHub repository or local directory, optionally in a specific language. The system supports two modes: a <strong>tutorial mode</strong> that explains core abstractions with beginner-friendly language, analogies, and code walkthroughs; and an <strong>advanced mode</strong> that produces architecture deep-dives aimed at senior developers or PMs joining a project mid-way, covering design patterns, key dependencies, and practical onboarding notes. The system must also gracefully handle codebases of any size by dynamically switching to a Map-Reduce approach when context limits are reached.</p>
+<p><strong>User Story:</strong> As a developer onboarding to a new codebase, I want a tutorial automatically generated from its GitHub repository or local directory, optionally in a specific language. The system supports four documentation styles: a <strong>tutorial mode</strong> that explains core abstractions with beginner-friendly language, analogies, and code walkthroughs; an <strong>advanced mode</strong> that produces architecture deep-dives aimed at senior developers or PMs joining a project mid-way, covering design patterns, key dependencies, and practical onboarding notes; an <strong>api-reference mode</strong> that generates exhaustive, formal API documentation for every code module (1:1 file-to-chapter mapping); and an <strong>sdk mode</strong> that produces SDK-style integration guides. The system must also gracefully handle codebases of any size by dynamically switching to a Map-Reduce approach when context limits are reached.</p>
 <p><strong>Input:</strong>
 - A publicly accessible GitHub repository URL or a local directory path.
 - A project name (optional, will be derived from the URL/directory if not provided).
 - Desired language for the tutorial (optional, defaults to English).
-- Advanced configurations for token scaling (<code>--max-tokens</code>, <code>--batch</code>, <code>--force-batch</code>), prompting (<code>--advanced</code>, <code>--thinking-level</code>, <code>--max-abstractions</code>), caching (<code>--no-cache</code>), debugging (<code>--debug</code>), and execution cleanup (<code>--cleanup</code>).</p>
+- Advanced configurations: documentation style (<code>--mode</code>), token scaling (<code>--max-tokens</code>, <code>--batch</code>, <code>--force-batch</code>), prompting (<code>--thinking-level</code>, <code>--max-abstractions</code>), caching (<code>--no-cache</code>), output format (<code>--mkdocs</code>, <code>--incremental</code>), debugging (<code>--debug</code>), and execution cleanup (<code>--cleanup</code>).</p>
 <p><strong>Output:</strong>
 - A directory named after the project containing:
     - An <code>index.md</code> file with:
@@ -2126,7 +2154,9 @@ If the requirements are abstract, write concrete user stories</p>
         - An ordered list of links to chapter files (using potentially translated names).
         - A link to <code>full_content.md</code> at the bottom.
     - Individual Markdown files for each chapter (<code>01_chapter_one.md</code>, <code>02_chapter_two.md</code>, etc.) detailing core abstractions in a logical order (potentially translated content).
-    - A <code>full_content.md</code> (inside the project subdirectory) containing all merged chapters and a Table of Contents.</p>
+    - A <code>full_content.md</code> (inside the project subdirectory) containing all merged chapters and a Table of Contents.
+    - When <code>--mkdocs</code> is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and a <code>nav_snippet.yml</code> navigation file is generated for MkDocs integration.
+    - When <code>--incremental</code> is used (api-reference mode only): a <code>.doc_cache_manifest.json</code> tracks MD5 hashes of source files to skip regeneration of unchanged modules across runs.</p>
 <h2 id="2-flow-design">2. Flow Design</h2>
 <blockquote>
 <p>Notes for AI:
@@ -2143,7 +2173,7 @@ If the requirements are abstract, write concrete user stories</p>
 <h3 id="flow-high-level-design">Flow high-level Design:</h3>
 <ol>
 <li><strong><code>FetchRepo</code></strong>: Crawls the specified repository/directory using <code>crawl_github_files</code> or <code>crawl_local_files</code>.</li>
-<li><strong><code>ContextRouter</code></strong>: Analyzes the total token payload of the fetched files using <code>tiktoken</code>. Dynamically calculates <strong>prompt overhead</strong> (template tokens + directory tree tokens) and computes an <strong>effective limit</strong> = <code>safety_limit - prompt_overhead</code>. If the file content tokens exceed this effective limit or if <code>--force-batch</code> is used, it chunks files into <strong>token-aware, directory-isolated batches</strong> (never mixing files from different directories) and routes to <code>"batch"</code>. Also builds a compact directory tree of all files (stored in <code>shared["directory_tree"]</code>) for cross-batch awareness. With <code>--debug</code>, displays detailed per-batch file lists and token breakdowns. Otherwise, it routes to <code>"direct"</code>.</li>
+<li><strong><code>ContextRouter</code></strong>: Analyzes the total token payload of the fetched files using <code>tiktoken</code>. Dynamically calculates <strong>prompt overhead</strong> (template tokens + directory tree tokens) and computes an <strong>effective limit</strong> = <code>safety_limit - prompt_overhead</code>. If <code>--mode api-reference</code> is used, routes to <code>"deterministic"</code>. If the file content tokens exceed this effective limit or if <code>--force-batch</code> is used, it chunks files into <strong>token-aware, directory-isolated batches</strong> (never mixing files from different directories) and routes to <code>"batch"</code>. Also builds a compact directory tree of all files (stored in <code>shared["directory_tree"]</code>) for cross-batch awareness. With <code>--debug</code>, displays detailed per-batch file lists and token breakdowns. Otherwise, it routes to <code>"direct"</code>.</li>
 <li><strong>Path A: Direct</strong><ul>
 <li><strong><code>IdentifyAbstractions</code></strong>: Analyzes the entire codebase at once to identify core abstractions.</li>
 </ul>
@@ -2153,8 +2183,12 @@ If the requirements are abstract, write concrete user stories</p>
 <li><strong><code>ReduceAbstractions</code></strong>: Merges overlapping/partial abstractions into a global list of architecture components.</li>
 </ul>
 </li>
-<li><strong><code>AnalyzeRelationships</code></strong>: Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram. Uses token-budget-aware file inclusion: the budget is split evenly across abstractions, with unused budget redistributed in a second pass, maximizing code context without exceeding the context window.</li>
-<li><strong><code>OrderChapters</code></strong>: Determines the most logical sequence to present the abstractions.</li>
+<li><strong>Path C: Deterministic</strong> (api-reference mode)<ul>
+<li><strong><code>DeterministicFileMapper</code></strong>: Bypasses LLM-based abstraction discovery entirely. Uses a lightweight LLM call to filter out non-code files (configs, UI layouts, static assets), then creates a 1:1 mapping of each code file to a documentation module. Skips <code>AnalyzeRelationships</code> and <code>OrderChapters</code>, routing directly to <code>WriteChapters</code>.</li>
+</ul>
+</li>
+<li><strong><code>AnalyzeRelationships</code></strong> (Paths A &amp; B only): Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram. Uses token-budget-aware file inclusion: the budget is split evenly across abstractions, with unused budget redistributed in a second pass, maximizing code context without exceeding the context window.</li>
+<li><strong><code>OrderChapters</code></strong> (Paths A &amp; B only): Determines the most logical sequence to present the abstractions.</li>
 <li><strong><code>WriteChapters</code> (BatchNode)</strong>: Iterates through the ordered abstractions and writes detailed Markdown chapters using context-aware code inclusion.</li>
 <li><strong><code>CombineTutorial</code></strong>: Assembles the final outputs including <code>index.md</code>, individual chapter files, and a compiled <code>full_content.md</code>.</li>
 </ol>
@@ -2163,14 +2197,16 @@ If the requirements are abstract, write concrete user stories</p>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    Router --&gt;|direct| B[IdentifyAbstractions]
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    Router --&gt;|batch| M1[MapAbstractions]
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    M1 --&gt; M2[ReduceAbstractions]
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    B --&gt; C[AnalyzeRelationships]
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    M2 --&gt; C
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    C --&gt; D[OrderChapters]
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    D --&gt; E[Batch WriteChapters]
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    E --&gt; F[CombineTutorial]
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    Router --&gt;|deterministic| DFM[DeterministicFileMapper]
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    M1 --&gt; M2[ReduceAbstractions]
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    B --&gt; C[AnalyzeRelationships]
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    M2 --&gt; C
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    C --&gt; D[OrderChapters]
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    D --&gt; E[Batch WriteChapters]
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    DFM --&gt; E
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    E --&gt; F[CombineTutorial]
 </code></pre></div>
 <h2 id="3-project-structure">3. Project Structure</h2>
 <blockquote>
@@ -2179,43 +2215,60 @@ If the requirements are abstract, write concrete user stories</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>codebase_kb/
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── main.py                          # CLI entry point, arg parsing, shared store init
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── flow.py                          # PocketFlow graph wiring
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── nodes.py                         # All 9 node classes + helper functions
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── nodes.py                         # All 10 node classes + helper functions
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>├── .env.sample                      # Environment variable template
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├── requirements.txt                 # Python dependencies
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── utils/
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── __init__.py                  # Empty
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── call_llm.py                  # Multi-provider LLM wrapper with caching
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── crawl_github_files.py        # GitHub API crawler
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   ├── crawl_local_files.py         # Local directory crawler
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   └── token_utils.py               # Token estimation utility
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>├── prompts/
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   ├── tutorial/                    # Beginner-friendly prompt templates
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   │   ├── identify_abstractions.md
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>│   │   ├── map_abstractions.md
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│   │   ├── reduce_abstractions.md
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   │   ├── identify_relationships.md
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   │   ├── order_chapters.md
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   │   └── draft_chapters.md
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>│   └── advanced/                    # Senior-dev prompt templates
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│       ├── identify_abstractions.md
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│       ├── map_abstractions.md
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>│       ├── reduce_abstractions.md
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│       ├── identify_relationships.md
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│       ├── order_chapters.md
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│       └── draft_chapters.md
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>└── docs/
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>    ├── design.md                    # THIS FILE
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    ├── index.md                     # Project README/landing page
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>    └── pocketflow/                  # PocketFlow framework reference docs
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        ├── guide.md
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>        ├── index.md
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        └── core_abstraction/
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>            ├── node.md
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>            ├── flow.md
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>            ├── communication.md
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>            ├── batch.md
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>            ├── async.md
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>            └── parallel.md
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── .github/
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   └── workflows/
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│       └── deploy-docs.yml          # GitHub Actions CI/CD for auto-generating &amp; deploying API docs
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>├── utils/
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   ├── __init__.py                  # Empty
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   ├── call_llm.py                  # Multi-provider LLM wrapper with caching
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│   ├── crawl_github_files.py        # GitHub API crawler
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   ├── crawl_local_files.py         # Local directory crawler
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   └── token_utils.py               # Token estimation utility
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>├── prompts/
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│   ├── tutorial/                    # Beginner-friendly prompt templates
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   │   ├── identify_abstractions.md
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   │   ├── map_abstractions.md
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   │   ├── reduce_abstractions.md
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>│   │   ├── identify_relationships.md
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│   │   ├── order_chapters.md
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│   │   └── draft_chapters.md
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>│   ├── advanced/                    # Senior-dev prompt templates
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   │   ├── identify_abstractions.md
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   │   ├── map_abstractions.md
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│   │   ├── reduce_abstractions.md
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│   │   ├── identify_relationships.md
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│   │   ├── order_chapters.md
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│   │   └── draft_chapters.md
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│   ├── api-reference/               # Exhaustive API documentation templates
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│   │   ├── identify_abstractions.md
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│   │   ├── map_abstractions.md
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│   │   ├── reduce_abstractions.md
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│   │   ├── identify_relationships.md
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│   │   ├── order_chapters.md
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│   │   └── draft_chapters.md
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│   └── sdk/                         # SDK integration guide templates
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│       ├── identify_abstractions.md
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>│       ├── map_abstractions.md
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>│       ├── reduce_abstractions.md
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>│       ├── identify_relationships.md
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>│       ├── order_chapters.md
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>│       └── draft_chapters.md
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>└── docs/
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>    ├── design.md                    # THIS FILE
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>    ├── index.md                     # Project README/landing page
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>    └── pocketflow/                  # PocketFlow framework reference docs
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>        ├── guide.md
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>        ├── index.md
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>        └── core_abstraction/
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>            ├── node.md
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>            ├── flow.md
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>            ├── communication.md
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>            ├── batch.md
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>            ├── async.md
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>            └── parallel.md
 </code></pre></div>
 <h2 id="4-dependencies">4. Dependencies</h2>
 <blockquote>
@@ -2472,7 +2525,7 @@ If the requirements are abstract, write concrete user stories</p>
 <a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="s2">"*.zip"</span><span class="p">,</span> <span class="s2">"*.tar"</span><span class="p">,</span> <span class="s2">"*.gz"</span><span class="p">,</span> <span class="s2">"*.rar"</span><span class="p">,</span> <span class="s2">"*.7z"</span><span class="p">,</span>
 <a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
 <a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="c1"># 2. Build, Distribution, and Framework Caches</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="s2">"dist/*"</span><span class="p">,</span> <span class="s2">"build/*"</span><span class="p">,</span> <span class="s2">"out/*"</span><span class="p">,</span> <span class="s2">"target/*"</span><span class="p">,</span> <span class="s2">"bin/*"</span><span class="p">,</span> <span class="s2">"obj/*"</span><span class="p">,</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="s2">"dist/*"</span><span class="p">,</span> <span class="s2">"build/*"</span><span class="p">,</span> <span class="s2">"out/*"</span><span class="p">,</span> <span class="s2">"output/*"</span><span class="p">,</span> <span class="s2">"target/*"</span><span class="p">,</span> <span class="s2">"bin/*"</span><span class="p">,</span> <span class="s2">"obj/*"</span><span class="p">,</span>
 <a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    <span class="s2">".next/*"</span><span class="p">,</span> <span class="s2">".nuxt/*"</span><span class="p">,</span> <span class="s2">".svelte-kit/*"</span><span class="p">,</span> <span class="s2">".expo/*"</span><span class="p">,</span>
 <a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="s2">"docs/*"</span><span class="p">,</span> <span class="s2">"test/*"</span><span class="p">,</span> <span class="s2">"tests/*"</span><span class="p">,</span> <span class="s2">"examples/*"</span><span class="p">,</span>
 <a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="s2">"v1/*"</span><span class="p">,</span> <span class="s2">"experimental/*"</span><span class="p">,</span> <span class="s2">"deprecated/*"</span><span class="p">,</span> <span class="s2">"misc/*"</span><span class="p">,</span> <span class="s2">"legacy/*"</span><span class="p">,</span>
@@ -2527,22 +2580,25 @@ If the requirements are abstract, write concrete user stories</p>
 <a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="s2">"max_abstraction_num"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">max_abstractions</span><span class="p">,</span>  <span class="c1"># int, default 10</span>
 <a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="s2">"thinking_level"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">thinking_level</span><span class="p">,</span>    <span class="c1"># str | None</span>
 <a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="s2">"max_tokens"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">max_tokens</span><span class="p">,</span>            <span class="c1"># int | None (auto-detected later)</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="s2">"advanced_mode"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">advanced</span><span class="p">,</span>           <span class="c1"># bool, default False</span>
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="s2">"batch_size"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">batch</span><span class="p">,</span>                 <span class="c1"># int, default 50</span>
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="s2">"force_batch"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">force_batch</span><span class="p">,</span>          <span class="c1"># bool, default False</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="s2">"debug"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>                      <span class="c1"># bool, default False</span>
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>    <span class="c1"># --- Populated by downstream nodes ---</span>
-<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span>              <span class="c1"># Set by FetchRepo: list[tuple[str, str]] = [(relpath, content), ...]</span>
-<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>    <span class="s2">"mapped_abstractions"</span><span class="p">:</span> <span class="p">[],</span><span class="c1"># Set by MapAbstractions (batch path only): list[dict]</span>
-<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="s2">"file_batches"</span><span class="p">:</span> <span class="p">[],</span>       <span class="c1"># Set by ContextRouter (batch path only): list[list[tuple[int, str, str]]]</span>
-<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>    <span class="s2">"directory_tree"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>     <span class="c1"># Set by ContextRouter (batch path only): str</span>
-<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>    <span class="s2">"abstractions"</span><span class="p">:</span> <span class="p">[],</span>       <span class="c1"># Set by IdentifyAbstractions OR ReduceAbstractions</span>
-<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>    <span class="s2">"relationships"</span><span class="p">:</span> <span class="p">{},</span>      <span class="c1"># Set by AnalyzeRelationships</span>
-<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>    <span class="s2">"chapter_order"</span><span class="p">:</span> <span class="p">[],</span>      <span class="c1"># Set by OrderChapters</span>
-<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>    <span class="s2">"chapters"</span><span class="p">:</span> <span class="p">[],</span>           <span class="c1"># Set by WriteChapters</span>
-<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>    <span class="s2">"final_output_dir"</span><span class="p">:</span> <span class="kc">None</span>  <span class="c1"># Set by CombineTutorial</span>
-<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="p">}</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="s2">"mode"</span><span class="p">:</span> <span class="n">doc_mode</span><span class="p">,</span>                         <span class="c1"># str: "tutorial", "advanced", "api-reference", or "sdk"</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="s2">"mkdocs"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">mkdocs</span><span class="p">,</span>                    <span class="c1"># bool, default False</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="s2">"incremental"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">incremental</span><span class="p">,</span>          <span class="c1"># bool, default False</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="s2">"advanced_mode"</span><span class="p">:</span> <span class="n">doc_mode</span> <span class="o">==</span> <span class="s2">"advanced"</span><span class="p">,</span>  <span class="c1"># bool, derived from mode</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>    <span class="s2">"batch_size"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">batch</span><span class="p">,</span>                 <span class="c1"># int, default 50</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>    <span class="s2">"force_batch"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">force_batch</span><span class="p">,</span>          <span class="c1"># bool, default False</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="s2">"debug"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>                      <span class="c1"># bool, default False</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="c1"># --- Populated by downstream nodes ---</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>    <span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span>              <span class="c1"># Set by FetchRepo: list[tuple[str, str]] = [(relpath, content), ...]</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>    <span class="s2">"mapped_abstractions"</span><span class="p">:</span> <span class="p">[],</span><span class="c1"># Set by MapAbstractions (batch path only): list[dict]</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>    <span class="s2">"file_batches"</span><span class="p">:</span> <span class="p">[],</span>       <span class="c1"># Set by ContextRouter (batch path only): list[list[tuple[int, str, str]]]</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>    <span class="s2">"directory_tree"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>     <span class="c1"># Set by ContextRouter (batch path only): str</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>    <span class="s2">"abstractions"</span><span class="p">:</span> <span class="p">[],</span>       <span class="c1"># Set by IdentifyAbstractions OR ReduceAbstractions</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>    <span class="s2">"relationships"</span><span class="p">:</span> <span class="p">{},</span>      <span class="c1"># Set by AnalyzeRelationships</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>    <span class="s2">"chapter_order"</span><span class="p">:</span> <span class="p">[],</span>      <span class="c1"># Set by OrderChapters</span>
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>    <span class="s2">"chapters"</span><span class="p">:</span> <span class="p">[],</span>           <span class="c1"># Set by WriteChapters</span>
+<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>    <span class="s2">"final_output_dir"</span><span class="p">:</span> <span class="kc">None</span>  <span class="c1"># Set by CombineTutorial</span>
+<a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="data-transformations-between-nodes">Data Transformations Between Nodes</h3>
 <blockquote>
@@ -3638,12 +3694,12 @@ Handles: <code>3</code>, <code>"3 # path/file.py"</code>, <code>"0-3"</code> (Id
 <tbody>
 <tr>
 <td>FetchRepo</td>
-<td>1 (default)</td>
+<td>0 (default)</td>
 <td>0</td>
 </tr>
 <tr>
 <td>ContextRouter</td>
-<td>1 (default)</td>
+<td>0 (default)</td>
 <td>0</td>
 </tr>
 <tr>
@@ -3677,8 +3733,13 @@ Handles: <code>3</code>, <code>"3 # path/file.py"</code>, <code>"0-3"</code> (Id
 <td>20</td>
 </tr>
 <tr>
+<td>DeterministicFileMapper</td>
+<td>5</td>
+<td>20</td>
+</tr>
+<tr>
 <td>CombineTutorial</td>
-<td>1 (default)</td>
+<td>0 (default)</td>
 <td>0</td>
 </tr>
 </tbody>
@@ -3708,20 +3769,21 @@ First attempt uses cache; retries always get fresh responses.</p>
 </code></pre></div>
 <h2 id="14-prompt-template-rules">14. Prompt Template Rules</h2>
 <blockquote>
-<p>Notes for AI: Prompt templates are in <code>prompts/tutorial/</code> and <code>prompts/advanced/</code>. They contain <code>{placeholder}</code> variables that form a CONTRACT with the node code.</p>
+<p>Notes for AI: Prompt templates are in <code>prompts/tutorial/</code>, <code>prompts/advanced/</code>, <code>prompts/api-reference/</code>, and <code>prompts/sdk/</code>. They contain <code>{placeholder}</code> variables that form a CONTRACT with the node code.</p>
 </blockquote>
 <ol>
 <li><strong>NEVER paraphrase, truncate, or summarize</strong> prompt templates — copy them byte-for-byte from the originals</li>
 <li>The <code>{variable}</code> placeholders are a CONTRACT — nodes MUST pass exactly matching kwargs to <code>.format()</code></li>
 <li>To verify correctness: grep each template for <code>{word}</code> patterns. Every match must appear as a kwarg in the corresponding node's <code>.format()</code> call</li>
 <li>Templates use Python <code>.format()</code> syntax — any literal <code>{</code> or <code>}</code> in template text MUST be escaped as <code>{{</code> or <code>}}</code></li>
-<li>Both <code>tutorial/</code> and <code>advanced/</code> directories have the SAME 6 template files with the SAME placeholder names (but different prompt content)</li>
+<li>All 4 directories (<code>tutorial/</code>, <code>advanced/</code>, <code>api-reference/</code>, <code>sdk/</code>) have the SAME 6 template files. The <code>tutorial/</code> and <code>advanced/</code> directories share identical placeholder names. The <code>api-reference/</code> and <code>sdk/</code> templates may have different placeholder sets (e.g., <code>api-reference/draft_chapters.md</code> omits <code>{tone_note}</code>, <code>{chapter_num}</code>, <code>{instruction_lang_note}</code>, <code>{code_comment_note}</code>, <code>{mermaid_lang_note}</code>).</li>
 </ol>
 <h3 id="prompt-loading-pattern">Prompt Loading Pattern</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="n">prompt_dir</span> <span class="o">=</span> <span class="s2">"advanced"</span> <span class="k">if</span> <span class="n">advanced_mode</span> <span class="k">else</span> <span class="s2">"tutorial"</span>
-<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">"prompts"</span><span class="p">,</span> <span class="n">prompt_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md"</span><span class="p">)</span>
-<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>    <span class="n">prompt_template</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="c1"># mode is one of: "tutorial", "advanced", "api-reference", "sdk"</span>
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="n">prompt_dir</span> <span class="o">=</span> <span class="n">mode</span>  <span class="c1"># Directly selects the prompt subdirectory</span>
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a><span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">"prompts"</span><span class="p">,</span> <span class="n">prompt_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md"</span><span class="p">)</span>
+<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>    <span class="n">prompt_template</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </code></pre></div>
 <h2 id="15-flow-wiring">15. Flow Wiring</h2>
 <blockquote>
@@ -3731,7 +3793,7 @@ First attempt uses cache; retries always get fresh responses.</p>
 <a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">nodes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>    <span class="n">FetchRepo</span><span class="p">,</span> <span class="n">ContextRouter</span><span class="p">,</span> <span class="n">MapAbstractions</span><span class="p">,</span> <span class="n">ReduceAbstractions</span><span class="p">,</span>
 <a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a>    <span class="n">IdentifyAbstractions</span><span class="p">,</span> <span class="n">AnalyzeRelationships</span><span class="p">,</span> <span class="n">OrderChapters</span><span class="p">,</span>
-<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>    <span class="n">WriteChapters</span><span class="p">,</span> <span class="n">CombineTutorial</span>
+<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>    <span class="n">WriteChapters</span><span class="p">,</span> <span class="n">CombineTutorial</span><span class="p">,</span> <span class="n">DeterministicFileMapper</span>
 <a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a><span class="p">)</span>
 <a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a>
 <a id="__codelineno-49-8" name="__codelineno-49-8" href="#__codelineno-49-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_tutorial_flow</span><span class="p">():</span>
@@ -3744,18 +3806,27 @@ First attempt uses cache; retries always get fresh responses.</p>
 <a id="__codelineno-49-15" name="__codelineno-49-15" href="#__codelineno-49-15"></a>    <span class="n">order_chapters</span> <span class="o">=</span> <span class="n">OrderChapters</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 <a id="__codelineno-49-16" name="__codelineno-49-16" href="#__codelineno-49-16"></a>    <span class="n">write_chapters</span> <span class="o">=</span> <span class="n">WriteChapters</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 <a id="__codelineno-49-17" name="__codelineno-49-17" href="#__codelineno-49-17"></a>    <span class="n">combine_tutorial</span> <span class="o">=</span> <span class="n">CombineTutorial</span><span class="p">()</span>
-<a id="__codelineno-49-18" name="__codelineno-49-18" href="#__codelineno-49-18"></a>
-<a id="__codelineno-49-19" name="__codelineno-49-19" href="#__codelineno-49-19"></a>    <span class="n">fetch_repo</span> <span class="o">&gt;&gt;</span> <span class="n">context_router</span>
-<a id="__codelineno-49-20" name="__codelineno-49-20" href="#__codelineno-49-20"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"direct"</span> <span class="o">&gt;&gt;</span> <span class="n">identify_abstractions</span>
-<a id="__codelineno-49-21" name="__codelineno-49-21" href="#__codelineno-49-21"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"batch"</span> <span class="o">&gt;&gt;</span> <span class="n">map_abstractions</span>
-<a id="__codelineno-49-22" name="__codelineno-49-22" href="#__codelineno-49-22"></a>    <span class="n">map_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">reduce_abstractions</span>
-<a id="__codelineno-49-23" name="__codelineno-49-23" href="#__codelineno-49-23"></a>    <span class="n">identify_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
-<a id="__codelineno-49-24" name="__codelineno-49-24" href="#__codelineno-49-24"></a>    <span class="n">reduce_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
-<a id="__codelineno-49-25" name="__codelineno-49-25" href="#__codelineno-49-25"></a>    <span class="n">analyze_relationships</span> <span class="o">&gt;&gt;</span> <span class="n">order_chapters</span>
-<a id="__codelineno-49-26" name="__codelineno-49-26" href="#__codelineno-49-26"></a>    <span class="n">order_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">write_chapters</span>
-<a id="__codelineno-49-27" name="__codelineno-49-27" href="#__codelineno-49-27"></a>    <span class="n">write_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">combine_tutorial</span>
-<a id="__codelineno-49-28" name="__codelineno-49-28" href="#__codelineno-49-28"></a>
-<a id="__codelineno-49-29" name="__codelineno-49-29" href="#__codelineno-49-29"></a>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">fetch_repo</span><span class="p">)</span>
+<a id="__codelineno-49-18" name="__codelineno-49-18" href="#__codelineno-49-18"></a>    <span class="n">deterministic_mapper</span> <span class="o">=</span> <span class="n">DeterministicFileMapper</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-49-19" name="__codelineno-49-19" href="#__codelineno-49-19"></a>
+<a id="__codelineno-49-20" name="__codelineno-49-20" href="#__codelineno-49-20"></a>    <span class="n">fetch_repo</span> <span class="o">&gt;&gt;</span> <span class="n">context_router</span>
+<a id="__codelineno-49-21" name="__codelineno-49-21" href="#__codelineno-49-21"></a>
+<a id="__codelineno-49-22" name="__codelineno-49-22" href="#__codelineno-49-22"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"direct"</span> <span class="o">&gt;&gt;</span> <span class="n">identify_abstractions</span>
+<a id="__codelineno-49-23" name="__codelineno-49-23" href="#__codelineno-49-23"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"batch"</span> <span class="o">&gt;&gt;</span> <span class="n">map_abstractions</span>
+<a id="__codelineno-49-24" name="__codelineno-49-24" href="#__codelineno-49-24"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"deterministic"</span> <span class="o">&gt;&gt;</span> <span class="n">deterministic_mapper</span>
+<a id="__codelineno-49-25" name="__codelineno-49-25" href="#__codelineno-49-25"></a>
+<a id="__codelineno-49-26" name="__codelineno-49-26" href="#__codelineno-49-26"></a>    <span class="n">map_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">reduce_abstractions</span>
+<a id="__codelineno-49-27" name="__codelineno-49-27" href="#__codelineno-49-27"></a>
+<a id="__codelineno-49-28" name="__codelineno-49-28" href="#__codelineno-49-28"></a>    <span class="n">identify_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
+<a id="__codelineno-49-29" name="__codelineno-49-29" href="#__codelineno-49-29"></a>    <span class="n">reduce_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
+<a id="__codelineno-49-30" name="__codelineno-49-30" href="#__codelineno-49-30"></a>
+<a id="__codelineno-49-31" name="__codelineno-49-31" href="#__codelineno-49-31"></a>    <span class="n">analyze_relationships</span> <span class="o">&gt;&gt;</span> <span class="n">order_chapters</span>
+<a id="__codelineno-49-32" name="__codelineno-49-32" href="#__codelineno-49-32"></a>    <span class="n">order_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">write_chapters</span>
+<a id="__codelineno-49-33" name="__codelineno-49-33" href="#__codelineno-49-33"></a>
+<a id="__codelineno-49-34" name="__codelineno-49-34" href="#__codelineno-49-34"></a>    <span class="n">deterministic_mapper</span> <span class="o">&gt;&gt;</span> <span class="n">write_chapters</span>
+<a id="__codelineno-49-35" name="__codelineno-49-35" href="#__codelineno-49-35"></a>
+<a id="__codelineno-49-36" name="__codelineno-49-36" href="#__codelineno-49-36"></a>    <span class="n">write_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">combine_tutorial</span>
+<a id="__codelineno-49-37" name="__codelineno-49-37" href="#__codelineno-49-37"></a>
+<a id="__codelineno-49-38" name="__codelineno-49-38" href="#__codelineno-49-38"></a>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">fetch_repo</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="16-code-organization-dry-patterns">16. Code Organization &amp; DRY Patterns</h2>
 <blockquote>
@@ -3765,15 +3836,18 @@ First attempt uses cache; retries always get fresh responses.</p>
 <p>As you implement nodes, you will notice recurring operations: loading prompts, parsing YAML, counting tokens, resolving provider config. <strong>Do NOT copy-paste these inline.</strong> Extract them as module-level helpers in <code>nodes.py</code> and reuse them. This keeps the codebase maintainable and reduces the surface area for bugs.</p>
 <h3 id="required-helper-functions">Required Helper Functions</h3>
 <p>These helpers MUST be defined at the top of <code>nodes.py</code>, after imports and before any class definitions:</p>
-<h4 id="load_prompt_templatetemplate_name-advanced_modefalse-str"><code>load_prompt_template(template_name, advanced_mode=False)</code> → <code>str</code></h4>
-<p>Loads a prompt template from <code>prompts/{tutorial|advanced}/{template_name}.md</code>.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_prompt_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">advanced_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<h4 id="load_prompt_templatetemplate_name-advanced_modefalse-modenone-str"><code>load_prompt_template(template_name, advanced_mode=False, mode=None)</code> → <code>str</code></h4>
+<p>Loads a prompt template from <code>prompts/{mode}/{template_name}.md</code>. When <code>mode</code> is provided, it directly selects the subdirectory. When <code>mode</code> is <code>None</code>, falls back to legacy <code>advanced_mode</code> boolean.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_prompt_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">advanced_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a><span class="w">    </span><span class="sd">"""Load a prompt template file from the prompts/ directory."""</span>
-<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>    <span class="n">prompt_dir</span> <span class="o">=</span> <span class="s2">"advanced"</span> <span class="k">if</span> <span class="n">advanced_mode</span> <span class="k">else</span> <span class="s2">"tutorial"</span>
-<a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a>    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
-<a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a>                        <span class="s2">"prompts"</span><span class="p">,</span> <span class="n">prompt_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md"</span><span class="p">)</span>
-<a id="__codelineno-50-6" name="__codelineno-50-6" href="#__codelineno-50-6"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-50-7" name="__codelineno-50-7" href="#__codelineno-50-7"></a>        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>    <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a>        <span class="n">prompt_dir</span> <span class="o">=</span> <span class="s2">"advanced"</span> <span class="k">if</span> <span class="n">advanced_mode</span> <span class="k">else</span> <span class="s2">"tutorial"</span>
+<a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-50-6" name="__codelineno-50-6" href="#__codelineno-50-6"></a>        <span class="n">prompt_dir</span> <span class="o">=</span> <span class="n">mode</span>
+<a id="__codelineno-50-7" name="__codelineno-50-7" href="#__codelineno-50-7"></a>    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+<a id="__codelineno-50-8" name="__codelineno-50-8" href="#__codelineno-50-8"></a>                        <span class="s2">"prompts"</span><span class="p">,</span> <span class="n">prompt_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md"</span><span class="p">)</span>
+<a id="__codelineno-50-9" name="__codelineno-50-9" href="#__codelineno-50-9"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-50-10" name="__codelineno-50-10" href="#__codelineno-50-10"></a>        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </code></pre></div>
 <strong>Used by:</strong> MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, WriteChapters (6 nodes)</p>
 <h4 id="parse_yaml_responseresponse-any"><code>parse_yaml_response(response)</code> → <code>Any</code></h4>

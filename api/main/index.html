@@ -398,15 +398,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#constants-and-module-variables" class="md-nav__link">
+  <a href="#module-constants" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Constants and Module Variables
+        Module Constants
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Constants and Module Variables">
+    <nav class="md-nav" aria-label="Module Constants">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -488,6 +488,34 @@
     
   
     nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/__init__/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.__init__
   
 
     
@@ -658,15 +686,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#constants-and-module-variables" class="md-nav__link">
+  <a href="#module-constants" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Constants and Module Variables
+        Module Constants
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Constants and Module Variables">
+    <nav class="md-nav" aria-label="Module Constants">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -744,32 +772,19 @@
 <h1 id="main">main</h1>
 <p><strong>File Path:</strong> <code>main.py</code></p>
 <h2 id="overview">Overview</h2>
-<p>The <code>main</code> module serves as the primary command-line interface (CLI) entry point for the <code>Codebase-Knowledge-Builder</code> tool. It parses user arguments, configures runtime environment variables, initializes glob-matching filters, establishes LLM endpoint and context parameters, and constructs the shared memory dictionary passed to the computational workflow managed by <a href="../flow/">create_tutorial_flow</a>.</p>
-<p>It is responsible for:
-- Command-line argument parsing and flag validation.
-- Setting default inclusion and comprehensive exclusion glob patterns for file crawling.
-- Determining documentation formats (<code>tutorial</code>, <code>advanced</code>, <code>api-reference</code>, <code>sdk</code>), MkDocs Material compatibility, and incremental cache handling.
-- Resolving model configurations via environment variables (<code>LLM_PROVIDER</code>, API keys, base URLs).
-- Executing the pipeline and performing post-execution cleanup of caches and log files if requested.</p>
-<hr />
-<h2 id="constants-and-module-variables">Constants and Module Variables</h2>
+<p>The <code>main</code> module serves as the primary command-line interface (CLI) entry point for the <code>Codebase-Knowledge-Builder</code> tool. It handles command-line argument parsing, environment variable initialization, fallback pattern matching configurations, context limit resolution, and orchestration of the execution graph via <a href="../flow/">create_tutorial_flow()</a>.</p>
+<p>It configures a shared context dictionary containing all execution parameters (target repository or directory, inclusion/exclusion rules, LLM model settings, generation modes, and caching flags) and passes it to the <code>pocketflow</code> workflow engine. Additionally, it handles optional post-run cleanup of logs and cached LLM responses.</p>
+<h2 id="module-constants">Module Constants</h2>
 <h3 id="default_include_patterns"><code>DEFAULT_INCLUDE_PATTERNS</code></h3>
 <ul>
-<li><strong>Type</strong>: <code>set[str]</code></li>
+<li><strong>Type</strong>: <code>set</code></li>
 <li><strong>Value</strong>: <code>{"*"}</code></li>
-<li><strong>Description</strong>: Default set of wildcard patterns specifying that all files are eligible for scanning unless excluded.</li>
+<li><strong>Description</strong>: Default glob pattern set used when no explicit include patterns are passed via the <code>--include</code> argument. Matches all discovered codebase files.</li>
 </ul>
 <h3 id="default_exclude_patterns"><code>DEFAULT_EXCLUDE_PATTERNS</code></h3>
 <ul>
-<li><strong>Type</strong>: <code>set[str]</code></li>
-<li><strong>Description</strong>: Comprehensive set of wildcard glob patterns excluded by default from the repository traversal. Covers:</li>
-<li>Media, Data, and Static Assets (<code>assets/*</code>, <code>*.png</code>, <code>*.pdf</code>, <code>*.zip</code>, etc.)</li>
-<li>Build, Distribution, and Framework Caches (<code>dist/*</code>, <code>build/*</code>, <code>.next/*</code>, <code>docs/*</code>, <code>test/*</code>, etc.)</li>
-<li>Environments, Dependencies &amp; Lockfiles (<code>venv/*</code>, <code>node_modules/*</code>, <code>*.lock</code>, etc.)</li>
-<li>Language-Specific Exclusions (<code>__pycache__/*</code>, <code>*.pyc</code>, <code>*.class</code>, <code>*.o</code>, <code>ios/Pods/*</code>, etc.)</li>
-<li>OS &amp; Version Control (<code>.git/*</code>, <code>.DS_Store</code>, etc.)</li>
-<li>Classic IDEs (<code>.vscode/*</code>, <code>.idea/*</code>, etc.)</li>
-<li>AI Agents &amp; Modern AI IDEs (<code>.cursor/*</code>, <code>.windsurf/*</code>, <code>.cline/*</code>, <code>.gemini/*</code>, etc.)</li>
+<li><strong>Type</strong>: <code>set</code></li>
+<li><strong>Description</strong>: Global exclusion patterns covering media assets, data files, build distribution caches, lockfiles, dependency folders, native binary artifacts, test suites, IDE metadata, and modern AI tool directories (e.g., Cursor, Windsurf, Cline, Copilot).</li>
 </ul>
 <hr />
 <h2 id="functions">Functions</h2>
@@ -777,29 +792,27 @@
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def main() -&gt; None:</code></p>
 <p><strong>Description</strong>:<br />
-Parses CLI arguments using <code>argparse.ArgumentParser</code>, processes environment variables loaded from <code>.env</code>, initializes the shared context store, and invokes the <a href="../flow/">flow</a> execution engine.</p>
-<p>Under the hood, the function performs the following steps:
-1. <strong>Argument Parsing</strong>: Defines and processes arguments including source target (<code>--repo</code> or <code>--dir</code>), project metadata (<code>-n</code>, <code>--name</code>), access tokens (<code>-t</code>, <code>--token</code>), filtering options (<code>-i</code>, <code>-e</code>, <code>-s</code>), LLM parameters (<code>--language</code>, <code>--no-cache</code>, <code>--max-abstractions</code>, <code>--thinking-level</code>, <code>--max-tokens</code>), documentation modes (<code>--mode</code>, <code>--advanced</code>, <code>--mkdocs</code>, <code>--incremental</code>), and batch/debug flags (<code>--batch</code>, <code>--force-batch</code>, <code>--debug</code>, <code>--cleanup</code>).
-2. <strong>Mode &amp; Cache Resolution</strong>:
-   - Backward compatibility: Maps <code>--advanced</code> to <code>--mode advanced</code>.
-   - Incremental caching constraint: Enforces that <code>--incremental</code> is only active when <code>--mode</code> is set to <code>api-reference</code>. Otherwise, issues a warning and disables the flag.
-3. <strong>Shared Context Assembly</strong>: Builds the <code>shared</code> dictionary containing all runtime parameters and initializes placeholder structures (<code>files</code>, <code>abstractions</code>, <code>relationships</code>, <code>chapter_order</code>, <code>chapters</code>, <code>final_output_dir</code>).
-4. <strong>Provider &amp; Context Resolution</strong>: Inspects environment variables (<code>LLM_PROVIDER</code>, <code>GEMINI_PROJECT_ID</code>, <code>GEMINI_API_KEY</code>) to identify the active model and endpoint, calling <code>get_model_context_length</code> from <a href="../utils/call_llm/">utils.call_llm</a> to calculate max context window size if not explicitly overridden.
-5. <strong>Flow Execution</strong>: Calls <a href="../flow/">create_tutorial_flow()</a> to instantiate the DAG and runs it with <code>tutorial_flow.run(shared)</code>.
-6. <strong>Cleanup</strong>: If <code>--cleanup</code> is specified, removes <code>llm_cache.json</code> and deletes the directory pointed to by <code>LOG_DIR</code> (default: <code>logs</code>).</p>
+Executes the top-level CLI workflow for generating codebase documentation and tutorials:
+1. <strong>Environment Setup</strong>: Loads environment variables from <code>.env</code> using <code>dotenv.load_dotenv()</code>.
+2. <strong>CLI Parsing</strong>: Configures and parses command-line arguments using <code>argparse.ArgumentParser</code>. Supports mutually exclusive target source inputs (<code>--repo</code> for remote GitHub repositories or <code>--dir</code> for local paths), output directory selection, pattern filtering, documentation modes (<code>tutorial</code>, <code>advanced</code>, <code>api-reference</code>, <code>sdk</code>), token overrides, caching, and batching limits.
+3. <strong>Authentication &amp; Token Resolution</strong>: Resolves GitHub access tokens from the CLI argument <code>--token</code> or the <code>GITHUB_TOKEN</code> environment variable.
+4. <strong>Context Window &amp; Provider Resolution</strong>: Detects active LLM configuration (<code>LLM_PROVIDER</code>, endpoint URLs, and API keys) and queries context limits using <a href="../utils/call_llm/">get_model_context_length()</a> if <code>--max-tokens</code> is not explicitly set.
+5. <strong>Shared Store Instantiation</strong>: Constructs the <code>shared</code> dictionary that nodes read from and write to across pipeline execution.
+6. <strong>Execution Graph</strong>: Instantiates the workflow graph using <a href="../flow/">create_tutorial_flow()</a> and executes it against the shared state.
+7. <strong>Post-execution Cleanup</strong>: If the <code>--cleanup</code> flag is set, deletes the <code>llm_cache.json</code> file and removes the configured log directory.</p>
 <p><strong>Parameters</strong>:<br />
-<em>None</em> (Reads directly from <code>sys.argv</code> and system environment variables).</p>
+<em>None</em> (Reads directly from <code>sys.argv</code> via <code>argparse.ArgumentParser</code>).</p>
 <p><strong>Returns</strong>:<br />
 * <code>None</code></p>
 <p><strong>Raises</strong>:<br />
-* <code>SystemExit</code>: Raised by <code>argparse</code> if mandatory arguments are missing or invalid arguments are passed.
-* <code>Exception</code>: Logs errors if post-run file or directory deletion fails during cleanup.</p>
+* <code>SystemExit</code>: Raised by <code>argparse</code> if mandatory arguments (such as <code>--repo</code> or <code>--dir</code>) are missing or if <code>--help</code> is requested.
+* <code>Exception</code>: May propagate unhandled operational or I/O exceptions during flow execution or cleanup.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Generate API Reference documentation for a local directory</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>main.py<span class="w"> </span>--dir<span class="w"> </span>./my_project<span class="w"> </span>--mode<span class="w"> </span>api-reference<span class="w"> </span>--mkdocs<span class="w"> </span>--incremental
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Generate a standard tutorial from a public GitHub repository</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>main.py<span class="w"> </span>--repo<span class="w"> </span>https://github.com/octocat/Hello-World<span class="w"> </span>--language<span class="w"> </span>english
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Generate a standard tutorial from a GitHub repository</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python<span class="w"> </span>main.py<span class="w"> </span>--repo<span class="w"> </span>https://github.com/octocat/Hello-World<span class="w"> </span>--language<span class="w"> </span>english<span class="w"> </span>--max-abstractions<span class="w"> </span><span class="m">5</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Generate API reference documentation for a local directory with incremental caching</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python<span class="w"> </span>main.py<span class="w"> </span>--dir<span class="w"> </span>./my-project<span class="w"> </span>--mode<span class="w"> </span>api-reference<span class="w"> </span>--incremental<span class="w"> </span>--mkdocs
 </code></pre></div></p>
 
 
