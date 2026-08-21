@@ -1,0 +1,952 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../call_llm/">
+      
+      
+        <link rel="next" href="../crawl_local_files/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>utils.crawl_github_files - Codebase Knowledge Builder API Reference</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#utilscrawl_github_files" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-header__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Codebase Knowledge Builder API Reference
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              utils.crawl_github_files
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-nav__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Codebase Knowledge Builder API Reference
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../main/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nodes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../call_llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.call_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.crawl_github_files
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.crawl_github_files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crawl_github_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        crawl_github_files()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#should_include_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        should_include_file()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch_branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetch_branches()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        check_tree()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch_contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetch_contents()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_local_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.crawl_local_files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.token_utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#crawl_github_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        crawl_github_files()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#should_include_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        should_include_file()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch_branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetch_branches()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        check_tree()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch_contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetch_contents()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="utilscrawl_github_files">utils.crawl_github_files</h1>
+<p><strong>File Path:</strong> <code>utils/crawl_github_files.py</code></p>
+<h2 id="overview">Overview</h2>
+<p>The <code>utils.crawl_github_files</code> module is responsible for ingesting source code and file trees from remote GitHub repositories. It serves as one of the underlying repository-fetching implementations called by the <a href="nodes.md">FetchRepo</a> node in the computational flow.</p>
+<p>The module provides dual retrieval mechanisms:
+1. <strong>Git SSH Cloning</strong>: For SSH URLs (<code>git@...</code> or URLs ending with <code>.git</code>), the module performs a temporary shallow repository clone using <code>git.Repo.clone_from</code>, scans the directory tree using <code>os.walk</code>, applies inclusion/exclusion filters along with <code>.gitignore</code> patterns via <code>pathspec</code>, and reads file contents directly with <code>utf-8-sig</code> encoding.
+2. <strong>GitHub REST API Traversal</strong>: For standard HTTP/HTTPS URLs, the module parses the repository owner, repository name, branch or tree commit SHA, and subdirectories. It uses the GitHub REST API (<code>/repos/{owner}/{repo}/contents/{path}</code> and <code>/git/trees/{tree}</code>) to recursively traverse directories, handle rate-limit resets (<code>403</code>/<code>429</code>), parse remote <code>.gitignore</code> files, and fetch content via raw download URLs or base64 decoding.</p>
+<p>Both mechanisms enforce file size limits, filter files against glob patterns, skip binary/non-text files, and output ANSI-colored terminal summaries.</p>
+<hr />
+<h2 id="functions">Functions</h2>
+<h3 id="crawl_github_files"><code>crawl_github_files()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def crawl_github_files(repo_url: str, token: str = None, max_file_size: int = 1 * 1024 * 1024, use_relative_paths: bool = False, include_patterns: Union[str, Set[str]] = None, exclude_patterns: Union[str, Set[str]] = None) -&gt; dict:</code></p>
+<p><strong>Description</strong>:<br />
+Crawls files from a specified GitHub repository URL at an optional branch, commit SHA, or subpath. Automatically selects between SSH repository cloning via <code>GitPython</code> and the GitHub REST API depending on the URL schema.</p>
+<p>Under the hood:
+- Normalizes <code>include_patterns</code> and <code>exclude_patterns</code> into sets.
+- If the URL starts with <code>git@</code> or ends with <code>.git</code>:
+  - Creates a temporary directory using <code>tempfile.TemporaryDirectory</code>.
+  - Clones the repository using <code>git.Repo.clone_from</code>.
+  - Parses <code>.gitignore</code> using <code>pathspec.PathSpec.from_lines("gitwildmatch", ...)</code> if present.
+  - Recursively traverses the directory tree using <code>os.walk</code>, pruning excluded directories and filtering files via <code>should_include_file</code>.
+  - Enforces <code>max_file_size</code> and reads contents using <code>utf-8-sig</code>.
+- If the URL is an HTTP/HTTPS GitHub URL:
+  - Parses the URL components (<code>owner</code>, <code>repo</code>, optional branch/tree ref, and subdirectory path).
+  - Fetches branches via <code>fetch_branches</code> or verifies trees via <code>check_tree</code> to resolve tree references and subdirectory paths.
+  - Queries <code>contents/.gitignore</code> via the REST API to construct a <code>pathspec</code> matcher.
+  - Recursively invokes <code>fetch_contents</code> to traverse the repository structure.
+  - Handles API rate-limiting headers (<code>X-RateLimit-Reset</code>), pausing execution when limits are reached if a token is supplied.
+  - Reads text contents via <code>download_url</code> HTTP requests or decodes base64 content payloads.
+- Prints a color-coded summary to standard output and returns a dictionary containing the path-to-content map and execution statistics.</p>
+<p><strong>Parameters</strong>:
+* <code>repo_url</code> (<code>str</code>): Target GitHub repository URL (e.g., <code>'https://github.com/owner/repo/tree/main/subdir'</code> or <code>'git@github.com:owner/repo.git'</code>).
+* <code>token</code> (<code>str | None</code>, optional): GitHub personal access token for authenticating private repositories and raising API rate limits. Defaults to <code>None</code>.
+* <code>max_file_size</code> (<code>int</code>, optional): Maximum file size in bytes to read into memory. Defaults to <code>1048576</code> (1 MB).
+* <code>use_relative_paths</code> (<code>bool</code>, optional): If <code>True</code>, returns dictionary keys relative to the specified URL subdirectory rather than repository root. Defaults to <code>False</code>.
+* <code>include_patterns</code> (<code>str | set[str] | None</code>, optional): File pattern or set of glob patterns to include (e.g., <code>{"*.py", "*.md"}</code>). If <code>None</code>, all files are included.
+* <code>exclude_patterns</code> (<code>str | set[str] | None</code>, optional): File pattern or set of glob patterns to exclude (e.g., <code>{"test/*", "*.png"}</code>). If <code>None</code>, no patterns are excluded.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A dictionary structured as:
+  - <code>"files"</code> (<code>dict[str, str]</code>): Mapping of relative file paths to string file contents.
+  - <code>"stats"</code> (<code>dict[str, Any]</code>): Metadata dictionary containing <code>downloaded_count</code>, <code>skipped_count</code>, <code>skipped_files</code>, <code>base_path</code>, <code>include_patterns</code>, <code>exclude_patterns</code>, and optionally <code>source</code> or <code>error</code>.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If <code>repo_url</code> cannot be parsed into valid GitHub repository components (owner and repository name).
+* <code>Exception</code>: If GitHub API rate limits are exceeded without a token provided, or if git clone operations fail.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">utils.crawl_github_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">crawl_github_files</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">crawl_github_files</span><span class="p">(</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">repo_url</span><span class="o">=</span><span class="s2">"https://github.com/pydantic/pydantic/tree/main/pydantic"</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">token</span><span class="o">=</span><span class="s2">"ghp_exampletoken12345"</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">max_file_size</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">use_relative_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">include_patterns</span><span class="o">=</span><span class="p">{</span><span class="s2">"*.py"</span><span class="p">},</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">exclude_patterns</span><span class="o">=</span><span class="p">{</span><span class="s2">"tests/*"</span><span class="p">}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">files</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Downloaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files."</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="should_include_file"><code>should_include_file()</code></h3>
+<p><strong>Visibility</strong>: Private (Internal closure within <code>crawl_github_files</code>)<br />
+<strong>Signature</strong>: <code>def should_include_file(file_path: str, file_name: str, gitignore_spec: pathspec.PathSpec = None) -&gt; bool:</code></p>
+<p><strong>Description</strong>:<br />
+Evaluates whether a given file matches the inclusion, exclusion, and <code>.gitignore</code> criteria.
+1. Tests <code>file_name</code> against <code>include_patterns</code> using <code>fnmatch.fnmatch</code>. If <code>include_patterns</code> is empty, defaults to <code>True</code>.
+2. If included and <code>gitignore_spec</code> is provided, tests <code>file_path</code> against <code>gitignore_spec.match_file(file_path)</code>; returns <code>False</code> if matched.
+3. If still included and <code>exclude_patterns</code> is defined, checks <code>file_path</code> against all exclusion patterns; returns <code>False</code> if matched.</p>
+<p><strong>Parameters</strong>:
+* <code>file_path</code> (<code>str</code>): Relative path of the candidate file.
+* <code>file_name</code> (<code>str</code>): Base filename of the candidate file.
+* <code>gitignore_spec</code> (<code>pathspec.PathSpec | None</code>, optional): Compiled <code>pathspec</code> object representing <code>.gitignore</code> rules. Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if the file satisfies all filtering criteria and should be crawled; <code>False</code> otherwise.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Internal usage within crawl_github_files</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">is_valid</span> <span class="o">=</span> <span class="n">should_include_file</span><span class="p">(</span><span class="s2">"src/utils/math.py"</span><span class="p">,</span> <span class="s2">"math.py"</span><span class="p">,</span> <span class="n">gitignore_spec</span><span class="o">=</span><span class="n">gitignore_spec</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="fetch_branches"><code>fetch_branches()</code></h3>
+<p><strong>Visibility</strong>: Private (Internal helper within <code>crawl_github_files</code>)<br />
+<strong>Signature</strong>: <code>def fetch_branches(owner: str, repo: str) -&gt; list[dict]:</code></p>
+<p><strong>Description</strong>:<br />
+Queries the GitHub REST API endpoint <code>GET /repos/{owner}/{repo}/branches</code> to list all branches in the target repository. Validates response codes, raising an exception if unauthenticated rate limits are hit, logging 404 errors if the repository is private or not found, and returning the JSON array of branch metadata.</p>
+<p><strong>Parameters</strong>:
+* <code>owner</code> (<code>str</code>): GitHub repository owner / organization.
+* <code>repo</code> (<code>str</code>): GitHub repository name.</p>
+<p><strong>Returns</strong>:
+* <code>list[dict]</code>: List of branch dictionaries returned by GitHub API, or an empty list <code>[]</code> on failure.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: If HTTP status code is <code>403</code> or <code>429</code> and no <code>token</code> was configured.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Internal usage within crawl_github_files</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">branches</span> <span class="o">=</span> <span class="n">fetch_branches</span><span class="p">(</span><span class="s2">"octocat"</span><span class="p">,</span> <span class="s2">"Hello-World"</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">branches</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+</code></pre></div></p>
+<hr />
+<h3 id="check_tree"><code>check_tree()</code></h3>
+<p><strong>Visibility</strong>: Private (Internal helper within <code>crawl_github_files</code>)<br />
+<strong>Signature</strong>: <code>def check_tree(owner: str, repo: str, tree: str) -&gt; bool:</code></p>
+<p><strong>Description</strong>:<br />
+Queries <code>GET /repos/{owner}/{repo}/git/trees/{tree}</code> to determine if the given tree SHA or ref exists within the repository. Used to disambiguate whether a URL segment is a branch name or a Git tree SHA.</p>
+<p><strong>Parameters</strong>:
+* <code>owner</code> (<code>str</code>): GitHub repository owner / organization.
+* <code>repo</code> (<code>str</code>): GitHub repository name.
+* <code>tree</code> (<code>str</code>): Tree SHA or reference to check.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if the API responds with HTTP <code>200</code>, <code>False</code> otherwise.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: If rate limits (<code>403</code>/<code>429</code>) are encountered without a token.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Internal usage within crawl_github_files</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">exists</span> <span class="o">=</span> <span class="n">check_tree</span><span class="p">(</span><span class="s2">"octocat"</span><span class="p">,</span> <span class="s2">"Hello-World"</span><span class="p">,</span> <span class="s2">"6dcb09b5b57875f334f61aebed695e2e4193db5e"</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="fetch_contents"><code>fetch_contents()</code></h3>
+<p><strong>Visibility</strong>: Private (Internal recursive helper within <code>crawl_github_files</code>)<br />
+<strong>Signature</strong>: <code>def fetch_contents(path: str) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Recursively navigates the GitHub repository hierarchy using the REST API <code>GET /repos/{owner}/{repo}/contents/{path}</code>:
+- Appends the query parameter <code>ref</code> if a branch/commit is specified.
+- If rate-limited (<code>403</code>/<code>429</code>), reads <code>X-RateLimit-Reset</code>, sleeps until the quota resets, and retries the request.
+- Iterates over items returned in the directory listing:
+  - <strong>Directories (<code>dir</code>)</strong>: Checks <code>gitignore_spec</code> and <code>exclude_patterns</code>. If excluded, prints an ANSI exclusion log; otherwise, recursively calls <code>fetch_contents(item["path"])</code>.
+  - <strong>Files (<code>file</code>)</strong>: Checks patterns via <code>should_include_file</code> and enforces <code>max_file_size</code>. Downloads content using <code>download_url</code> or falls back to decoding base64 payloads from <code>item["url"]</code>. Updates the outer <code>files</code> dictionary and tracking counters.</p>
+<p><strong>Parameters</strong>:
+* <code>path</code> (<code>str</code>): Repository directory path to inspect.</p>
+<p><strong>Returns</strong>:
+* <code>None</code> (Updates the enclosing <code>files</code> dictionary and counter state in-place).</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: If GitHub API rate limits are hit without a configured token.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Internal invocation within crawl_github_files</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">fetch_contents</span><span class="p">(</span><span class="s2">"src/core"</span><span class="p">)</span>
+</code></pre></div></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2402 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../main/">
+      
+      
+        <link rel="next" href="../utils/call_llm/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>nodes - Codebase Knowledge Builder API Reference</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nodes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Codebase Knowledge Builder API Reference" class="md-header__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Codebase Knowledge Builder API Reference
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              nodes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Codebase Knowledge Builder API Reference" class="md-nav__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Codebase Knowledge Builder API Reference
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../main/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get_content_for_indices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_content_for_indices()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_prompt_template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_prompt_template()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_yaml_response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        parse_yaml_response()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_token_counter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_token_counter()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve_max_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_max_tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deterministicfilemapper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DeterministicFileMapper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deterministicfilemapperprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deterministicfilemapperexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deterministicfilemapperpost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contextrouter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextRouter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contextrouterprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contextrouterexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contextrouterpost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contextrouter_build_directory_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter._build_directory_tree()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapabstractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MapAbstractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mapabstractionsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapabstractionsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapabstractionspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reduceabstractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ReduceAbstractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reduceabstractionsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduceabstractionsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduceabstractionspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetchrepo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FetchRepo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fetchrepoprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchrepoexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchrepopost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identifyabstractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IdentifyAbstractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identifyabstractionsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identifyabstractionsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identifyabstractionspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analyzerelationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AnalyzeRelationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#analyzerelationshipsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyzerelationshipsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyzerelationshipspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orderchapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OrderChapters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orderchaptersprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orderchaptersexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orderchapterspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writechapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WriteChapters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writechaptersprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writechaptersexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writechapterspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combinetutorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CombineTutorial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combinetutorialprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinetutorialexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinetutorialpost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/call_llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.call_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/crawl_github_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.crawl_github_files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/crawl_local_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.crawl_local_files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/token_utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.token_utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get_content_for_indices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_content_for_indices()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_prompt_template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_prompt_template()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_yaml_response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        parse_yaml_response()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_token_counter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_token_counter()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve_max_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_max_tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deterministicfilemapper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DeterministicFileMapper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deterministicfilemapperprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deterministicfilemapperexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deterministicfilemapperpost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeterministicFileMapper.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contextrouter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextRouter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contextrouterprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contextrouterexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contextrouterpost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contextrouter_build_directory_tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContextRouter._build_directory_tree()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapabstractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MapAbstractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mapabstractionsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapabstractionsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapabstractionspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MapAbstractions.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reduceabstractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ReduceAbstractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reduceabstractionsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduceabstractionsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduceabstractionspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReduceAbstractions.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetchrepo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FetchRepo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fetchrepoprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchrepoexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchrepopost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FetchRepo.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identifyabstractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IdentifyAbstractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identifyabstractionsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identifyabstractionsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identifyabstractionspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IdentifyAbstractions.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analyzerelationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AnalyzeRelationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#analyzerelationshipsprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyzerelationshipsexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyzerelationshipspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnalyzeRelationships.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orderchapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OrderChapters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orderchaptersprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orderchaptersexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orderchapterspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrderChapters.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writechapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WriteChapters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writechaptersprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writechaptersexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writechapterspost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WriteChapters.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combinetutorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CombineTutorial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combinetutorialprep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial.prep()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinetutorialexec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial.exec()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinetutorialpost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CombineTutorial.post()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="nodes">nodes</h1>
+<p><strong>File Path:</strong> <code>nodes.py</code></p>
+<h2 id="overview">Overview</h2>
+<p>The <code>nodes</code> module defines all atomic processing units and computational nodes used across the <code>pocketflow</code> DAG pipeline in <code>Codebase-Knowledge-Builder</code>. These nodes handle repository ingestion, token estimation, structural abstraction extraction, relationship synthesis, chapter generation, and file assembly.</p>
+<p>The module implements standard <code>Node</code> and <code>BatchNode</code> abstractions from the <code>pocketflow</code> framework, encapsulating standard three-stage execution workflows (<code>prep</code>, <code>exec</code>, and <code>post</code>) for both linear and map-reduce documentation strategies.</p>
+<hr />
+<h2 id="functions">Functions</h2>
+<h3 id="get_content_for_indices"><code>get_content_for_indices()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def get_content_for_indices(files_data: list[tuple[str, str]], indices: list[int]) -&gt; dict[str, str]:</code></p>
+<p><strong>Description</strong>:<br />
+Retrieves file contents for a specific subset of index pointers from a master files list. Formats output keys using a compound index-and-path format (e.g., <code>"0 # src/core.py"</code>) to preserve identification context during LLM prompt construction.</p>
+<p><strong>Parameters</strong>:
+* <code>files_data</code> (<code>list[tuple[str, str]]</code>): List of tuples containing <code>(file_path, file_content)</code>.
+* <code>indices</code> (<code>list[int]</code>): List of integer indices to extract.</p>
+<p><strong>Returns</strong>:
+* <code>dict[str, str]</code>: Mapping of index-path descriptor strings to raw file contents.</p>
+<p><strong>Raises</strong>:
+* <em>None</em> (Silently bounds-checks indices).</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">files</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"src/main.py"</span><span class="p">,</span> <span class="s2">"print('hello')"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"README.md"</span><span class="p">,</span> <span class="s2">"# Readme"</span><span class="p">)]</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">content_map</span> <span class="o">=</span> <span class="n">get_content_for_indices</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Returns: {"0 # src/main.py": "print('hello')"}</span>
+</code></pre></div></p>
+<hr />
+<h3 id="load_prompt_template"><code>load_prompt_template()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def load_prompt_template(template_name: str, advanced_mode: bool = False, mode: str | None = None) -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Loads a prompt markdown template file from the <code>prompts/</code> directory. It selects the subdirectory based on <code>mode</code> (e.g., <code>"tutorial"</code>, <code>"advanced"</code>, <code>"api-reference"</code>) or defaults to inspecting the <code>advanced_mode</code> boolean flag if <code>mode</code> is <code>None</code>. The file is read using <code>utf-8-sig</code> encoding to handle BOM characters safely.</p>
+<p><strong>Parameters</strong>:
+* <code>template_name</code> (<code>str</code>): Base filename of the template without extension.
+* <code>advanced_mode</code> (<code>bool</code>): Legacy boolean fallback indicating whether to load from <code>prompts/advanced</code>. Defaults to <code>False</code>.
+* <code>mode</code> (<code>str | None</code>): Documentation mode corresponding to a prompt subdirectory. Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Raw template contents read from disk.</p>
+<p><strong>Raises</strong>:
+* <code>FileNotFoundError</code>: If the targeted prompt template file does not exist.
+* <code>IOError</code>: If an error occurs reading the template file.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">template</span> <span class="o">=</span> <span class="n">load_prompt_template</span><span class="p">(</span><span class="s2">"draft_chapters"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"api-reference"</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="parse_yaml_response"><code>parse_yaml_response()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def parse_yaml_response(response: str) -&gt; dict | list:</code></p>
+<p><strong>Description</strong>:<br />
+Parses structured YAML data generated by LLMs wrapped inside <code>```yaml</code> code fences. Extracts the substring between the opening delimiter and closing delimiter and applies <code>yaml.safe_load</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>response</code> (<code>str</code>): Raw text response returned by the LLM.</p>
+<p><strong>Returns</strong>:
+* <code>dict | list</code>: Parsed Python object (dictionary or list) from the YAML block.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If code fences are missing, the response is malformed, or YAML parsing fails.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">llm_output</span> <span class="o">=</span> <span class="s2">"Here is the result:</span><span class="se">\n</span><span class="s2">```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">```"</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_yaml_response</span><span class="p">(</span><span class="n">llm_output</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Returns: [0, 1]</span>
+</code></pre></div></p>
+<hr />
+<h3 id="create_token_counter"><code>create_token_counter()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def create_token_counter() -&gt; callable:</code></p>
+<p><strong>Description</strong>:<br />
+Initializes and returns a callable token-counting function. Attempts to instantiate <code>tiktoken.get_encoding("cl100k_base")</code>. If <code>tiktoken</code> fails or is unavailable, falls back to an integer character-division heuristic (<code>len(text) // 4</code>).</p>
+<p><strong>Parameters</strong>:
+* <em>None</em></p>
+<p><strong>Returns</strong>:
+* <code>callable</code>: A function <code>(text: str) -&gt; int</code> that returns the estimated token count for any given string.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">counter</span> <span class="o">=</span> <span class="n">create_token_counter</span><span class="p">()</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">tokens</span> <span class="o">=</span> <span class="n">counter</span><span class="p">(</span><span class="s2">"Hello, world!"</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="resolve_max_tokens"><code>resolve_max_tokens()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def resolve_max_tokens(shared: dict) -&gt; int:</code></p>
+<p><strong>Description</strong>:<br />
+Resolves the maximum context token limit for the active LLM. If <code>max_tokens</code> is explicitly defined in the <code>shared</code> state, that value is returned. Otherwise, detects environment variables (<code>LLM_PROVIDER</code>, <code>GEMINI_PROJECT_ID</code>, <code>GEMINI_API_KEY</code>, or custom provider endpoints) and queries <code>get_model_context_length</code> from <a href="../utils/call_llm/">utils.call_llm</a>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Shared state dictionary from the execution pipeline.</p>
+<p><strong>Returns</strong>:
+* <code>int</code>: Maximum context length in tokens supported by the model configuration.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">max_tokens</span> <span class="o">=</span> <span class="n">resolve_max_tokens</span><span class="p">({</span><span class="s2">"max_tokens"</span><span class="p">:</span> <span class="mi">128000</span><span class="p">})</span>
+</code></pre></div></p>
+<hr />
+<h2 id="classes">Classes</h2>
+<h2 id="deterministicfilemapper"><code>DeterministicFileMapper</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Filters files directly without semantic abstraction mapping, creating a 1:1 correspondence between code files and documentation chapters for internal API references.</p>
+<h3 id="deterministicfilemapperprep"><code>DeterministicFileMapper.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; tuple[str, str | None, int]:</code></p>
+<p><strong>Description</strong>:<br />
+Enumerates all files stored in <code>shared["files"]</code> and prepares an LLM prompt requiring the model to classify and return only valid code file indices (excluding layouts, configs, assets, and project files).</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Shared workflow context containing <code>files</code>, <code>project_name</code>, <code>thinking_level</code>, and <code>max_tokens</code>.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[str, str | None, int]</code>: Tuple containing <code>(prompt, thinking_level, max_tokens)</code>.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="deterministicfilemapperexec"><code>DeterministicFileMapper.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: tuple[str, str | None, int]) -&gt; list[int]:</code></p>
+<p><strong>Description</strong>:<br />
+Invokes <a href="../utils/call_llm/">call_llm</a> to parse the prompt, logging estimated token counts via <a href="../utils/token_utils/">log_token_estimation</a>. Parses the response with <a href="#parse_yaml_response">parse_yaml_response</a> to retrieve a list of integer file indices.</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>tuple[str, str | None, int]</code>): Unpacked parameters from <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>list[int]</code>: Validated list of file index integers representing code files.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: Logs and re-raises any LLM or parsing errors to trigger pocketflow retry mechanics.</p>
+<hr />
+<h3 id="deterministicfilemapperpost"><code>DeterministicFileMapper.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: tuple, exec_res: list[int]) -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Filters <code>shared["files"]</code> based on valid indices, translates file paths into dot-delimited module names, initializes <code>shared["abstractions"]</code>, sets <code>shared["chapter_order"]</code>, and creates a dummy <code>shared["relationships"]</code> dictionary.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.
+* <code>prep_res</code> (<code>tuple</code>): Result from <code>prep()</code>.
+* <code>exec_res</code> (<code>list[int]</code>): List of valid code file indices from <code>exec()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Action transition string <code>"default"</code>.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="contextrouter"><code>ContextRouter</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Analyzes codebase token volume against LLM context boundaries to dynamically route the pipeline into <code>direct</code>, <code>batch</code>, or <code>deterministic</code> processing paths.</p>
+<h3 id="contextrouterprep"><code>ContextRouter.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; tuple:</code></p>
+<p><strong>Description</strong>:<br />
+Calculates directory tree size, prompt template overhead, and token volume across all files. Compares total tokens against the effective context limit (<code>95%</code> of <code>max_tokens</code> minus template and tree overhead).</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Shared context containing <code>files</code>, <code>max_tokens</code>, <code>force_batch</code>, <code>batch_size</code>, and <code>mode</code>.</p>
+<p><strong>Returns</strong>:
+* <code>tuple</code>: Routing arguments containing <code>(route, files_data, effective_limit, batch_size, file_token_map, count_tokens, directory_tree, debug)</code>.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="contextrouterexec"><code>ContextRouter.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: tuple) -&gt; str | list[list[tuple[int, str, str]]]:</code></p>
+<p><strong>Description</strong>:<br />
+If the route is <code>"direct"</code> or <code>"deterministic"</code>, returns the route string immediately. Otherwise, groups files by directory and splits them into token-bounded and size-bounded batches without splitting directory boundaries where possible.</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>tuple</code>): Prepared token maps and thresholds from <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str | list[list[tuple[int, str, str]]]</code>: Either a routing string or a nested list of file tuples partitioned into discrete batches.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="contextrouterpost"><code>ContextRouter.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: tuple, exec_res: str | list) -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Assigns <code>shared["file_batches"]</code> and <code>shared["directory_tree"]</code> if batching was performed, and returns the dynamic branching key (<code>"direct"</code>, <code>"deterministic"</code>, or <code>"batch"</code>).</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.
+* <code>prep_res</code> (<code>tuple</code>): Preparation context.
+* <code>exec_res</code> (<code>str | list</code>): Execution output from <code>exec()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Routing transition identifier (<code>"direct"</code>, <code>"deterministic"</code>, or <code>"batch"</code>).</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="contextrouter_build_directory_tree"><code>ContextRouter._build_directory_tree()</code></h3>
+<p><strong>Visibility</strong>: Private (Static)<br />
+<strong>Signature</strong>: <code>def _build_directory_tree(files_data: list[tuple[str, str]]) -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Constructs a formatted, human-readable directory hierarchy tree annotated with file indices.</p>
+<p><strong>Parameters</strong>:
+* <code>files_data</code> (<code>list[tuple[str, str]]</code>): List of <code>(path, content)</code> tuples.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Compact visual directory tree.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="mapabstractions"><code>MapAbstractions</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.BatchNode</code></p>
+<p>Processes individual file batches in parallel/sequence to extract localized functional abstractions.</p>
+<h3 id="mapabstractionsprep"><code>MapAbstractions.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; list[dict]:</code></p>
+<p><strong>Description</strong>:<br />
+Decomposes <code>shared["file_batches"]</code> into individual batch payload dictionaries for parallel or iterative batch execution.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.</p>
+<p><strong>Returns</strong>:
+* <code>list[dict]</code>: Iterable list of batch metadata dictionaries.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="mapabstractionsexec"><code>MapAbstractions.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, item: dict) -&gt; list[dict]:</code></p>
+<p><strong>Description</strong>:<br />
+Builds the prompt for a single batch using <code>map_abstractions.md</code>, calls <a href="../utils/call_llm/">call_llm</a>, and parses/validates the returned YAML list of abstractions (<code>name</code>, <code>description</code>, and <code>files</code> indices).</p>
+<p><strong>Parameters</strong>:
+* <code>item</code> (<code>dict</code>): Single batch payload from <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>list[dict]</code>: Validated list of abstraction objects identified within the batch.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: Logs and raises on LLM or parsing failures.</p>
+<hr />
+<h3 id="mapabstractionspost"><code>MapAbstractions.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: list, exec_res_list: list[list[dict]]) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Flattens abstraction lists from all batches and stores the combined list in <code>shared["mapped_abstractions"]</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.
+* <code>prep_res</code> (<code>list</code>): List of prepared inputs.
+* <code>exec_res_list</code> (<code>list[list[dict]]</code>): List of mapped abstraction lists returned across all batch executions.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="reduceabstractions"><code>ReduceAbstractions</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Merges and consolidates intermediate abstractions produced by <code>MapAbstractions</code> into a global system architecture.</p>
+<h3 id="reduceabstractionsprep"><code>ReduceAbstractions.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; tuple:</code></p>
+<p><strong>Description</strong>:<br />
+Extracts <code>mapped_abstractions</code>, target abstraction limits (<code>max_abstraction_num</code>), language settings, and token limits from <code>shared</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.</p>
+<p><strong>Returns</strong>:
+* <code>tuple</code>: Execution parameters for abstraction reduction.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="reduceabstractionsexec"><code>ReduceAbstractions.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: tuple) -&gt; list[dict]:</code></p>
+<p><strong>Description</strong>:<br />
+Renders <code>reduce_abstractions.md</code> with all intermediate abstractions, invokes <a href="../utils/call_llm/">call_llm</a>, and validates the unified architectural abstractions.</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>tuple</code>): Unpacked parameter tuple from <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>list[dict]</code>: Global list of consolidated abstractions containing <code>name</code>, <code>description</code>, and index arrays in <code>files</code>.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: On LLM communication failure or schema validation errors.</p>
+<hr />
+<h3 id="reduceabstractionspost"><code>ReduceAbstractions.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: tuple, exec_res: list[dict]) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Stores the consolidated abstractions list directly into <code>shared["abstractions"]</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.
+* <code>prep_res</code> (<code>tuple</code>): Prepared arguments.
+* <code>exec_res</code> (<code>list[dict]</code>): Consolidated abstractions from <code>exec()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="fetchrepo"><code>FetchRepo</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Fetches source files from a remote GitHub repository or a local directory based on inclusion/exclusion filters.</p>
+<h3 id="fetchrepoprep"><code>FetchRepo.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; dict:</code></p>
+<p><strong>Description</strong>:<br />
+Resolves the project name (if unset) from the repository URL or local path, and constructs crawler configurations including inclusion/exclusion patterns and file size constraints.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state containing <code>repo_url</code>, <code>local_dir</code>, <code>project_name</code>, <code>include_patterns</code>, <code>exclude_patterns</code>, <code>max_file_size</code>, and optional <code>github_token</code>.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: Parameter dictionary for crawler functions.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="fetchrepoexec"><code>FetchRepo.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: dict) -&gt; list[tuple[str, str]]:</code></p>
+<p><strong>Description</strong>:<br />
+Delegates to <a href="../utils/crawl_github_files/">crawl_github_files</a> if <code>repo_url</code> is present, or <a href="../utils/crawl_local_files/">crawl_local_files</a> if <code>local_dir</code> is provided. Converts the returned file map into a list of <code>(file_path, content)</code> tuples.</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>dict</code>): Crawl configuration dictionary.</p>
+<p><strong>Returns</strong>:
+* <code>list[tuple[str, str]]</code>: Collection of crawled file paths and file contents.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If no matching files are discovered.</p>
+<hr />
+<h3 id="fetchrepopost"><code>FetchRepo.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: dict, exec_res: list[tuple[str, str]]) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Saves the loaded file tuples into <code>shared["files"]</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.
+* <code>prep_res</code> (<code>dict</code>): Crawler parameters.
+* <code>exec_res</code> (<code>list[tuple[str, str]]</code>): Crawled file tuples.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="identifyabstractions"><code>IdentifyAbstractions</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Performs single-pass abstraction discovery for codebases that fit within the single-prompt LLM context limit.</p>
+<h3 id="identifyabstractionsprep"><code>IdentifyAbstractions.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; tuple:</code></p>
+<p><strong>Description</strong>:<br />
+Constructs an LLM context from <code>shared["files"]</code>, enforcing a <code>95%</code> token safety margin. Formats prompt file listings and returns execution parameters.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.</p>
+<p><strong>Returns</strong>:
+* <code>tuple</code>: Context string, formatted file list, file count, and runtime parameters.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="identifyabstractionsexec"><code>IdentifyAbstractions.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: tuple) -&gt; list[dict]:</code></p>
+<p><strong>Description</strong>:<br />
+Formats <code>identify_abstractions.md</code>, calls the LLM, parses the returned YAML block, validates field schemas (<code>name</code>, <code>description</code>, <code>file_indices</code>), and parses single indices and index ranges (e.g. <code>"1-3"</code>).</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>tuple</code>): Prepared context and arguments from <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>list[dict]</code>: List of validated abstraction dictionaries.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If the output fails structural validation.
+* <code>Exception</code>: On LLM call failures.</p>
+<hr />
+<h3 id="identifyabstractionspost"><code>IdentifyAbstractions.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: tuple, exec_res: list[dict]) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Stores the validated abstractions into <code>shared["abstractions"]</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.
+* <code>prep_res</code> (<code>tuple</code>): Prepared arguments.
+* <code>exec_res</code> (<code>list[dict]</code>): Validated abstraction list.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="analyzerelationships"><code>AnalyzeRelationships</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Synthesizes architectural relationships between identified abstractions and drafts an overall project summary.</p>
+<h3 id="analyzerelationshipsprep"><code>AnalyzeRelationships.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; tuple:</code></p>
+<p><strong>Description</strong>:<br />
+Allocates context token budgets across abstractions using a two-pass algorithm. Equal token shares are initially assigned to each abstraction to inject file snippets; unused budgets are redistributed in the second pass to prevent starvation.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.</p>
+<p><strong>Returns</strong>:
+* <code>tuple</code>: Context containing formatted abstractions and code snippets, abstraction list, count, project name, language, cache, and token settings.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="analyzerelationshipsexec"><code>AnalyzeRelationships.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: tuple) -&gt; dict:</code></p>
+<p><strong>Description</strong>:<br />
+Populates <code>identify_relationships.md</code>, executes the model call via <a href="../utils/call_llm/">call_llm</a>, and validates the returned <code>summary</code> and relationship tuples (<code>from</code>, <code>to</code>, <code>label</code>).</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>tuple</code>): Context and parameters from <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: Dictionary with keys <code>"summary"</code> (<code>str</code>) and <code>"details"</code> (<code>list[dict]</code>).</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If structure or relationship keys are missing.
+* <code>Exception</code>: On LLM or runtime failures.</p>
+<hr />
+<h3 id="analyzerelationshipspost"><code>AnalyzeRelationships.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: tuple, exec_res: dict) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Persists relationship metadata to <code>shared["relationships"]</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.
+* <code>prep_res</code> (<code>tuple</code>): Prepared parameters.
+* <code>exec_res</code> (<code>dict</code>): Summary and validated relationship links.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="orderchapters"><code>OrderChapters</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Determines the optimal pedagogical or structural reading sequence for the generated chapters.</p>
+<h3 id="orderchaptersprep"><code>OrderChapters.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; tuple:</code></p>
+<p><strong>Description</strong>:<br />
+Extracts abstraction names and relationship summaries to construct a sequencing prompt.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.</p>
+<p><strong>Returns</strong>:
+* <code>tuple</code>: Formatted abstraction list, relationship context, abstraction count, project name, language notes, and execution flags.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="orderchaptersexec"><code>OrderChapters.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: tuple) -&gt; list[int]:</code></p>
+<p><strong>Description</strong>:<br />
+Calls the LLM using <code>order_chapters.md</code> template, parses the returned YAML array of indices, and validates that every abstraction index is present exactly once without duplicates or omissions.</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>tuple</code>): Prepared context and configurations.</p>
+<p><strong>Returns</strong>:
+* <code>list[int]</code>: Ordered sequence of abstraction indices.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If indices are missing, out of bounds, or duplicated.
+* <code>Exception</code>: On LLM or parsing errors.</p>
+<hr />
+<h3 id="orderchapterspost"><code>OrderChapters.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: tuple, exec_res: list[int]) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Stores the ordered chapter indices in <code>shared["chapter_order"]</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.
+* <code>prep_res</code> (<code>tuple</code>): Input arguments.
+* <code>exec_res</code> (<code>list[int]</code>): Validated order of abstraction indices.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h2 id="writechapters"><code>WriteChapters</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.BatchNode</code></p>
+<p>Generates markdown content for each chapter, tracking progressive chapter summaries and handling incremental file caching.</p>
+<h3 id="properties">Properties</h3>
+<ul>
+<li><code>chapters_written_so_far</code> (<code>list[str]</code>): Instance-level accumulator tracking generated chapter markdown across successive batch executions.</li>
+</ul>
+<hr />
+<h3 id="writechaptersprep"><code>WriteChapters.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; list[dict]:</code></p>
+<p><strong>Description</strong>:<br />
+Initializes <code>self.chapters_written_so_far = []</code>. Prepares chapter file naming mappings (supporting standard numeric prefixes or MkDocs documentation paths), builds relative Markdown links between chapters, and generates batch payloads.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.</p>
+<p><strong>Returns</strong>:
+* <code>list[dict]</code>: Iterable list of items containing all necessary prompt context, file maps, transitions, and caching configurations.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="writechaptersexec"><code>WriteChapters.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, item: dict) -&gt; dict:</code></p>
+<p><strong>Description</strong>:<br />
+Drafts an individual chapter. When <code>incremental=True</code>, computes an MD5 checksum of the relevant source files and checks <code>.doc_cache_manifest.json</code> to reuse existing documentation. Otherwise, formats <code>draft_chapters.md</code> with preceding chapter summaries and file snippets, calls <a href="../utils/call_llm/">call_llm</a>, ensures proper markdown heading structures, and updates <code>self.chapters_written_so_far</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>item</code> (<code>dict</code>): Single chapter payload generated by <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: Dictionary containing <code>"content"</code> (<code>str</code>), <code>"hash"</code> (<code>str | None</code>), and <code>"name"</code> (<code>str</code>).</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: On LLM failure or execution errors.</p>
+<hr />
+<h3 id="writechapterspost"><code>WriteChapters.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: list, exec_res_list: list[dict]) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Extracts generated chapter markdown into <code>shared["chapters"]</code>. If <code>incremental</code> caching is enabled, writes or updates <code>.doc_cache_manifest.json</code> in the project output directory. Cleans up <code>self.chapters_written_so_far</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared state.
+* <code>prep_res</code> (<code>list</code>): List of prepared chapter items.
+* <code>exec_res_list</code> (<code>list[dict]</code>): Results containing generated content and MD5 hashes.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <code>IOError</code>: If manifest writing fails.</p>
+<hr />
+<h2 id="combinetutorial"><code>CombineTutorial</code></h2>
+<p><strong>Inherits from</strong>: <code>pocketflow.Node</code></p>
+<p>Compiles written chapters, system summaries, and architecture diagrams into the final file structure on disk.</p>
+<h3 id="combinetutorialprep"><code>CombineTutorial.prep()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def prep(self, shared: dict) -&gt; dict:</code></p>
+<p><strong>Description</strong>:<br />
+Generates a Mermaid graph (<code>flowchart TD</code>) representing abstraction relationships, translates UI strings for the target language, and constructs either:
+- <strong>MkDocs Material output</strong>: YAML frontmatter headers for chapters and a <code>nav_snippet.yml</code> navigation tree.
+- <strong>Standard Tutorial output</strong>: An <code>index.md</code> landing page, individual numbered chapter files, and an aggregated <code>full_content.md</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: Assembly payload containing output paths, UI strings, rendered content, and file structures.</p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+<hr />
+<h3 id="combinetutorialexec"><code>CombineTutorial.exec()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def exec(self, prep_res: dict) -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Writes all compiled Markdown documentation and navigation manifests to disk in the resolved <code>output_path</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>prep_res</code> (<code>dict</code>): Configuration and file payloads from <code>prep()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Final output directory path.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: Logs and raises on disk I/O errors.</p>
+<hr />
+<h3 id="combinetutorialpost"><code>CombineTutorial.post()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def post(self, shared: dict, prep_res: dict, exec_res: str) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Stores the output directory path in <code>shared["final_output_dir"]</code> and logs completion.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): Pipeline shared context.
+* <code>prep_res</code> (<code>dict</code>): Preparation parameters.
+* <code>exec_res</code> (<code>str</code>): Resolved output directory path.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <em>None</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
