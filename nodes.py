@@ -1109,6 +1109,22 @@ class WriteChapters(BatchNode):
                     next_idx = chapter_order[i + 1]
                     next_chapter = chapter_filenames[next_idx]
 
+                # Generate relative chapter listing for correct Markdown linking
+                current_filename = chapter_filenames[abstraction_index]["filename"]
+                relative_chapters = []
+                for abs_idx, ch_data in chapter_filenames.items():
+                    target_filename = ch_data["filename"]
+                    from_dir = os.path.dirname(current_filename)
+                    if not from_dir:
+                        rel_path = target_filename
+                    else:
+                        rel_path = os.path.relpath(target_filename, from_dir)
+                    rel_path = rel_path.replace(os.sep, "/")
+                    relative_chapters.append((ch_data["num"], f"{ch_data['num']}. [{ch_data['name']}]({rel_path})"))
+                
+                relative_chapters.sort(key=lambda x: x[0])
+                relative_chapter_listing = "\n".join(item[1] for item in relative_chapters)
+
                 items_to_process.append(
                     {
                         "chapter_num": i + 1,
@@ -1116,7 +1132,7 @@ class WriteChapters(BatchNode):
                         "abstraction_details": abstraction_details,  # Has potentially translated name/desc
                         "related_files_content_map": related_files_content_map,
                         "project_name": shared["project_name"],  # Add project name
-                        "full_chapter_listing": full_chapter_listing,  # Add the full chapter listing (uses potentially translated names)
+                        "full_chapter_listing": relative_chapter_listing,  # Add the relative chapter listing
                         "chapter_filenames": chapter_filenames,  # Add chapter filenames mapping (uses potentially translated names)
                         "prev_chapter": prev_chapter,  # Add previous chapter info (uses potentially translated name)
                         "next_chapter": next_chapter,  # Add next chapter info (uses potentially translated name)
