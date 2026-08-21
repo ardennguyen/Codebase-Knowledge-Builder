@@ -1,7 +1,5 @@
 ---
-layout: default
-title: "System Design"
-nav_order: 2
+title: "Architecture & Design"
 ---
 
 # System Design: Codebase Knowledge Builder
@@ -13,13 +11,13 @@ nav_order: 2
 > Notes for AI: Keep it simple and clear.
 > If the requirements are abstract, write concrete user stories
 
-**User Story:** As a developer onboarding to a new codebase, I want a tutorial automatically generated from its GitHub repository or local directory, optionally in a specific language. The system supports two modes: a **tutorial mode** that explains core abstractions with beginner-friendly language, analogies, and code walkthroughs; and an **advanced mode** that produces architecture deep-dives aimed at senior developers or PMs joining a project mid-way, covering design patterns, key dependencies, and practical onboarding notes. The system must also gracefully handle codebases of any size by dynamically switching to a Map-Reduce approach when context limits are reached.
+**User Story:** As a developer onboarding to a new codebase, I want a tutorial automatically generated from its GitHub repository or local directory, optionally in a specific language. The system supports four documentation styles: a **tutorial mode** that explains core abstractions with beginner-friendly language, analogies, and code walkthroughs; an **advanced mode** that produces architecture deep-dives aimed at senior developers or PMs joining a project mid-way, covering design patterns, key dependencies, and practical onboarding notes; an **api-reference mode** that generates exhaustive, formal API documentation for every code module (1:1 file-to-chapter mapping); and an **sdk mode** that produces SDK-style integration guides. The system must also gracefully handle codebases of any size by dynamically switching to a Map-Reduce approach when context limits are reached.
 
 **Input:**
 - A publicly accessible GitHub repository URL or a local directory path.
 - A project name (optional, will be derived from the URL/directory if not provided).
 - Desired language for the tutorial (optional, defaults to English).
-- Advanced configurations for token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--advanced`, `--thinking-level`, `--max-abstractions`), caching (`--no-cache`), debugging (`--debug`), and execution cleanup (`--cleanup`).
+- Advanced configurations: documentation style (`--mode`), token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--thinking-level`, `--max-abstractions`), caching (`--no-cache`), output format (`--mkdocs`, `--incremental`), debugging (`--debug`), and execution cleanup (`--cleanup`).
 
 **Output:**
 - A directory named after the project containing:
@@ -30,6 +28,8 @@ nav_order: 2
         - A link to `full_content.md` at the bottom.
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
     - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
+    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and a `nav_snippet.yml` navigation file is generated for MkDocs integration.
+    - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of source files to skip regeneration of unchanged modules across runs.
 
 ## 2. Flow Design
 
@@ -48,16 +48,18 @@ This project primarily uses a **Workflow** pattern with dynamic branching into a
 ### Flow high-level Design:
 
 1.  **`FetchRepo`**: Crawls the specified repository/directory using `crawl_github_files` or `crawl_local_files`.
-2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. Dynamically calculates **prompt overhead** (template tokens + directory tree tokens) and computes an **effective limit** = `safety_limit - prompt_overhead`. If the file content tokens exceed this effective limit or if `--force-batch` is used, it chunks files into **token-aware, directory-isolated batches** (never mixing files from different directories) and routes to `"batch"`. Also builds a compact directory tree of all files (stored in `shared["directory_tree"]`) for cross-batch awareness. With `--debug`, displays detailed per-batch file lists and token breakdowns. Otherwise, it routes to `"direct"`.
+2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. Dynamically calculates **prompt overhead** (template tokens + directory tree tokens) and computes an **effective limit** = `safety_limit - prompt_overhead`. If `--mode api-reference` is used, routes to `"deterministic"`. If the file content tokens exceed this effective limit or if `--force-batch` is used, it chunks files into **token-aware, directory-isolated batches** (never mixing files from different directories) and routes to `"batch"`. Also builds a compact directory tree of all files (stored in `shared["directory_tree"]`) for cross-batch awareness. With `--debug`, displays detailed per-batch file lists and token breakdowns. Otherwise, it routes to `"direct"`.
 3.  **Path A: Direct**
     *   **`IdentifyAbstractions`**: Analyzes the entire codebase at once to identify core abstractions.
 4.  **Path B: Map-Reduce**
     *   **`MapAbstractions` (BatchNode)**: Analyzes each localized directory chunk to extract partial abstractions. Each batch receives the full directory tree for cross-batch awareness.
     *   **`ReduceAbstractions`**: Merges overlapping/partial abstractions into a global list of architecture components.
-5.  **`AnalyzeRelationships`**: Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram. Uses token-budget-aware file inclusion: the budget is split evenly across abstractions, with unused budget redistributed in a second pass, maximizing code context without exceeding the context window.
-6.  **`OrderChapters`**: Determines the most logical sequence to present the abstractions.
-7.  **`WriteChapters` (BatchNode)**: Iterates through the ordered abstractions and writes detailed Markdown chapters using context-aware code inclusion.
-8.  **`CombineTutorial`**: Assembles the final outputs including `index.md`, individual chapter files, and a compiled `full_content.md`.
+5.  **Path C: Deterministic** (api-reference mode)
+    *   **`DeterministicFileMapper`**: Bypasses LLM-based abstraction discovery entirely. Uses a lightweight LLM call to filter out non-code files (configs, UI layouts, static assets), then creates a 1:1 mapping of each code file to a documentation module. Skips `AnalyzeRelationships` and `OrderChapters`, routing directly to `WriteChapters`.
+6.  **`AnalyzeRelationships`** (Paths A & B only): Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram. Uses token-budget-aware file inclusion: the budget is split evenly across abstractions, with unused budget redistributed in a second pass, maximizing code context without exceeding the context window.
+7.  **`OrderChapters`** (Paths A & B only): Determines the most logical sequence to present the abstractions.
+8.  **`WriteChapters` (BatchNode)**: Iterates through the ordered abstractions and writes detailed Markdown chapters using context-aware code inclusion.
+9.  **`CombineTutorial`**: Assembles the final outputs including `index.md`, individual chapter files, and a compiled `full_content.md`.
 
 ```mermaid
 flowchart TD
@@ -65,6 +67,7 @@ flowchart TD
     
     Router -->|direct| B[IdentifyAbstractions]
     Router -->|batch| M1[MapAbstractions]
+    Router -->|deterministic| DFM[DeterministicFileMapper]
     M1 --> M2[ReduceAbstractions]
     
     B --> C[AnalyzeRelationships]
@@ -72,6 +75,7 @@ flowchart TD
     
     C --> D[OrderChapters]
     D --> E[Batch WriteChapters]
+    DFM --> E
     E --> F[CombineTutorial]
 ```
 
@@ -83,9 +87,12 @@ flowchart TD
 codebase_kb/
 ├── main.py                          # CLI entry point, arg parsing, shared store init
 ├── flow.py                          # PocketFlow graph wiring
-├── nodes.py                         # All 9 node classes + helper functions
+├── nodes.py                         # All 10 node classes + helper functions
 ├── .env.sample                      # Environment variable template
 ├── requirements.txt                 # Python dependencies
+├── .github/
+│   └── workflows/
+│       └── deploy-docs.yml          # GitHub Actions CI/CD for auto-generating & deploying API docs
 ├── utils/
 │   ├── __init__.py                  # Empty
 │   ├── call_llm.py                  # Multi-provider LLM wrapper with caching
@@ -100,7 +107,21 @@ codebase_kb/
 │   │   ├── identify_relationships.md
 │   │   ├── order_chapters.md
 │   │   └── draft_chapters.md
-│   └── advanced/                    # Senior-dev prompt templates
+│   ├── advanced/                    # Senior-dev prompt templates
+│   │   ├── identify_abstractions.md
+│   │   ├── map_abstractions.md
+│   │   ├── reduce_abstractions.md
+│   │   ├── identify_relationships.md
+│   │   ├── order_chapters.md
+│   │   └── draft_chapters.md
+│   ├── api-reference/               # Exhaustive API documentation templates
+│   │   ├── identify_abstractions.md
+│   │   ├── map_abstractions.md
+│   │   ├── reduce_abstractions.md
+│   │   ├── identify_relationships.md
+│   │   ├── order_chapters.md
+│   │   └── draft_chapters.md
+│   └── sdk/                         # SDK integration guide templates
 │       ├── identify_abstractions.md
 │       ├── map_abstractions.md
 │       ├── reduce_abstractions.md
@@ -277,7 +298,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     "*.zip", "*.tar", "*.gz", "*.rar", "*.7z",
 
     # 2. Build, Distribution, and Framework Caches
-    "dist/*", "build/*", "out/*", "target/*", "bin/*", "obj/*",
+    "dist/*", "build/*", "out/*", "output/*", "target/*", "bin/*", "obj/*",
     ".next/*", ".nuxt/*", ".svelte-kit/*", ".expo/*",
     "docs/*", "test/*", "tests/*", "examples/*",
     "v1/*", "experimental/*", "deprecated/*", "misc/*", "legacy/*",
@@ -334,7 +355,10 @@ shared = {
     "max_abstraction_num": args.max_abstractions,  # int, default 10
     "thinking_level": args.thinking_level,    # str | None
     "max_tokens": args.max_tokens,            # int | None (auto-detected later)
-    "advanced_mode": args.advanced,           # bool, default False
+    "mode": doc_mode,                         # str: "tutorial", "advanced", "api-reference", or "sdk"
+    "mkdocs": args.mkdocs,                    # bool, default False
+    "incremental": args.incremental,          # bool, default False
+    "advanced_mode": doc_mode == "advanced",  # bool, derived from mode
     "batch_size": args.batch,                 # int, default 50
     "force_batch": args.force_batch,          # bool, default False
     "debug": args.debug,                      # bool, default False
@@ -1204,15 +1228,16 @@ ui = ui_strings.get(language.lower(), ui_strings["english"])
 ### Retry Configuration
 | Node | `max_retries` | `wait` (seconds) |
 |---|---|---|
-| FetchRepo | 1 (default) | 0 |
-| ContextRouter | 1 (default) | 0 |
+| FetchRepo | 0 (default) | 0 |
+| ContextRouter | 0 (default) | 0 |
 | MapAbstractions | 5 | 20 |
 | ReduceAbstractions | 5 | 20 |
 | IdentifyAbstractions | 5 | 20 |
 | AnalyzeRelationships | 5 | 20 |
 | OrderChapters | 5 | 20 |
 | WriteChapters | 5 | 20 |
-| CombineTutorial | 1 (default) | 0 |
+| DeterministicFileMapper | 5 | 20 |
+| CombineTutorial | 0 (default) | 0 |
 
 ### LLM Cache-on-Retry Pattern
 ```python
@@ -1245,17 +1270,18 @@ if args.cleanup:
 
 ## 14. Prompt Template Rules
 
-> Notes for AI: Prompt templates are in `prompts/tutorial/` and `prompts/advanced/`. They contain `{placeholder}` variables that form a CONTRACT with the node code.
+> Notes for AI: Prompt templates are in `prompts/tutorial/`, `prompts/advanced/`, `prompts/api-reference/`, and `prompts/sdk/`. They contain `{placeholder}` variables that form a CONTRACT with the node code.
 
 1. **NEVER paraphrase, truncate, or summarize** prompt templates — copy them byte-for-byte from the originals
 2. The `{variable}` placeholders are a CONTRACT — nodes MUST pass exactly matching kwargs to `.format()`
 3. To verify correctness: grep each template for `{word}` patterns. Every match must appear as a kwarg in the corresponding node's `.format()` call
 4. Templates use Python `.format()` syntax — any literal `{` or `}` in template text MUST be escaped as `{{` or `}}`
-5. Both `tutorial/` and `advanced/` directories have the SAME 6 template files with the SAME placeholder names (but different prompt content)
+5. All 4 directories (`tutorial/`, `advanced/`, `api-reference/`, `sdk/`) have the SAME 6 template files. The `tutorial/` and `advanced/` directories share identical placeholder names. The `api-reference/` and `sdk/` templates may have different placeholder sets (e.g., `api-reference/draft_chapters.md` omits `{tone_note}`, `{chapter_num}`, `{instruction_lang_note}`, `{code_comment_note}`, `{mermaid_lang_note}`).
 
 ### Prompt Loading Pattern
 ```python
-prompt_dir = "advanced" if advanced_mode else "tutorial"
+# mode is one of: "tutorial", "advanced", "api-reference", "sdk"
+prompt_dir = mode  # Directly selects the prompt subdirectory
 template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, f"{template_name}.md")
 with open(template_path, "r", encoding="utf-8-sig") as f:
     prompt_template = f.read()
@@ -1270,7 +1296,7 @@ from pocketflow import Flow
 from nodes import (
     FetchRepo, ContextRouter, MapAbstractions, ReduceAbstractions,
     IdentifyAbstractions, AnalyzeRelationships, OrderChapters,
-    WriteChapters, CombineTutorial
+    WriteChapters, CombineTutorial, DeterministicFileMapper
 )
 
 def create_tutorial_flow():
@@ -1283,15 +1309,24 @@ def create_tutorial_flow():
     order_chapters = OrderChapters(max_retries=5, wait=20)
     write_chapters = WriteChapters(max_retries=5, wait=20)
     combine_tutorial = CombineTutorial()
+    deterministic_mapper = DeterministicFileMapper(max_retries=5, wait=20)
 
     fetch_repo >> context_router
+    
     context_router - "direct" >> identify_abstractions
     context_router - "batch" >> map_abstractions
+    context_router - "deterministic" >> deterministic_mapper
+
     map_abstractions >> reduce_abstractions
+    
     identify_abstractions >> analyze_relationships
     reduce_abstractions >> analyze_relationships
+    
     analyze_relationships >> order_chapters
     order_chapters >> write_chapters
+    
+    deterministic_mapper >> write_chapters
+    
     write_chapters >> combine_tutorial
 
     return Flow(start=fetch_repo)
@@ -1309,12 +1344,15 @@ As you implement nodes, you will notice recurring operations: loading prompts, p
 
 These helpers MUST be defined at the top of `nodes.py`, after imports and before any class definitions:
 
-#### `load_prompt_template(template_name, advanced_mode=False)` → `str`
-Loads a prompt template from `prompts/{tutorial|advanced}/{template_name}.md`.
+#### `load_prompt_template(template_name, advanced_mode=False, mode=None)` → `str`
+Loads a prompt template from `prompts/{mode}/{template_name}.md`. When `mode` is provided, it directly selects the subdirectory. When `mode` is `None`, falls back to legacy `advanced_mode` boolean.
 ```python
-def load_prompt_template(template_name, advanced_mode=False):
+def load_prompt_template(template_name, advanced_mode=False, mode=None):
     """Load a prompt template file from the prompts/ directory."""
-    prompt_dir = "advanced" if advanced_mode else "tutorial"
+    if mode is None:
+        prompt_dir = "advanced" if advanced_mode else "tutorial"
+    else:
+        prompt_dir = mode
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "prompts", prompt_dir, f"{template_name}.md")
     with open(path, "r", encoding="utf-8-sig") as f:
