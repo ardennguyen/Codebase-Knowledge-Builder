@@ -25,9 +25,9 @@ Instructions for the API reference page (Generate content in {language} unless s
 - This is an EXHAUSTIVE internal reference. Extract ALL classes, methods, functions, AND important class properties/fields defined in this file.
 - CRITICAL: You MUST include all private methods, protected methods (e.g., methods starting with `_` or `__`), and internal helper functions present in the Source Code Context above. Do not skip any classes or functions — document EVERYTHING in this file.
 
-- FUNCTIONAL DECOMPOSITION (CRITICAL): Do NOT dump the entire source file and call it documentation. Instead, go method-by-method:
+- FUNCTION-BY-FUNCTION BREAKDOWN (CRITICAL): Do NOT dump the entire source file and call it documentation. Instead, go method-by-method:
   1. Give each public method/function its own `###` subsection using the template below
-  2. For each method, show its signature and the core implementation logic (10-30 lines, using `// ...` to skip boilerplate)
+  2. For each method, show its signature and the core implementation logic (10-50 lines, using `// ...` to skip boilerplate)
   3. Follow each code block with a prose paragraph explaining the behavior, edge cases, and error handling
   If the file implements multiple distinct features or handlers (e.g., 8 button click handlers), each MUST get its own documented subsection — do not lump them into one giant code block.
 
@@ -62,7 +62,9 @@ Instructions for the API reference page (Generate content in {language} unless s
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear — in their original language, with original variable names, and original inline comments. Never translate, rephrase, or modify code or inline comments. Your own explanations belong in prose paragraphs outside the code fence.
 
-- CODE BLOCK SIZE: For each documented method/function, show its signature and the core implementation logic in a code block of 10-30 lines. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or trivial setup within the method body. Follow each code block with a prose paragraph explaining the implementation behavior.
+- CODE BLOCK SIZE: For each documented method/function, show its signature and the core implementation logic in a code block of 10-50 lines. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or trivial setup within the method body. NEVER exceed 50 lines in one code block. Follow each code block with a prose paragraph explaining the implementation behavior.
+
+- EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of technical explanation immediately after it — describe the behavior, implementation strategy, error handling, and edge cases. Do NOT just show code with a one-liner description.
 
 - When the file defines complex control flows, inheritance hierarchies, or state machines, include Mermaid diagrams to visualize them. Choose the appropriate diagram type:
   * `classDiagram` — for inheritance, composition, or factory patterns

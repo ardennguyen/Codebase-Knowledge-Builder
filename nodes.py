@@ -1063,7 +1063,7 @@ class WriteChapters(BatchNode):
                 chapter_num = i + 1
                 chapter_name = abstractions[abstraction_index][
                     "name"
-                ]  # Potentially translated name
+                ].replace("\n", " ").strip()  # Sanitize: match CombineTutorial's name cleaning
                 is_mkdocs = shared.get("mkdocs", False)
                 if is_mkdocs and "original_path" in abstractions[abstraction_index]:
                     doc_rel_path = os.path.splitext(abstractions[abstraction_index]["original_path"])[0] + ".md"
@@ -1440,7 +1440,12 @@ class CombineTutorial(Node):
             # Traditional tutorial mode
             index_content = f"# {ui['tutorial']}: {project_name}\n\n"
             index_content += f"{relationships_data['summary']}\n\n"
-            index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
+            if repo_url:
+                index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
+            else:
+                local_dir = shared.get("local_dir", "")
+                if local_dir:
+                    index_content += f"**{ui['source_repo']}:** `{local_dir}`\n\n"
             
             index_content += "```mermaid\n"
             index_content += mermaid_diagram + "\n"

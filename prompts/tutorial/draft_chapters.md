@@ -25,18 +25,21 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - Explain how to use this abstraction to solve the use case{instruction_lang_note}. Give example inputs and outputs for code snippets (if the output isn't values, describe at a high level what will happen{instruction_lang_note}).
 
-- FUNCTIONAL DECOMPOSITION: Do NOT give a high-level overview and then dump the source code. Instead, identify each major feature, handler, or workflow in this component and give each its own `###` subsection. For each one:
-  1. Explain what it does in plain language with an analogy
-  2. Walk through the internal steps it performs
+- FUNCTION-BY-FUNCTION BREAKDOWN: Do NOT give a high-level overview and then dump the source code. Instead, identify each major feature, handler, or workflow in this component and give each its own `###` subsection. For each one:
+  1. Explain what it does and when it is triggered
+  2. Walk through the internal steps it performs in a numbered list or prose paragraph
   3. Show the key 10-20 lines of actual code that implement it (use `// ...` to skip boilerplate)
-  4. Explain the code immediately after the block
+  4. Explain the code immediately after the block — what each significant line does and why
   If a single class implements multiple distinct operations, each operation MUST get its own subsection — do not lump them together.
+  WITHIN SUBSECTIONS: If a method or handler is longer than 20 lines, do NOT show it as one block. Instead, split it into 2-4 logical segments (e.g., validation → core logic → cleanup). Show each segment as a separate code block (10-20 lines) with its own explanation paragraph between blocks. The reader should understand EACH segment before moving to the next.
 
 - IMPORTANT: You MUST extract and include the ACTUAL code snippets from the provided file context. Do not write generic examples or cut code short; present the exact implementation.
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear{code_comment_note}. Never translate, rephrase, or modify code or inline comments. Your own explanations belong in prose paragraphs outside the code fence.
 
-- Keep explanatory code snippets to 10-20 lines each with a prose explanation paragraph after each one. However, when showing a complete class or method that must be understood as a whole, it is acceptable to include up to 40 lines in one block — use `// ...` comments to skip unimportant boilerplate within it. Every code block MUST have an explanation paragraph immediately after it{instruction_lang_note}.
+- CODE BLOCK SIZE: Keep each code block to 10-20 lines. The absolute maximum for any single code block is 30 lines — only when showing a tightly coupled struct/class definition that cannot be meaningfully split. Use `// ...` to skip boilerplate. NEVER exceed 30 lines in one code block.
+
+- EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of explanation immediately after it. The overall chapter should be at least 60% prose and at most 40% code by line count. If you find yourself showing code block after code block with only a single sentence between them, STOP and add more explanation — describe what the code achieves, why it's designed this way, what edge cases it handles, and how it connects to the next block.
 
 - Describe the internal implementation to help understand what's under the hood{instruction_lang_note}. First provide a non-code or code-light walkthrough on what happens step-by-step when the abstraction is called{instruction_lang_note}. It's highly recommended to generate a Mermaid diagram to visualize this. Choose the Mermaid diagram type based on what aspect of the code you're illustrating:
   * `sequenceDiagram` — for request/response flows that cross multiple components or services

@@ -22,9 +22,9 @@ Instructions for the SDK reference page (Generate content in {language} unless s
 
 - Extract the primary public-facing APIs, classes, and methods relevant for an SDK consumer. Focus on what a developer needs to integrate this module. You DO NOT need to document internal helper methods or private functions unless they are crucial for understanding the architecture.
 
-- FUNCTIONAL DECOMPOSITION (CRITICAL): Do NOT dump the entire source code and call it documentation. Instead, go method-by-method:
+- FUNCTION-BY-FUNCTION BREAKDOWN (CRITICAL): Do NOT dump the entire source code and call it documentation. Instead, go method-by-method:
   1. Give each public method/function its own `###` subsection using the template below
-  2. For each method, show its signature and a focused code excerpt (10-30 lines, using `// ...` to skip boilerplate)
+  2. For each method, show its signature and a focused code excerpt (10-50 lines, using `// ...` to skip boilerplate)
   3. Follow each code block with a prose paragraph explaining what the SDK consumer needs to know
   If the module exposes multiple distinct features or operations, each MUST get its own documented subsection — do not lump them together.
 
@@ -56,7 +56,9 @@ Instructions for the SDK reference page (Generate content in {language} unless s
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear — in their original language, with original variable names, and original inline comments. Never translate, rephrase, or modify code or inline comments. Your own explanations belong in prose paragraphs outside the code fence.
 
-- CODE BLOCK SIZE: Keep individual code blocks to 10-30 lines each. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or internal plumbing. Follow each code block with a prose paragraph explaining the usage pattern and integration implications.
+- CODE BLOCK SIZE: Keep individual code blocks to 10-50 lines each. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or internal plumbing. NEVER exceed 50 lines in one code block. Follow each code block with a prose paragraph explaining the usage pattern and integration implications.
+
+- EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of explanation immediately after it — describe what the SDK consumer needs to know about behavior, return values, error handling, and integration patterns. Do NOT just show code with a one-liner description.
 
 - When the module involves complex integration patterns, initialization flows, or state management, include Mermaid diagrams to visualize them. Choose the appropriate diagram type:
   * `sequenceDiagram` — for request/response flows showing how the SDK consumer interacts with the module

@@ -32,18 +32,21 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   * Non-obvious design decisions visible in the code (naming conventions, error handling strategy, caching policy, etc.)
   * Concurrency model, thread safety considerations, and any shared mutable state
 
-- FUNCTIONAL DECOMPOSITION (CRITICAL): Do NOT write a brief architectural overview and then dump the source code. Instead, identify EVERY major feature, option, handler, or workflow in this component and give each its own `###` subsection. For each feature/handler:
+- FUNCTION-BY-FUNCTION BREAKDOWN (CRITICAL): Do NOT write a brief architectural overview and then dump the source code. Instead, identify EVERY major feature, option, handler, or workflow in this component and give each its own `###` subsection. For each feature/handler:
   1. State what it does and when it is triggered (button click, event, API call, etc.)
   2. Trace the control flow step-by-step through the key internal methods it calls
-  3. Show ONLY the 10-30 most significant lines of code for that feature (extracted selectively with `// ...` for boilerplate)
+  3. Show ONLY the 20-50 most significant lines of code for that feature (extracted selectively with `// ...` for boilerplate)
   4. Explain the logic, edge cases, and error handling AFTER the code block
   If a single class file implements 8 distinct operations (e.g., Option 1 through Option 8), each operation MUST get its own subsection with its own code analysis — do not lump them together.
+  WITHIN SUBSECTIONS: If a method is longer than 50 lines, split it into 2-3 logical segments (e.g., setup/validation → core logic → result handling). Show each segment as a separate code block (20-40 lines) with its own analysis paragraph between blocks.
 
 - IMPORTANT: You MUST extract and include ACTUAL code snippets from the provided file context — never invent examples. However, DO NOT dump entire source files. Instead, selectively extract the most architecturally significant methods, classes, or code sections.
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear{code_comment_note}. Your explanatory notes go in prose paragraphs OUTSIDE the code fence, not as modified inline comments.
 
-- CODE BLOCK SIZE: Keep individual code blocks to 20-60 lines each. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or trivial accessors. For each code block, include a prose analysis paragraph immediately after explaining WHY the code is structured that way, what design decisions are visible, and what an engineer should pay attention to.
+- CODE BLOCK SIZE: Keep individual code blocks to 20-50 lines each. The absolute maximum is 60 lines — only for tightly coupled struct definitions, P/Invoke declarations, or similar indivisible blocks. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or trivial accessors. NEVER exceed 60 lines in one code block.
+
+- EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of analysis immediately after it — explain WHY the code is structured that way, what design decisions are visible, what edge cases it handles, and what an engineer should pay attention to. The overall chapter should be at least 55% prose and at most 45% code by line count.
 
 - SELECTIVE CODE EXTRACTION: For each file in this component, extract ONLY:
   * The class/struct declaration and its most critical 3-5 methods (the ones that carry the core logic)
