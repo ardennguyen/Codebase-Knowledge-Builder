@@ -18,7 +18,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     "*.zip", "*.tar", "*.gz", "*.rar", "*.7z",
 
     # 2. Build, Distribution, and Framework Caches
-    "dist/*", "build/*", "out/*", "target/*", "bin/*", "obj/*",
+    "dist/*", "build/*", "out/*", "output/*", "target/*", "bin/*", "obj/*",
     ".next/*", ".nuxt/*", ".svelte-kit/*", ".expo/*", 
     "docs/*", "test/*", "tests/*", "examples/*",
     "v1/*", "experimental/*", "deprecated/*", "misc/*", "legacy/*",
