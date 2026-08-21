@@ -47,7 +47,10 @@ Ever stared at a new codebase written by others feeling completely lost? This pr
 - `--no-cache` - Disable LLM response caching (default: caching enabled)
 - `--thinking-level` - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
 - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically from the model).
-- `--advanced` - Load advanced prompts from `prompts/advanced/` directory instead of the tutorial prompts.
+- `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)
+- `--advanced` - Legacy flag: equivalent to --mode advanced
+- `--mkdocs` - Format output for MkDocs Material (adds YAML frontmatter & nav snippet)
+- `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)
 - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
 - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
 - `--debug` - Enable verbose debug output.

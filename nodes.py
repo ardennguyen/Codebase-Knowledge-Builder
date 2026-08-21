@@ -25,9 +25,13 @@ def get_content_for_indices(files_data, indices):
 
 # --- Reusable Helpers ---
 
-def load_prompt_template(template_name, advanced_mode=False):
+def load_prompt_template(template_name, advanced_mode=False, mode=None):
     """Load a prompt template file from the prompts/ directory."""
-    prompt_dir = "advanced" if advanced_mode else "tutorial"
+    if mode is None:
+        prompt_dir = "advanced" if advanced_mode else "tutorial"
+    else:
+        prompt_dir = mode
+        
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "prompts", prompt_dir, f"{template_name}.md")
     with open(path, "r", encoding="utf-8-sig") as f:
@@ -69,6 +73,73 @@ def resolve_max_tokens(shared):
     return get_model_context_length(endpoint, model_name, api_key)
 
 
+
+class DeterministicFileMapper(Node):
+    def prep(self, shared):
+        files_data = shared["files"]
+        project_name = shared["project_name"]
+        
+        file_listing = "\n".join([f"{i} # {path}" for i, (path, _) in enumerate(files_data)])
+        
+        prompt = f"""For the project `{project_name}`, here is the list of all files in the codebase:
+
+{file_listing}
+
+Your task is to identify WHICH of these files are ACTUAL CODE files that contain APIs, functions, classes, or core business logic.
+EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files (like .xml, .json, .manifest, .ini), static assets, build scripts (like .csproj, .sln), and documentation.
+
+Return ONLY a YAML list of the file indices that should be documented as code modules.
+
+```yaml
+- 0
+- 1
+- 3
+```"""
+        return prompt, shared.get("thinking_level", None), shared.get("max_tokens", 100000)
+
+    def exec(self, prep_res):
+        try:
+            prompt, thinking_level, max_tokens = prep_res
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+            print(f"Smartly filtering non-code files using LLM...")
+            response = call_llm(prompt, use_cache=True, thinking_level=thinking_level)
+            valid_indices = parse_yaml_response(response)
+            if not isinstance(valid_indices, list):
+                valid_indices = []
+            return [int(idx) for idx in valid_indices]
+        except Exception as e:
+            print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
+            import logging
+            logging.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            raise e
+
+    def post(self, shared, prep_res, exec_res):
+        import os
+        files = shared.get("files", [])
+        valid_indices = set(exec_res)
+        modules = []
+        chapter_order = []
+        
+        for idx, (file_path, content) in enumerate(files):
+            if idx not in valid_indices:
+                print(f"  - Skipping non-code file: {file_path}")
+                continue
+                
+            clean_name = os.path.splitext(file_path)[0].replace(os.sep, ".").replace("/", ".")
+            
+            modules.append({
+                "name": clean_name,
+                "description": f"Internal API reference for `{file_path}`",
+                "files": [idx],
+                "original_path": file_path
+            })
+            chapter_order.append(len(modules) - 1)
+            
+        shared["abstractions"] = modules
+        shared["chapter_order"] = chapter_order
+        shared["relationships"] = {"summary": "Deterministic Internal API Reference.", "details": []}
+        print(f"\033[92m[DeterministicFileMapper] Mapped {len(modules)} ACTUAL code files for exhaustive documentation.\033[0m")
+        return "default"
 
 class ContextRouter(Node):
     def prep(self, shared):
@@ -113,6 +184,11 @@ class ContextRouter(Node):
         effective_limit = safety_limit - prompt_overhead
         force_batch = shared.get("force_batch", False)
         
+        if shared.get("mode", "tutorial") == "api-reference":
+            print(f"\033[92m[ContextRouter] api-reference mode active. Bypassing LLM discovery and routing to DeterministicFileMapper.\033[0m")
+            return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50),
+                    None, None, directory_tree, False)
+
         if total_tokens > effective_limit and force_batch:
             print(f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
                   f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
@@ -139,6 +215,8 @@ class ContextRouter(Node):
         route, files_data, effective_limit, batch_size, file_token_map, count_tokens, directory_tree, debug = prep_res
         if route == "direct":
             return "direct"
+        if route == "deterministic":
+            return "deterministic"
 
         # Group by directory for coherence, with pre-computed tokens
         dir_groups = defaultdict(list)
@@ -187,6 +265,8 @@ class ContextRouter(Node):
     def post(self, shared, prep_res, exec_res):
         if exec_res == "direct":
             return "direct"
+        if exec_res == "deterministic":
+            return "deterministic"
         shared["file_batches"] = exec_res
         # Reuse directory tree built during prep()
         shared["directory_tree"] = getattr(self, "_directory_tree", self._build_directory_tree(shared["files"]))
@@ -240,7 +320,7 @@ class MapAbstractions(BatchNode):
             
         file_listing = "\n".join(file_listing_for_prompt)
         
-        prompt_template = load_prompt_template("map_abstractions", item["advanced_mode"])
+        prompt_template = load_prompt_template("map_abstractions", mode=item.get("mode", "tutorial"))
 
         language = item.get("language", "english")
         language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
@@ -299,17 +379,18 @@ class ReduceAbstractions(Node):
             shared.get("max_abstraction_num", 10),
             shared.get("thinking_level", None),
             shared.get("advanced_mode", False),
-            shared.get("max_tokens", 100000)
+            shared.get("max_tokens", 100000),
+            shared.get("mode", "tutorial")
         )
 
     def exec(self, prep_res):
-        mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens = prep_res
+        mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, doc_mode = prep_res
         
         context = ""
         for i, abs_obj in enumerate(mapped_abstractions):
             context += f"- Partial Abstraction {i}: {abs_obj['name']}\n  Description: {abs_obj['description']}\n  Files: {abs_obj['files']}\n\n"
 
-        prompt_template = load_prompt_template("reduce_abstractions", advanced_mode)
+        prompt_template = load_prompt_template("reduce_abstractions", mode=doc_mode)
             
         language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
         name_lang_hint = f" (in {language})" if language.lower() != "english" else ""
@@ -466,8 +547,7 @@ class IdentifyAbstractions(Node):
             thinking_level,
             shared.get("advanced_mode", False),
             shared.get("max_tokens", 100000),
-            shared.get("max_tokens", 100000),
-            shared.get("max_tokens", 100000),
+            shared.get("mode", "tutorial"),
         )  # Return all parameters
 
     def exec(self, prep_res):
@@ -475,7 +555,7 @@ class IdentifyAbstractions(Node):
             (
                 context,
                 file_listing_for_prompt,
-                file_count,
+                total_files_count,
                 project_name,
                 language,
                 use_cache,
@@ -483,8 +563,7 @@ class IdentifyAbstractions(Node):
                 thinking_level,
                 advanced_mode,
                 max_tokens,
-                max_tokens,
-                max_tokens,
+                doc_mode,
             ) = prep_res  # Unpack all parameters
             
             # Add language instruction and hints only if not English
@@ -497,7 +576,7 @@ class IdentifyAbstractions(Node):
                 name_lang_hint = f" (value in {language.capitalize()})"
                 desc_lang_hint = f" (value in {language.capitalize()})"
 
-            prompt_template = load_prompt_template("identify_abstractions", advanced_mode)
+            prompt_template = load_prompt_template("identify_abstractions", mode=doc_mode)
 
             prompt = prompt_template.format(
                 project_name=project_name,
@@ -545,14 +624,14 @@ class IdentifyAbstractions(Node):
                                 start_idx = int(re.findall(r'\d+', parts[0])[0])
                                 end_idx = int(re.findall(r'\d+', parts[1])[0])
                                 for idx in range(start_idx, end_idx + 1):
-                                    if 0 <= idx < file_count:
+                                    if 0 <= idx < total_files_count:
                                         validated_indices.append(idx)
                                 continue
                         # Find integers in the string
                         nums = re.findall(r'\d+', idx_str)
                         if nums:
                             idx = int(nums[0])
-                            if 0 <= idx < file_count:
+                            if 0 <= idx < total_files_count:
                                 validated_indices.append(idx)
                     except (ValueError, TypeError, IndexError):
                         print(f"\033[93mWarning: Could not parse index from entry: {idx_entry} in item {item['name']}\033[0m")
@@ -708,8 +787,7 @@ class AnalyzeRelationships(Node):
             thinking_level,
             shared.get("advanced_mode", False),
             shared.get("max_tokens", 100000),
-            shared.get("max_tokens", 100000),
-            shared.get("max_tokens", 100000),
+            shared.get("mode", "tutorial"),
         )  # Return use_cache
 
     def exec(self, prep_res):
@@ -724,8 +802,7 @@ class AnalyzeRelationships(Node):
                 thinking_level,
                 advanced_mode,
                 max_tokens,
-                max_tokens,
-                max_tokens,
+                doc_mode,
              ) = prep_res  # Unpack use_cache
 
             # Add language instruction and hints only if not English
@@ -737,7 +814,7 @@ class AnalyzeRelationships(Node):
                 lang_hint = f" (in {language.capitalize()})"
                 list_lang_note = f" (Names might be in {language.capitalize()})"  # Note for the input list
 
-            prompt_template = load_prompt_template("identify_relationships", advanced_mode)
+            prompt_template = load_prompt_template("identify_relationships", mode=doc_mode)
 
             prompt = prompt_template.format(
                 project_name=project_name,
@@ -874,8 +951,7 @@ class OrderChapters(Node):
             thinking_level,
             shared.get("advanced_mode", False),
             shared.get("max_tokens", 100000),
-            shared.get("max_tokens", 100000),
-            shared.get("max_tokens", 100000),
+            shared.get("mode", "tutorial"),
         )  # Return use_cache
 
     def exec(self, prep_res):
@@ -890,13 +966,12 @@ class OrderChapters(Node):
                 thinking_level,
                 advanced_mode,
                 max_tokens,
-                max_tokens,
-                max_tokens,
+                doc_mode,
             ) = prep_res  # Unpack use_cache
             # No language variation needed here in prompt instructions, just ordering based on structure
             # The input names might be translated, hence the note.
 
-            prompt_template = load_prompt_template("order_chapters", advanced_mode)
+            prompt_template = load_prompt_template("order_chapters", mode=doc_mode)
 
             prompt = prompt_template.format(
                 project_name=project_name,
@@ -986,11 +1061,17 @@ class WriteChapters(BatchNode):
                 chapter_name = abstractions[abstraction_index][
                     "name"
                 ]  # Potentially translated name
-                # Create safe filename (from potentially translated name)
-                safe_name = "".join(
-                    c if c.isalnum() else "_" for c in chapter_name
-                ).lower()
-                filename = f"{i+1:02d}_{safe_name}.md"
+                is_mkdocs = shared.get("mkdocs", False)
+                if is_mkdocs and "original_path" in abstractions[abstraction_index]:
+                    doc_rel_path = os.path.splitext(abstractions[abstraction_index]["original_path"])[0] + ".md"
+                    filename = doc_rel_path.replace(os.sep, "/")
+                elif is_mkdocs:
+                    safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
+                    filename = f"{safe_name}.md"
+                else:
+                    safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
+                    filename = f"{i+1:02d}_{safe_name}.md"
+                
                 # Format with link (using potentially translated name)
                 all_chapters.append(f"{chapter_num}. [{chapter_name}]({filename})")
                 # Store mapping of chapter index to filename for linking
@@ -1043,6 +1124,11 @@ class WriteChapters(BatchNode):
                         "use_cache": use_cache, # Pass use_cache flag
                         "thinking_level": thinking_level,
                         "advanced_mode": shared.get("advanced_mode", False),
+                        "mode": shared.get("mode", "tutorial"),
+                        "mkdocs": shared.get("mkdocs", False),
+                        "incremental": shared.get("incremental", False),
+                        "output_dir": shared.get("output_dir", "output"),
+                        "filename": chapter_filenames[abstraction_index]["filename"],
                         "max_tokens": shared.get("max_tokens", 100000),
 
                         # previous_chapters_summary will be added dynamically in exec
@@ -1071,6 +1157,11 @@ class WriteChapters(BatchNode):
             use_cache = item.get("use_cache", True) # Read use_cache from item
             thinking_level = item.get("thinking_level", None)
             advanced_mode = item.get("advanced_mode", False)
+            doc_mode = item.get("mode", "tutorial")
+            is_mkdocs = item.get("mkdocs", False)
+            incremental = item.get("incremental", False)
+            output_dir = item.get("output_dir", "output")
+            filename = item.get("filename")
             max_tokens = item.get("max_tokens", 100000)
 
             # Prepare file context string from the map
@@ -1078,6 +1169,39 @@ class WriteChapters(BatchNode):
                 f"--- File: {idx_path.split('# ')[1] if '# ' in idx_path else idx_path} ---\n{content}"
                 for idx_path, content in item["related_files_content_map"].items()
             )
+
+            # --- Incremental Caching Logic ---
+            current_hash = None
+            if incremental and output_dir:
+                import hashlib, json
+                hasher = hashlib.md5()
+                hasher.update(file_context_str.encode("utf-8"))
+                current_hash = hasher.hexdigest()
+                
+                manifest_path = os.path.join(output_dir, project_name, ".doc_cache_manifest.json")
+                if os.path.exists(manifest_path):
+                    try:
+                        with open(manifest_path, "r", encoding="utf-8") as f:
+                            manifest = json.load(f)
+                        if manifest.get(abstraction_name) == current_hash:
+                            # Cache hit! Read existing file
+                            file_path = os.path.join(output_dir, project_name, "docs", "api", filename) if is_mkdocs else os.path.join(output_dir, project_name, filename)
+                            if os.path.exists(file_path):
+                                print(f"Incremental Cache Hit: Skipping LLM for {abstraction_name}")
+                                with open(file_path, "r", encoding="utf-8") as f:
+                                    cached_content = f.read()
+                                    
+                                # If it's mkdocs, strip the frontmatter before adding to chapters_written_so_far
+                                clean_content = cached_content
+                                if is_mkdocs and clean_content.startswith("---"):
+                                    parts = clean_content.split("---", 2)
+                                    if len(parts) >= 3:
+                                        clean_content = parts[2].strip()
+                                        
+                                self.chapters_written_so_far.append(clean_content)
+                                return {"content": clean_content, "hash": current_hash, "name": abstraction_name}
+                    except Exception as e:
+                        print(f"Warning: Failed to read manifest cache: {e}")
 
             # Get summary of chapters written *before* this one
             # Use the temporary instance variable
@@ -1107,7 +1231,7 @@ class WriteChapters(BatchNode):
                 )
                 tone_note = f" (appropriate for {lang_cap} readers)"
 
-            prompt_template = load_prompt_template("draft_chapters", advanced_mode)
+            prompt_template = load_prompt_template("draft_chapters", mode=doc_mode)
 
             prompt = prompt_template.format(
                 language_instruction=language_instruction,
@@ -1133,7 +1257,7 @@ class WriteChapters(BatchNode):
             chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
             # Basic validation/cleanup
             actual_heading = f"# Chapter {chapter_num}: {abstraction_name}"  # Use potentially translated name
-            if not chapter_content.strip().startswith(f"# Chapter {chapter_num}"):
+            if not chapter_content.strip().startswith(f"# Chapter {chapter_num}") and doc_mode != "api-reference":
                 # Add heading if missing or incorrect, trying to preserve content
                 lines = chapter_content.strip().split("\n")
                 if lines and lines[0].strip().startswith(
@@ -1147,7 +1271,7 @@ class WriteChapters(BatchNode):
             # Add the generated content to our temporary list for the next iteration's context
             self.chapters_written_so_far.append(chapter_content)
 
-            return chapter_content  # Return the Markdown string (potentially translated)
+            return {"content": chapter_content, "hash": current_hash, "name": abstraction_name}
         except Exception as e:
             print(f"\033[93m[Node {self.__class__.__name__} Retry Triggered] Error: {e}\033[0m")
             import logging
@@ -1155,8 +1279,31 @@ class WriteChapters(BatchNode):
             raise e
 
     def post(self, shared, prep_res, exec_res_list):
-        # exec_res_list contains the generated Markdown for each chapter, in order
-        shared["chapters"] = exec_res_list
+        import os, json
+        # exec_res_list contains dicts with content and hashes
+        shared["chapters"] = [res["content"] for res in exec_res_list]
+        
+        # Save MD5 incremental manifest if enabled
+        if shared.get("incremental"):
+            output_dir = os.path.join(shared.get("output_dir", "output"), shared.get("project_name"))
+            os.makedirs(output_dir, exist_ok=True)
+            manifest_path = os.path.join(output_dir, ".doc_cache_manifest.json")
+            
+            manifest = {}
+            if os.path.exists(manifest_path):
+                try:
+                    with open(manifest_path, "r", encoding="utf-8") as f:
+                        manifest = json.load(f)
+                except Exception:
+                    pass
+                    
+            for res in exec_res_list:
+                if res.get("hash") and res.get("name"):
+                    manifest[res["name"]] = res["hash"]
+                    
+            with open(manifest_path, "w", encoding="utf-8") as f:
+                json.dump(manifest, f, indent=2)
+                
         # Clean up the temporary instance variable
         del self.chapters_written_so_far
         print(f"Finished writing {len(exec_res_list)} chapters.")
@@ -1228,103 +1375,153 @@ class CombineTutorial(Node):
         }
         ui = ui_strings.get(language.lower(), ui_strings["english"])
 
-        # --- Prepare index.md content ---
-        index_content = f"# {ui['tutorial']}: {project_name}\n\n"
-        index_content += f"{relationships_data['summary']}\n\n"  # Use the potentially translated summary directly
-        index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
+        is_mkdocs = shared.get("mkdocs", False)
+        
+        # --- Prepare index.md or nav_snippet.yml content ---
+        if is_mkdocs:
+            nav_items = []
+            chapter_files = []
+            
+            for i, abstraction_index in enumerate(chapter_order):
+                if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
+                    abstraction_name = abstractions[abstraction_index]["name"]
+                    original_path = abstractions[abstraction_index].get("original_path")
+                    
+                    if original_path:
+                        doc_rel_path = os.path.splitext(original_path)[0] + ".md"
+                        filename = doc_rel_path.replace(os.sep, "/")
+                    else:
+                        safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
+                        filename = f"{safe_name}.md"
+                    
+                    nav_items.append(f"    - '{abstraction_name}': 'api/{filename}'")
+                    
+                    # Inject YAML Frontmatter
+                    chapter_content = chapters_content[i]
+                    frontmatter = f"---\ntitle: {abstraction_name}\nsidebar_position: {i + 1}\n---\n\n"
+                    
+                    if not chapter_content.startswith("---"):
+                        chapter_content = frontmatter + chapter_content
+                        
+                    if not chapter_content.endswith("\n\n"):
+                        chapter_content += "\n\n"
+                        
+                    chapter_files.append({"filename": filename, "content": chapter_content})
+                    
+            nav_snippet = "nav:\n  - API Reference:\n" + "\n".join(nav_items)
+            
+            return {
+                "output_path": output_path,
+                "output_base_dir": output_base_dir,
+                "is_mkdocs": True,
+                "nav_snippet": nav_snippet,
+                "chapter_files": chapter_files,
+                "ui": ui,
+            }
+        else:
+            # Traditional tutorial mode
+            index_content = f"# {ui['tutorial']}: {project_name}\n\n"
+            index_content += f"{relationships_data['summary']}\n\n"
+            index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
+            
+            index_content += "```mermaid\n"
+            index_content += mermaid_diagram + "\n"
+            index_content += "```\n\n"
+            index_content += f"## {ui['chapters']}\n\n"
 
-        # Add Mermaid diagram for relationships (diagram itself uses potentially translated names/labels)
-        index_content += "```mermaid\n"
-        index_content += mermaid_diagram + "\n"
-        index_content += "```\n\n"
+            chapter_files = []
+            for i, abstraction_index in enumerate(chapter_order):
+                if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
+                    abstraction_name = abstractions[abstraction_index]["name"]
+                    safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
+                    filename = f"{i+1:02d}_{safe_name}.md"
+                    index_content += f"{i+1}. [{abstraction_name}]({filename})\n"
 
-        index_content += f"## {ui['chapters']}\n\n"
+                    chapter_content = chapters_content[i]
+                    if not chapter_content.endswith("\n\n"):
+                        chapter_content += "\n\n"
+                    chapter_files.append({"filename": filename, "content": chapter_content})
+                else:
+                    print(f"Warning: Mismatch between chapter order, abstractions, or content at index {i} (abstraction index {abstraction_index}). Skipping file generation for this entry.")
 
-        chapter_files = []
-        # Generate chapter links based on the determined order, using potentially translated names
-        for i, abstraction_index in enumerate(chapter_order):
-            # Ensure index is valid and we have content for it
-            if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
-                abstraction_name = abstractions[abstraction_index][
-                    "name"
-                ]  # Potentially translated name
-                # Sanitize potentially translated name for filename
-                safe_name = "".join(
-                    c if c.isalnum() else "_" for c in abstraction_name
-                ).lower()
-                filename = f"{i+1:02d}_{safe_name}.md"
-                index_content += f"{i+1}. [{abstraction_name}]({filename})\n"  # Use potentially translated name in link text
+            index_content += f"\n---\n\n**{ui['full_content']}:** [full_content.md](full_content.md)\n"
 
-                # Add attribution to chapter content (using English fixed string)
-                chapter_content = chapters_content[i]  # Potentially translated content
-                if not chapter_content.endswith("\n\n"):
-                    chapter_content += "\n\n"
-
-                # Store filename and corresponding content
-                chapter_files.append({"filename": filename, "content": chapter_content})
-            else:
-                print(
-                    f"Warning: Mismatch between chapter order, abstractions, or content at index {i} (abstraction index {abstraction_index}). Skipping file generation for this entry."
-                )
-
-        # Add full content link at the end of index
-        index_content += f"\n---\n\n**{ui['full_content']}:** [full_content.md](full_content.md)\n"
-
-        return {
-            "output_path": output_path,
-            "output_base_dir": output_base_dir,
-            "index_content": index_content,
-            "chapter_files": chapter_files,  # List of {"filename": str, "content": str}
-            "ui": ui,  # Translated UI strings
-        }
+            return {
+                "output_path": output_path,
+                "output_base_dir": output_base_dir,
+                "is_mkdocs": False,
+                "index_content": index_content,
+                "chapter_files": chapter_files,
+                "ui": ui,
+            }
 
     def exec(self, prep_res):
         try:
             output_path = prep_res["output_path"]
             output_base_dir = prep_res["output_base_dir"]
-            index_content = prep_res["index_content"]
+            is_mkdocs = prep_res["is_mkdocs"]
             chapter_files = prep_res["chapter_files"]
             ui = prep_res["ui"]
 
             print(f"Combining tutorial into directory: {output_path}")
-            # Rely on Node's built-in retry/fallback
             os.makedirs(output_path, exist_ok=True)
-
-            # Write index.md
-            index_filepath = os.path.join(output_path, "index.md")
-            with open(index_filepath, "w", encoding="utf-8") as f:
-                f.write(index_content)
-            print(f"  - Wrote {index_filepath}")
-
-            # Write chapter files
-            for chapter_info in chapter_files:
-                chapter_filepath = os.path.join(output_path, chapter_info["filename"])
-                with open(chapter_filepath, "w", encoding="utf-8") as f:
-                    f.write(chapter_info["content"])
-                print(f"  - Wrote {chapter_filepath}")
-                
-            # Create full_content.md
-            toc_lines = [f"# {ui['toc']}\n"]
-            full_content_lines = []
             
-            for i, chapter_info in enumerate(chapter_files):
-                content = chapter_info["content"]
-                title_line = content.split('\n', 1)[0]
-                if title_line.startswith('# '):
-                    title = title_line[2:].strip()
-                else:
-                    title = f"{ui['chapter']} {i+1}"
+            if is_mkdocs:
+                nav_snippet = prep_res["nav_snippet"]
+                api_docs_path = os.path.join(output_path, "docs", "api")
+                os.makedirs(api_docs_path, exist_ok=True)
                 
-                toc_lines.append(f"- [{title}](#chapter-{i+1})")
-                full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
-                full_content_lines.append(content)
-                full_content_lines.append('\n---\n')
+                # Write nav_snippet.yml
+                nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")
+                with open(nav_filepath, "w", encoding="utf-8") as f:
+                    f.write(nav_snippet)
+                print(f"  - Wrote {nav_filepath}")
                 
-            full_content = "\n".join(toc_lines) + "\n\n" + "\n".join(full_content_lines)
-            full_content_filepath = os.path.join(output_path, "full_content.md")
-            with open(full_content_filepath, "w", encoding="utf-8") as f:
-                f.write(full_content)
-            print(f"  - Wrote {full_content_filepath}")
+                # Write module API pages
+                for chapter_info in chapter_files:
+                    chapter_filepath = os.path.join(api_docs_path, chapter_info["filename"])
+                    os.makedirs(os.path.dirname(chapter_filepath), exist_ok=True)
+                    with open(chapter_filepath, "w", encoding="utf-8") as f:
+                        f.write(chapter_info["content"])
+                    print(f"  - Wrote {chapter_filepath}")
+            else:
+                index_content = prep_res["index_content"]
+                
+                # Write index.md
+                index_filepath = os.path.join(output_path, "index.md")
+                with open(index_filepath, "w", encoding="utf-8") as f:
+                    f.write(index_content)
+                print(f"  - Wrote {index_filepath}")
+
+                # Write chapter files
+                for chapter_info in chapter_files:
+                    chapter_filepath = os.path.join(output_path, chapter_info["filename"])
+                    with open(chapter_filepath, "w", encoding="utf-8") as f:
+                        f.write(chapter_info["content"])
+                    print(f"  - Wrote {chapter_filepath}")
+                    
+                # Create full_content.md
+                toc_lines = [f"# {ui['toc']}\n"]
+                full_content_lines = []
+                
+                for i, chapter_info in enumerate(chapter_files):
+                    content = chapter_info["content"]
+                    title_line = content.split('\n', 1)[0]
+                    if title_line.startswith('# '):
+                        title = title_line[2:].strip()
+                    else:
+                        title = f"{ui['chapter']} {i+1}"
+                    
+                    toc_lines.append(f"- [{title}](#chapter-{i+1})")
+                    full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
+                    full_content_lines.append(content)
+                    full_content_lines.append('\n---\n')
+                    
+                full_content = "\n".join(toc_lines) + "\n\n" + "\n".join(full_content_lines)
+                full_content_filepath = os.path.join(output_path, "full_content.md")
+                with open(full_content_filepath, "w", encoding="utf-8") as f:
+                    f.write(full_content)
+                print(f"  - Wrote {full_content_filepath}")
 
             return output_path  # Return the final path
         except Exception as e:
@@ -1335,4 +1532,4 @@ class CombineTutorial(Node):
 
     def post(self, shared, prep_res, exec_res):
         shared["final_output_dir"] = exec_res  # Store the output path
-        print(f"\nTutorial generation complete! Files are in: {exec_res}")
+        print(f"\nGeneration complete! Files are in: {exec_res}")

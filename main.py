@@ -81,8 +81,13 @@ def main():
     parser.add_argument("--thinking-level", default=None, help="Thinking effort level for OpenRouter models (e.g., low, medium, high). Default is auto.")
     # Add max_tokens parameter
     parser.add_argument("--max-tokens", type=int, default=None, help="Maximum number of tokens for the context window (default: fetched dynamically).")
-    # Add advanced prompt mode
-    parser.add_argument("--advanced", action="store_true", help="Load advanced prompts from prompts/advanced/ directory")
+    
+    # --- Documentation Mode & Generation Styles ---
+    parser.add_argument("--mode", choices=["tutorial", "advanced", "api-reference", "sdk"], default="tutorial", help="Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)")
+    parser.add_argument("--advanced", action="store_true", help="Legacy flag: equivalent to --mode advanced")
+    parser.add_argument("--mkdocs", action="store_true", help="Format output for MkDocs Material (adds YAML frontmatter & nav snippet)")
+    parser.add_argument("--incremental", action="store_true", help="Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)")
+    
     # Add batching parameters
     parser.add_argument("--batch", type=int, default=50, help="Max files per batch in map-reduce mode")
     parser.add_argument("--force-batch", action="store_true", help="Force map-reduce mode regardless of context size")
@@ -98,7 +103,15 @@ def main():
         if not github_token:
             print("Warning: No GitHub token provided. You might hit rate limits for public repositories.")
 
-    # Initialize the shared dictionary with inputs
+    # Resolve mode (backward compatibility for --advanced)
+    doc_mode = "advanced" if args.advanced else args.mode
+
+    # Enforce incremental cache constraints
+    if args.incremental and doc_mode != "api-reference":
+        print("\n\033[93m[Warning] --incremental caching is only effective in 'api-reference' mode due to stable 1:1 file mapping. Disabling incremental cache for this run.\033[0m\n")
+        args.incremental = False
+
+    # Prepare shared store to be passed between nodes
     shared = {
         "repo_url": args.repo,
         "local_dir": args.dir,
@@ -126,8 +139,11 @@ def main():
         # Add max tokens override
         "max_tokens": args.max_tokens,
         
-        # Advanced mode
-        "advanced_mode": args.advanced,
+        # Added mode, mkdocs, and incremental
+        "mode": doc_mode,
+        "mkdocs": args.mkdocs,
+        "incremental": args.incremental,
+        "advanced_mode": doc_mode == "advanced",
         
         # Batching settings
         "batch_size": args.batch,
@@ -175,10 +191,15 @@ def main():
     print(f"AI Model       : {model_name}")
     print(f"Context Length : {context_length:,} tokens")
     print(f"Thinking Level : {args.thinking_level if args.thinking_level else 'None'}")
-    print(f"Advanced Prompts: {'Enabled' if args.advanced else 'Disabled'}")
     print(f"Batch Size     : {args.batch} files/batch")
     print(f"Force Batch    : {'Enabled' if args.force_batch else 'Disabled'}")
-    print(f"Max Abstractions: {args.max_abstractions}")
+    print(f"Output Mode    : {doc_mode}")
+    print(f"MkDocs Output  : {'Enabled' if args.mkdocs else 'Disabled'}")
+    print(f"Incremental    : {'Enabled' if args.incremental else 'Disabled'}")
+    if doc_mode == "api-reference":
+        print(f"Max Abstractions: Ignored (api-reference uses 1:1 file mapping)")
+    else:
+        print(f"Max Abstractions: {args.max_abstractions}")
     print(f"LLM Caching    : {'Disabled' if args.no_cache else 'Enabled'}")
     if args.debug:
         print(f"Debug Mode     : Enabled")

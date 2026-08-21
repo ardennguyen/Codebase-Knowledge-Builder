@@ -136,6 +136,7 @@ google-genai>=2.18.1
 python-dotenv>=1.2.3
 pathspec>=1.1.1
 tiktoken>=0.8.0
+mkdocs-material>=9.0.0
 ```
 
 ## 5. Environment Configuration
@@ -233,7 +234,10 @@ else:
 | `--max-abstractions` | `int` | `10` | Maximum number of abstractions to identify |
 | `--thinking-level` | `str` | `None` | LLM reasoning effort (`low`, `medium`, `high`) |
 | `--max-tokens` | `int` | `None` | Override context window (auto-detected if omitted) |
-| `--advanced` | `store_true` | `False` | Use `prompts/advanced/` instead of `prompts/tutorial/` |
+| `--mode` | `str` | `"tutorial"` | Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial) |
+| `--advanced` | `store_true` | `False` | Legacy flag: equivalent to --mode advanced |
+| `--mkdocs` | `store_true` | `False` | Format output for MkDocs Material (adds YAML frontmatter & nav snippet) |
+| `--incremental` | `store_true` | `False` | Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference) |
 | `--batch` | `int` | `50` | Max files per batch in map-reduce mode |
 | `--force-batch` | `store_true` | `False` | Force map-reduce mode regardless of context size |
 | `--debug` | `store_true` | `False` | Enable verbose debug output |

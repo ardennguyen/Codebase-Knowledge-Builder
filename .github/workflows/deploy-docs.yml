@@ -1,0 +1,67 @@
+name: Incremental Generate and Deploy API Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Install Dependencies
+        run: |
+          pip install mkdocs-material pyyaml google-generativeai PyGithub beautifulsoup4
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Cache Documentation and Manifest
+        uses: actions/cache@v4
+        with:
+          path: |
+            output/Codebase-Knowledge-Builder/.doc_cache_manifest.json
+            output/Codebase-Knowledge-Builder/docs/api/
+          key: doc-cache-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            doc-cache-
+
+      - name: Generate API Specs via Codebase KB
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python main.py --dir . --mode api-reference --mkdocs --incremental
+
+      - name: Setup base mkdocs.yml
+        run: |
+          cat << 'EOF' > output/Codebase-Knowledge-Builder/mkdocs.yml
+          site_name: SDK Documentation
+          theme:
+            name: material
+            features:
+              - content.code.copy
+          markdown_extensions:
+            - pymdownx.highlight:
+                anchor_linenums: true
+                use_pygments: true
+            - pymdownx.superfences
+            - pymdownx.inlinehilite
+          EOF
+
+      - name: Merge Navigation Configuration
+        run: |
+          cat output/Codebase-Knowledge-Builder/docs/nav_snippet.yml >> output/Codebase-Knowledge-Builder/mkdocs.yml
+
+      - name: Deploy to GitHub Pages
+        working-directory: output/Codebase-Knowledge-Builder
+        run: mkdocs gh-deploy --force

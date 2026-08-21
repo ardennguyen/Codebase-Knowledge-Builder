@@ -48,7 +48,10 @@
     - `--no-cache` - Disable LLM response caching (default: caching enabled)
     - `--thinking-level` - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
     - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically from the model).
-    - `--advanced` - Use advanced prompts that generate architecture deep-dives instead of beginner tutorials. Aimed at senior developers or PMs joining a project mid-way, covering design patterns, key dependencies, and practical onboarding notes.
+    - `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)
+    - `--advanced` - Legacy flag: equivalent to --mode advanced
+    - `--mkdocs` - Format output for MkDocs Material (adds YAML frontmatter & nav snippet)
+    - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)
     - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
     - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
     - `--debug` - Enable verbose debug output.
@@ -146,7 +149,10 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--no-cache` - Vô hiệu hóa bộ nhớ cache cho phản hồi LLM (mặc định: cache được bật)
     - `--thinking-level` - Mức độ nỗ lực suy luận cho các model Gemini, OpenRouter và Ollama (ví dụ: low, medium, high). Để trống để sử dụng mặc định của model.
     - `--max-tokens` - Số lượng token tối đa cho context window (mặc định: tự động lấy từ thông tin của model).
-    - `--advanced` - Sử dụng prompt nâng cao để tạo tài liệu phân tích kiến trúc chuyên sâu thay vì hướng dẫn dành cho người mới. Phù hợp cho lập trình viên cao cấp hoặc PM tham gia dự án giữa chừng, bao gồm các design pattern, dependencies chính, và ghi chú thực tiễn cho việc onboarding.
+    - `--mode` - Phong cách tài liệu cần tạo (`tutorial`, `advanced`, `api-reference`, `sdk`). Mặc định là `tutorial`.
+    - `--advanced` - Cờ cũ (legacy flag). Tương đương với việc dùng `--mode advanced`.
+    - `--mkdocs` - Định dạng đầu ra cho MkDocs Material (thêm YAML frontmatter và tạo `nav_snippet.yml`).
+    - `--incremental` - Kích hoạt bộ nhớ đệm MD5 gia tăng để tiết kiệm tối đa token trong các lần chạy lặp lại bằng cách bỏ qua các tệp không thay đổi (Chỉ hỗ trợ khi dùng `--mode api-reference`).
     - `--batch` - Số lượng tệp tối đa mỗi lô khi sử dụng chế độ map-reduce (mặc định: 50).
     - `--force-batch` - Bắt buộc sử dụng chế độ map-reduce bất kể giới hạn context.
     - `--debug` - Bật chế độ debug chi tiết.
