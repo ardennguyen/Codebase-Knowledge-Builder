@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -294,6 +294,30 @@
   
     
     
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
     
     
     
@@ -304,8 +328,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -319,8 +344,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
@@ -332,6 +363,8 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
             
               
                 
@@ -624,10 +657,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Technical Overview
       
     </span>
   </a>
@@ -635,15 +668,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-level-state-and-variables" class="md-nav__link">
+  <a href="#module-level-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module-Level State and Variables
+        Module-Level Variables
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Module-Level State and Variables">
+    <nav class="md-nav" aria-label="Module-Level Variables">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -777,10 +810,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Technical Overview
       
     </span>
   </a>
@@ -788,15 +821,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-level-state-and-variables" class="md-nav__link">
+  <a href="#module-level-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module-Level State and Variables
+        Module-Level Variables
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Module-Level State and Variables">
+    <nav class="md-nav" aria-label="Module-Level Variables">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -905,10 +938,10 @@
 
 
 <h1 id="utilstoken_utils">utils.token_utils</h1>
-<p><strong>Source File Path</strong>: <code>utils/token_utils.py</code></p>
-<h2 id="overview">Overview</h2>
-<p>The <code>utils.token_utils</code> module provides token counting, estimation, and logging utilities for LLM prompts across the <code>Codebase-Knowledge-Builder</code> pipeline. Because model context limits require strict tracking and prompt assemblies can vary in size, this module ensures accurate token quantification via OpenAI's <code>tiktoken</code> library, with a deterministic fallback heuristic (<code>len(text) // 4</code>) when tokenizer models or encodings are unavailable.</p>
-<p>Additionally, this module centralizes node-level token analytics formatting. It renders ANSI-colored terminal summaries for local operator visibility while emitting structured, single-line operational records to the shared <code>llm_logger</code> logging instance.</p>
+<p><code>utils/token_utils.py</code></p>
+<h2 id="technical-overview">Technical Overview</h2>
+<p>The <code>utils.token_utils</code> module provides utility functions for estimating, counting, and logging token consumption across prompt construction and node execution within the <code>Codebase-Knowledge-Builder</code> pipeline. </p>
+<p>Accurate token tracking is critical for LLM-based pipelines to prevent exceeding model context windows, calculate workload budgets, and provide observability during graph execution. This module encapsulates interaction with the <code>tiktoken</code> library using the <code>cl100k_base</code> encoding (standard for modern OpenAI models like GPT-4 and GPT-3.5 Turbo), while implementing defensive fallbacks (character-based heuristic estimation) in the event that <code>tiktoken</code> fails or encounters an unhandled runtime exception. Additionally, it formats and outputs human-readable ANSI colored logs for the console alongside machine-parseable structured entries for the shared <code>llm_logger</code>.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -925,63 +958,77 @@
     <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    subgraph Token_Resolution [Token Counting Flow]
-        A["count_tokens(text)"] --&gt; B{"Is text empty or None?"}
-        class A entryNode;
-        B -- Yes --&gt; C["Return 0"]
-        B -- No --&gt; D["_get_encoding()"]
-        D --&gt; E{"Encoding initialized?"}
-        E -- Yes --&gt; F["tiktoken.encode(text, disallowed_special=())"]
-        F --&gt; G["Return token array length"]
-        E -- No --&gt; H["len(text) // 4"]
-        H --&gt; I["Return character fallback estimate"]
+    subgraph TokenCalculation [Token Estimation Process]
+        startCount[Call count_tokens with text]
+        checkEmpty{Is text empty?}
+        callEncoding[_get_encoding]
+        checkEnc{Encoding available?}
+        encodeTiktoken[enc.encode text, disallowed_special=empty]
+        fallbackChar[len text // 4]
+        returnCount[Return token count]
+
+        startCount --&gt; checkEmpty
+        checkEmpty -- Yes --&gt; returnZero[Return 0]
+        checkEmpty -- No --&gt; callEncoding
+        callEncoding --&gt; checkEnc
+        checkEnc -- Yes --&gt; encodeTiktoken
+        checkEnc -- No --&gt; fallbackChar
+        encodeTiktoken --&gt; returnCount
+        fallbackChar --&gt; returnCount
     end
 
-    subgraph Token_Logging [Logging and Output Flow]
-        J["log_token_estimation(node_name, prompt_content, max_tokens, token_usage)"] --&gt; K["count_tokens(prompt_content)"]
-        class J entryNode;
-        K --&gt; L["Calculate percentage of capacity"]
-        L --&gt; M{"token_usage provided?"}
-        M -- Yes --&gt; N["Format multi-line aligned terminal breakdown and single-line log parts"]
-        M -- No --&gt; O["Empty usage string"]
-        N --&gt; P["ANSI Yellow Terminal Print"]
-        O --&gt; P
-        P --&gt; Q["logger.info: Structured single-line record"]
-    end</code></pre> 
+    subgraph TokenLogging [Token Analytics and Reporting]
+        startLog[Call log_token_estimation]
+        calcTokens[Execute count_tokens]
+        calcCap[Calculate capacity percentage]
+        checkUsage{token_usage provided?}
+        fmtUsage[Format multi-line breakdown and log parts]
+        printConsole[Print ANSI yellow string to stdout]
+        logFile[logger.info structured NODE EXEC log]
+
+        startLog --&gt; calcTokens
+        calcTokens --&gt; calcCap
+        calcCap --&gt; checkUsage
+        checkUsage -- Yes --&gt; fmtUsage
+        checkUsage -- No --&gt; printConsole
+        fmtUsage --&gt; printConsole
+        printConsole --&gt; logFile
+    end
+
+    class startCount entryNode
+    class startLog entryNode</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
 <hr />
-<h2 id="module-level-state-and-variables">Module-Level State and Variables</h2>
+<h2 id="module-level-variables">Module-Level Variables</h2>
 <h3 id="logger"><code>logger</code></h3>
 <ul>
-<li><strong>Visibility</strong>: Protected / Module-Internal</li>
 <li><strong>Type</strong>: <code>logging.Logger</code></li>
-<li><strong>Definition</strong>: <code>logger = logging.getLogger("llm_logger")</code></li>
-<li><strong>Description</strong>: Captures execution records using the shared logging channel configured by <a href="../call_llm/">utils.call_llm</a>. It ensures that all node token usage statistics are logged uniformly with the rest of the LLM pipeline.</li>
+<li><strong>Value</strong>: <code>logging.getLogger("llm_logger")</code></li>
+<li><strong>Description</strong>: Shared logger instance acquired from standard logging hierarchy, aligning with log reporting in <a href="../call_llm/">utils.call_llm</a>.</li>
 </ul>
 <h3 id="_encoding"><code>_encoding</code></h3>
 <ul>
-<li><strong>Visibility</strong>: Private</li>
 <li><strong>Type</strong>: <code>tiktoken.Encoding | None</code></li>
-<li><strong>Definition</strong>: <code>_encoding = None</code></li>
-<li><strong>Description</strong>: Singleton cache holding the initialized <code>cl100k_base</code> <code>tiktoken</code> encoding instance. It prevents redundant re-initialization of the tokenizer across repetitive <code>count_tokens</code> calls.</li>
+<li><strong>Initial Value</strong>: <code>None</code></li>
+<li><strong>Description</strong>: Singleton cache variable holding the initialized <code>cl100k_base</code> tiktoken encoding object, loaded lazily on demand.</li>
 </ul>
 <hr />
 <h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="_get_encoding"><code>_get_encoding()</code></h3>
-<p><strong>Visibility</strong>: Private<br />
+<p><strong>Visibility</strong>: Private (Internal Helper)<br />
 <strong>Signature</strong>: <code>def _get_encoding() -&gt; tiktoken.Encoding | None:</code></p>
-<p><strong>Description</strong>:
-Retrieves or lazily instantiates the module-level singleton <code>tiktoken</code> encoding instance. It requests the standard <code>cl100k_base</code> tokenizer encoding (matching GPT-4, GPT-3.5-Turbo, and compatible embedding/completion architectures). If <code>tiktoken</code> fails to load the encoding (for instance, due to missing network cache or filesystem restrictions), the exception is suppressed and <code>_encoding</code> remains <code>None</code>, signaling callers to use fallback token counting logic.</p>
+<p><strong>Description</strong>:<br />
+Implements lazy-loaded singleton initialization for the <code>cl100k_base</code> tiktoken tokenizer. If <code>_encoding</code> has not yet been initialized, it attempts to load the tokenizer via <code>tiktoken.get_encoding("cl100k_base")</code>. If an exception occurs (for example, missing vocabulary files, network issues downloading tokenizer assets, or environment mismatches), the exception is caught silently and <code>_encoding</code> remains <code>None</code>. Subsequent calls reuse the cached instance stored in the module-level <code>_encoding</code> global.</p>
 <p><strong>Parameters</strong>:
-* None</p>
+* None.</p>
 <p><strong>Returns</strong>:
-* <code>tiktoken.Encoding | None</code>: The initialized <code>cl100k_base</code> encoding object, or <code>None</code> if initialization failed.</p>
+* <code>tiktoken.Encoding | None</code>: The initialized <code>cl100k_base</code> encoding instance if successful, or <code>None</code> if loading failed.</p>
 <p><strong>Raises</strong>:
-* None. All internal exceptions during <code>tiktoken.get_encoding("cl100k_base")</code> are caught and handled internally by assigning <code>_encoding = None</code>.</p>
-<p><strong>Implementation Reference</strong>:
+* No exceptions are raised; errors during encoding initialization are caught internally.</p>
+<p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_get_encoding</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">global</span> <span class="n">_encoding</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">if</span> <span class="n">_encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -991,20 +1038,20 @@ Retrieves or lazily instantiates the module-level singleton <code>tiktoken</code
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            <span class="n">_encoding</span> <span class="o">=</span> <span class="kc">None</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">return</span> <span class="n">_encoding</span>
 </code></pre></div></p>
-<p>The function relies on module-level global state through <code>global _encoding</code>. By performing lazy evaluation inside the function rather than at top-level module import time, it prevents module load failures in environments where <code>tiktoken</code> data assets cannot be resolved immediately on import.</p>
+<p>The function handles runtime robustness by wrapping the external library call in a generic <code>try...except</code> block. This guarantees that token counting features degrade gracefully to character-ratio heuristics rather than throwing fatal runtime errors during pipeline execution.</p>
 <hr />
 <h3 id="count_tokens"><code>count_tokens()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def count_tokens(text: str) -&gt; int:</code></p>
-<p><strong>Description</strong>:
-Calculates the exact or approximate number of tokens contained within a given string. If <code>text</code> is empty or falsy, it immediately returns <code>0</code>. When the <code>tiktoken</code> encoding instance is available via <code>_get_encoding()</code>, it performs exact tokenization using <code>enc.encode(text, disallowed_special=())</code>, disabling special token restrictions so that raw source code containing literal special syntax tokens (such as <code>&lt;|endoftext|&gt;</code>) can be tokenized without throwing exceptions. If encoding resolution fails, it calculates a heuristic fallback of 1 token per 4 characters (<code>len(text) // 4</code>).</p>
+<p><strong>Description</strong>:<br />
+Counts the number of tokens in a provided string using the <code>cl100k_base</code> encoding scheme via <code>tiktoken</code>. If the input string is empty or falsy, it immediately returns <code>0</code>. When the encoding is successfully resolved through <code>_get_encoding()</code>, it invokes <code>enc.encode()</code> with <code>disallowed_special=()</code> to ensure that special tokens (e.g., <code>&lt;|endoftext|&gt;</code>) within codebase files are treated as raw text rather than raising syntax or encoding errors. If <code>tiktoken</code> is unavailable or <code>_get_encoding()</code> returned <code>None</code>, it falls back to a standard heuristic estimation dividing character length by 4 (<code>len(text) // 4</code>).</p>
 <p><strong>Parameters</strong>:
-* <code>text</code> (<code>str</code>): The raw text or prompt string to measure.</p>
+* <code>text</code> (str): The raw text or prompt string to evaluate.</p>
 <p><strong>Returns</strong>:
-* <code>int</code>: The total token count or estimated token length.</p>
+* <code>int</code>: Estimated or exact token count representing the string length in the <code>cl100k_base</code> vocabulary.</p>
 <p><strong>Raises</strong>:
-* None.</p>
-<p><strong>Implementation Reference</strong>:
+* No exceptions raised.</p>
+<p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_tokens</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Count tokens using tiktoken, with fallback to chars/4."""</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
@@ -1014,26 +1061,23 @@ Calculates the exact or approximate number of tokens contained within a given st
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">disallowed_special</span><span class="o">=</span><span class="p">()))</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
 </code></pre></div></p>
-<p>The parameter <code>disallowed_special=()</code> is critical for codebase analysis workflows. Because prompts often encapsulate arbitrary source code snippets, raw comments, or template markers, standard tokenizer configurations that disallow special tokens would trigger runtime validation exceptions. Passing an empty tuple bypasses this restriction and encodes all tokens literally.</p>
+<p>This method is central to all prompt size validations across pipeline nodes. Setting <code>disallowed_special=()</code> is critical when analyzing code repositories, as code frequently contains literal tokens (like <code>&lt;|endoftext|&gt;</code>, docstrings, or template syntax) that would otherwise cause standard <code>tiktoken.encode()</code> calls to throw a <code>ValueError</code>.</p>
 <hr />
 <h3 id="log_token_estimation"><code>log_token_estimation()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, token_usage: dict | None = None) -&gt; None:</code></p>
-<p><strong>Description</strong>:
-Measures and logs prompt token utilization against a designated ceiling capacity (<code>max_tokens</code>). It computes the total token count of <code>prompt_content</code> using <code>count_tokens()</code>, calculates the percentage of context consumed, and optionally parses a structured dictionary of sub-component token distributions (<code>token_usage</code>). </p>
-<p>Output is split into two targeted formats:
-1. <strong>Console Output</strong>: Formatted with ANSI color codes (<code>\033[93m</code> yellow) and aligned tabular sub-breakdowns for human readability during interactive executions.
-2. <strong>File Logging</strong>: Emitted via <code>logger.info()</code> on a single line containing key-value pairs formatted for log aggregation and automated regex/structured parsing.</p>
+<p><strong>Description</strong>:<br />
+Calculates total token volume for a node's prompt content, evaluates capacity utilization against <code>max_tokens</code>, formats optional per-section usage metrics, and dispatches log information to both stdout (via ANSI colored formatting) and the persistent logging backend (<code>logger.info</code>). When <code>token_usage</code> is provided as a dictionary of sub-component names and integer counts, it calculates the percentage of total tokens each component represents, aligns labels dynamically, and appends a structured breakdown to the output.</p>
 <p><strong>Parameters</strong>:
-* <code>node_name</code> (<code>str</code>): Identifier of the workflow node executing the LLM call (e.g., node names from <a href="../../nodes/">nodes</a>).
-* <code>prompt_content</code> (<code>str</code>): The complete compiled prompt string being passed to the model.
-* <code>max_tokens</code> (<code>int</code>): Maximum context token limit configured for the target model or node.
-* <code>token_usage</code> (<code>dict | None</code>, optional): Key-value mapping of sub-component names to their respective token counts, allowing detailed breakdown logs (e.g., <code>{"system_prompt": 400, "file_content": 1200}</code>). Defaults to <code>None</code>.</p>
+* <code>node_name</code> (str): The identifier or name of the executing graph node (e.g., <code>generate_readme</code>, <code>analyze_code</code>).
+* <code>prompt_content</code> (str): The full constructed prompt string sent to the model.
+* <code>max_tokens</code> (int): The maximum context window or token budget allocated for the operation.
+* <code>token_usage</code> (dict | None, optional): Optional breakdown dictionary mapping section labels (e.g., <code>'System Prompt'</code>, <code>'Context Files'</code>) to their respective token counts. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-* None.</p>
-<p><strong>Implementation Reference</strong>:
+* No exceptions raised. Zero-division guards are applied when calculating percentage capacity (<code>max_tokens</code>) and component percentages (<code>token_count</code>).</p>
+<p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">log_token_estimation</span><span class="p">(</span><span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">token_usage</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">token_count</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt_content</span><span class="p">)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_count</span> <span class="o">/</span> <span class="n">max_tokens</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">max_tokens</span> <span class="k">else</span> <span class="mi">0</span>
@@ -1060,13 +1104,13 @@ Measures and logs prompt token utilization against a designated ceiling capacity
 <a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>    <span class="c1"># File log stays single-line for parseability</span>
 <a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NODE EXEC | node=</span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_log_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></p>
-<p>The function handles edge cases where <code>max_tokens</code> or <code>token_count</code> might evaluate to zero, avoiding <code>ZeroDivisionError</code> by applying inline ternary checks (<code>if max_tokens else 0</code> and <code>if token_count else 0</code>). When formatting individual usage components, it left-justifies component labels using <code>max_label_len = max(len(label) for label in token_usage)</code> to maintain alignment across indented terminal lines.</p>
+<p>The function bifurcates the output destination: terminal users receive high-visibility ANSI yellow formatted logs (<code>\033[93m...</code>) with multi-line tab-aligned sub-metrics for clear visual inspection during CLI runs, while <code>logger.info()</code> receives a single-line delimited string (<code>NODE EXEC | node=... | prompt_tokens=...</code>) optimal for downstream log ingestion, regex filtering, and monitoring systems.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../call_llm/">utils.call_llm</a> — Shared logger configuration and LLM invocation pipeline consuming token utilities.</li>
-<li><a href="../prompts/">utils.prompts</a> — System and node prompt templates evaluated and measured via <code>count_tokens</code>.</li>
-<li><a href="../../nodes/">nodes</a> — Pipeline nodes that construct prompts and trigger <code>log_token_estimation</code> during execution stages.</li>
+<li><a href="../call_llm/">utils.call_llm</a> — Manages LLM invocations and provides the shared logger instance (<code>llm_logger</code>).</li>
+<li><a href="../../nodes/">nodes</a> — Pipeline nodes that construct prompts and utilize <code>log_token_estimation</code> before executing model calls.</li>
+<li><a href="../../flow/">flow</a> — Orchestrates workflow execution across pipeline stages.</li>
 </ul>
 
 
@@ -1120,7 +1164,7 @@ Measures and logs prompt token utilization against a designated ceiling capacity
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>

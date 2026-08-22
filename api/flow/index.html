@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/flow/">
       
       
-        <link rel="prev" href="../../design/">
+        <link rel="prev" href="../">
       
       
         <link rel="next" href="../main/">
@@ -62,7 +62,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -296,6 +296,30 @@
   
     
     
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
     
     
     
@@ -306,8 +330,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -321,8 +346,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
@@ -334,6 +365,8 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
             
               
                 
@@ -402,10 +435,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Technical Overview
       
     </span>
   </a>
@@ -413,10 +446,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture-flow-diagram" class="md-nav__link">
+  <a href="#pipeline-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture &amp; Flow Diagram
+        Pipeline Architecture
       
     </span>
   </a>
@@ -729,10 +762,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Technical Overview
       
     </span>
   </a>
@@ -740,10 +773,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture-flow-diagram" class="md-nav__link">
+  <a href="#pipeline-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture &amp; Flow Diagram
+        Pipeline Architecture
       
     </span>
   </a>
@@ -807,17 +840,18 @@
 
 
 <h1 id="flow">flow</h1>
-<p><strong>File Path:</strong> <code>flow.py</code></p>
-<h2 id="overview">Overview</h2>
-<p>The <code>flow.py</code> module defines the core execution graph and orchestration logic for the <code>Codebase-Knowledge-Builder</code> system. Built on top of the <code>pocketflow</code> framework, this module is responsible for instantiating the individual pipeline nodes, configuring their operational retry and backoff parameters, and defining the conditional and linear execution edges that govern repository processing and tutorial generation.</p>
-<p>The flow models three distinct processing strategies based on repository context size and structure:
-1. <strong>Direct Path (<code>direct</code>)</strong>: Bypasses abstraction chunking for smaller codebases by feeding repository context directly into abstraction identification.
-2. <strong>Batch Path (<code>batch</code>)</strong>: Employs map-reduce abstraction extraction for large codebases requiring parallel or batched decomposition.
-3. <strong>Deterministic Path (<code>deterministic</code>)</strong>: Uses a direct deterministic file mapping pipeline that maps repository source files to tutorial chapters, bypassing relationship analysis and chapter ordering.</p>
-<p>All paths ultimately converge to produce chapter content and combine them into a unified tutorial artifact.</p>
-<hr />
-<h2 id="architecture-flow-diagram">Architecture &amp; Flow Diagram</h2>
-<p>The following diagram illustrates the dependency graph, routing decisions, and convergence points configured in <code>create_tutorial_flow()</code>.</p>
+<p><code>flow.py</code></p>
+<h2 id="technical-overview">Technical Overview</h2>
+<p>The <code>flow.py</code> module defines the core execution graph and orchestration pipeline for the <code>Codebase-Knowledge-Builder</code> system. Built on top of the <code>pocketflow</code> framework, this module connects all individual workflow stages—implemented as custom node classes in <a href="../nodes/">nodes</a>—into a directed acyclic computation graph (<code>Flow</code>).</p>
+<p>The pipeline models a multi-path architecture that adapts dynamically based on codebase size and token context limits:
+1. <strong>Repository Ingestion &amp; Context Routing</strong>: Ingests files via <code>FetchRepo</code> and evaluates total token volume via <code>ContextRouter</code>.
+2. <strong>Dynamic Execution Branches</strong>:
+   - <strong>Direct Branch (<code>"direct"</code>)</strong>: Small codebases that fit within context windows bypass map-reduce and proceed directly to <code>IdentifyAbstractions</code>.
+   - <strong>Batch Branch (<code>"batch"</code>)</strong>: Large codebases are partitioned across <code>MapAbstractions</code> and aggregated by <code>ReduceAbstractions</code> before feeding into <code>AnalyzeRelationships</code>.
+   - <strong>Deterministic Branch (<code>"deterministic"</code>)</strong>: Dedicated mapping using <code>DeterministicFileMapper</code> for structured, rule-based chapter mapping that directly feeds <code>WriteChapters</code>.
+3. <strong>Synthesis &amp; Assembly</strong>: Intermediate relationship graphs and abstraction models are topologically sequenced by <code>OrderChapters</code>, generated in parallel/sequence by <code>WriteChapters</code>, and aggregated into the final documentation output by <code>CombineTutorial</code>.</p>
+<p>The module configures fault tolerance across LLM-bound nodes by establishing uniform retry strategies (<code>max_retries=5</code>, <code>wait=20</code>).</p>
+<h2 id="pipeline-architecture">Pipeline Architecture</h2>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -834,55 +868,46 @@
     <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    subgraph Ingestion ["Repository Ingestion and Routing"]
+    subgraph Ingestion["Ingestion and Routing"]
         fetch_repo["FetchRepo"]
         context_router{"ContextRouter"}
-        class fetch_repo entryNode;
     end
 
-    subgraph DirectProcessing ["Direct Processing Flow"]
-        identify_abstractions["IdentifyAbstractions&lt;br/&gt;(retries: 5, wait: 20s)"]
-        class identify_abstractions entryNode;
+    subgraph ProcessingBranches["Processing Branches"]
+        identify_abstractions["IdentifyAbstractions"]
+        map_abstractions["MapAbstractions"]
+        reduce_abstractions["ReduceAbstractions"]
+        deterministic_mapper["DeterministicFileMapper"]
     end
 
-    subgraph BatchProcessing ["Batch Processing Flow (Map-Reduce)"]
-        map_abstractions["MapAbstractions&lt;br/&gt;(retries: 5, wait: 20s)"]
-        reduce_abstractions["ReduceAbstractions&lt;br/&gt;(retries: 5, wait: 20s)"]
-        class map_abstractions entryNode;
-    end
-
-    subgraph DeterministicProcessing ["Deterministic Mapping Flow"]
-        deterministic_mapper["DeterministicFileMapper&lt;br/&gt;(retries: 5, wait: 20s)"]
-        class deterministic_mapper entryNode;
-    end
-
-    subgraph Synthesis ["Abstraction Analysis and Chapter Synthesis"]
-        analyze_relationships["AnalyzeRelationships&lt;br/&gt;(retries: 5, wait: 20s)"]
-        order_chapters["OrderChapters&lt;br/&gt;(retries: 5, wait: 20s)"]
-        write_chapters["WriteChapters&lt;br/&gt;(retries: 5, wait: 20s)"]
+    subgraph Synthesis["Synthesis and Assembly"]
+        analyze_relationships["AnalyzeRelationships"]
+        order_chapters["OrderChapters"]
+        write_chapters["WriteChapters"]
         combine_tutorial["CombineTutorial"]
-        class analyze_relationships entryNode;
     end
 
-    fetch_repo &gt;&gt; context_router
+    fetch_repo --&gt; context_router
 
     context_router -- "direct" --&gt; identify_abstractions
     context_router -- "batch" --&gt; map_abstractions
     context_router -- "deterministic" --&gt; deterministic_mapper
 
-    map_abstractions &gt;&gt; reduce_abstractions
+    map_abstractions --&gt; reduce_abstractions
 
-    identify_abstractions &gt;&gt; analyze_relationships
-    reduce_abstractions &gt;&gt; analyze_relationships
+    identify_abstractions --&gt; analyze_relationships
+    reduce_abstractions --&gt; analyze_relationships
 
-    analyze_relationships &gt;&gt; order_chapters
-    order_chapters &gt;&gt; write_chapters
+    analyze_relationships --&gt; order_chapters
+    order_chapters --&gt; write_chapters
 
-    deterministic_mapper &gt;&gt; write_chapters
+    deterministic_mapper --&gt; write_chapters
 
-    write_chapters &gt;&gt; combine_tutorial
+    write_chapters --&gt; combine_tutorial
 
-    class fetch_repo entryNode;</code></pre> 
+    class fetch_repo entryNode
+    class identify_abstractions entryNode
+    class analyze_relationships entryNode</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -893,15 +918,14 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def create_tutorial_flow() -&gt; Flow:</code></p>
 <p><strong>Description</strong>:<br />
-Initializes all node instances required for repository analysis and tutorial generation, injects retry and wait configurations for LLM-backed nodes, connects the nodes into an executable directed acyclic graph (DAG) via PocketFlow stream redirection (<code>&gt;&gt;</code>) and conditional branching (<code>- "action" &gt;&gt;</code>) operators, and encapsulates the graph into a runnable <code>Flow</code> object initialized at <code>FetchRepo</code>.</p>
-<p>The function configures nodes with a standard fault-tolerance profile (<code>max_retries=5</code>, <code>wait=20</code>) to handle API rate limiting and transient network errors during LLM operations. It sets up conditional routing from <code>ContextRouter</code> across three distinct edges (<code>direct</code>, <code>batch</code>, and <code>deterministic</code>) and links downstream aggregation and write stages to converge at <code>CombineTutorial</code>.</p>
+Instantiates all processing nodes, configures resilience parameters (retries and backoff delays), builds the edge relationships and conditional routing branches between nodes, and wraps the resulting pipeline into an executable <code>Flow</code> instance starting at <code>FetchRepo</code>.</p>
 <p><strong>Parameters</strong>:<br />
-<em>None</em></p>
-<p><strong>Returns</strong>:
-* <code>Flow</code>: An instantiated <code>pocketflow.Flow</code> execution graph configured with <code>FetchRepo</code> as its root entry point.</p>
-<p><strong>Raises</strong>:
-* <em>No explicit exceptions raised internally during graph construction.</em></p>
-<p><strong>Implementation</strong>:</p>
+* None.</p>
+<p><strong>Returns</strong>:<br />
+* <code>Flow</code>: A fully wired PocketFlow execution graph configured with <code>FetchRepo</code> as the root entry point.</p>
+<p><strong>Raises</strong>:<br />
+* None directly during creation; downstream exceptions during execution are governed by node-level retry policies.</p>
+<p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_tutorial_flow</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">fetch_repo</span> <span class="o">=</span> <span class="n">FetchRepo</span><span class="p">()</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">context_router</span> <span class="o">=</span> <span class="n">ContextRouter</span><span class="p">()</span>
@@ -933,19 +957,13 @@ Initializes all node instances required for repository analysis and tutorial gen
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">write_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">combine_tutorial</span>
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">fetch_repo</span><span class="p">)</span>
-</code></pre></div>
-<p>The construction sequence instantiates eight processing nodes and one routing node. Nodes performing external language model calls (<code>MapAbstractions</code>, <code>ReduceAbstractions</code>, <code>IdentifyAbstractions</code>, <code>AnalyzeRelationships</code>, <code>OrderChapters</code>, <code>WriteChapters</code>, and <code>DeterministicFileMapper</code>) are initialized with <code>max_retries=5</code> and <code>wait=20</code> to ensure stability against model provider rate limits and transient connection dropouts. In contrast, purely deterministic data preparation nodes (<code>FetchRepo</code>, <code>ContextRouter</code>, and <code>CombineTutorial</code>) are initialized with default parameters as they do not perform remote API calls.</p>
-<p>Routing rules established via the <code>- "action" &gt;&gt;</code> syntax map the string outcomes emitted by <code>ContextRouter.prep()</code> to downstream execution paths:
-- When <code>context_router</code> outputs <code>"direct"</code>, execution proceeds immediately to <code>identify_abstractions</code>, bypassing intermediate abstraction mapping.
-- When <code>context_router</code> outputs <code>"batch"</code>, execution is routed to <code>map_abstractions</code>, which iterates over chunked repository contents before passing intermediate representations to <code>reduce_abstractions</code>.
-- When <code>context_router</code> outputs <code>"deterministic"</code>, execution branches to <code>deterministic_mapper</code>, which assigns chapters directly to files and connects directly into <code>write_chapters</code>, bypassing <code>analyze_relationships</code> and <code>order_chapters</code>.</p>
-<p>Both the <code>identify_abstractions</code> and <code>reduce_abstractions</code> nodes feed into <code>analyze_relationships</code>, joining the direct and batched pathways. Downstream from chapter ordering, the <code>write_chapters</code> node receives dependencies from either <code>order_chapters</code> or <code>deterministic_mapper</code>. Finally, all generated chapter files are compiled into a unified tutorial via <code>combine_tutorial</code>. The function returns a <code>Flow</code> instance with <code>start=fetch_repo</code>.</p>
+</code></pre></div></p>
+<p>The function initializes ten node instances. Seven of these nodes (<code>MapAbstractions</code>, <code>ReduceAbstractions</code>, <code>IdentifyAbstractions</code>, <code>AnalyzeRelationships</code>, <code>OrderChapters</code>, <code>WriteChapters</code>, and <code>DeterministicFileMapper</code>) communicate with external LLM APIs and are explicitly instantiated with <code>max_retries=5</code> and <code>wait=20</code> to guarantee resilience against rate limits and transient connection failures. The structural routing relies on PocketFlow's operator overloading: <code>&gt;&gt;</code> defines unconditional sequential transitions, whereas <code>- "action" &gt;&gt;</code> defines conditional routing decisions evaluated by the <code>ContextRouter</code> node. The graph terminates with <code>CombineTutorial</code>, which compiles all chapter outputs into the final documentation artifact.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../main/">main</a> — Application entry point that imports and runs the flow constructed by <code>create_tutorial_flow()</code>.</li>
-<li><a href="../nodes/">nodes</a> — Implementation of all operational and LLM-driven nodes linked within this flow.</li>
-<li><a href="../utils/call_llm/">utils.call_llm</a> — Underlying model invocation utility used by the retrying nodes in this graph.</li>
+<li><a href="../main/">main</a> — The application entry point that executes the graph returned by <code>create_tutorial_flow()</code>.</li>
+<li><a href="../nodes/">nodes</a> — The node implementations and business logic referenced in the flow graph.</li>
 </ul>
 
 
@@ -999,7 +1017,7 @@ Initializes all node instances required for repository analysis and tutorial gen
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>

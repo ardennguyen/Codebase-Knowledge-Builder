@@ -62,7 +62,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -296,6 +296,30 @@
   
     
     
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
     
     
     
@@ -306,8 +330,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -321,8 +346,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
@@ -334,6 +365,8 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
             
               
                 
@@ -514,10 +547,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#architectural-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Architectural Overview
       
     </span>
   </a>
@@ -525,10 +558,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-variables" class="md-nav__link">
+  <a href="#module-level-variables-and-state" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module Variables
+        Module-Level Variables and State
       
     </span>
   </a>
@@ -648,17 +681,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#direct-module-execution" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Direct Module Execution
-      
-    </span>
-  </a>
   
 </li>
       
@@ -828,10 +850,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#architectural-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Architectural Overview
       
     </span>
   </a>
@@ -839,10 +861,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-variables" class="md-nav__link">
+  <a href="#module-level-variables-and-state" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module Variables
+        Module-Level Variables and State
       
     </span>
   </a>
@@ -966,17 +988,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#direct-module-execution" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Direct Module Execution
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1006,15 +1017,10 @@
 
 <h1 id="utilscall_llm">utils.call_llm</h1>
 <p><strong>File Path</strong>: <code>utils/call_llm.py</code></p>
-<h2 id="overview">Overview</h2>
-<p>The <code>utils.call_llm</code> module provides unified abstraction for interacting with Large Language Model (LLM) backends within the <code>Codebase-Knowledge-Builder</code> pipeline. It manages:</p>
-<ul>
-<li><strong>Dynamic Provider Routing</strong>: Dispatches requests to native Google Gemini SDK clients (<code>google-genai</code> targeting Gemini API or Google Cloud Vertex AI) or generic OpenAI-compatible HTTP endpoints (such as OpenRouter or local Ollama instances).</li>
-<li><strong>Caching Layer</strong>: Persists prompt-response pairs to a local JSON file cache (<code>llm_cache.json</code>) to minimize redundant latency and compute costs during iterative graph execution.</li>
-<li><strong>Reasoning and Thinking Level Control</strong>: Configures reasoning parameters across different providers, such as <code>ThinkingConfig</code> for Google Gemini and <code>reasoning</code>/<code>think</code> payloads for OpenRouter and Ollama.</li>
-<li><strong>Dynamic Context Discovery</strong>: Queries external model catalogs (e.g., OpenRouter API) to identify maximum context window constraints or applies safety defaults for Google Gemini.</li>
-<li><strong>Isolated Run-Level Logging</strong>: Sets up dedicated run logs under a designated directory (<code>logs/</code>) with sanitized filenames and formatted execution metadata.</li>
-</ul>
+<p>Technical and architectural documentation for the <code>utils/call_llm</code> module. This module encapsulates all external Large Language Model (LLM) communications across multiple supported backends (Google Gemini API/Vertex AI, OpenRouter, and Ollama/OpenAI-compatible endpoints). It provides automated response caching, file-based structured logging, dynamic model context-length detection, and multi-tier reasoning/thinking budget configurations.</p>
+<hr />
+<h2 id="architectural-overview">Architectural Overview</h2>
+<p>The <code>utils.call_llm</code> module serves as the central LLM execution gateway for the knowledge base generator pipeline. When nodes and workflows request LLM inference, <code>call_llm</code> intercepts the request to enforce caching, audit logging, token accounting via <a href="../token_utils/">utils.token_utils</a>, and provider-specific payload formatting.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -1031,60 +1037,44 @@
     <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    subgraph LLMExecutionPipeline ["LLM Execution Flow"]
-        StartNode["call_llm(prompt, use_cache, thinking_level)"]
-        CheckCache{"use_cache == True?"}
-        ReadCache["load_cache()"]
-        CacheHit{"prompt in cache?"}
-        ReturnCache["Return cached response"]
-        ResolveProvider["get_llm_provider()"]
-        ProviderBranch{"provider == 'GEMINI'?"}
-        CallGemini["_call_llm_gemini(prompt, thinking_level)"]
-        CallGeneric["_call_llm_provider(prompt, thinking_level)"]
-        SaveCache["save_cache(cache)"]
-        ReturnResponse["Return API response"]
+    subgraph LLM_Pipeline [LLM Execution Flow]
+        A[Client Request: call_llm] --&gt; B{Cache Enabled and Hit?}
+        B -- Yes --&gt; C[Return Cached Response]
+        B -- No --&gt; D[Determine Provider via get_llm_provider]
+        D --&gt; E{Provider Type}
+        E -- GEMINI --&gt; F[_call_llm_gemini]
+        E -- OLLAMA or OPENROUTER --&gt; G[_call_llm_provider]
+        F --&gt; H[Update Cache]
+        G --&gt; H
+        H --&gt; I[Return Response Text]
     end
 
-    class StartNode entryNode
-
-    StartNode --&gt; CheckCache
-    CheckCache -- Yes --&gt; ReadCache
-    CheckCache -- No --&gt; ResolveProvider
-    ReadCache --&gt; CacheHit
-    CacheHit -- Yes --&gt; ReturnCache
-    CacheHit -- No --&gt; ResolveProvider
-    ResolveProvider --&gt; ProviderBranch
-    ProviderBranch -- Yes --&gt; CallGemini
-    ProviderBranch -- No --&gt; CallGeneric
-    CallGemini --&gt; SaveCache
-    CallGeneric --&gt; SaveCache
-    SaveCache --&gt; ReturnResponse</code></pre> 
+    class A entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
 <hr />
-<h2 id="module-variables">Module Variables</h2>
+<h2 id="module-level-variables-and-state">Module-Level Variables and State</h2>
 <ul>
-<li><code>logger</code>: An instance of <code>logging.Logger</code> named <code>"llm_logger"</code>. At import time, <code>logger.propagate</code> is set to <code>False</code> and configured with a <code>logging.NullHandler</code> to buffer logs until explicit configuration by <code>configure_logging()</code>.</li>
-<li><code>cache_file</code>: A string constant (<code>"llm_cache.json"</code>) defining the local cache target path.</li>
-<li><code>_openrouter_models_cache</code>: A module-level cache variable (<code>list</code> or <code>None</code>) storing model capability payloads fetched from <code>https://openrouter.ai/api/v1/models</code>.</li>
+<li><code>logger</code> (<code>logging.Logger</code>): Instance named <code>"llm_logger"</code> configured with <code>logging.INFO</code> and <code>propagate = False</code>. By default, it initializes with a <code>logging.NullHandler()</code> at module load time to absorb emissions until <code>configure_logging()</code> is invoked.</li>
+<li><code>cache_file</code> (<code>str</code>): File path string pointing to <code>"llm_cache.json"</code>. Used for simple JSON-based disk caching of LLM requests and responses.</li>
+<li><code>_openrouter_models_cache</code> (<code>list[dict] | None</code>): Internal in-memory cache initialized to <code>None</code>. Used to avoid repeated network queries to OpenRouter's <code>/api/v1/models</code> endpoint when inspecting model capabilities and reasoning effort configurations.</li>
 </ul>
 <hr />
 <h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="configure_logging"><code>configure_logging()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def configure_logging(project_name="project", mode="tutorial") -&gt; str:</code></p>
-<p><strong>Description</strong>:
-Initializes file-based logging for the active execution run. It creates the destination directory specified by the <code>LOG_DIR</code> environment variable (defaulting to <code>"logs"</code>), sanitizes the input <code>project_name</code> and <code>mode</code> strings against invalid filesystem characters, and generates a timestamped log file. It replaces all existing logger handlers with a configured <code>logging.FileHandler</code> encoded in UTF-8 and writes standard run header metadata.</p>
+<p><strong>Description</strong>: Configures and attaches a file-based logger instance for an individual CLI execution run. It creates a target directory specified by the <code>LOG_DIR</code> environment variable (defaulting to <code>logs</code>), sanitizes the project name and generation mode against unwanted characters, and establishes a uniquely timestamped log file named <code>{safe_project}_{safe_mode}_{YYYYMMDD_HHmmss}.log</code>. Any existing handlers (such as the import-time <code>NullHandler</code>) are cleared from <code>logger</code>, and a new <code>logging.FileHandler</code> formatted with <code>%(asctime)s - %(levelname)s - %(message)s</code> is registered.</p>
 <p><strong>Parameters</strong>:
-* <code>project_name</code> (<code>str</code>, optional): Identifier for the codebase/project being documented. Defaults to <code>"project"</code>.
-* <code>mode</code> (<code>str</code>, optional): Processing mode identifier (e.g., <code>"tutorial"</code>, <code>"deep-dive"</code>). Defaults to <code>"tutorial"</code>.</p>
+* <code>project_name</code> (<code>str</code>, optional): Identifier of the target repository or project. Defaults to <code>"project"</code>.
+* <code>mode</code> (<code>str</code>, optional): Pipeline operation mode (e.g., <code>"tutorial"</code>, <code>"architecture"</code>). Defaults to <code>"tutorial"</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: Absolute or relative file path to the newly created log file.</p>
+* <code>str</code>: The absolute or relative filesystem path of the initialized <code>.log</code> file.</p>
 <p><strong>Raises</strong>:
-* <code>OSError</code>: If the directory creation fails or permissions prevent creating the log file.</p>
-<p><strong>Example</strong>:
+* <code>OSError</code>: If directory creation or log file access fails due to filesystem permission constraints.</p>
+<p><strong>Implementation</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">configure_logging</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"tutorial"</span><span class="p">):</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">log_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"LOG_DIR"</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">)</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1109,20 +1099,19 @@ Initializes file-based logging for the active execution run. It creates the dest
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="k">return</span> <span class="n">log_file</span>
 </code></pre></div></p>
-<p><code>configure_logging</code> ensures file logging is deferred until command-line arguments are parsed in <a href="../../main/">main</a>. The sanitization step replaces non-alphanumeric and non-standard filename characters with underscores, preventing directory traversal or invalid path errors on diverse operating systems. Once instantiated, the handler isolates LLM logs from the root logger, capturing prompt transmissions, token estimates, and raw responses.</p>
+<p>The function performs input sanitation on <code>project_name</code> by replacing non-alphanumeric and non-whitelisted characters (<code>-</code>, <code>_</code>, <code>.</code>) with underscores. It also replaces hyphens in <code>mode</code> with underscores. Once the <code>FileHandler</code> is established, the function immediately writes execution boundary headers containing metadata to verify output capture before returning the file path to the caller (such as <a href="../../main/">main</a>).</p>
 <hr />
 <h3 id="load_cache"><code>load_cache()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def load_cache() -&gt; dict:</code></p>
-<p><strong>Description</strong>:
-Reads and deserializes the JSON cache stored at <code>cache_file</code> (<code>llm_cache.json</code>). If the file is missing, unreadable, or contains corrupted JSON data, the error is logged as a warning and an empty dictionary is returned.</p>
+<p><strong>Description</strong>: Loads and deserializes the persisted JSON prompt-response cache from <code>llm_cache.json</code>. If the file does not exist, is corrupted, or fails to parse, it logs a warning and returns an empty dictionary.</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
-* <code>dict</code>: Key-value mapping representing cached prompts (<code>str</code>) to completions (<code>str</code>). Returns <code>{}</code> on failure.</p>
+* <code>dict</code>: A dictionary mapping raw prompt strings to cached LLM response text strings, or an empty dictionary if loading fails.</p>
 <p><strong>Raises</strong>:
-* No exceptions are raised; errors are trapped internally and logged via <code>logger.warning</code>.</p>
-<p><strong>Example</strong>:
+* No exceptions are propagated; all file I/O and JSON decoding errors are intercepted internally.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_cache</span><span class="p">():</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1131,20 +1120,19 @@ Reads and deserializes the JSON cache stored at <code>cache_file</code> (<code>l
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Failed to load cache."</span><span class="p">)</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">return</span> <span class="p">{}</span>
 </code></pre></div></p>
-<p>The function provides fault-tolerant reading of cached prompts. It wraps standard file I/O within a blanket exception guard so that missing cache files or transient file lock errors do not disrupt the execution of downstream node generation tasks in <a href="../../nodes/">nodes</a>.</p>
+<p>The function provides a fault-tolerant fallback mechanism for local development caching. Any underlying I/O errors (e.g., <code>FileNotFoundError</code>, <code>PermissionError</code>, or <code>json.JSONDecodeError</code>) are caught silently and flagged using <code>logger.warning</code>, returning a fresh dictionary to prevent crashing LLM pipeline execution.</p>
 <hr />
 <h3 id="save_cache"><code>save_cache()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def save_cache(cache: dict) -&gt; None:</code></p>
-<p><strong>Description</strong>:
-Serializes and writes the provided dictionary to <code>cache_file</code> (<code>llm_cache.json</code>) in plaintext JSON format. Captures and logs any I/O errors encountered during the write operation.</p>
+<p><strong>Description</strong>: Serializes and writes the provided in-memory cache dictionary back to the <code>llm_cache.json</code> file on disk.</p>
 <p><strong>Parameters</strong>:
-* <code>cache</code> (<code>dict</code>): The dictionary of prompt-to-response pairs to be saved to disk.</p>
+* <code>cache</code> (<code>dict</code>): The dictionary mapping prompt strings to LLM response strings to persist.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-* No exceptions are raised; errors are trapped internally and logged via <code>logger.warning</code>.</p>
-<p><strong>Example</strong>:
+* No exceptions are propagated; file writing and serialization exceptions are handled internally.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">save_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">):</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1152,18 +1140,17 @@ Serializes and writes the provided dictionary to <code>cache_file</code> (<code>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Failed to save cache"</span><span class="p">)</span>
 </code></pre></div></p>
-<p><code>save_cache</code> executes an atomic overwrite of the local cache file whenever an LLM invocation yields a new response. It acts synchronously within <code>call_llm</code>, allowing intermediate pipeline stages to preserve progress across intermittent network disconnects or process restarts.</p>
+<p>The method opens <code>cache_file</code> in write mode and executes <code>json.dump</code>. If an exception occurs during serialization or file writing (for instance, disk full conditions or restricted write permissions), a warning is logged to <code>llm_logger</code> while allowing overall pipeline execution to continue uninterrupted.</p>
 <hr />
 <h3 id="get_llm_provider"><code>get_llm_provider()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def get_llm_provider() -&gt; str | None:</code></p>
-<p><strong>Description</strong>:
-Determines which LLM provider backend to use based on environment configuration. Reads the <code>LLM_PROVIDER</code> environment variable. If unspecified, it inspects whether <code>GEMINI_PROJECT_ID</code> or <code>GEMINI_API_KEY</code> are defined, automatically falling back to <code>"GEMINI"</code>.</p>
+<p><strong>Description</strong>: Resolves the active LLM provider strategy from environment variables. If <code>LLM_PROVIDER</code> is explicitly set, its value is returned. If omitted, it falls back to checking whether <code>GEMINI_PROJECT_ID</code> or <code>GEMINI_API_KEY</code> are defined, returning <code>"GEMINI"</code> if either is present.</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
-* <code>str | None</code>: The resolved provider name (e.g., <code>"GEMINI"</code>, <code>"OLLAMA"</code>, <code>"OPENROUTER"</code>) or <code>None</code> if no matching configuration is found.</p>
-<p><strong>Example</strong>:
+* <code>str | None</code>: The resolved provider string (e.g., <code>"GEMINI"</code>, <code>"OPENROUTER"</code>, <code>"OLLAMA"</code>), or <code>None</code> if unresolvable.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_llm_provider</span><span class="p">():</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">provider</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"LLM_PROVIDER"</span><span class="p">)</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">provider</span> <span class="ow">and</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_PROJECT_ID"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_API_KEY"</span><span class="p">)):</span>
@@ -1171,20 +1158,19 @@ Determines which LLM provider backend to use based on environment configuration.
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="c1"># if necessary, add ANTHROPIC/OPENAI</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">return</span> <span class="n">provider</span>
 </code></pre></div></p>
-<p>This resolver allows dynamic switching across LLM providers via standard <code>.env</code> properties. When users only supply credentials for Vertex AI (<code>GEMINI_PROJECT_ID</code>) or Google AI Studio (<code>GEMINI_API_KEY</code>), the resolver defaults to the native Gemini provider pipeline without requiring explicit assignment of <code>LLM_PROVIDER</code>.</p>
+<p>This function acts as the runtime provider selector for the application. It establishes Google Gemini as the implicit default when relevant API credentials exist in <code>.env</code>, while allowing overrides via explicit <code>LLM_PROVIDER</code> environment variable assignments (such as <code>"OPENROUTER"</code> or <code>"OLLAMA"</code>).</p>
 <hr />
 <h3 id="_get_openrouter_model_info"><code>_get_openrouter_model_info()</code></h3>
 <p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _get_openrouter_model_info(model_id: str) -&gt; dict | None:</code></p>
-<p><strong>Description</strong>:
-Fetches capabilities and metadata for a given model ID from the OpenRouter <code>/api/v1/models</code> endpoint. The retrieved response array is cached in the module-level variable <code>_openrouter_models_cache</code> to prevent repeated HTTP lookups during subsequent invocations.</p>
+<p><strong>Description</strong>: Queries OpenRouter's public <code>/api/v1/models</code> catalog to inspect capabilities, supported reasoning effort parameters, and metadata for a specific model ID. Caches the response payload in the module-level variable <code>_openrouter_models_cache</code> to eliminate redundant HTTP requests across calls.</p>
 <p><strong>Parameters</strong>:
-* <code>model_id</code> (<code>str</code>): The unique OpenRouter model identifier string (e.g., <code>"anthropic/claude-3.7-sonnet"</code>).</p>
+* <code>model_id</code> (<code>str</code>): The model identifier string (e.g., <code>"anthropic/claude-3.7-sonnet"</code>).</p>
 <p><strong>Returns</strong>:
-* <code>dict | None</code>: The dictionary containing model specifications, reasoning support, and context limits, or <code>None</code> if not found or if the network request fails.</p>
+* <code>dict | None</code>: A dictionary containing model metadata if located within the catalog; otherwise, <code>None</code>.</p>
 <p><strong>Raises</strong>:
-* No exceptions are raised; network and JSON decoding failures default <code>_openrouter_models_cache</code> to <code>[]</code>.</p>
-<p><strong>Example</strong>:
+* No exceptions are raised; network and timeout errors result in populating an empty cache list and returning <code>None</code>.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_get_openrouter_model_info</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">global</span> <span class="n">_openrouter_models_cache</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="k">if</span> <span class="n">_openrouter_models_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1196,22 +1182,21 @@ Fetches capabilities and metadata for a given model ID from the OpenRouter <code
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">_openrouter_models_cache</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span> <span class="o">==</span> <span class="n">model_id</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
 </code></pre></div></p>
-<p><code>_get_openrouter_model_info</code> manages global caching for model catalog lookups. It prevents duplicate network requests across multi-node execution graphs. The function inspects model entries to verify whether specific reasoning levels (<code>low</code>, <code>medium</code>, <code>high</code>) are supported by OpenRouter's reasoning abstraction layer.</p>
+<p>The function optimizes network bandwidth and prevents rate limiting by fetching OpenRouter model data only on the initial call. It leverages Python's <code>next()</code> built-in with a generator expression to locate the model object matching <code>model_id</code>.</p>
 <hr />
 <h3 id="get_model_context_length"><code>get_model_context_length()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def get_model_context_length(endpoint_url: str, model_name: str, api_key: str = "") -&gt; int:</code></p>
-<p><strong>Description</strong>:
-Calculates or retrieves the maximum input context token limit for a target LLM endpoint. For Google Gemini endpoints or models containing <code>"gemini"</code>, it safely defaults to <code>1,000,000</code> tokens. For OpenRouter endpoints, it queries the OpenRouter model registry to extract <code>context_length</code>. For unhandled or unreachable endpoints, it falls back to a safe baseline of <code>100,000</code> tokens.</p>
+<p><strong>Description</strong>: Determines the maximum token context window supported by a given endpoint and model name combination. Automatically allocates a 1,000,000-token limit for Gemini endpoints, dynamically extracts context limits from OpenRouter's model catalog for OpenRouter URLs, and defaults to 100,000 tokens for all other providers or when lookups fail.</p>
 <p><strong>Parameters</strong>:
-* <code>endpoint_url</code> (<code>str</code>): Base URL or full endpoint URI for the target model.
-* <code>model_name</code> (<code>str</code>): The identifier of the model.
-* <code>api_key</code> (<code>str</code>, optional): Authentication key (reserved for authenticated metadata queries). Defaults to <code>""</code>.</p>
+* <code>endpoint_url</code> (<code>str</code>): Base URL or endpoint of the LLM provider.
+* <code>model_name</code> (<code>str</code>): Name or ID of the target model.
+* <code>api_key</code> (<code>str</code>, optional): API key parameter (optional, defaults to <code>""</code>).</p>
 <p><strong>Returns</strong>:
-* <code>int</code>: Maximum context window capacity measured in tokens.</p>
+* <code>int</code>: The context length limit in tokens.</p>
 <p><strong>Raises</strong>:
-* No exceptions are raised; network or parsing errors are caught and logged via <code>logger.warning</code>.</p>
-<p><strong>Example</strong>:
+* No exceptions are propagated; errors fall back safely to <code>100000</code>.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_model_context_length</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">default_limit</span> <span class="o">=</span> <span class="mi">100000</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">try</span><span class="p">:</span>
@@ -1233,93 +1218,116 @@ Calculates or retrieves the maximum input context token limit for a target LLM e
 <a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>
 <a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>    <span class="k">return</span> <span class="n">default_limit</span>
 </code></pre></div></p>
-<p><code>get_model_context_length</code> provides upper-bound context metadata used during prompt construction and token-budget partitioning in <a href="../token_utils/">token_utils</a>. It prevents context window overflow by accurately identifying multi-million-token contexts for Gemini while respecting custom model thresholds queried from OpenRouter.</p>
+<p>This helper is primarily utilized during prompt chunking, file aggregation, and token budgeting across the indexing pipeline. When operating against Gemini endpoints or models containing <code>"gemini"</code> in their name, it returns a 1,000,000-token window. When hitting OpenRouter endpoints, it dynamically queries the model registry to retrieve exact token limits.</p>
 <hr />
 <h3 id="_call_llm_provider"><code>_call_llm_provider()</code></h3>
 <p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _call_llm_provider(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>:
-Dispatches a standard OpenAI-compatible chat completion request using <code>requests.post</code> to <code>&lt;PROVIDER&gt;_BASE_URL/v1/chat/completions</code>. Dynamically resolves configuration from environment variables based on <code>LLM_PROVIDER</code> (e.g., <code>OLLAMA_MODEL</code>, <code>OLLAMA_BASE_URL</code>, <code>OPENROUTER_API_KEY</code>). Supports reasoning effort configurations for OpenRouter and Ollama, handles HTTP errors, and extracts the response message content.</p>
+<p><strong>Description</strong>: Dispatches chat completion requests to OpenAI-compatible provider endpoints such as OpenRouter or Ollama. Dynamically resolves environment variables based on <code>LLM_PROVIDER</code> (e.g., <code>&lt;PROVIDER&gt;_MODEL</code>, <code>&lt;PROVIDER&gt;_BASE_URL</code>, <code>&lt;PROVIDER&gt;_API_KEY</code>), formats messages under the <code>/v1/chat/completions</code> REST specification, applies reasoning/thinking effort payloads, executes HTTP requests with robust timeout limits, and validates response schemas.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): Input text prompt to send to the completion model.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning effort level (e.g., <code>"low"</code>, <code>"medium"</code>, <code>"high"</code>). Defaults to <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): The input user prompt text to send to the LLM.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning intensity (<code>"low"</code>, <code>"medium"</code>, or <code>"high"</code>). Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: Raw text content returned by the LLM choice message.</p>
+* <code>str</code>: The generated text response extracted from <code>choices[0].message.content</code>.</p>
 <p><strong>Raises</strong>:
-* <code>ValueError</code>: If required environment variables (<code>LLM_PROVIDER</code>, <code>&lt;provider&gt;_MODEL</code>, <code>&lt;provider&gt;_BASE_URL</code>) are missing, or if the API returns non-JSON or response payloads lacking choices.
-* <code>Exception</code>: On network timeouts, connection failures, or non-200 HTTP response codes.</p>
-<p><strong>Example</strong>:
+* <code>ValueError</code>: If required environment variables (<code>LLM_PROVIDER</code>, <code>&lt;PROVIDER&gt;_MODEL</code>, <code>&lt;PROVIDER&gt;_BASE_URL</code>) are missing, if invalid JSON is returned, or if the <code>choices</code> attribute is missing from a 200 OK response.
+* <code>Exception</code>: Wrapper exception providing diagnostic context on HTTP errors, connection drops, request timeouts, or general network failures.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_provider</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="c1"># Read the provider from environment variable</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">provider</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"LLM_PROVIDER"</span><span class="p">)</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">provider</span><span class="p">:</span>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"LLM_PROVIDER environment variable is required"</span><span class="p">)</span>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">model_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_MODEL"</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">base_url_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_BASE_URL"</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">api_key_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_API_KEY"</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_var</span><span class="p">)</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">base_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url_var</span><span class="p">)</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">api_key_var</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_var</span><span class="si">}</span><span class="s2"> environment variable is required"</span><span class="p">)</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">base_url</span><span class="p">:</span>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url_var</span><span class="si">}</span><span class="s2"> environment variable is required"</span><span class="p">)</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span><span class="si">}</span><span class="s2">/v1/chat/completions"</span>
-<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">}</span>
-<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>    <span class="k">if</span> <span class="n">api_key</span><span class="p">:</span>
-<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>        <span class="n">headers</span><span class="p">[</span><span class="s2">"Authorization"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Bearer </span><span class="si">{</span><span class="n">api_key</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>
-<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>        <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
-<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>        <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>
-<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>        <span class="s2">"temperature"</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>    <span class="p">}</span>
-<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>
-<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>    <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"OPENROUTER"</span> <span class="ow">and</span> <span class="n">thinking_level</span><span class="p">:</span>
-<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>        <span class="n">model_info</span> <span class="o">=</span> <span class="n">_get_openrouter_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>        <span class="k">if</span> <span class="n">model_info</span> <span class="ow">and</span> <span class="s2">"reasoning"</span> <span class="ow">in</span> <span class="n">model_info</span><span class="p">:</span>
-<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>            <span class="n">supported_efforts</span> <span class="o">=</span> <span class="n">model_info</span><span class="p">[</span><span class="s2">"reasoning"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"supported_efforts"</span><span class="p">,</span> <span class="p">[])</span>
-<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>            <span class="k">if</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">supported_efforts</span><span class="p">:</span>
-<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>                <span class="n">payload</span><span class="p">[</span><span class="s2">"reasoning"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"effort"</span><span class="p">:</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span>
-<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a>                <span class="n">payload</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
-<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a>            <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a>                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid thinking level '</span><span class="si">{</span><span class="n">thinking_level</span><span class="si">}</span><span class="s2">' for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">. Supported efforts: </span><span class="si">{</span><span class="n">supported_efforts</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a>        <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> does not support reasoning via OpenRouter API."</span><span class="p">)</span>
-<a id="__codelineno-6-42" name="__codelineno-6-42" href="#__codelineno-6-42"></a>
-<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a>    <span class="k">elif</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"OLLAMA"</span> <span class="ow">and</span> <span class="n">thinking_level</span><span class="p">:</span>
-<a id="__codelineno-6-44" name="__codelineno-6-44" href="#__codelineno-6-44"></a>        <span class="n">payload</span><span class="p">[</span><span class="s2">"think"</span><span class="p">]</span> <span class="o">=</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-<a id="__codelineno-6-45" name="__codelineno-6-45" href="#__codelineno-6-45"></a>        <span class="n">payload</span><span class="p">[</span><span class="s2">"reasoning_effort"</span><span class="p">]</span> <span class="o">=</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-<a id="__codelineno-6-46" name="__codelineno-6-46" href="#__codelineno-6-46"></a>        <span class="n">payload</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
-<a id="__codelineno-6-47" name="__codelineno-6-47" href="#__codelineno-6-47"></a>
-<a id="__codelineno-6-48" name="__codelineno-6-48" href="#__codelineno-6-48"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-6-49" name="__codelineno-6-49" href="#__codelineno-6-49"></a>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>
-<a id="__codelineno-6-50" name="__codelineno-6-50" href="#__codelineno-6-50"></a>        <span class="c1"># ... JSON parsing, status verification, error extraction ...</span>
-<a id="__codelineno-6-51" name="__codelineno-6-51" href="#__codelineno-6-51"></a>        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-<a id="__codelineno-6-52" name="__codelineno-6-52" href="#__codelineno-6-52"></a>        <span class="k">return</span> <span class="n">response_json</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"content"</span><span class="p">]</span>
-<a id="__codelineno-6-53" name="__codelineno-6-53" href="#__codelineno-6-53"></a>    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-6-54" name="__codelineno-6-54" href="#__codelineno-6-54"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"An error occurred while making the request to </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="c1"># Construct the names of the other environment variables</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">model_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_MODEL"</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">base_url_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_BASE_URL"</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">api_key_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_API_KEY"</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_var</span><span class="p">)</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="n">base_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url_var</span><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">api_key_var</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_var</span><span class="si">}</span><span class="s2"> environment variable is required"</span><span class="p">)</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">base_url</span><span class="p">:</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url_var</span><span class="si">}</span><span class="s2"> environment variable is required"</span><span class="p">)</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span><span class="si">}</span><span class="s2">/v1/chat/completions"</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">}</span>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>    <span class="k">if</span> <span class="n">api_key</span><span class="p">:</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>        <span class="n">headers</span><span class="p">[</span><span class="s2">"Authorization"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Bearer </span><span class="si">{</span><span class="n">api_key</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>        <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>        <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>        <span class="s2">"temperature"</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>    <span class="p">}</span>
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>    <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"OPENROUTER"</span> <span class="ow">and</span> <span class="n">thinking_level</span><span class="p">:</span>
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>        <span class="n">model_info</span> <span class="o">=</span> <span class="n">_get_openrouter_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>        <span class="k">if</span> <span class="n">model_info</span> <span class="ow">and</span> <span class="s2">"reasoning"</span> <span class="ow">in</span> <span class="n">model_info</span><span class="p">:</span>
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>            <span class="n">supported_efforts</span> <span class="o">=</span> <span class="n">model_info</span><span class="p">[</span><span class="s2">"reasoning"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"supported_efforts"</span><span class="p">,</span> <span class="p">[])</span>
+<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>            <span class="k">if</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">supported_efforts</span><span class="p">:</span>
+<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a>                <span class="n">payload</span><span class="p">[</span><span class="s2">"reasoning"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"effort"</span><span class="p">:</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span>
+<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a>                <span class="n">payload</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a>            <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a>                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid thinking level '</span><span class="si">{</span><span class="n">thinking_level</span><span class="si">}</span><span class="s2">' for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">. Supported efforts: </span><span class="si">{</span><span class="n">supported_efforts</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-6-42" name="__codelineno-6-42" href="#__codelineno-6-42"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> does not support reasoning via OpenRouter API."</span><span class="p">)</span>
+<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a>
+<a id="__codelineno-6-44" name="__codelineno-6-44" href="#__codelineno-6-44"></a>    <span class="k">elif</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"OLLAMA"</span> <span class="ow">and</span> <span class="n">thinking_level</span><span class="p">:</span>
+<a id="__codelineno-6-45" name="__codelineno-6-45" href="#__codelineno-6-45"></a>        <span class="n">payload</span><span class="p">[</span><span class="s2">"think"</span><span class="p">]</span> <span class="o">=</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-6-46" name="__codelineno-6-46" href="#__codelineno-6-46"></a>        <span class="n">payload</span><span class="p">[</span><span class="s2">"reasoning_effort"</span><span class="p">]</span> <span class="o">=</span> <span class="n">thinking_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-6-47" name="__codelineno-6-47" href="#__codelineno-6-47"></a>        <span class="n">payload</span><span class="p">[</span><span class="s2">"temperature"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a id="__codelineno-6-48" name="__codelineno-6-48" href="#__codelineno-6-48"></a>
+<a id="__codelineno-6-49" name="__codelineno-6-49" href="#__codelineno-6-49"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-6-50" name="__codelineno-6-50" href="#__codelineno-6-50"></a>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>
+<a id="__codelineno-6-51" name="__codelineno-6-51" href="#__codelineno-6-51"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-6-52" name="__codelineno-6-52" href="#__codelineno-6-52"></a>            <span class="n">response_json</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<a id="__codelineno-6-53" name="__codelineno-6-53" href="#__codelineno-6-53"></a>        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">):</span>
+<a id="__codelineno-6-54" name="__codelineno-6-54" href="#__codelineno-6-54"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\033</span><span class="s2">[93mWarning: Provider returned invalid JSON. Status Code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">, Response Text: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m"</span><span class="p">)</span>
+<a id="__codelineno-6-55" name="__codelineno-6-55" href="#__codelineno-6-55"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Provider returned invalid JSON. Status Code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">, Response Text: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-6-56" name="__codelineno-6-56" href="#__codelineno-6-56"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Provider returned invalid JSON. Status Code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+<a id="__codelineno-6-57" name="__codelineno-6-57" href="#__codelineno-6-57"></a>        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+<a id="__codelineno-6-58" name="__codelineno-6-58" href="#__codelineno-6-58"></a>
+<a id="__codelineno-6-59" name="__codelineno-6-59" href="#__codelineno-6-59"></a>        <span class="k">if</span> <span class="s2">"choices"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">response_json</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">response_json</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">]:</span>
+<a id="__codelineno-6-60" name="__codelineno-6-60" href="#__codelineno-6-60"></a>            <span class="n">error_detail</span> <span class="o">=</span> <span class="n">response_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="n">response_json</span><span class="p">)</span>
+<a id="__codelineno-6-61" name="__codelineno-6-61" href="#__codelineno-6-61"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"API returned 200 but no 'choices' in response: </span><span class="si">{</span><span class="n">error_detail</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-6-62" name="__codelineno-6-62" href="#__codelineno-6-62"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"API response missing 'choices' key. Response: </span><span class="si">{</span><span class="n">error_detail</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-6-63" name="__codelineno-6-63" href="#__codelineno-6-63"></a>
+<a id="__codelineno-6-64" name="__codelineno-6-64" href="#__codelineno-6-64"></a>        <span class="k">return</span> <span class="n">response_json</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"content"</span><span class="p">]</span>
+<a id="__codelineno-6-65" name="__codelineno-6-65" href="#__codelineno-6-65"></a>    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-66" name="__codelineno-6-66" href="#__codelineno-6-66"></a>        <span class="n">error_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"HTTP error occurred: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-6-67" name="__codelineno-6-67" href="#__codelineno-6-67"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-6-68" name="__codelineno-6-68" href="#__codelineno-6-68"></a>            <span class="n">error_details</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="s2">"No additional details"</span><span class="p">)</span>
+<a id="__codelineno-6-69" name="__codelineno-6-69" href="#__codelineno-6-69"></a>            <span class="n">error_message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" (Details: </span><span class="si">{</span><span class="n">error_details</span><span class="si">}</span><span class="s2">)"</span>
+<a id="__codelineno-6-70" name="__codelineno-6-70" href="#__codelineno-6-70"></a>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<a id="__codelineno-6-71" name="__codelineno-6-71" href="#__codelineno-6-71"></a>            <span class="k">pass</span>
+<a id="__codelineno-6-72" name="__codelineno-6-72" href="#__codelineno-6-72"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<a id="__codelineno-6-73" name="__codelineno-6-73" href="#__codelineno-6-73"></a>    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-74" name="__codelineno-6-74" href="#__codelineno-6-74"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to connect to </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2"> API. Check your network connection."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<a id="__codelineno-6-75" name="__codelineno-6-75" href="#__codelineno-6-75"></a>    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Timeout</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-76" name="__codelineno-6-76" href="#__codelineno-6-76"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Request to </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2"> API timed out."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<a id="__codelineno-6-77" name="__codelineno-6-77" href="#__codelineno-6-77"></a>    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-78" name="__codelineno-6-78" href="#__codelineno-6-78"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"An error occurred while making the request to </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<a id="__codelineno-6-79" name="__codelineno-6-79" href="#__codelineno-6-79"></a>    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-80" name="__codelineno-6-80" href="#__codelineno-6-80"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse response as JSON from </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">. The server might have returned an invalid response."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 </code></pre></div></p>
-<p><code>_call_llm_provider</code> serves as the generic HTTP client wrapper for non-Gemini providers. It applies dual-timeout settings (10 seconds for initial connection, 300 seconds for read timeout) to accommodate extended generation times for large prompts. It handles provider-specific reasoning flags: OpenRouter uses <code>{"reasoning": {"effort": ...}}</code>, while Ollama uses both <code>think</code> and <code>reasoning_effort</code> payload fields to ensure compatibility across Ollama engine versions.</p>
+<p>This function implements a generic REST integration for OpenAI-compatible LLM endpoints. It maps provider-specific reasoning flags (e.g., verifying <code>supported_efforts</code> via OpenRouter metadata or attaching <code>think</code> / <code>reasoning_effort</code> fields for Ollama) and automatically adjusts model temperature to <code>1.0</code> when reasoning effort is enabled. It configures a dual connection and read timeout (<code>timeout=(10, 300)</code>) to accommodate long generation runs and includes defensive JSON validation to catch upstream provider errors hidden within 200 OK responses.</p>
 <hr />
 <h3 id="_call_llm_gemini"><code>_call_llm_gemini()</code></h3>
 <p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>:
-Invokes the Google Gemini API using the official <code>google-genai</code> SDK (<code>genai.Client</code>). Automatically configures authentication via Vertex AI (<code>GEMINI_PROJECT_ID</code> and <code>GEMINI_LOCATION</code>) or Google AI Studio API key (<code>GEMINI_API_KEY</code>). Maps string-based thinking levels to numeric token budgets (<code>low</code> = 1024, <code>medium</code> = 4096, <code>high</code> = 8192) via <code>types.ThinkingConfig</code>. Filters candidate content parts to return only text segments while excluding thought signatures.</p>
+<p><strong>Description</strong>: Direct execution handler for the Google GenAI SDK (<code>google.genai</code>). Supports both Vertex AI authentication (via <code>GEMINI_PROJECT_ID</code> and <code>GEMINI_LOCATION</code>) and standalone Google Developer API keys (via <code>GEMINI_API_KEY</code>). Formats reasoning configurations by translating string levels into explicit token budgets (<code>low</code>: 1024, <code>medium</code>: 4096, <code>high</code>: 8192), filters non-text thought signatures from output candidate parts, and returns pure text output.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): Input prompt text.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning budget level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>). Defaults to <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): User prompt text to execute against Gemini.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning budget intensity (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>). Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: Joined text content extracted from candidate parts. Returns <code>""</code> if no candidate or text parts exist.</p>
+* <code>str</code>: The combined text generated by the model candidates, or an empty string if no content parts are returned.</p>
 <p><strong>Raises</strong>:
-* <code>ValueError</code>: If neither <code>GEMINI_PROJECT_ID</code> nor <code>GEMINI_API_KEY</code> are found in the environment.
-* <code>Exception</code>: Propagates any API execution errors originating from <code>client.models.generate_content</code>.</p>
-<p><strong>Example</strong>:
+* <code>ValueError</code>: If neither <code>GEMINI_PROJECT_ID</code> nor <code>GEMINI_API_KEY</code> are found in the environment.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_gemini</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_PROJECT_ID"</span><span class="p">):</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        <span class="n">client</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">vertexai</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_PROJECT_ID"</span><span class="p">),</span> <span class="n">location</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_LOCATION"</span><span class="p">,</span> <span class="s2">"us-central1"</span><span class="p">))</span>
@@ -1346,23 +1354,22 @@ Invokes the Google Gemini API using the official <code>google-genai</code> SDK (
 <a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>        <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text_parts</span><span class="p">)</span>
 <a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>    <span class="k">return</span> <span class="s2">""</span>
 </code></pre></div></p>
-<p><code>_call_llm_gemini</code> encapsulates the Google GenAI SDK interface. When reasoning is requested, it translates the symbolic level (<code>low</code>, <code>medium</code>, <code>high</code>) into concrete token budgets (<code>types.ThinkingConfig</code>), enabling fine-grained control over model reasoning depth. It safely extracts text parts from <code>response.candidates[0].content.parts</code>, preventing non-text components (such as thought signatures) from corrupting downstream Markdown artifact generation.</p>
+<p>The function instantiates the official <code>genai.Client</code>, choosing Vertex AI mode when <code>GEMINI_PROJECT_ID</code> is set and API Key mode otherwise. When <code>thinking_level</code> is provided, it configures <code>types.ThinkingConfig</code> with explicit token budgets to ensure compatibility with models such as <code>gemini-3.7-flash</code>. To prevent downstream logging warnings regarding non-text internal parts (such as <code>thought_signature</code>), it iterates over <code>response.candidates[0].content.parts</code> to filter and join only valid text segments.</p>
 <hr />
 <h3 id="call_llm"><code>call_llm()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>:
-The primary interface for dispatching LLM queries in the system. Coordinates prompt token counting via <code>count_tokens</code> from <a href="../token_utils/">token_utils</a>, executes cache lookups, routes requests to either <code>_call_llm_gemini</code> or <code>_call_llm_provider</code>, tracks execution latency, logs diagnostic details, and updates the cache upon successful completion.</p>
+<p><strong>Description</strong>: The primary public entry point for dispatching prompts to LLMs throughout the application. Handles token counting via <code>count_tokens</code>, logs prompt metadata and payload details, coordinates local disk cache hits and misses, measures round-trip inference latency, routes requests to <code>_call_llm_gemini</code> or <code>_call_llm_provider</code>, and stores newly generated responses in the cache.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): The input text or serialized prompt context to send to the language model.
-* <code>use_cache</code> (<code>bool</code>, optional): Whether to inspect and update the local JSON cache. Defaults to <code>True</code>.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Target reasoning intensity (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, or <code>None</code>). Defaults to <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): The complete prompt string to submit to the model.
+* <code>use_cache</code> (<code>bool</code>, optional): Whether to check and update the local JSON cache. Defaults to <code>True</code>.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Desired reasoning level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>), or <code>None</code> for standard generation. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: Model text response output.</p>
+* <code>str</code>: The textual response generated by the LLM (or retrieved from cache).</p>
 <p><strong>Raises</strong>:
-* <code>ValueError</code>: If provider credentials or required configurations are missing.
-* <code>Exception</code>: If upstream API calls fail or return malformed outputs.</p>
-<p><strong>Example</strong>:
+* <code>ValueError</code>: If provider resolution fails or if underlying provider calls fail.
+* <code>Exception</code>: Any network or provider-level errors encountered during an uncached invocation.</p>
+<p><strong>Implementation &amp; Usage</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_llm</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
@@ -1411,10 +1418,7 @@ The primary interface for dispatching LLM queries in the system. Coordinates pro
 <a id="__codelineno-8-46" name="__codelineno-8-46" href="#__codelineno-8-46"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"LLM CALL END | result=success | elapsed=</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
 <a id="__codelineno-8-47" name="__codelineno-8-47" href="#__codelineno-8-47"></a>    <span class="k">return</span> <span class="n">response_text</span>
 </code></pre></div></p>
-<p><code>call_llm</code> serves as the centralized entry point used across processing nodes in <a href="../../nodes/">nodes</a>. It measures prompt token counts using <a href="../token_utils/">token_utils</a> and logs structured telemetry before and after execution. When <code>use_cache=True</code> is passed, exact prompt hits avoid network roundtrips entirely, returning the cached completion and reducing run times during pipeline testing and development.</p>
-<hr />
-<h2 id="direct-module-execution">Direct Module Execution</h2>
-<p>When executed directly (<code>python -m utils.call_llm</code>), the module executes a self-test invocation against the configured backend with cache lookup disabled:</p>
+<p><strong>Example from Module Self-Test</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">test_prompt</span> <span class="o">=</span> <span class="s2">"Hello, how are you?"</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
@@ -1422,14 +1426,16 @@ The primary interface for dispatching LLM queries in the system. Coordinates pro
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"Making call..."</span><span class="p">)</span>
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">response1</span> <span class="o">=</span> <span class="n">call_llm</span><span class="p">(</span><span class="n">test_prompt</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Response: </span><span class="si">{</span><span class="n">response1</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</code></pre></div>
+</code></pre></div></p>
+<p><code>call_llm</code> serves as the single orchestrator for all generation tasks across the framework. It ensures consistent token counting via <a href="../token_utils/">utils.token_utils</a>, audit logging to the run log configured in <code>configure_logging</code>, latency metrics, and atomic cache operations.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../token_utils/">token_utils</a> — Used for calculating input token counts prior to LLM submission.</li>
-<li><a href="../prompts/">prompts</a> — Provides prompt templates passed into <code>call_llm()</code>.</li>
-<li><a href="../../nodes/">nodes</a> — Orchestrates documentation tasks that invoke <code>call_llm()</code>.</li>
-<li><a href="../../main/">main</a> — Initializes global logging parameters via <code>configure_logging()</code>.</li>
+<li><a href="../../flow/">flow</a>: Orchestrates the graph execution flow utilizing <code>call_llm</code> across workflow nodes.</li>
+<li><a href="../../nodes/">nodes</a>: Contains pipeline node implementations that format prompts and invoke <code>call_llm</code>.</li>
+<li><a href="../../main/">main</a>: Entry point script responsible for initializing file logging via <code>configure_logging()</code>.</li>
+<li><a href="../token_utils/">utils.token_utils</a>: Provides <code>count_tokens</code> for accurate token estimation before sending prompts to <code>call_llm</code>.</li>
+<li><a href="../prompts/">utils.prompts</a>: Centralized repository of prompt templates rendered and submitted to <code>call_llm</code>.</li>
 </ul>
 
 
@@ -1483,7 +1489,7 @@ The primary interface for dispatching LLM queries in the system. Coordinates pro
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
