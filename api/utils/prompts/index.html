@@ -383,34 +383,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../__init__/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    utils.__init__
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../call_llm/" class="md-nav__link">
         
   
@@ -792,19 +764,18 @@
 <p>Centralizing programmatic prompt assembly into dedicated factory functions decouples prompt wording and formatting constraints from node logic (such as <code>DeterministicFileMapper</code> or subsequent chapter summarization steps in <a href="nodes.md">nodes</a>). This design ensures consistency in expected output formatting (such as requiring explicit YAML blocks for indices) and provides deterministic LLM steering across different documentation generation pipelines.</p>
 <h2 id="architectural-context">Architectural Context</h2>
 <p>The functions defined in <code>utils.prompts</code> are utilized at distinct phases in the generation workflow:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart TD
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    subgraph FileFiltering["File Filtering Stage (api-reference mode)"]
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        A[File Listing &amp; Project Metadata] --&gt; B[build_code_file_filter_prompt]
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        B --&gt; C[LLM Classification Call]
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        C --&gt; D[Parsed YAML Indices]
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    end
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    subgraph ChapterSummarization["Chapter Summary Generation Stage"]
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        E[Generated Chapter Content] --&gt; F[build_chapter_summary_prompt]
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        F --&gt; G[LLM Summarization Call]
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        G --&gt; H[Technical Brief for Next Chapter Context]
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    end
-</code></pre></div>
+<pre class="mermaid"><code>flowchart TD
+    subgraph FileFiltering["File Filtering Stage (api-reference mode)"]
+        A[File Listing &amp; Project Metadata] --&gt; B[build_code_file_filter_prompt]
+        B --&gt; C[LLM Classification Call]
+        C --&gt; D[Parsed YAML Indices]
+    end
+
+    subgraph ChapterSummarization["Chapter Summary Generation Stage"]
+        E[Generated Chapter Content] --&gt; F[build_chapter_summary_prompt]
+        F --&gt; G[LLM Summarization Call]
+        G --&gt; H[Technical Brief for Next Chapter Context]
+    end</code></pre>
 <hr />
 <h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="build_code_file_filter_prompt"><code>build_code_file_filter_prompt()</code></h3>
@@ -820,23 +791,23 @@ Constructs an instruction prompt used primarily by <code>DeterministicFileMapper
 <p><strong>Raises</strong>:
 * No explicit exceptions are raised by this function.</p>
 <p><strong>Implementation</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_code_file_filter_prompt</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_listing</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for DeterministicFileMapper to filter non-code files.</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="sd">    Used in api-reference mode to identify which files are actual code modules</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    (APIs, functions, classes, business logic) vs. UI layouts, configs, assets.</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">    """</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="sa">f</span><span class="s2">"For the project `</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2">`, here is the list of all files in the codebase:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file_listing</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="sa">f</span><span class="s2">"Your task is to identify WHICH of these files are ACTUAL CODE files that contain "</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="sa">f</span><span class="s2">"APIs, functions, classes, or core business logic.</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="sa">f</span><span class="s2">"EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files "</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="sa">f</span><span class="s2">"(like .xml, .json, .manifest, .ini), static assets, build scripts "</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="sa">f</span><span class="s2">"(like .csproj, .sln), and documentation.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="sa">f</span><span class="s2">"Return ONLY a YAML list of the file indices that should be documented as code modules.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_code_file_filter_prompt</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_listing</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for DeterministicFileMapper to filter non-code files.</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="sd">    Used in api-reference mode to identify which files are actual code modules</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">    (APIs, functions, classes, business logic) vs. UI layouts, configs, assets.</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="sd">    """</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="sa">f</span><span class="s2">"For the project `</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2">`, here is the list of all files in the codebase:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file_listing</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="sa">f</span><span class="s2">"Your task is to identify WHICH of these files are ACTUAL CODE files that contain "</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="sa">f</span><span class="s2">"APIs, functions, classes, or core business logic.</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="sa">f</span><span class="s2">"EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files "</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="sa">f</span><span class="s2">"(like .xml, .json, .manifest, .ini), static assets, build scripts "</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="sa">f</span><span class="s2">"(like .csproj, .sln), and documentation.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="sa">f</span><span class="s2">"Return ONLY a YAML list of the file indices that should be documented as code modules.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="p">)</span>
 </code></pre></div></p>
 <p>The string interpolation injects <code>project_name</code> and <code>file_listing</code> into a pre-structured template. The prompt enforces negative constraints by explicitly enumerating non-code extensions and categories (such as <code>.xaml</code>, <code>.storyboard</code>, <code>.html</code>, <code>.xml</code>, <code>.json</code>, <code>.manifest</code>, <code>.ini</code>, <code>.csproj</code>, and <code>.sln</code>). It also enforces structural constraint compliance by mandating a markdown YAML block (<code>```yaml\n- 0\n...</code>) containing strictly integer file indices, which allows downstream nodes to parse the response deterministically.</p>
 <hr />
@@ -861,42 +832,42 @@ Constructs a prompt that requests a structured technical summary of a newly gene
 <p><strong>Raises</strong>:
 * No explicit exceptions are raised by this function.</p>
 <p><strong>Implementation</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_chapter_summary_prompt</span><span class="p">(</span><span class="n">chapter_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">abstraction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>                                  <span class="n">chapter_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"english"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="sd">"""Build the prompt for generating a technical summary of a written chapter.</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="sd">    Used after each chapter is generated to create a concise technical summary</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="sd">    for cross-chapter context. The summary is fed into subsequent chapters'</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="sd">    prompts so the LLM maintains coherence across the full document.</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="sd">    The summary captures 4 technical dimensions with 3-5 sentences each:</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="sd">    1. Component scope &amp; responsibility</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="sd">    2. Key classes/services/functions and their roles  </span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="sd">    3. Implementation patterns &amp; architectural decisions</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="sd">    4. Inter-component interfaces &amp; dependencies</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="sd">    """</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="p">(</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="p">)</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>    <span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_chapter_summary_prompt</span><span class="p">(</span><span class="n">chapter_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">abstraction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>                                  <span class="n">chapter_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"english"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="sd">"""Build the prompt for generating a technical summary of a written chapter.</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    Used after each chapter is generated to create a concise technical summary</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">    for cross-chapter context. The summary is fed into subsequent chapters'</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">    prompts so the LLM maintains coherence across the full document.</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">    The summary captures 4 technical dimensions with 3-5 sentences each:</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">    1. Component scope &amp; responsibility</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    2. Key classes/services/functions and their roles  </span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    3. Implementation patterns &amp; architectural decisions</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    4. Inter-component interfaces &amp; dependencies</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    """</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="p">)</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>    <span class="p">)</span>
 </code></pre></div></p>
 <p>The function conditionally builds <code>lang_instruction</code> by checking <code>language.lower() != "english"</code>. When non-English output is requested, an explicit command prefix (<code>Write the entire summary in {language.capitalize()}.</code>) is added at the beginning of the prompt. The remainder of the prompt defines the technical rubrics followed by a markdown separator, the chapter header (<code>Chapter {chapter_num}: {abstraction_name}</code>), and the raw <code>chapter_content</code>.</p>
 <hr />
