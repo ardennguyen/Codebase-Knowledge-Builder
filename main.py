@@ -312,7 +312,7 @@ def main():
 
     from utils.call_llm import configure_logging, get_model_context_length
 
-    context_length = args.max_tokens if args.max_tokens else get_model_context_length(endpoint_url, model_name, api_key)
+    context_length = args.max_tokens or get_model_context_length(endpoint_url, model_name, api_key)
 
     # Derive project name for logging (before flow runs, which may override shared["project_name"])
     if args.name:
@@ -334,7 +334,7 @@ def main():
     print(f"AI Endpoint    : {endpoint_url}")
     print(f"AI Model       : {model_name}")
     print(f"Context Length : {context_length:,} tokens")
-    print(f"Thinking Level : {args.thinking_level if args.thinking_level else 'None'}")
+    print(f"Thinking Level : {args.thinking_level or 'None'}")
     print(f"Batch Size     : {args.batch} files/batch")
     print(f"Force Batch    : {'Enabled' if args.force_batch else 'Disabled'}")
     print(f"Output Mode    : {doc_mode}")

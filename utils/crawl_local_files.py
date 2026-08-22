@@ -48,7 +48,7 @@ def crawl_local_files(
     gitignore_spec = None
     if os.path.exists(gitignore_path):
         try:
-            with open(gitignore_path, "r", encoding="utf-8-sig") as f:
+            with open(gitignore_path, encoding="utf-8-sig") as f:
                 gitignore_patterns = f.readlines()
             gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", gitignore_patterns)
             print(f"Loaded .gitignore patterns from {gitignore_path}")
@@ -67,7 +67,7 @@ def crawl_local_files(
                 reason = "excluded (.gitignore)"
             elif exclude_patterns:
                 for pattern in exclude_patterns:
-                    dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
+                    dir_pattern = pattern.removesuffix("/*")
                     if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
                         reason = "excluded"
                         break
@@ -131,7 +131,7 @@ def crawl_local_files(
 
             # Try to read as text
             try:
-                with open(filepath, "r", encoding="utf-8-sig") as f:
+                with open(filepath, encoding="utf-8-sig") as f:
                     content = f.read()
                 files_dict[relpath] = content
                 count_processed += 1

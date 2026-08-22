@@ -34,7 +34,7 @@ def load_prompt_template(template_name, advanced_mode=False, mode=None):
         prompt_dir = mode
 
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, f"{template_name}.md")
-    with open(path, "r", encoding="utf-8-sig") as f:
+    with open(path, encoding="utf-8-sig") as f:
         return f.read()
 
 
@@ -106,7 +106,7 @@ class DeterministicFileMapper(Node):
         modules = []
         chapter_order = []
 
-        for idx, (file_path, content) in enumerate(files):
+        for idx, (file_path, _content) in enumerate(files):
             if idx not in valid_indices:
                 print(f"  - Skipping non-code file: {file_path}")
                 continue
@@ -142,7 +142,7 @@ class ContextRouter(Node):
         for subdir in ["tutorial", "advanced"]:
             template_path = os.path.join(prompt_dir, subdir, "map_abstractions.md")
             if os.path.exists(template_path):
-                with open(template_path, "r", encoding="utf-8-sig") as f:
+                with open(template_path, encoding="utf-8-sig") as f:
                     t = count_tokens(f.read())
                 max_template_tokens = max(max_template_tokens, t)
 
@@ -256,9 +256,9 @@ class ContextRouter(Node):
             C_GREEN = "\033[92m"
             C_RESET = "\033[0m"
             for idx, batch in enumerate(batches):
-                content_tokens = sum(file_token_map[i] for i, p, c in batch)
+                content_tokens = sum(file_token_map[i] for i, p, _c in batch)
                 print(f"\033[93m  [Debug] Batch {idx}: {len(batch)} files, ~{content_tokens:,} content tokens (limit: {effective_limit:,})\033[0m")
-                for i, p, c in batch:
+                for i, p, _c in batch:
                     print(f"{C_GREEN}    - [{i}] {p}{C_RESET}")
 
         # Store directory tree for later use
@@ -290,8 +290,7 @@ class ContextRouter(Node):
         lines = []
         for dirname in sorted(dir_files.keys()):
             lines.append(f"{dirname}/")
-            for fname in sorted(dir_files[dirname]):
-                lines.append(f"  {fname}")
+            lines.extend(f"  {fname}" for fname in sorted(dir_files[dirname]))
         return "\n".join(lines)
 
 
@@ -367,7 +366,7 @@ class MapAbstractions(BatchNode):
                             validated_indices.append(int(nums[0]))
                     if validated_indices:
                         validated_abstractions.append(
-                            {"name": obj["name"], "description": obj["description"], "files": sorted(list(set(validated_indices)))}
+                            {"name": obj["name"], "description": obj["description"], "files": sorted(set(validated_indices))}
                         )
         return validated_abstractions
 
@@ -433,7 +432,7 @@ class ReduceAbstractions(Node):
                             validated_indices.append(int(nums[0]))
                     if validated_indices:
                         validated_abstractions.append(
-                            {"name": obj["name"], "description": obj["description"], "files": sorted(list(set(validated_indices)))}
+                            {"name": obj["name"], "description": obj["description"], "files": sorted(set(validated_indices))}
                         )
         return validated_abstractions
 
@@ -639,9 +638,7 @@ class IdentifyAbstractions(Node):
                             if len(parts) == 2:
                                 start_idx = int(re.findall(r"\d+", parts[0])[0])
                                 end_idx = int(re.findall(r"\d+", parts[1])[0])
-                                for idx in range(start_idx, end_idx + 1):
-                                    if 0 <= idx < total_files_count:
-                                        validated_indices.append(idx)
+                                validated_indices.extend(idx for idx in range(start_idx, end_idx + 1) if 0 <= idx < total_files_count)
                                 continue
                         # Find integers in the string
                         nums = re.findall(r"\d+", idx_str)
@@ -653,7 +650,7 @@ class IdentifyAbstractions(Node):
                         print(f"\033[93mWarning: Could not parse index from entry: {idx_entry} in item {item['name']}\033[0m")
                         continue
 
-                item["files"] = sorted(list(set(validated_indices)))
+                item["files"] = sorted(set(validated_indices))
                 # Store only the required fields
                 validated_abstractions.append(
                     {
@@ -734,7 +731,7 @@ class AnalyzeRelationships(Node):
         # Track what each abstraction selected and what's left over
         abstr_results = []  # list of (included_files, remaining_files, unused_budget)
 
-        for i, sized in enumerate(abstr_file_data):
+        for _i, sized in enumerate(abstr_file_data):
             budget = per_abstr_budget
             included_files = []
             remaining_files = []
@@ -1096,7 +1093,7 @@ class WriteChapters(BatchNode):
                 # Generate relative chapter listing for correct Markdown linking
                 current_filename = chapter_filenames[abstraction_index]["filename"]
                 relative_chapters = []
-                for abs_idx, ch_data in chapter_filenames.items():
+                for ch_data in chapter_filenames.values():
                     target_filename = ch_data["filename"]
                     from_dir = os.path.dirname(current_filename)
                     if not from_dir:
@@ -1176,7 +1173,7 @@ class WriteChapters(BatchNode):
                 manifest_path = os.path.join(output_dir, project_name, ".doc_cache_manifest.json")
                 if os.path.exists(manifest_path):
                     try:
-                        with open(manifest_path, "r", encoding="utf-8") as f:
+                        with open(manifest_path, encoding="utf-8") as f:
                             manifest = json.load(f)
                         if manifest.get(abstraction_name) == current_hash:
                             # Cache hit! Read existing file
@@ -1187,7 +1184,7 @@ class WriteChapters(BatchNode):
                             )
                             if os.path.exists(file_path):
                                 print(f"Incremental Cache Hit: Skipping LLM for {abstraction_name}")
-                                with open(file_path, "r", encoding="utf-8") as f:
+                                with open(file_path, encoding="utf-8") as f:
                                     cached_content = f.read()
 
                                 # If it's mkdocs, strip the frontmatter before adding to chapters_written_so_far
@@ -1263,8 +1260,8 @@ class WriteChapters(BatchNode):
                 structure_note=structure_note,
                 full_chapter_listing=item["full_chapter_listing"],
                 prev_summary_note=prev_summary_note,
-                previous_chapters_summary=previous_chapters_summary if previous_chapters_summary else "This is the first chapter.",
-                file_context_str=file_context_str if file_context_str else "No specific code snippets provided for this abstraction.",
+                previous_chapters_summary=previous_chapters_summary or "This is the first chapter.",
+                file_context_str=file_context_str or "No specific code snippets provided for this abstraction.",
                 language=language.capitalize(),
                 instruction_lang_note=instruction_lang_note,
                 link_lang_note=link_lang_note,
@@ -1337,7 +1334,7 @@ class WriteChapters(BatchNode):
             manifest = {}
             if os.path.exists(manifest_path):
                 try:
-                    with open(manifest_path, "r", encoding="utf-8") as f:
+                    with open(manifest_path, encoding="utf-8") as f:
                         manifest = json.load(f)
                 except Exception:
                     pass
@@ -1533,49 +1530,48 @@ class CombineTutorial(Node):
                 "project_name": project_name,
                 "doc_mode": shared.get("doc_mode", "tutorial"),
             }
+        # Traditional tutorial mode
+        index_content = f"# {ui['tutorial']}: {project_name}\n\n"
+        index_content += f"{relationships_data['summary']}\n\n"
+        if repo_url:
+            index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
         else:
-            # Traditional tutorial mode
-            index_content = f"# {ui['tutorial']}: {project_name}\n\n"
-            index_content += f"{relationships_data['summary']}\n\n"
-            if repo_url:
-                index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
+            local_dir = shared.get("local_dir", "")
+            if local_dir:
+                index_content += f"**{ui['source_repo']}:** `{local_dir}`\n\n"
+
+        index_content += "```mermaid\n"
+        index_content += mermaid_diagram + "\n"
+        index_content += "```\n\n"
+        index_content += f"## {ui['chapters']}\n\n"
+
+        chapter_files = []
+        for i, abstraction_index in enumerate(chapter_order):
+            if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
+                abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
+                safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
+                filename = f"{i + 1:02d}_{safe_name}.md"
+                index_content += f"{i + 1}. [{abstraction_name}]({filename})\n"
+
+                chapter_content = chapters_content[i]
+                if not chapter_content.endswith("\n\n"):
+                    chapter_content += "\n\n"
+                chapter_files.append({"filename": filename, "content": chapter_content})
             else:
-                local_dir = shared.get("local_dir", "")
-                if local_dir:
-                    index_content += f"**{ui['source_repo']}:** `{local_dir}`\n\n"
+                print(
+                    f"Warning: Mismatch between chapter order, abstractions, or content at index {i} (abstraction index {abstraction_index}). Skipping file generation for this entry."
+                )
 
-            index_content += "```mermaid\n"
-            index_content += mermaid_diagram + "\n"
-            index_content += "```\n\n"
-            index_content += f"## {ui['chapters']}\n\n"
+        index_content += f"\n---\n\n**{ui['full_content']}:** [full_content.md](full_content.md)\n"
 
-            chapter_files = []
-            for i, abstraction_index in enumerate(chapter_order):
-                if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
-                    abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
-                    safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
-                    filename = f"{i + 1:02d}_{safe_name}.md"
-                    index_content += f"{i + 1}. [{abstraction_name}]({filename})\n"
-
-                    chapter_content = chapters_content[i]
-                    if not chapter_content.endswith("\n\n"):
-                        chapter_content += "\n\n"
-                    chapter_files.append({"filename": filename, "content": chapter_content})
-                else:
-                    print(
-                        f"Warning: Mismatch between chapter order, abstractions, or content at index {i} (abstraction index {abstraction_index}). Skipping file generation for this entry."
-                    )
-
-            index_content += f"\n---\n\n**{ui['full_content']}:** [full_content.md](full_content.md)\n"
-
-            return {
-                "output_path": output_path,
-                "output_base_dir": output_base_dir,
-                "is_mkdocs": False,
-                "index_content": index_content,
-                "chapter_files": chapter_files,
-                "ui": ui,
-            }
+        return {
+            "output_path": output_path,
+            "output_base_dir": output_base_dir,
+            "is_mkdocs": False,
+            "index_content": index_content,
+            "chapter_files": chapter_files,
+            "ui": ui,
+        }
 
     def exec(self, prep_res):
         try:

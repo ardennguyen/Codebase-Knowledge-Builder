@@ -57,9 +57,9 @@ cache_file = "llm_cache.json"
 
 def load_cache():
     try:
-        with open(cache_file, "r") as f:
+        with open(cache_file) as f:
             return json.load(f)
-    except:
+    except Exception:
         logger.warning("Failed to load cache.")
     return {}
 
@@ -68,7 +68,7 @@ def save_cache(cache):
     try:
         with open(cache_file, "w") as f:
             json.dump(cache, f)
-    except:
+    except Exception:
         logger.warning("Failed to save cache")
 
 
@@ -212,7 +212,7 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
         try:
             error_details = response.json().get("error", "No additional details")
             error_message += f" (Details: {error_details})"
-        except:
+        except Exception:
             pass
         raise Exception(error_message) from e
     except requests.exceptions.ConnectionError as e:

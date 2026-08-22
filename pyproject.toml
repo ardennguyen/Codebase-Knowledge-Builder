@@ -31,13 +31,16 @@ select = [
     "B",     # flake8-bugbear (common bug patterns)
     "SIM",   # flake8-simplify (simplifiable code)
     "RUF",   # Ruff-specific rules
+    "C4",    # flake8-comprehensions (unnecessary list/dict wrapping)
+    "PERF",  # Perflint (performance anti-patterns)
+    "FURB",  # refurb (modern Python idioms)
+    "RET",   # flake8-return (consistent return patterns)
 ]
 ignore = [
-    "E501",   # line too long — handled by line-length setting above
-    "E722",   # bare except — used intentionally in some LLM error handling
-    "B007",   # unused loop variable — common in batch processing
-    "SIM108", # ternary operator — readability preference
-    "UP015",  # redundant open mode — explicit is fine
+    "E501",    # line too long — handled by line-length setting above
+    "SIM108",  # ternary operator — readability preference
+    "PERF203", # try-except-in-loop — intentional per-item error handling
+    "RET504",  # unnecessary assignment before return — readability preference
 ]
 
 [tool.ruff.lint.isort]

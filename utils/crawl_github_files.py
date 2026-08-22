@@ -107,7 +107,7 @@ def crawl_github_files(
             gitignore_spec = None
             if os.path.exists(gitignore_path):
                 try:
-                    with open(gitignore_path, "r", encoding="utf-8-sig") as f:
+                    with open(gitignore_path, encoding="utf-8-sig") as f:
                         gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", f.readlines())
                     print("Loaded .gitignore patterns from repository.")
                 except Exception:
@@ -123,7 +123,7 @@ def crawl_github_files(
                         reason = "excluded (.gitignore)"
                     elif exclude_patterns:
                         for pattern in exclude_patterns:
-                            dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
+                            dir_pattern = pattern.removesuffix("/*")
                             if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
                                 reason = "excluded"
                                 break
@@ -167,7 +167,7 @@ def crawl_github_files(
 
                     # Read content
                     try:
-                        with open(abs_path, "r", encoding="utf-8-sig") as f:
+                        with open(abs_path, encoding="utf-8-sig") as f:
                             content = f.read()
                         files[rel_path] = content
                         count_processed += 1
@@ -273,11 +273,11 @@ def crawl_github_files(
             return "/".join(path_parts[i:])
 
         branches = fetch_branches(owner, repo)
-        branch_names = map(lambda branch: branch.get("name"), branches)
+        branch_names = (branch.get("name") for branch in branches)
 
         # Fetching branches is not successfully
         if len(branches) == 0:
-            return
+            return None
 
         # To check branch name
         relevant_path = join_parts(3)
@@ -294,7 +294,7 @@ def crawl_github_files(
         # If it is neither a tree nor a branch name
         if ref is None:
             print("The given path does not match with any branch and any tree in the repository.\nPlease verify the path is exists.")
-            return
+            return None
 
         # Combine all parts after the ref as the path
         part_index = 5 if "/" in ref else 4
@@ -367,11 +367,11 @@ def crawl_github_files(
                     f"Error 404: Path '{path}' not found in repository or insufficient permissions with the provided token.\n"
                     f"Please verify the token has access to this repository and the path exists."
                 )
-            return
+            return None
 
         if response.status_code != 200:
             print(f"Error fetching {path}: {response.status_code} - {response.text}")
-            return
+            return None
 
         contents = response.json()
 
@@ -473,7 +473,7 @@ def crawl_github_files(
                 if not dir_excluded and exclude_patterns:
                     dir_name = item["name"]  # basename of the directory
                     for pattern in exclude_patterns:
-                        dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
+                        dir_pattern = pattern.removesuffix("/*")
                         if (
                             fnmatch.fnmatch(item_path, dir_pattern)
                             or fnmatch.fnmatch(rel_path, dir_pattern)
@@ -491,6 +491,8 @@ def crawl_github_files(
 
                 # Only recurse if directory is not excluded
                 fetch_contents(item_path)
+
+        return None
 
     # Start crawling from the specified path
     fetch_contents(specific_path)
