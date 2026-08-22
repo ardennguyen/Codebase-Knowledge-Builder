@@ -383,6 +383,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../__init__/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils.__init__
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../call_llm/" class="md-nav__link">
         
   
@@ -510,6 +538,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#control-flow-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control Flow Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#module-level-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -530,10 +569,71 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="crawl_local_files()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Implementation:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#directory-pruning-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory Pruning Logic:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-processing-and-reading-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Processing and Reading Logic:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reporting-and-output-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reporting and Output Summary:
+      
+    </span>
+  </a>
+  
 </li>
         
       </ul>
     </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-entrypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Entrypoint
+      
+    </span>
+  </a>
   
 </li>
       
@@ -658,6 +758,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#control-flow-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control Flow Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#module-level-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -678,10 +789,71 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="crawl_local_files()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Implementation:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#directory-pruning-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory Pruning Logic:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-processing-and-reading-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Processing and Reading Logic:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reporting-and-output-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reporting and Output Summary:
+      
+    </span>
+  </a>
+  
 </li>
         
       </ul>
     </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-entrypoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Entrypoint
+      
+    </span>
+  </a>
   
 </li>
       
@@ -714,57 +886,73 @@
 
 
 <h1 id="utilscrawl_local_files">utils.crawl_local_files</h1>
-<p><strong>File Path:</strong> <code>utils/crawl_local_files.py</code></p>
+<p>Original File Path: <code>utils/crawl_local_files.py</code></p>
+<p>This module is the local filesystem counterpart to <a href="../crawl_github_files/">utils.crawl_github_files</a>. It extracts, filters, and loads text file contents from a local directory tree into an in-memory dictionary.</p>
+<hr />
 <h2 id="technical-overview">Technical Overview</h2>
-<p>The <code>utils.crawl_local_files</code> module provides local filesystem traversal and content extraction capabilities for the <code>Codebase-Knowledge-Builder</code> system. It serves as an alternative to <a href="../crawl_github_files/">utils.crawl_github_files</a>, exposing a compatible return interface (<code>{"files": {filepath: content}}</code>) when operating directly against a local workspace or repository instead of fetching data via the GitHub REST API.</p>
-<p>The module performs a single-pass traversal using <code>os.walk</code>, incorporating:
-- Rule-based directory pruning to eliminate unnecessary branches early.
-- <code>.gitignore</code> compatibility using <code>pathspec.PathSpec</code> (<code>gitwildmatch</code> syntax).
-- User-supplied glob inclusion and exclusion matching via <code>fnmatch</code>.
-- Maximum file size thresholds to prevent loading large binaries or assets.
-- UTF-8 text decoding with fallback detection to skip non-text or binary files safely.
-- Real-time ANSI-colored logging and crawl metrics reporting.</p>
+<p>The primary responsibility of <code>utils.crawl_local_files</code> is to traverse a directory hierarchy on the local filesystem, evaluate files and directories against exclusion rules and ignore files, filter candidate items based on include patterns and byte size limits, and parse valid text files into memory.</p>
+<p>Key features and execution characteristics include:
+1. <strong><code>.gitignore</code> Integration</strong>: Automatically searches for a root <code>.gitignore</code> file within the specified directory and compiles its rules into a <code>pathspec.PathSpec</code> matcher using the <code>gitwildmatch</code> pattern grammar.
+2. <strong>Directory Pruning</strong>: Inspects subdirectories during traversal and removes excluded directories from <code>dirs</code> in-place within <code>os.walk</code>, preventing recursive traversal into ignored subtrees (such as <code>.venv</code>, <code>__pycache__</code>, or <code>.git</code>).
+3. <strong>Multi-Stage File Filtering</strong>: Filters individual files in a structured sequence: <code>.gitignore</code> matching, explicit <code>exclude_patterns</code>, positive matching against <code>include_patterns</code>, and maximum file size thresholds (<code>max_file_size</code>).
+4. <strong>Encoding &amp; Binary Safety</strong>: Reads files using <code>utf-8-sig</code> encoding (handling UTF-8 with or without Byte Order Mark) and traps <code>UnicodeDecodeError</code>, <code>ValueError</code>, and other I/O exceptions to skip non-text or binary files cleanly.
+5. <strong>Console Progress Telemetry</strong>: Outputs formatted ANSI-colored log lines for every evaluated path along with an aggregate execution summary upon completion.</p>
+<hr />
+<h2 id="control-flow-architecture">Control Flow Architecture</h2>
+<p>The following flowchart illustrates the traversal, filtering pipeline, and error handling stages executed inside <code>crawl_local_files</code>:</p>
 <pre class="mermaid"><code>flowchart TD
-    Start([Start Crawl]) --&gt; CheckDir{os.path.isdir?}
-    CheckDir -- No --&gt; RaiseErr[Raise ValueError]
-    CheckDir -- Yes --&gt; LoadGitignore[Load .gitignore if present]
+    Start([Start crawl_local_files]) --&gt; CheckDir{os.path.isdir?}
+    CheckDir -- No --&gt; RaiseValErr[Raise ValueError]
+    CheckDir -- Yes --&gt; InitState[Initialize Counters and State]
+    InitState --&gt; LoadGitignore[Load .gitignore via pathspec]
+    LoadGitignore --&gt; WalkDirs[os.walk Traversal]
 
-    LoadGitignore --&gt; WalkDirs[os.walk directory]
-
-    subgraph DirFiltering[Directory Level Filter]
-        WalkDirs --&gt; MatchGitignoreDir{Gitignore match?}
-        MatchGitignoreDir -- Yes --&gt; PruneDir[Add to excluded dirs]
-        MatchGitignoreDir -- No --&gt; MatchExcludeDir{Exclude pattern match?}
-        MatchExcludeDir -- Yes --&gt; PruneDir
-        MatchExcludeDir -- No --&gt; KeepDir[Keep directory in traversal]
+    subgraph DirFilter[Directory Pruning]
+        WalkDirs --&gt; EvalDirs[Inspect Subdirectories]
+        EvalDirs --&gt; MatchDirGitignore{Match .gitignore?}
+        MatchDirGitignore -- Yes --&gt; PruneDir[Add to excluded_dirs]
+        MatchDirGitignore -- No --&gt; MatchDirExclude{Match exclude_patterns?}
+        MatchDirExclude -- Yes --&gt; PruneDir
+        MatchDirExclude -- No --&gt; KeepDir[Keep Directory]
+        PruneDir --&gt; RemoveFromDirs[dirs.remove in-place]
+        KeepDir --&gt; RemoveFromDirs
     end
 
-    subgraph FileFiltering[File Level Filter]
-        KeepDir --&gt; CheckGitignoreFile{Gitignore match?}
-        CheckGitignoreFile -- Yes --&gt; SkipFile[Skip file]
-        CheckGitignoreFile -- No --&gt; CheckExcludeFile{Exclude pattern match?}
-        CheckExcludeFile -- Yes --&gt; SkipFile
-        CheckExcludeFile -- No --&gt; CheckIncludeFile{Include pattern set and no match?}
-        CheckIncludeFile -- Yes --&gt; SkipFile
-        CheckIncludeFile -- No --&gt; CheckSize{Size &gt; max_file_size?}
-        CheckSize -- Yes --&gt; SkipSize[Log Size Limit Skip]
-        CheckSize -- No --&gt; ReadContent[Read with utf-8-sig]
+    subgraph FileFilter[File Evaluation Pipeline]
+        RemoveFromDirs --&gt; EvalFiles[Iterate Sorted Files]
+        EvalFiles --&gt; CheckFileGitignore{Match .gitignore?}
+        CheckFileGitignore -- Yes --&gt; SkipFileGit[Log and Count Excluded]
+        CheckFileGitignore -- No --&gt; CheckExclude{Match exclude_patterns?}
+        CheckExclude -- Yes --&gt; SkipFileExc[Log and Count Excluded]
+        CheckExclude -- No --&gt; CheckInclude{Match include_patterns?}
+        CheckInclude -- No --&gt; SkipFileInc[Log and Count Excluded]
+        CheckInclude -- Yes --&gt; CheckSize{Size &gt; max_file_size?}
+        CheckSize -- Yes --&gt; SkipFileSize[Log and Record Size Limit]
+        CheckSize -- No --&gt; ReadText[Read file with utf-8-sig]
     end
 
-    ReadContent --&gt; TextCheck{Decode Success?}
-    TextCheck -- Yes --&gt; AddDict[Store in files_dict]
-    TextCheck -- No --&gt; SkipBin[Log Non-Text Skip]
+    ReadText --&gt; DecodeSuccess{Decoded as Text?}
+    DecodeSuccess -- Yes --&gt; StoreContent[files_dict relpath = content]
+    DecodeSuccess -- No --&gt; CatchErr[Log and Record Non-Text]
 
-    AddDict --&gt; Summary[Print Summary Report]
-    SkipFile --&gt; Summary
-    SkipSize --&gt; Summary
-    SkipBin --&gt; Summary
-    Summary --&gt; End([Return dict])</code></pre>
+    StoreContent --&gt; NextFile{More Files / Dirs?}
+    CatchErr --&gt; NextFile
+    SkipFileGit --&gt; NextFile
+    SkipFileExc --&gt; NextFile
+    SkipFileInc --&gt; NextFile
+    SkipFileSize --&gt; NextFile
+
+    NextFile -- Yes --&gt; WalkDirs
+    NextFile -- No --&gt; PrintSummary[Print ANSI Summary]
+    PrintSummary --&gt; ReturnDict([Return files dict])</code></pre>
 <hr />
 <h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="crawl_local_files"><code>crawl_local_files()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>:
+<strong>Signature</strong>: <code>def crawl_local_files(directory, include_patterns=None, exclude_patterns=None, max_file_size=None, use_relative_paths=True)</code></p>
+<p><strong>Description</strong>:<br />
+Traverses the specified <code>directory</code> path using <code>os.walk</code>, applying exclusion and inclusion matching logic against directories and files. The function parses and enforces root <code>.gitignore</code> files via <code>pathspec</code>, enforces size limits on candidate files, reads UTF-8 text contents, and generates console output detailing the status of every file and directory encountered.</p>
+<h4 id="core-implementation">Core Implementation:</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">crawl_local_files</span><span class="p">(</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">directory</span><span class="p">,</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">include_patterns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -772,177 +960,175 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">max_file_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">use_relative_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">):</span>
-</code></pre></div></p>
-<p><strong>Description</strong>:
-Traverses a target directory on the local filesystem, filters out ignored or irrelevant files/directories, reads matching text files, and compiles their contents into a dictionary.</p>
-<p>The function operates through several distinct phases:
-1. <strong>Validation &amp; Initialization</strong>: Verifies that the provided path points to a valid directory. Initializes ANSI escape codes for terminal feedback, counters for tracking scan metrics, and the output dictionary.
-2. <strong>Gitignore Parsing</strong>: Detects if a <code>.gitignore</code> file exists in the root of the target directory. If found, reads it using <code>utf-8-sig</code> encoding and compiles it into a <code>pathspec.PathSpec</code> object using the <code>gitwildmatch</code> rule style.
-3. <strong>Directory Pruning</strong>: While walking through the directory hierarchy with <code>os.walk</code>, checks each directory against the gitignore rules and <code>exclude_patterns</code>. Any matched directory is removed in-place from <code>dirs</code> to prevent <code>os.walk</code> from descending into its children.
-4. <strong>File Filtering &amp; Extraction</strong>: Evaluates each file against the gitignore rules, <code>exclude_patterns</code>, <code>include_patterns</code>, and <code>max_file_size</code> constraints.
-5. <strong>Text Decoding</strong>: Attempts to read each valid file using <code>open(filepath, "r", encoding="utf-8-sig")</code>. Non-text files or files that raise <code>UnicodeDecodeError</code> or <code>ValueError</code> are categorized as non-text and skipped without crashing the traversal process.
-6. <strong>Summary Generation</strong>: Outputs ANSI-colorized summary metrics displaying total entries examined, successfully processed files, excluded paths, size limit violations, and non-text skips.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Directory does not exist: </span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">files_dict</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="c1"># --- ANSI colors ---</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">C_GREEN</span>  <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[92m"</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">C_GRAY</span>   <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[90m"</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">C_RED</span>    <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[91m"</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">C_RESET</span>  <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[0m"</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="c1"># --- Counters ---</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">entry_num</span> <span class="o">=</span> <span class="mi">0</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">count_processed</span> <span class="o">=</span> <span class="mi">0</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">count_excluded</span> <span class="o">=</span> <span class="mi">0</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">count_size_limit</span> <span class="o">=</span> <span class="mi">0</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="n">count_non_text</span> <span class="o">=</span> <span class="mi">0</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="n">skipped_size_limit</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">skipped_non_text</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="c1"># --- Load .gitignore ---</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    <span class="n">gitignore_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">".gitignore"</span><span class="p">)</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">gitignore_spec</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gitignore_path</span><span class="p">):</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gitignore_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                <span class="n">gitignore_patterns</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>            <span class="n">gitignore_spec</span> <span class="o">=</span> <span class="n">pathspec</span><span class="o">.</span><span class="n">PathSpec</span><span class="o">.</span><span class="n">from_lines</span><span class="p">(</span><span class="s2">"gitwildmatch"</span><span class="p">,</span> <span class="n">gitignore_patterns</span><span class="p">)</span>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded .gitignore patterns from </span><span class="si">{</span><span class="n">gitignore_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Warning: Could not read or parse .gitignore file </span><span class="si">{</span><span class="n">gitignore_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>    <span class="c1"># ...</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Directory does not exist: </span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">files_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="c1"># --- ANSI colors ---</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">C_GREEN</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[92m"</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">C_GRAY</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[90m"</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">C_RED</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[91m"</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">C_RESET</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[0m"</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="c1"># --- Counters ---</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">entry_num</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">count_processed</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">count_excluded</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">count_size_limit</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">count_non_text</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">skipped_size_limit</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">skipped_non_text</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="c1"># --- Load .gitignore ---</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">gitignore_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">".gitignore"</span><span class="p">)</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="n">gitignore_spec</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gitignore_path</span><span class="p">):</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gitignore_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>                <span class="n">gitignore_patterns</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>            <span class="n">gitignore_spec</span> <span class="o">=</span> <span class="n">pathspec</span><span class="o">.</span><span class="n">PathSpec</span><span class="o">.</span><span class="n">from_lines</span><span class="p">(</span><span class="s2">"gitwildmatch"</span><span class="p">,</span> <span class="n">gitignore_patterns</span><span class="p">)</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded .gitignore patterns from </span><span class="si">{</span><span class="n">gitignore_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Warning: Could not read or parse .gitignore file </span><span class="si">{</span><span class="n">gitignore_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>    <span class="c1"># ... [Directory and File Filtering Logic] ...</span>
 </code></pre></div>
-<p>The initial block handles validation and <code>.gitignore</code> ingestion. If <code>directory</code> is invalid, a <code>ValueError</code> is raised immediately before any state is initialized. The <code>.gitignore</code> loader catches general exceptions gracefully to avoid failing the crawl when <code>.gitignore</code> files contain unreadable characters or permissions issues.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="c1"># ...</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="c1"># --- Single-pass: walk, filter, and process inline ---</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="c1"># --- Directory filtering ---</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">excluded_dirs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>            <span class="n">dirpath_rel</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">directory</span><span class="p">)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>            <span class="n">reason</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>            <span class="k">if</span> <span class="n">gitignore_spec</span> <span class="ow">and</span> <span class="n">gitignore_spec</span><span class="o">.</span><span class="n">match_file</span><span class="p">(</span><span class="n">dirpath_rel</span><span class="p">):</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>                <span class="n">reason</span> <span class="o">=</span> <span class="s2">"excluded (.gitignore)"</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>            <span class="k">elif</span> <span class="n">exclude_patterns</span><span class="p">:</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>                <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">exclude_patterns</span><span class="p">:</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>                    <span class="n">dir_pattern</span> <span class="o">=</span> <span class="n">pattern</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"/*"</span><span class="p">)</span> <span class="k">else</span> <span class="n">pattern</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>                    <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">dirpath_rel</span><span class="p">,</span> <span class="n">dir_pattern</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">dir_pattern</span><span class="p">):</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>                        <span class="n">reason</span> <span class="o">=</span> <span class="s2">"excluded"</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>                        <span class="k">break</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>            <span class="k">if</span> <span class="n">reason</span><span class="p">:</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>                <span class="n">excluded_dirs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>                <span class="n">entry_num</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>                <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">dirpath_rel</span><span class="si">}</span><span class="s2">/ [</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<p>The function first verifies that the target <code>directory</code> exists and is a directory; if not, it immediately raises a <code>ValueError</code>. It initializes tracking counters for processed files, excluded paths, size-exceeded files, and non-text/binary files. Next, it checks for a <code>.gitignore</code> file located at the root of <code>directory</code>. If present, it loads all lines and compiles a <code>pathspec.PathSpec</code> instance using the <code>gitwildmatch</code> rule set. If reading or compiling the <code>.gitignore</code> fails, it logs a warning message to standard output and continues execution with <code>gitignore_spec</code> set to <code>None</code>.</p>
+<h4 id="directory-pruning-logic">Directory Pruning Logic:</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="c1"># --- Single-pass: walk, filter, and process inline ---</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="c1"># --- Directory filtering ---</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="n">excluded_dirs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            <span class="n">dirpath_rel</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">directory</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            <span class="n">reason</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>            <span class="k">if</span> <span class="n">gitignore_spec</span> <span class="ow">and</span> <span class="n">gitignore_spec</span><span class="o">.</span><span class="n">match_file</span><span class="p">(</span><span class="n">dirpath_rel</span><span class="p">):</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>                <span class="n">reason</span> <span class="o">=</span> <span class="s2">"excluded (.gitignore)"</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            <span class="k">elif</span> <span class="n">exclude_patterns</span><span class="p">:</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">exclude_patterns</span><span class="p">:</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>                    <span class="n">dir_pattern</span> <span class="o">=</span> <span class="n">pattern</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"/*"</span><span class="p">)</span> <span class="k">else</span> <span class="n">pattern</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>                    <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">dirpath_rel</span><span class="p">,</span> <span class="n">dir_pattern</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">dir_pattern</span><span class="p">):</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>                        <span class="n">reason</span> <span class="o">=</span> <span class="s2">"excluded"</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                        <span class="k">break</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>            <span class="k">if</span> <span class="n">reason</span><span class="p">:</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                <span class="n">excluded_dirs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                <span class="n">entry_num</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">dirpath_rel</span><span class="si">}</span><span class="s2">/ [</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">excluded_dirs</span><span class="p">:</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                <span class="n">dirs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        <span class="c1"># Sort remaining dirs for consistent traversal order</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        <span class="n">dirs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="c1"># ... [File Processing Loop] ...</span>
+</code></pre></div>
+<p>During each step of <code>os.walk</code>, subdirectories in <code>dirs</code> are evaluated before entering them. For every directory name <code>d</code>, the relative path from <code>directory</code> is computed. If <code>gitignore_spec</code> matches the relative directory path, or if <code>exclude_patterns</code> match the relative directory path or folder name directly (with trailing <code>/*</code> wildcard suffixes stripped), the directory is added to <code>excluded_dirs</code>. The excluded entries are then removed in-place from <code>dirs</code> using <code>dirs.remove(d)</code>. This mutates the active list used by <code>os.walk</code>, pruning entire directory trees from subsequent traversal and avoiding redundant filesystem operations.</p>
+<h4 id="file-processing-and-reading-logic">File Processing and Reading Logic:</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>        <span class="c1"># --- File processing (inline, sorted) ---</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>            <span class="n">relpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_relative_paths</span> <span class="k">else</span> <span class="n">filepath</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>            <span class="n">entry_num</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>            <span class="c1"># Check gitignore</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>            <span class="k">if</span> <span class="n">gitignore_spec</span> <span class="ow">and</span> <span class="n">gitignore_spec</span><span class="o">.</span><span class="n">match_file</span><span class="p">(</span><span class="n">relpath</span><span class="p">):</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>                <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [excluded (.gitignore)]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>                <span class="k">continue</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>            <span class="c1"># Check exclude patterns</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>            <span class="n">excluded</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>            <span class="k">if</span> <span class="n">exclude_patterns</span><span class="p">:</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>                <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">exclude_patterns</span><span class="p">:</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>                    <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>                        <span class="n">excluded</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>                        <span class="k">break</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>            <span class="k">if</span> <span class="n">excluded</span><span class="p">:</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>                <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [excluded]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>                <span class="k">continue</span>
 <a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>            <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">excluded_dirs</span><span class="p">:</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>                <span class="n">dirs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>        <span class="c1"># Sort remaining dirs for consistent traversal order</span>
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        <span class="n">dirs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="c1"># ...</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>            <span class="c1"># Check include patterns</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>            <span class="k">if</span> <span class="n">include_patterns</span><span class="p">:</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>                <span class="n">matched</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>                <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">include_patterns</span><span class="p">:</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>                    <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>                        <span class="n">matched</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>                        <span class="k">break</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>                <span class="k">if</span> <span class="ow">not</span> <span class="n">matched</span><span class="p">:</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>                    <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [excluded (not in include list)]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>                    <span class="k">continue</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>            <span class="c1"># Check size limit</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>            <span class="k">if</span> <span class="n">max_file_size</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_file_size</span><span class="p">:</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>                <span class="n">count_size_limit</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>                <span class="n">skipped_size_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>                <span class="n">size_kb</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1024</span>
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [size limit: </span><span class="si">{</span><span class="n">size_kb</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">KB]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>                <span class="k">continue</span>
+<a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a>
+<a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a>            <span class="c1"># Try to read as text</span>
+<a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a>            <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a>                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>                    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a>                <span class="n">files_dict</span><span class="p">[</span><span class="n">relpath</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+<a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a>                <span class="n">count_processed</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-51" name="__codelineno-2-51" href="#__codelineno-2-51"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GREEN</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [processed]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-52" name="__codelineno-2-52" href="#__codelineno-2-52"></a>            <span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+<a id="__codelineno-2-53" name="__codelineno-2-53" href="#__codelineno-2-53"></a>                <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-54" name="__codelineno-2-54" href="#__codelineno-2-54"></a>                <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-2-55" name="__codelineno-2-55" href="#__codelineno-2-55"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [cannot process: not a text file]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-56" name="__codelineno-2-56" href="#__codelineno-2-56"></a>            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-2-57" name="__codelineno-2-57" href="#__codelineno-2-57"></a>                <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-2-58" name="__codelineno-2-58" href="#__codelineno-2-58"></a>                <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-2-59" name="__codelineno-2-59" href="#__codelineno-2-59"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [cannot process: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
-<p>The directory filtering block prunes unneeded directory trees before recursing into them. Modifying <code>dirs</code> in-place by removing directories matching <code>gitignore_spec</code> or <code>exclude_patterns</code> prevents <code>os.walk</code> from traversing large subtrees (such as <code>node_modules</code> or <code>.git</code>), saving I/O overhead.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>        <span class="c1"># ...</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        <span class="c1"># --- File processing (inline, sorted) ---</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>            <span class="n">relpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_relative_paths</span> <span class="k">else</span> <span class="n">filepath</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>            <span class="n">entry_num</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="c1"># Check gitignore</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="k">if</span> <span class="n">gitignore_spec</span> <span class="ow">and</span> <span class="n">gitignore_spec</span><span class="o">.</span><span class="n">match_file</span><span class="p">(</span><span class="n">relpath</span><span class="p">):</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>                <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [excluded (.gitignore)]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>                <span class="k">continue</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>            <span class="c1"># Check exclude patterns</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>            <span class="n">excluded</span> <span class="o">=</span> <span class="kc">False</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>            <span class="k">if</span> <span class="n">exclude_patterns</span><span class="p">:</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>                <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">exclude_patterns</span><span class="p">:</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>                    <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>                        <span class="n">excluded</span> <span class="o">=</span> <span class="kc">True</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>                        <span class="k">break</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>            <span class="k">if</span> <span class="n">excluded</span><span class="p">:</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>                <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [excluded]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>                <span class="k">continue</span>
-<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>
-<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>            <span class="c1"># Check include patterns</span>
-<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>            <span class="k">if</span> <span class="n">include_patterns</span><span class="p">:</span>
-<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>                <span class="n">matched</span> <span class="o">=</span> <span class="kc">False</span>
-<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>                <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">include_patterns</span><span class="p">:</span>
-<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>                    <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
-<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>                        <span class="n">matched</span> <span class="o">=</span> <span class="kc">True</span>
-<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>                        <span class="k">break</span>
-<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>                <span class="k">if</span> <span class="ow">not</span> <span class="n">matched</span><span class="p">:</span>
-<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>                    <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [excluded (not in include list)]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>                    <span class="k">continue</span>
-<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>
-<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>            <span class="c1"># Check size limit</span>
-<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>            <span class="k">if</span> <span class="n">max_file_size</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_file_size</span><span class="p">:</span>
-<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>                <span class="n">count_size_limit</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>                <span class="n">skipped_size_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
-<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>                <span class="n">size_kb</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1024</span>
-<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [size limit: </span><span class="si">{</span><span class="n">size_kb</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">KB]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>                <span class="k">continue</span>
-<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>
-<a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a>            <span class="c1"># Try to read as text</span>
-<a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>            <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a>                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a>                    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<a id="__codelineno-3-50" name="__codelineno-3-50" href="#__codelineno-3-50"></a>                <span class="n">files_dict</span><span class="p">[</span><span class="n">relpath</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
-<a id="__codelineno-3-51" name="__codelineno-3-51" href="#__codelineno-3-51"></a>                <span class="n">count_processed</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-52" name="__codelineno-3-52" href="#__codelineno-3-52"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GREEN</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [processed]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-53" name="__codelineno-3-53" href="#__codelineno-3-53"></a>            <span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-<a id="__codelineno-3-54" name="__codelineno-3-54" href="#__codelineno-3-54"></a>                <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-55" name="__codelineno-3-55" href="#__codelineno-3-55"></a>                <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
-<a id="__codelineno-3-56" name="__codelineno-3-56" href="#__codelineno-3-56"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [cannot process: not a text file]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-57" name="__codelineno-3-57" href="#__codelineno-3-57"></a>            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-3-58" name="__codelineno-3-58" href="#__codelineno-3-58"></a>                <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-3-59" name="__codelineno-3-59" href="#__codelineno-3-59"></a>                <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
-<a id="__codelineno-3-60" name="__codelineno-3-60" href="#__codelineno-3-60"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">entry_num</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">relpath</span><span class="si">}</span><span class="s2"> [cannot process: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-61" name="__codelineno-3-61" href="#__codelineno-3-61"></a>    <span class="c1"># ...</span>
+<p>Files within retained directories are processed in sorted order. For each file, the path key is calculated as relative or absolute based on <code>use_relative_paths</code>. The file is checked against <code>gitignore_spec</code>, <code>exclude_patterns</code>, and <code>include_patterns</code>. If all filter checks pass, the byte size is validated against <code>max_file_size</code>. If valid, the file is opened with <code>encoding="utf-8-sig"</code>. If the content fails to decode (raising <code>UnicodeDecodeError</code> or <code>ValueError</code>), the error is caught, the file is categorized as non-text, and execution continues without crashing.</p>
+<h4 id="reporting-and-output-summary">Reporting and Output Summary:</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="c1"># --- Summary ---</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">total_fetched</span> <span class="o">=</span> <span class="n">count_processed</span> <span class="o">+</span> <span class="n">count_excluded</span> <span class="o">+</span> <span class="n">count_size_limit</span> <span class="o">+</span> <span class="n">count_non_text</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- Crawl Summary ---"</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Total found : </span><span class="si">{</span><span class="n">total_fetched</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GREEN</span><span class="si">}</span><span class="s2">  Processed   : </span><span class="si">{</span><span class="n">count_processed</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">if</span> <span class="n">count_excluded</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  Excluded    : </span><span class="si">{</span><span class="n">count_excluded</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="k">if</span> <span class="n">count_size_limit</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  Size limit  : </span><span class="si">{</span><span class="n">count_size_limit</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">skipped_size_limit</span><span class="p">:</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">    - </span><span class="si">{</span><span class="n">f</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="k">if</span> <span class="n">count_non_text</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  Non-text    : </span><span class="si">{</span><span class="n">count_non_text</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">skipped_non_text</span><span class="p">:</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">    - </span><span class="si">{</span><span class="n">f</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"---------------------"</span><span class="p">)</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="n">files_dict</span><span class="p">}</span>
 </code></pre></div>
-<p>The file filtering logic evaluates files individually. If an <code>include_patterns</code> set is provided, files not matching any pattern in the set are excluded. Size limits are checked using <code>os.path.getsize</code> before opening the file. File reading is wrapped in broad exception handling to trap <code>UnicodeDecodeError</code> and other I/O errors, ensuring that binary files or unreadable nodes do not interrupt the crawl.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="c1"># ...</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="c1"># --- Summary ---</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">total_fetched</span> <span class="o">=</span> <span class="n">count_processed</span> <span class="o">+</span> <span class="n">count_excluded</span> <span class="o">+</span> <span class="n">count_size_limit</span> <span class="o">+</span> <span class="n">count_non_text</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">--- Crawl Summary ---"</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Total found : </span><span class="si">{</span><span class="n">total_fetched</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GREEN</span><span class="si">}</span><span class="s2">  Processed   : </span><span class="si">{</span><span class="n">count_processed</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">if</span> <span class="n">count_excluded</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_GRAY</span><span class="si">}</span><span class="s2">  Excluded    : </span><span class="si">{</span><span class="n">count_excluded</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="k">if</span> <span class="n">count_size_limit</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  Size limit  : </span><span class="si">{</span><span class="n">count_size_limit</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">skipped_size_limit</span><span class="p">:</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">    - </span><span class="si">{</span><span class="n">f</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="k">if</span> <span class="n">count_non_text</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">  Non-text    : </span><span class="si">{</span><span class="n">count_non_text</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">skipped_non_text</span><span class="p">:</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">C_RED</span><span class="si">}</span><span class="s2">    - </span><span class="si">{</span><span class="n">f</span><span class="si">}{</span><span class="n">C_RESET</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"---------------------"</span><span class="p">)</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="n">files_dict</span><span class="p">}</span>
-</code></pre></div>
-<p>The summary block formats crawl statistics into a consolidated report written to stdout. Lists of files skipped due to size limits or non-text decoding errors are printed in red ANSI text.</p>
+<p>Once the filesystem walk is complete, the function tallies the total entries encountered and prints a summary block highlighting the count of processed, excluded, size-limited, and non-text files using ANSI color codes (<code>C_GREEN</code>, <code>C_GRAY</code>, <code>C_RED</code>, <code>C_RESET</code>). The resulting dictionary is returned in the format <code>{"files": {filepath: content}}</code>.</p>
 <p><strong>Parameters</strong>:
-* <code>directory</code> (<code>str</code>): The root path to the local directory to crawl.
-* <code>include_patterns</code> (<code>set</code> | <code>None</code>, optional): Set of file glob patterns to match against (e.g., <code>{"*.py", "*.js"}</code>). Defaults to <code>None</code> (includes all files not otherwise excluded).
-* <code>exclude_patterns</code> (<code>set</code> | <code>None</code>, optional): Set of file or directory glob patterns to ignore (e.g., <code>{"tests/*", "*.pyc"}</code>). Defaults to <code>None</code>.
-* <code>max_file_size</code> (<code>int</code> | <code>None</code>, optional): Maximum allowed file size in bytes. Files larger than this threshold are skipped. Defaults to <code>None</code>.
-* <code>use_relative_paths</code> (<code>bool</code>, optional): Whether the output dictionary keys should be relative to <code>directory</code> (<code>True</code>) or absolute/verbatim paths (<code>False</code>). Defaults to <code>True</code>.</p>
+* <code>directory</code> (<code>str</code>): The root path to the local directory to be traversed.
+* <code>include_patterns</code> (<code>set</code> or <code>None</code>): Optional collection of glob patterns that files must match (e.g., <code>{"*.py", "*.js"}</code>). If <code>None</code>, no include filtering is applied.
+* <code>exclude_patterns</code> (<code>set</code> or <code>None</code>): Optional collection of glob patterns for files and directories to exclude (e.g., <code>{"tests/*", "*.pyc"}</code>).
+* <code>max_file_size</code> (<code>int</code> or <code>None</code>): Maximum allowed file size in bytes. Files exceeding this threshold are skipped.
+* <code>use_relative_paths</code> (<code>bool</code>): Whether the dictionary keys returned in <code>"files"</code> should be paths relative to <code>directory</code> (<code>True</code>) or full filesystem paths (<code>False</code>). Defaults to <code>True</code>.</p>
 <p><strong>Returns</strong>:
-* <code>dict</code>: A dictionary containing a single key <code>"files"</code>, mapping file paths (relative or absolute) to their string text content (<code>{"files": {filepath: content}}</code>).</p>
+* <code>dict</code>: A dictionary containing a single key <code>"files"</code>, which maps file path strings to their decoded text content strings:
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">"files"</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="s2">"utils/crawl_local_files.py"</span><span class="p">:</span> <span class="s2">"import fnmatch..."</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="s2">"README.md"</span><span class="p">:</span> <span class="s2">"# Project Title..."</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="p">}</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+</code></pre></div></p>
 <p><strong>Raises</strong>:
-* <code>ValueError</code>: Raised if <code>directory</code> is not an existing directory according to <code>os.path.isdir</code>.</p>
+* <code>ValueError</code>: Raised if <code>directory</code> does not exist or is not a valid directory (<code>not os.path.isdir(directory)</code>).</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"--- Crawling parent directory ('..') ---"</span><span class="p">)</span>
@@ -962,11 +1148,32 @@ Traverses a target directory on the local filesystem, filters out ignored or irr
 <a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></p>
 <hr />
+<h2 id="execution-entrypoint">Execution Entrypoint</h2>
+<p>When executed directly as a standalone script (<code>__main__</code>), the module demonstrates crawling the parent directory (<code>".."</code>) while excluding bytecode caches, virtual environment files, Git metadata, documentation, and build output directories.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"--- Crawling parent directory ('..') ---"</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">files_data</span> <span class="o">=</span> <span class="n">crawl_local_files</span><span class="p">(</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="s2">".."</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="n">exclude_patterns</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>            <span class="s2">"*.pyc"</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>            <span class="s2">"__pycache__/*"</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="s2">".venv/*"</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="s2">".git/*"</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>            <span class="s2">"docs/*"</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="s2">"output/*"</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>        <span class="p">},</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files_data</span><span class="p">[</span><span class="s1">'files'</span><span class="p">])</span><span class="si">}</span><span class="s2"> files:"</span><span class="p">)</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">files_data</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]:</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../crawl_github_files/">utils.crawl_github_files</a> — Remote repository file crawler offering a matching output structure for GitHub repositories.</li>
-<li><a href="../../nodes/">nodes</a> — Pipeline nodes that consume the file dictionaries generated by this module.</li>
-<li><a href="../../flow/">flow</a> — Execution graph coordinating knowledge base generation from crawled files.</li>
+<li><a href="../crawl_github_files/">utils.crawl_github_files</a> — Remote GitHub repository crawler providing a matching output dictionary structure.</li>
+<li><a href="../../nodes/">nodes</a> — Node execution logic that ingests crawl outputs into document extraction pipelines.</li>
+<li><a href="../../flow/">flow</a> — Orchestrates ingestion nodes and LLM generation workflows.</li>
+<li><a href="../token_utils/">utils.token_utils</a> — Token counting utilities applied to file contents parsed by crawlers.</li>
 </ul>
 
 
