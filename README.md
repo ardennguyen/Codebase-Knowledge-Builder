@@ -52,6 +52,7 @@
     - `--advanced` - Legacy flag: equivalent to --mode advanced
     - `--mkdocs` - Format output for MkDocs Material (adds YAML frontmatter & nav snippet)
     - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)
+    - `--force-rebuild` - Clear incremental cache and regenerate all chapters from scratch (use with --incremental)
     - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
     - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
     - `--debug` - Enable verbose debug output.
@@ -153,6 +154,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--advanced` - Cờ cũ (legacy flag). Tương đương với việc dùng `--mode advanced`.
     - `--mkdocs` - Định dạng đầu ra cho MkDocs Material (thêm YAML frontmatter và tạo `nav_snippet.yml`).
     - `--incremental` - Kích hoạt bộ nhớ đệm MD5 gia tăng để tiết kiệm tối đa token trong các lần chạy lặp lại bằng cách bỏ qua các tệp không thay đổi (Chỉ hỗ trợ khi dùng `--mode api-reference`).
+    - `--force-rebuild` - Xóa bộ nhớ đệm gia tăng và tạo lại toàn bộ các chương từ đầu (dùng kèm với `--incremental`).
     - `--batch` - Số lượng tệp tối đa mỗi lô khi sử dụng chế độ map-reduce (mặc định: 50).
     - `--force-batch` - Bắt buộc sử dụng chế độ map-reduce bất kể giới hạn context.
     - `--debug` - Bật chế độ debug chi tiết.

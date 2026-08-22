@@ -260,6 +260,7 @@ else:
 | `--advanced` | `store_true` | `False` | Legacy flag: equivalent to --mode advanced |
 | `--mkdocs` | `store_true` | `False` | Format output for MkDocs Material (adds YAML frontmatter & nav snippet) |
 | `--incremental` | `store_true` | `False` | Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference) |
+| `--force-rebuild` | `store_true` | `False` | Clear incremental cache manifest and regenerate all chapters from scratch (use with --incremental) |
 | `--batch` | `int` | `50` | Max files per batch in map-reduce mode |
 | `--force-batch` | `store_true` | `False` | Force map-reduce mode regardless of context size |
 | `--debug` | `store_true` | `False` | Enable verbose debug output |

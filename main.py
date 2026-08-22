@@ -87,6 +87,7 @@ def main():
     parser.add_argument("--advanced", action="store_true", help="Legacy flag: equivalent to --mode advanced")
     parser.add_argument("--mkdocs", action="store_true", help="Format output for MkDocs Material (adds YAML frontmatter & nav snippet)")
     parser.add_argument("--incremental", action="store_true", help="Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)")
+    parser.add_argument("--force-rebuild", action="store_true", help="Clear incremental cache and regenerate all chapters from scratch (use with --incremental)")
     
     # Add batching parameters
     parser.add_argument("--batch", type=int, default=50, help="Max files per batch in map-reduce mode")
@@ -110,6 +111,26 @@ def main():
     if args.incremental and doc_mode != "api-reference":
         print("\n\033[93m[Warning] --incremental caching is only effective in 'api-reference' mode due to stable 1:1 file mapping. Disabling incremental cache for this run.\033[0m\n")
         args.incremental = False
+
+    # Handle --force-rebuild: delete the cache manifest to force fresh generation
+    if args.force_rebuild and args.incremental:
+        project_name = args.name
+        if not project_name:
+            # Derive project name the same way FetchRepo does
+            if args.dir:
+                project_name = os.path.basename(os.path.abspath(args.dir))
+            elif args.repo:
+                project_name = args.repo.rstrip("/").split("/")[-1]
+        if project_name:
+            output_base = args.output or "output"
+            manifest_path = os.path.join(output_base, project_name, ".doc_cache_manifest.json")
+            if os.path.exists(manifest_path):
+                os.remove(manifest_path)
+                print(f"\033[93m[Force Rebuild] Deleted cache manifest: {manifest_path}\033[0m")
+            else:
+                print(f"\033[93m[Force Rebuild] No cache manifest found at {manifest_path} — all chapters will be generated fresh.\033[0m")
+    elif args.force_rebuild and not args.incremental:
+        print("\033[93m[Warning] --force-rebuild has no effect without --incremental. Ignoring.\033[0m")
 
     # Prepare shared store to be passed between nodes
     shared = {
@@ -209,6 +230,8 @@ def main():
     print(f"Output Mode    : {doc_mode}")
     print(f"MkDocs Output  : {'Enabled' if args.mkdocs else 'Disabled'}")
     print(f"Incremental    : {'Enabled' if args.incremental else 'Disabled'}")
+    if args.incremental:
+        print(f"Force Rebuild  : {'Enabled' if args.force_rebuild else 'Disabled'}")
     if doc_mode == "api-reference":
         print(f"Max Abstractions: Ignored (api-reference uses 1:1 file mapping)")
     else:

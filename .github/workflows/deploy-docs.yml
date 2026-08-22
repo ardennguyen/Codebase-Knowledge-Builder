@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Force rebuild all chapters (clear cache)'
+        required: false
+        default: 'false'
+        type: boolean
 
 permissions:
   contents: write
@@ -26,6 +33,15 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Detect prompt changes
+        id: prompts
+        run: |
+          if git diff HEAD~1 --name-only 2>/dev/null | grep -q 'prompts/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Cache Documentation and Manifest
         uses: actions/cache@v6
         with:
@@ -45,7 +61,12 @@ jobs:
           OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python main.py --dir . --name Codebase-Knowledge-Builder --mode api-reference --mkdocs --incremental
+          FORCE_FLAG=""
+          if [[ "${{ inputs.force_rebuild }}" == "true" ]] || [[ "${{ steps.prompts.outputs.changed }}" == "true" ]]; then
+            FORCE_FLAG="--force-rebuild"
+            echo "🔄 Force rebuild: prompt templates changed or manual trigger"
+          fi
+          python main.py --dir . --name Codebase-Knowledge-Builder --mode api-reference --mkdocs --incremental $FORCE_FLAG
 
       - name: Setup base mkdocs.yml and copy original docs
         run: |
