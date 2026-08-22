@@ -60,7 +60,7 @@ Instructions for the SDK reference page (Generate content in {language} unless s
 
 - EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of explanation immediately after it — describe what the SDK consumer needs to know about behavior, return values, error handling, and integration patterns. Do NOT just show code with a one-liner description.
 
-- When the module involves complex integration patterns, initialization flows, or state management, include Mermaid diagrams to visualize them. Choose the appropriate diagram type:
+- When the module involves complex integration patterns, initialization flows, or state management, you MUST include Mermaid diagrams using fenced code blocks (```mermaid). NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the appropriate Mermaid diagram type:
   * `sequenceDiagram` — for request/response flows showing how the SDK consumer interacts with the module
   * `flowchart` — for decision logic, configuration branching, or setup pipelines
   * `classDiagram` — for inheritance hierarchies or builder/factory patterns the consumer needs to understand

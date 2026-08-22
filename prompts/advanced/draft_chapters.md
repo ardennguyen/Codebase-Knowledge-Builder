@@ -55,7 +55,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   Do NOT paste entire files. If a file has 50 methods, show the 5 most important ones and describe the rest in a brief summary table:
   | Method/Property | Responsibility | Key Behavior |
 
-- Describe the internal execution flow or state transitions{instruction_lang_note}. It's highly recommended to generate Mermaid diagrams. Choose the diagram type based on what aspect of the code you're illustrating:
+- Describe the internal execution flow or state transitions{instruction_lang_note}. You MUST generate Mermaid diagrams using fenced code blocks (```mermaid). NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the diagram type based on what aspect of the code you're illustrating:
   * `sequenceDiagram` — for request/response flows that cross multiple components or services
   * `flowchart` — for decision logic, branching, or pipeline stages within a single component
   * `erDiagram` — for data model relationships (database schemas, entity hierarchies)

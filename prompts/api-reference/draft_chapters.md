@@ -66,10 +66,10 @@ Instructions for the API reference page (Generate content in {language} unless s
 
 - EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of technical explanation immediately after it — describe the behavior, implementation strategy, error handling, and edge cases. Do NOT just show code with a one-liner description.
 
-- When the file defines complex control flows, inheritance hierarchies, or state machines, include Mermaid diagrams to visualize them. Choose the appropriate diagram type:
+- When the file defines control flows, inheritance hierarchies, state machines, or node/pipeline architectures, you MUST include Mermaid diagrams using fenced code blocks (```mermaid). NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the appropriate Mermaid diagram type:
   * `classDiagram` — for inheritance, composition, or factory patterns
   * `sequenceDiagram` — for request/response flows that cross multiple components
-  * `flowchart` — for decision logic, branching, or pipeline stages
+  * `flowchart` — for decision logic, branching, pipeline stages, or node architecture
   * `stateDiagram` — for entity lifecycle states
   Include diagrams when they add clarity; omit them for simple data-class or utility files.
   MERMAID RENDERING RULES: Keep node labels SHORT (max 40 characters) — abbreviate long names. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
