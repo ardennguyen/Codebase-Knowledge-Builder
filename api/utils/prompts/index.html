@@ -527,21 +527,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#technical-overview" class="md-nav__link">
+  <a href="#architectural-role-and-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Technical Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architectural-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architectural Context
+        Architectural Role and Workflow
       
     </span>
   </a>
@@ -576,6 +565,17 @@
     <span class="md-ellipsis">
       
         build_chapter_summary_prompt()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_mkdocs_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_mkdocs_config()
       
     </span>
   </a>
@@ -669,21 +669,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#technical-overview" class="md-nav__link">
+  <a href="#architectural-role-and-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Technical Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architectural-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architectural Context
+        Architectural Role and Workflow
       
     </span>
   </a>
@@ -724,6 +713,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#build_mkdocs_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_mkdocs_config()
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -758,39 +758,49 @@
 
 
 <h1 id="utilsprompts">utils.prompts</h1>
-<p><strong>Source File</strong>: <code>utils/prompts.py</code></p>
-<h2 id="technical-overview">Technical Overview</h2>
-<p>The <code>utils.prompts</code> module contains reusable, inline prompt-construction routines used across pipeline execution nodes within the <code>Codebase-Knowledge-Builder</code> architecture. Unlike user-facing documentation templates that are loaded dynamically from mode-specific filesystem templates (e.g., <code>prompts/{mode}/</code>), the prompt builders housed in this module support internal orchestration tasks, such as code file classification and inter-chapter summary generation.</p>
-<p>Centralizing programmatic prompt assembly into dedicated factory functions decouples prompt wording and formatting constraints from node logic (such as <code>DeterministicFileMapper</code> or subsequent chapter summarization steps in <a href="nodes.md">nodes</a>). This design ensures consistency in expected output formatting (such as requiring explicit YAML blocks for indices) and provides deterministic LLM steering across different documentation generation pipelines.</p>
-<h2 id="architectural-context">Architectural Context</h2>
-<p>The functions defined in <code>utils.prompts</code> are utilized at distinct phases in the generation workflow:</p>
+<p><strong>File:</strong> <code>utils/prompts.py</code></p>
+<p>The <code>utils.prompts</code> module provides programmatic, inline prompt constructors and configuration generators for internal pipeline nodes within <code>Codebase-Knowledge-Builder</code>. Unlike the dynamic file-based prompt templates loaded from the <code>prompts/{mode}/</code> directory, the builders in this module generate standardized, deterministic prompt strings and static configuration files required by core nodes during file filtering, chapter summarization, and documentation site generation.</p>
+<hr />
+<h2 id="architectural-role-and-workflow">Architectural Role and Workflow</h2>
+<p>The functions in <code>utils.prompts</code> are utilized across different stages of the documentation pipeline:</p>
+<ol>
+<li><strong>File Filtering Stage</strong>: <code>build_code_file_filter_prompt</code> formats file manifests into structured prompts so that LLM evaluation nodes (e.g., <code>DeterministicFileMapper</code>) can isolate true code modules from configuration, markup, assets, and project scaffolding.</li>
+<li><strong>Iterative Summarization Stage</strong>: <code>build_chapter_summary_prompt</code> generates four-dimensional technical brief extraction prompts after a chapter is written, producing context injected into subsequent chapter generation passes.</li>
+<li><strong>Artifact Generation Stage</strong>: <code>build_mkdocs_config</code> transforms hierarchical navigation snippets into a production-ready <code>mkdocs.yml</code> configuration targeting the Material for MkDocs theme.</li>
+</ol>
 <pre class="mermaid"><code>flowchart TD
-    subgraph FileFiltering["File Filtering Stage (api-reference mode)"]
-        A[File Listing &amp; Project Metadata] --&gt; B[build_code_file_filter_prompt]
-        B --&gt; C[LLM Classification Call]
-        C --&gt; D[Parsed YAML Indices]
+    subgraph FilteringStage [File Filtering Stage]
+        FL[File Listing Manifest] --&gt; BCFFP[build_code_file_filter_prompt]
+        BCFFP --&gt; DFMNode[DeterministicFileMapper Node]
+        DFMNode --&gt; CodeIndices[YAML File Indices]
     end
 
-    subgraph ChapterSummarization["Chapter Summary Generation Stage"]
-        E[Generated Chapter Content] --&gt; F[build_chapter_summary_prompt]
-        F --&gt; G[LLM Summarization Call]
-        G --&gt; H[Technical Brief for Next Chapter Context]
+    subgraph SummarizationStage [Chapter Generation and Summary]
+        ChapContent[Chapter Content] --&gt; BCSP[build_chapter_summary_prompt]
+        BCSP --&gt; LLMSummarizer[LLM Summarization Call]
+        LLMSummarizer --&gt; TechBrief[Structured Technical Brief]
+        TechBrief --&gt; NextChapter[Subsequent Chapter Context]
+    end
+
+    subgraph ConfigStage [Site Configuration Generation]
+        NavYaml[Navigation YAML Snippet] --&gt; BMC[build_mkdocs_config]
+        BMC --&gt; MkDocsYml[mkdocs.yml Artifact]
     end</code></pre>
 <hr />
 <h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="build_code_file_filter_prompt"><code>build_code_file_filter_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_code_file_filter_prompt(project_name: str, file_listing: str) -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Constructs an instruction prompt used primarily by <code>DeterministicFileMapper</code> in <code>api-reference</code> mode to filter out non-executable or auxiliary files. The prompt instructs the LLM to analyze a raw codebase file index and identify files that contain actual code modules (APIs, functions, classes, core business logic) while explicitly excluding UI layouts, configuration files, static assets, build configuration files, and documentation. The prompt specifies a strict structured YAML format returning only numeric indices corresponding to the code files.</p>
+<p><strong>Description</strong>:
+Constructs the system/user instruction prompt passed to language models in <code>api-reference</code> mode to distinguish executable source code modules from non-code project files. The prompt presents the complete codebase file index alongside explicit exclusion rules (filtering out UI layouts, XML/JSON configs, static assets, and build manifests) and commands the model to return strictly a YAML list of numerical file indices.</p>
 <p><strong>Parameters</strong>:
-* <code>project_name</code> (<code>str</code>): The name of the project or repository being analyzed.
-* <code>file_listing</code> (<code>str</code>): A formatted string representation of indexed codebase files, typically numbered by index.</p>
+* <code>project_name</code> (<code>str</code>): The name or identifier of the target codebase.
+* <code>file_listing</code> (<code>str</code>): A pre-formatted, numbered or indexed manifest of all files discovered in the target repository.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: A formatted prompt string containing explicit filtering guidelines and output format constraints.</p>
+* <code>str</code>: A formatted prompt ready for direct submission to an LLM completion API.</p>
 <p><strong>Raises</strong>:
-* No explicit exceptions are raised by this function.</p>
-<p><strong>Implementation</strong>:
+* This function does not explicitly raise exceptions; standard string formatting operations apply.</p>
+<p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_code_file_filter_prompt</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_listing</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for DeterministicFileMapper to filter non-code files.</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -809,73 +819,99 @@ Constructs an instruction prompt used primarily by <code>DeterministicFileMapper
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The string interpolation injects <code>project_name</code> and <code>file_listing</code> into a pre-structured template. The prompt enforces negative constraints by explicitly enumerating non-code extensions and categories (such as <code>.xaml</code>, <code>.storyboard</code>, <code>.html</code>, <code>.xml</code>, <code>.json</code>, <code>.manifest</code>, <code>.ini</code>, <code>.csproj</code>, and <code>.sln</code>). It also enforces structural constraint compliance by mandating a markdown YAML block (<code>```yaml\n- 0\n...</code>) containing strictly integer file indices, which allows downstream nodes to parse the response deterministically.</p>
+<p>The function relies on rigid prompt constraints to prevent output hallucinations. By providing a strict YAML template (<code>yaml\n- 0\n- 1\n- 3\n</code>) in the instruction, it enforces machine-parseable outputs that can be deserialized directly into integer indices by calling nodes such as <code>DeterministicFileMapper</code>. It specifically targets common non-code extensions across ecosystems (e.g., <code>.xaml</code>, <code>.storyboard</code>, <code>.html</code>, <code>.xml</code>, <code>.json</code>, <code>.manifest</code>, <code>.ini</code>, <code>.csproj</code>, <code>.sln</code>), ensuring downstream token budgets are not expended on non-executable files.</p>
 <hr />
 <h3 id="build_chapter_summary_prompt"><code>build_chapter_summary_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = "english") -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Constructs a prompt that requests a structured technical summary of a newly generated documentation chapter. This summary is used to maintain cross-chapter context in multi-chapter generation runs, ensuring subsequent chapters have technical visibility into preceding architectural decisions, interfaces, and shared components.</p>
-<p>The prompt requires the LLM to structure its response across four precise technical dimensions, allocating 3–5 concise technical sentences per dimension:
-1. <strong>Component Scope &amp; Responsibility</strong>: Core technical domain, problem space, and role in the system.
-2. <strong>Key Technical Elements</strong>: Specific classes, services, functions, data models, or protocols.
-3. <strong>Implementation Patterns &amp; Architecture</strong>: Design patterns, communication protocols, data flows, error handling, and security mechanisms.
-4. <strong>System Integration &amp; Dependencies</strong>: Inter-component interfaces, consumed and provided services, and integration points.</p>
-<p>If the requested output language is not English, a localization instruction is prepended to enforce language consistency.</p>
+<p><strong>Description</strong>:
+Constructs an analytical prompt that instructs the LLM to summarize a newly generated documentation chapter into a structured technical brief across four specific architectural dimensions. This brief is subsequently retained in the execution state to maintain inter-chapter context and prevent semantic drift across subsequent chapters.</p>
 <p><strong>Parameters</strong>:
-* <code>chapter_num</code> (<code>int</code>): The numerical index or chapter number within the overall document outline.
-* <code>abstraction_name</code> (<code>str</code>): The title or abstraction boundary name covered by the chapter.
-* <code>chapter_content</code> (<code>str</code>): The full markdown text of the generated chapter to be summarized.
-* <code>language</code> (<code>str</code>, optional): Target language for the summary output. Defaults to <code>"english"</code>.</p>
+* <code>chapter_num</code> (<code>int</code>): The numerical index or order of the current chapter.
+* <code>abstraction_name</code> (<code>str</code>): The title, architectural domain, or abstraction layer represented in the chapter.
+* <code>chapter_content</code> (<code>str</code>): The full Markdown or text body of the generated chapter.
+* <code>language</code> (<code>str</code>, optional): The target natural language for the output summary. Defaults to <code>"english"</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The complete prompt string instructing the LLM to produce a 4-point structured technical summary.</p>
+* <code>str</code>: The complete prompt instructing the model to generate a four-part structured technical brief.</p>
 <p><strong>Raises</strong>:
-* No explicit exceptions are raised by this function.</p>
-<p><strong>Implementation</strong>:
+* This function does not explicitly raise exceptions.</p>
+<p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_chapter_summary_prompt</span><span class="p">(</span><span class="n">chapter_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">abstraction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>                                  <span class="n">chapter_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"english"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="sd">"""Build the prompt for generating a technical summary of a written chapter.</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    Used after each chapter is generated to create a concise technical summary</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">    for cross-chapter context. The summary is fed into subsequent chapters'</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">    prompts so the LLM maintains coherence across the full document.</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">    The summary captures 4 technical dimensions with 3-5 sentences each:</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">    1. Component scope &amp; responsibility</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    2. Key classes/services/functions and their roles  </span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    3. Implementation patterns &amp; architectural decisions</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    4. Inter-component interfaces &amp; dependencies</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    """</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="p">(</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="p">)</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>    <span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="sd">"""Build the prompt for generating a technical summary of a written chapter."""</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="p">)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The function conditionally builds <code>lang_instruction</code> by checking <code>language.lower() != "english"</code>. When non-English output is requested, an explicit command prefix (<code>Write the entire summary in {language.capitalize()}.</code>) is added at the beginning of the prompt. The remainder of the prompt defines the technical rubrics followed by a markdown separator, the chapter header (<code>Chapter {chapter_num}: {abstraction_name}</code>), and the raw <code>chapter_content</code>.</p>
+<p>The prompt construction enforces a strict technical taxonomy by segmenting the analysis into: (1) Component Scope &amp; Responsibility, (2) Key Technical Elements, (3) Implementation Patterns &amp; Architecture, and (4) System Integration &amp; Dependencies. When localized documentation generation is requested (i.e., <code>language</code> is not <code>"english"</code>), the function dynamically prepends a localization directive (<code>Write the entire summary in {language.capitalize()}.</code>). The structured output guarantees that key architectural invariants, interface definitions, and dependency contracts remain accessible to subsequent pipeline nodes without exceeding token context limits.</p>
+<hr />
+<h3 id="build_mkdocs_config"><code>build_mkdocs_config()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def build_mkdocs_config(site_name: str, nav_yaml: str) -&gt; str:</code></p>
+<p><strong>Description</strong>:
+Generates the text content for a standard <code>mkdocs.yml</code> configuration file supporting Material for MkDocs. It configures code block copy buttons, PyMdown Extensions syntax highlighting with line numbering anchors, inline code highlighting, and Mermaid diagram rendering via custom super-fences.</p>
+<p><strong>Parameters</strong>:
+* <code>site_name</code> (<code>str</code>): The title of the documentation website displayed in the navigation header.
+* <code>nav_yaml</code> (<code>str</code>): A YAML-formatted string representing the navigation hierarchy generated by the pipeline.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The complete YAML configuration string ready to be written to <code>mkdocs.yml</code>.</p>
+<p><strong>Raises</strong>:
+* This function does not explicitly raise exceptions.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_mkdocs_config</span><span class="p">(</span><span class="n">site_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nav_yaml</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Build a complete mkdocs.yml for local --mkdocs output."""</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="c1"># Extract nav items from nav_snippet (strip the "nav:" header line)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">nav_lines</span> <span class="o">=</span> <span class="n">nav_yaml</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">nav_body</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nav_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">if</span> <span class="n">nav_lines</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="sa">f</span><span class="s2">"site_name: '</span><span class="si">{</span><span class="n">site_name</span><span class="si">}</span><span class="s2">'</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="sa">f</span><span class="s2">"theme:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="sa">f</span><span class="s2">"  name: material</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="sa">f</span><span class="s2">"  features:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="sa">f</span><span class="s2">"    - content.code.copy</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="sa">f</span><span class="s2">"markdown_extensions:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.highlight:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="sa">f</span><span class="s2">"      anchor_linenums: true</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="sa">f</span><span class="s2">"      use_pygments: true</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.superfences:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="sa">f</span><span class="s2">"      custom_fences:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="sa">f</span><span class="s2">"        - name: mermaid</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="sa">f</span><span class="s2">"          class: mermaid</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="sa">f</span><span class="s2">"          format: !!python/name:pymdownx.superfences.fence_code_format</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.inlinehilite</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="sa">f</span><span class="s2">"nav:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        <span class="sa">f</span><span class="s2">"  - Home: index.md</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nav_body</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>    <span class="p">)</span>
+</code></pre></div></p>
+<p>The function extracts individual navigation entries by splitting <code>nav_yaml</code> across newline boundaries and stripping the initial <code>nav:</code> declaration line via <code>\n.join(nav_lines[1:])</code>. It then embeds the resulting indented navigation tree beneath a hardcoded <code>- Home: index.md</code> root item. The configuration registers the <code>pymdownx.superfences</code> custom fence using the Python class resolver <code>!!python/name:pymdownx.superfences.fence_code_format</code>, enabling client-side rendering of embedded Mermaid diagrams.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../../nodes/">nodes</a> — Implements pipeline nodes (including <code>DeterministicFileMapper</code> and chapter generators) that invoke these prompt builders.</li>
-<li><a href="../call_llm/">utils.call_llm</a> — Handles execution of LLM requests with constructed prompts.</li>
-<li><a href="../../flow/">flow</a> — Coordinates the end-to-end execution graph across documentation modes.</li>
+<li><a href="../../flow/">flow</a> — Workflow engine orchestrating pipeline execution.</li>
+<li><a href="../../nodes/">nodes</a> — Pipeline nodes that consume these prompt and configuration builders.</li>
+<li><a href="../call_llm/">utils.call_llm</a> — LLM client interface executing prompts generated by this module.</li>
+<li><a href="../token_utils/">utils.token_utils</a> — Token calculation and context window management utilities.</li>
 </ul>
 
 
