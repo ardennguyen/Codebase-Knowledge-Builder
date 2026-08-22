@@ -66,7 +66,11 @@ jobs:
             - pymdownx.highlight:
                 anchor_linenums: true
                 use_pygments: true
-            - pymdownx.superfences
+            - pymdownx.superfences:
+                custom_fences:
+                  - name: mermaid
+                    class: mermaid
+                    format: !!python/name:pymdownx.superfences.fence_code_format
             - pymdownx.inlinehilite
           nav:
             - Home: index.md
