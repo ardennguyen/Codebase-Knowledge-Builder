@@ -25,7 +25,7 @@ def count_tokens(text: str) -> int:
         return 0
     enc = _get_encoding()
     if enc:
-        return len(enc.encode(text))
+        return len(enc.encode(text, disallowed_special=()))
     return len(text) // 4
 
 
