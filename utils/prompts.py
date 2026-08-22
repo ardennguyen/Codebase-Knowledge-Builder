@@ -8,7 +8,7 @@ Organized here for maintainability and future improvement.
 
 def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
     """Build the prompt for DeterministicFileMapper to filter non-code files.
-    
+
     Used in api-reference mode to identify which files are actual code modules
     (APIs, functions, classes, business logic) vs. UI layouts, configs, assets.
     """
@@ -28,14 +28,14 @@ def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
 def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
                                   chapter_content: str, language: str = "english") -> str:
     """Build the prompt for generating a technical summary of a written chapter.
-    
+
     Used after each chapter is generated to create a concise technical summary
     for cross-chapter context. The summary is fed into subsequent chapters'
     prompts so the LLM maintains coherence across the full document.
-    
+
     The summary captures 4 technical dimensions with 3-5 sentences each:
     1. Component scope & responsibility
-    2. Key classes/services/functions and their roles  
+    2. Key classes/services/functions and their roles
     3. Implementation patterns & architectural decisions
     4. Inter-component interfaces & dependencies
     """
@@ -65,19 +65,19 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
 
 def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
     """Build a complete mkdocs.yml for local --mkdocs output.
-    
+
     Generates a ready-to-use MkDocs Material config with:
     - Material theme with code copy buttons
     - Syntax highlighting (pymdownx.highlight + inlinehilite)
     - Mermaid diagram rendering via pymdownx.superfences custom fences
     - Navigation from the generated nav_snippet
-    
+
     Users can run `mkdocs serve` or `mkdocs build` directly in the output dir.
     """
     # Extract nav items from nav_snippet (strip the "nav:" header line)
     nav_lines = nav_yaml.split("\n")
     nav_body = "\n".join(nav_lines[1:]) if nav_lines else ""
-    
+
     return (
         f"site_name: '{site_name}'\n"
         f"theme:\n"

@@ -1,21 +1,22 @@
-import requests
 import base64
+import fnmatch
 import os
 import tempfile
-import git
 import time
-import fnmatch
-import pathspec
-from typing import Union, Set, List, Dict, Tuple, Any
 from urllib.parse import urlparse
 
+import git
+import pathspec
+import requests
+
+
 def crawl_github_files(
-    repo_url, 
-    token=None, 
+    repo_url,
+    token=None,
     max_file_size: int = 1 * 1024 * 1024,  # 1 MB
     use_relative_paths: bool = False,
-    include_patterns: Union[str, Set[str]] = None,
-    exclude_patterns: Union[str, Set[str]] = None
+    include_patterns: str | set[str] | None = None,
+    exclude_patterns: str | set[str] | None = None
 ):
     """
     Crawl files from a specific path in a GitHub repository at a specific commit.
@@ -53,9 +54,8 @@ def crawl_github_files(
             include_file = any(fnmatch.fnmatch(file_name, pattern) for pattern in include_patterns)
 
         # Check gitignore if provided
-        if include_file and gitignore_spec:
-            if gitignore_spec.match_file(file_path):
-                return False
+        if include_file and gitignore_spec and gitignore_spec.match_file(file_path):
+            return False
 
         # If exclude patterns are specified, check if file should be excluded
         if exclude_patterns and include_file:
@@ -109,8 +109,8 @@ def crawl_github_files(
                 try:
                     with open(gitignore_path, "r", encoding="utf-8-sig") as f:
                         gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", f.readlines())
-                    print(f"Loaded .gitignore patterns from repository.")
-                except Exception as e:
+                    print("Loaded .gitignore patterns from repository.")
+                except Exception:
                     pass
 
             for root, dirs, filenames in os.walk(tmpdirname):
@@ -183,7 +183,7 @@ def crawl_github_files(
 
             # --- Summary ---
             total_fetched = count_processed + count_excluded + count_size_limit + count_non_text
-            print(f"\n--- Crawl Summary ---")
+            print("\n--- Crawl Summary ---")
             print(f"  Total found : {total_fetched}")
             print(f"{C_GREEN}  Processed   : {count_processed}{C_RESET}")
             if count_excluded > 0:
@@ -196,7 +196,7 @@ def crawl_github_files(
                 print(f"{C_RED}  Non-text    : {count_non_text}{C_RESET}")
                 for sf in skipped_non_text_list:
                     print(f"{C_RED}    - {sf}{C_RESET}")
-            print(f"---------------------")
+            print("---------------------")
 
             return {
                 "files": files,
@@ -214,14 +214,14 @@ def crawl_github_files(
     # Parse GitHub URL to extract owner, repo, commit/branch, and path
     parsed_url = urlparse(repo_url)
     path_parts = parsed_url.path.strip('/').split('/')
-    
+
     if len(path_parts) < 2:
         raise ValueError(f"Invalid GitHub URL: {repo_url}")
-    
+
     # Extract the basic components
     owner = path_parts[0]
     repo = path_parts[1]
-    
+
     # Setup for GitHub API
     headers = {"Accept": "application/vnd.github.v3+json"}
     if token:
@@ -238,13 +238,13 @@ def crawl_github_files(
 
         if response.status_code == 404:
             if not token:
-                print(f"Error 404: Repository not found or is private.\n"
-                      f"If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.")
+                print("Error 404: Repository not found or is private.\n"
+                      "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.")
             else:
-                print(f"Error 404: Repository not found or insufficient permissions with the provided token.\n"
-                      f"Please verify the repository exists and the token has access to this repository.")
+                print("Error 404: Repository not found or insufficient permissions with the provided token.\n"
+                      "Please verify the repository exists and the token has access to this repository.")
             return []
-            
+
         if response.status_code != 200:
             print(f"Error fetching the branches of {owner}/{repo}: {response.status_code} - {response.text}")
             return []
@@ -260,11 +260,12 @@ def crawl_github_files(
         if response.status_code in (403, 429) and not token:
             raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
 
-        return True if response.status_code == 200 else False 
+        return response.status_code == 200
 
     # Check if URL contains a specific branch/commit
-    if len(path_parts) > 2 and 'tree' == path_parts[2]:
-        join_parts = lambda i: '/'.join(path_parts[i:])
+    if len(path_parts) > 2 and path_parts[2] == 'tree':
+        def join_parts(i):
+            return '/'.join(path_parts[i:])
 
         branches = fetch_branches(owner, repo)
         branch_names = map(lambda branch: branch.get("name"), branches)
@@ -281,14 +282,14 @@ def crawl_github_files(
         ref = next(filter_gen, None)
 
         # If match is not found, check for is it a tree
-        if ref == None:
+        if ref is None:
             tree = path_parts[3]
             ref = tree if check_tree(owner, repo, tree) else None
 
         # If it is neither a tree nor a branch name
-        if ref == None:
-            print(f"The given path does not match with any branch and any tree in the repository.\n"
-                  f"Please verify the path is exists.")
+        if ref is None:
+            print("The given path does not match with any branch and any tree in the repository.\n"
+                  "Please verify the path is exists.")
             return
 
         # Combine all parts after the ref as the path
@@ -299,7 +300,7 @@ def crawl_github_files(
         # and let Github decide default branch
         ref = None
         specific_path = ""
-    
+
     # Dictionary to store path -> content mapping
     files = {}
     skipped_files = []
@@ -314,12 +315,12 @@ def crawl_github_files(
     api_counters = {"processed": 0, "excluded": 0, "size_limit": 0, "non_text": 0, "entry": 0}
     api_skipped_size = []
     api_skipped_non_text = []
-    
+
     # --- Try to fetch .gitignore ---
     gitignore_spec = None
     try:
         gi_url = f"https://api.github.com/repos/{owner}/{repo}/contents/.gitignore"
-        gi_params = {"ref": ref} if ref != None else {}
+        gi_params = {"ref": ref} if ref is not None else {}
         gi_resp = requests.get(gi_url, headers=headers, params=gi_params, timeout=(10, 10))
         if gi_resp.status_code == 200:
             gi_data = gi_resp.json()
@@ -329,14 +330,14 @@ def crawl_github_files(
                 print("Loaded .gitignore patterns from repository via API.")
     except Exception:
         pass
-    
+
     def fetch_contents(path):
         """Fetch contents of the repository at a specific path and commit"""
         url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
-        params = {"ref": ref} if ref != None else {}
-        
+        params = {"ref": ref} if ref is not None else {}
+
         response = requests.get(url, headers=headers, params=params, timeout=(30, 30))
-        
+
         if response.status_code in (403, 429) and 'rate limit exceeded' in response.text.lower():
             if not token:
                 raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
@@ -345,32 +346,32 @@ def crawl_github_files(
             print(f"Rate limit exceeded. Waiting for {wait_time:.0f} seconds...")
             time.sleep(wait_time)
             return fetch_contents(path)
-            
+
         if response.status_code == 404:
             if not token:
-                print(f"Error 404: Repository not found or is private.\n"
-                      f"If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.")
+                print("Error 404: Repository not found or is private.\n"
+                      "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.")
             elif not path and ref == 'main':
-                print(f"Error 404: Repository not found. Check if the default branch is not 'main'\n"
-                      f"Try adding branch name to the request i.e. python main.py --repo https://github.com/username/repo/tree/master")
+                print("Error 404: Repository not found. Check if the default branch is not 'main'\n"
+                      "Try adding branch name to the request i.e. python main.py --repo https://github.com/username/repo/tree/master")
             else:
                 print(f"Error 404: Path '{path}' not found in repository or insufficient permissions with the provided token.\n"
                       f"Please verify the token has access to this repository and the path exists.")
             return
-            
+
         if response.status_code != 200:
             print(f"Error fetching {path}: {response.status_code} - {response.text}")
             return
-        
+
         contents = response.json()
-        
+
         # Handle both single file and directory responses
         if not isinstance(contents, list):
             contents = [contents]
-        
+
         for item in contents:
             item_path = item["path"]
-            
+
             # Calculate relative path if requested
             if use_relative_paths and specific_path:
                 # Make sure the path is relative to the specified subdirectory
@@ -380,7 +381,7 @@ def crawl_github_files(
                     rel_path = item_path
             else:
                 rel_path = item_path
-            
+
             if item["type"] == "file":
                 api_counters["entry"] += 1
                 entry_num = api_counters["entry"]
@@ -390,7 +391,7 @@ def crawl_github_files(
                     api_counters["excluded"] += 1
                     print(f"{C_GRAY}  [{entry_num}] {rel_path} [excluded]{C_RESET}")
                     continue
-                
+
                 # Check file size if available
                 file_size = item.get("size", 0)
                 if file_size > max_file_size:
@@ -399,12 +400,12 @@ def crawl_github_files(
                     size_kb = file_size / 1024
                     print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                     continue
-                
+
                 # For files, get raw content
-                if "download_url" in item and item["download_url"]:
+                if item.get("download_url"):
                     file_url = item["download_url"]
                     file_response = requests.get(file_url, headers=headers, timeout=(30, 30))
-                    
+
                     # Final size check in case content-length header is available but differs from metadata
                     content_length = int(file_response.headers.get('content-length', 0))
                     if content_length > max_file_size:
@@ -413,7 +414,7 @@ def crawl_github_files(
                         size_kb = content_length / 1024
                         print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                         continue
-                        
+
                     if file_response.status_code == 200:
                         files[rel_path] = file_response.text
                         api_counters["processed"] += 1
@@ -436,7 +437,7 @@ def crawl_github_files(
                                 size_kb = estimated_size / 1024
                                 print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                                 continue
-                                
+
                             file_content = base64.b64decode(content_data["content"]).decode('utf-8')
                             files[rel_path] = file_content
                             api_counters["processed"] += 1
@@ -449,16 +450,16 @@ def crawl_github_files(
                         api_counters["non_text"] += 1
                         api_skipped_non_text.append(rel_path)
                         print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: HTTP {content_response.status_code}]{C_RESET}")
-            
+
             elif item["type"] == "dir":
                 # Check if directory should be excluded before recursing
                 dir_excluded = False
                 dir_reason = None
-                
+
                 if gitignore_spec and gitignore_spec.match_file(rel_path):
                     dir_excluded = True
                     dir_reason = "excluded (.gitignore)"
-                    
+
                 if not dir_excluded and exclude_patterns:
                     dir_name = item["name"]  # basename of the directory
                     for pattern in exclude_patterns:
@@ -467,22 +468,22 @@ def crawl_github_files(
                             dir_excluded = True
                             dir_reason = "excluded"
                             break
-                                    
+
                 if dir_excluded:
                     api_counters["entry"] += 1
                     api_counters["excluded"] += 1
                     print(f"{C_GRAY}  [{api_counters['entry']}] {rel_path}/ [{dir_reason}]{C_RESET}")
                     continue
-                
+
                 # Only recurse if directory is not excluded
                 fetch_contents(item_path)
-    
+
     # Start crawling from the specified path
     fetch_contents(specific_path)
 
     # --- Summary ---
     total_fetched = api_counters["processed"] + api_counters["excluded"] + api_counters["size_limit"] + api_counters["non_text"]
-    print(f"\n--- Crawl Summary ---")
+    print("\n--- Crawl Summary ---")
     print(f"  Total found : {total_fetched}")
     print(f"{C_GREEN}  Processed   : {api_counters['processed']}{C_RESET}")
     if api_counters["excluded"] > 0:
@@ -495,8 +496,8 @@ def crawl_github_files(
         print(f"{C_RED}  Non-text    : {api_counters['non_text']}{C_RESET}")
         for sf in api_skipped_non_text:
             print(f"{C_RED}    - {sf}{C_RESET}")
-    print(f"---------------------")
-    
+    print("---------------------")
+
     return {
         "files": files,
         "stats": {
@@ -517,32 +518,32 @@ if __name__ == "__main__":
         print("Warning: No GitHub token found in environment variable 'GITHUB_TOKEN'.\n"
               "Private repositories will not be accessible without a token.\n"
               "To access private repos, set the environment variable or pass the token explicitly.")
-    
+
     repo_url = "https://github.com/pydantic/pydantic/tree/6c38dc93f40a47f4d1350adca9ec0d72502e223f/pydantic"
-    
+
     # Example: Get Python and Markdown files, but exclude test files
     result = crawl_github_files(
-        repo_url, 
+        repo_url,
         token=github_token,
         max_file_size=1 * 1024 * 1024,  # 1 MB in bytes
         use_relative_paths=True,  # Enable relative paths
         include_patterns={"*.py", "*.md"},  # Include Python and Markdown files
     )
-    
+
     files = result["files"]
     stats = result["stats"]
-    
+
     print(f"\nDownloaded {stats['downloaded_count']} files.")
     print(f"Skipped {stats['skipped_count']} files due to size limits or patterns.")
     print(f"Base path for relative paths: {stats['base_path']}")
     print(f"Include patterns: {stats['include_patterns']}")
     print(f"Exclude patterns: {stats['exclude_patterns']}")
-    
+
     # Display all file paths in the dictionary
     print("\nFiles in dictionary:")
     for file_path in sorted(files.keys()):
         print(f"  {file_path}")
-    
+
     # Example: accessing content of a specific file
     if files:
         sample_file = next(iter(files))

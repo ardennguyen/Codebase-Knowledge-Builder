@@ -1,5 +1,6 @@
-import tiktoken
 import logging
+
+import tiktoken
 
 # Get the shared logger from call_llm module
 logger = logging.getLogger("llm_logger")
@@ -26,10 +27,10 @@ def count_tokens(text: str) -> int:
     return len(text) // 4
 
 def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
-                         token_usage: dict = None) -> None:
+                         token_usage: dict | None = None) -> None:
     token_count = count_tokens(prompt_content)
     percentage = (token_count / max_tokens) * 100 if max_tokens else 0
-    
+
     # Build token usage string if provided
     usage_str = ""
     if token_usage:
@@ -38,10 +39,10 @@ def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
             pct = (value / token_count * 100) if token_count else 0
             parts.append(f"{label}={value:,} ({pct:.0f}%)")
         usage_str = " | " + " | ".join(parts)
-    
+
     # Console output (yellow) with token usage
     print(f"\033[93m[Token Analytics] {node_name}: {token_count:,} / {max_tokens:,} tokens ({percentage:.1f}% capacity){usage_str}\033[0m")
-    
+
     # File log with node context and token usage
     logger.info(f"NODE EXEC | node={node_name} | prompt_tokens={token_count:,} / {max_tokens:,} ({percentage:.1f}% capacity){usage_str}")
 

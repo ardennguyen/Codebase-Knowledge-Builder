@@ -1,0 +1,22 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Ruff Check (lint)
+        run: ruff check .
+
+      - name: Ruff Format Check
+        run: ruff format --check .

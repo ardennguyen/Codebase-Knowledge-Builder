@@ -1,5 +1,6 @@
-import os
 import fnmatch
+import os
+
 import pathspec
 
 
@@ -146,7 +147,7 @@ def crawl_local_files(
 
     # --- Summary ---
     total_fetched = count_processed + count_excluded + count_size_limit + count_non_text
-    print(f"\n--- Crawl Summary ---")
+    print("\n--- Crawl Summary ---")
     print(f"  Total found : {total_fetched}")
     print(f"{C_GREEN}  Processed   : {count_processed}{C_RESET}")
     if count_excluded > 0:
@@ -159,7 +160,7 @@ def crawl_local_files(
         print(f"{C_RED}  Non-text    : {count_non_text}{C_RESET}")
         for f in skipped_non_text:
             print(f"{C_RED}    - {f}{C_RESET}")
-    print(f"---------------------")
+    print("---------------------")
 
     return {"files": files_dict}
 

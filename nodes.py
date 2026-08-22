@@ -1,14 +1,16 @@
 import os
-import re
-import yaml
-import tiktoken
-from pocketflow import Node, BatchNode
-from utils.crawl_github_files import crawl_github_files
-from utils.call_llm import call_llm, get_model_context_length, logger as llm_logger
-from utils.crawl_local_files import crawl_local_files
-from utils.token_utils import log_token_estimation, count_tokens
-from utils.prompts import build_code_file_filter_prompt, build_chapter_summary_prompt, build_mkdocs_config
 from collections import defaultdict
+
+import tiktoken
+import yaml
+from pocketflow import BatchNode, Node
+
+from utils.call_llm import call_llm, get_model_context_length
+from utils.call_llm import logger as llm_logger
+from utils.crawl_github_files import crawl_github_files
+from utils.crawl_local_files import crawl_local_files
+from utils.prompts import build_chapter_summary_prompt, build_code_file_filter_prompt, build_mkdocs_config
+from utils.token_utils import count_tokens, log_token_estimation
 
 
 # Helper to get content for specific file indices
@@ -31,7 +33,7 @@ def load_prompt_template(template_name, advanced_mode=False, mode=None):
         prompt_dir = "advanced" if advanced_mode else "tutorial"
     else:
         prompt_dir = mode
-        
+
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "prompts", prompt_dir, f"{template_name}.md")
     with open(path, "r", encoding="utf-8-sig") as f:
@@ -44,7 +46,7 @@ def parse_yaml_response(response):
         yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
         return yaml.safe_load(yaml_str)
     except Exception as e:
-        raise ValueError(f"Failed to parse YAML: {e}")
+        raise ValueError(f"Failed to parse YAML: {e}") from e
 
 
 def create_token_counter():
@@ -78,9 +80,9 @@ class DeterministicFileMapper(Node):
     def prep(self, shared):
         files_data = shared["files"]
         project_name = shared["project_name"]
-        
+
         file_listing = "\n".join([f"{i} # {path}" for i, (path, _) in enumerate(files_data)])
-        
+
         prompt = build_code_file_filter_prompt(project_name, file_listing)
         return prompt, shared.get("thinking_level", None), shared.get("max_tokens", 100000)
 
@@ -88,7 +90,7 @@ class DeterministicFileMapper(Node):
         try:
             prompt, thinking_level, max_tokens = prep_res
             log_token_estimation(self.__class__.__name__, prompt, max_tokens)
-            print(f"Smartly filtering non-code files using LLM...")
+            print("Smartly filtering non-code files using LLM...")
             response = call_llm(prompt, use_cache=True, thinking_level=thinking_level)
             valid_indices = parse_yaml_response(response)
             if not isinstance(valid_indices, list):
@@ -105,14 +107,14 @@ class DeterministicFileMapper(Node):
         valid_indices = set(exec_res)
         modules = []
         chapter_order = []
-        
+
         for idx, (file_path, content) in enumerate(files):
             if idx not in valid_indices:
                 print(f"  - Skipping non-code file: {file_path}")
                 continue
-                
+
             clean_name = os.path.splitext(file_path)[0].replace(os.sep, ".").replace("/", ".")
-            
+
             modules.append({
                 "name": clean_name,
                 "description": f"Internal API reference for `{file_path}`",
@@ -120,7 +122,7 @@ class DeterministicFileMapper(Node):
                 "original_path": file_path
             })
             chapter_order.append(len(modules) - 1)
-            
+
         shared["abstractions"] = modules
         shared["chapter_order"] = chapter_order
         shared["relationships"] = {"summary": "Deterministic Internal API Reference.", "details": []}
@@ -131,9 +133,9 @@ class ContextRouter(Node):
     def prep(self, shared):
         files_data = shared["files"]
         max_tokens = resolve_max_tokens(shared)
-        
+
         shared["max_tokens"] = max_tokens
-        
+
         # --- Token estimation setup ---
         count_tokens = create_token_counter()
 
@@ -169,9 +171,9 @@ class ContextRouter(Node):
         safety_limit = int(max_tokens * 0.95)
         effective_limit = safety_limit - prompt_overhead
         force_batch = shared.get("force_batch", False)
-        
+
         if shared.get("mode", "tutorial") == "api-reference":
-            print(f"\033[92m[ContextRouter] api-reference mode active. Bypassing LLM discovery and routing to DeterministicFileMapper.\033[0m")
+            print("\033[92m[ContextRouter] api-reference mode active. Bypassing LLM discovery and routing to DeterministicFileMapper.\033[0m")
             return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50),
                     None, None, directory_tree, False)
 
@@ -198,9 +200,9 @@ class ContextRouter(Node):
                 file_token_map, count_tokens, directory_tree, shared.get("debug", False))
 
     def exec(self, prep_res):
-        route, files_data, effective_limit, batch_size, file_token_map, count_tokens, directory_tree, debug = prep_res
+        route, files_data, effective_limit, batch_size, file_token_map, _count_tokens, directory_tree, debug = prep_res
         llm_logger.info(f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}")
-        
+
         if route == "direct":
             return "direct"
         if route == "deterministic":
@@ -248,7 +250,7 @@ class ContextRouter(Node):
 
         # Store directory tree for later use
         self._directory_tree = directory_tree
-            
+
         return batches
 
     def post(self, shared, prep_res, exec_res):
@@ -300,15 +302,15 @@ class MapAbstractions(BatchNode):
         batch_index = item["batch_index"]
         files = item["files"]
         print(f"Mapping abstractions for batch {batch_index} ({len(files)} files)...")
-        
+
         context = ""
         file_listing_for_prompt = []
         for i, path, content in files:
             context += f"--- File Index {i}: {path} ---\n{content}\n\n"
             file_listing_for_prompt.append(f"- {i} # {path}")
-            
+
         file_listing = "\n".join(file_listing_for_prompt)
-        
+
         prompt_template = load_prompt_template("map_abstractions", mode=item.get("mode", "tutorial"))
 
         language = item.get("language", "english")
@@ -325,7 +327,7 @@ class MapAbstractions(BatchNode):
             desc_lang_hint=desc_lang_hint,
             directory_tree=item.get("directory_tree", "Not available")
         )
-        
+
         token_usage = {
             "file_content": count_tokens(context),
             "dir_tree": count_tokens(item.get("directory_tree", "")),
@@ -378,18 +380,18 @@ class ReduceAbstractions(Node):
         )
 
     def exec(self, prep_res):
-        mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, doc_mode = prep_res
-        
+        mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, _advanced_mode, max_tokens, doc_mode = prep_res
+
         context = ""
         for i, abs_obj in enumerate(mapped_abstractions):
             context += f"- Partial Abstraction {i}: {abs_obj['name']}\n  Description: {abs_obj['description']}\n  Files: {abs_obj['files']}\n\n"
 
         prompt_template = load_prompt_template("reduce_abstractions", mode=doc_mode)
-            
+
         language_instruction = f"Output language MUST be entirely in {language}. " if language.lower() != "english" else ""
         name_lang_hint = f" (in {language})" if language.lower() != "english" else ""
         desc_lang_hint = f" (in {language})" if language.lower() != "english" else ""
-        
+
         prompt = prompt_template.format(
             project_name=project_name,
             partial_abstractions=context,
@@ -398,7 +400,7 @@ class ReduceAbstractions(Node):
             name_lang_hint=name_lang_hint,
             desc_lang_hint=desc_lang_hint
         )
-        
+
         log_token_estimation(self.__class__.__name__, prompt, max_tokens)
         print(f"Reducing {len(mapped_abstractions)} partial abstractions into global architecture...")
         response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
@@ -459,7 +461,7 @@ class FetchRepo(Node):
     def exec(self, prep_res):
         source = prep_res["repo_url"] or prep_res["local_dir"]
         llm_logger.info(f"NODE EXEC | node=FetchRepo | action=crawl_files | source={source}")
-        
+
         if prep_res["repo_url"]:
             print(f"Crawling repository: {prep_res['repo_url']}...")
             result = crawl_github_files(
@@ -485,7 +487,7 @@ class FetchRepo(Node):
         files_list = list(result.get("files", {}).items())
         if len(files_list) == 0:
             raise ValueError("No matching files found. Check your directory and include/exclude patterns.")
-        
+
         llm_logger.info(f"NODE COMPLETE | node=FetchRepo | files_found={len(files_list)}")
         return files_list
 
@@ -506,24 +508,24 @@ class IdentifyAbstractions(Node):
         def create_llm_context(files_data):
             # Retrieve max tokens limit
             max_tokens = resolve_max_tokens(shared)
-            
+
             safety_limit = int(max_tokens * 0.95)
-            
+
             count_tokens = create_token_counter()
 
             context = ""
             file_info = []  # Store tuples of (index, path)
             current_tokens = 0
-            
+
             for i, (path, content) in enumerate(files_data):
                 entry = f"--- File Index {i}: {path} ---\n{content}\n\n"
-                
+
                 entry_tokens = count_tokens(entry)
-                
+
                 if current_tokens + entry_tokens > safety_limit:
                     print(f"\033[93mWarning: Context truncated at file index {i} ({path}) to fit within limit of {safety_limit} tokens.\033[0m")
                     break
-                    
+
                 context += entry
                 file_info.append((i, path))
                 current_tokens += entry_tokens
@@ -560,11 +562,11 @@ class IdentifyAbstractions(Node):
                 use_cache,
                 max_abstraction_num,
                 thinking_level,
-                advanced_mode,
+                _advanced_mode,
                 max_tokens,
                 doc_mode,
             ) = prep_res  # Unpack all parameters
-            
+
             # Add language instruction and hints only if not English
             language_instruction = ""
             name_lang_hint = ""
@@ -592,7 +594,7 @@ class IdentifyAbstractions(Node):
             }
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            print(f"Identifying abstractions using LLM...")
+            print("Identifying abstractions using LLM...")
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)  # Use cache only if enabled and not retrying
 
             # --- Validation ---
@@ -803,7 +805,7 @@ class AnalyzeRelationships(Node):
                 language,
                 use_cache,
                 thinking_level,
-                advanced_mode,
+                _advanced_mode,
                 max_tokens,
                 doc_mode,
              ) = prep_res  # Unpack use_cache
@@ -832,7 +834,7 @@ class AnalyzeRelationships(Node):
             }
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            print(f"Analyzing relationships using LLM...")
+            print("Analyzing relationships using LLM...")
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
 
             # --- Validation ---
@@ -868,10 +870,10 @@ class AnalyzeRelationships(Node):
                 try:
                     from_idx_str = str(rel["from_abstraction"]).split("#")[0].strip()
                     to_idx_str = str(rel["to_abstraction"]).split("#")[0].strip()
-                    
+
                     from_nums = re.findall(r'\d+', from_idx_str)
                     to_nums = re.findall(r'\d+', to_idx_str)
-                    
+
                     if not from_nums or not to_nums:
                          raise ValueError("Missing valid integer for from_abstraction or to_abstraction.")
 
@@ -969,7 +971,7 @@ class OrderChapters(Node):
                 list_lang_note,
                 use_cache,
                 thinking_level,
-                advanced_mode,
+                _advanced_mode,
                 max_tokens,
                 doc_mode,
             ) = prep_res  # Unpack use_cache
@@ -1014,10 +1016,10 @@ class OrderChapters(Node):
                     ordered_indices.append(idx)
                     seen_indices.add(idx)
 
-                except (ValueError, TypeError):
+                except (ValueError, TypeError) as e:
                     raise ValueError(
                         f"Could not parse index from ordered list entry: {entry}"
-                    )
+                    ) from e
 
             # Check if all abstractions are included
             if len(ordered_indices) != num_abstractions:
@@ -1044,7 +1046,7 @@ class WriteChapters(BatchNode):
             "abstractions"
         ]  # List of {"name": str, "description": str, "files": [int]}
         files_data = shared["files"]  # List of (path, content) tuples
-        project_name = shared["project_name"]
+        shared["project_name"]
         language = shared.get("language", "english")
         use_cache = shared.get("use_cache", True)  # Get use_cache flag, default to True
         thinking_level = shared.get("thinking_level", None)
@@ -1076,7 +1078,7 @@ class WriteChapters(BatchNode):
                 else:
                     safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
                     filename = f"{i+1:02d}_{safe_name}.md"
-                
+
                 # Format with link (using potentially translated name)
                 all_chapters.append(f"{chapter_num}. [{chapter_name}]({filename})")
                 # Store mapping of chapter index to filename for linking
@@ -1087,7 +1089,7 @@ class WriteChapters(BatchNode):
                 }
 
         # Create a formatted string with all chapters
-        full_chapter_listing = "\n".join(all_chapters)
+        "\n".join(all_chapters)
 
         items_to_process = []
         for i, abstraction_index in enumerate(chapter_order):
@@ -1126,7 +1128,7 @@ class WriteChapters(BatchNode):
                         rel_path = os.path.relpath(target_filename, from_dir)
                     rel_path = rel_path.replace(os.sep, "/")
                     relative_chapters.append((ch_data["num"], f"{ch_data['num']}. [{ch_data['name']}]({rel_path})"))
-                
+
                 relative_chapters.sort(key=lambda x: x[0])
                 relative_chapter_listing = "\n".join(item[1] for item in relative_chapters)
 
@@ -1177,7 +1179,7 @@ class WriteChapters(BatchNode):
             language = item.get("language", "english")
             use_cache = item.get("use_cache", True) # Read use_cache from item
             thinking_level = item.get("thinking_level", None)
-            advanced_mode = item.get("advanced_mode", False)
+            item.get("advanced_mode", False)
             doc_mode = item.get("mode", "tutorial")
             is_mkdocs = item.get("mkdocs", False)
             incremental = item.get("incremental", False)
@@ -1194,11 +1196,12 @@ class WriteChapters(BatchNode):
             # --- Incremental Caching Logic ---
             current_hash = None
             if incremental and output_dir:
-                import hashlib, json
+                import hashlib
+                import json
                 hasher = hashlib.md5()
                 hasher.update(file_context_str.encode("utf-8"))
                 current_hash = hasher.hexdigest()
-                
+
                 manifest_path = os.path.join(output_dir, project_name, ".doc_cache_manifest.json")
                 if os.path.exists(manifest_path):
                     try:
@@ -1211,14 +1214,14 @@ class WriteChapters(BatchNode):
                                 print(f"Incremental Cache Hit: Skipping LLM for {abstraction_name}")
                                 with open(file_path, "r", encoding="utf-8") as f:
                                     cached_content = f.read()
-                                    
+
                                 # If it's mkdocs, strip the frontmatter before adding to chapters_written_so_far
                                 clean_content = cached_content
                                 if is_mkdocs and clean_content.startswith("---"):
                                     parts = clean_content.split("---", 2)
                                     if len(parts) >= 3:
                                         clean_content = parts[2].strip()
-                                        
+
                                 self.chapters_written_so_far.append(clean_content)
                                 # Generate summary for cached chapter too (needed for cross-chapter context)
                                 if doc_mode != "api-reference":
@@ -1342,16 +1345,17 @@ class WriteChapters(BatchNode):
             raise e
 
     def post(self, shared, prep_res, exec_res_list):
-        import os, json
+        import json
+        import os
         # exec_res_list contains dicts with content and hashes
         shared["chapters"] = [res["content"] for res in exec_res_list]
-        
+
         # Save MD5 incremental manifest if enabled
         if shared.get("incremental"):
             output_dir = os.path.join(shared.get("output_dir", "output"), shared.get("project_name"))
             os.makedirs(output_dir, exist_ok=True)
             manifest_path = os.path.join(output_dir, ".doc_cache_manifest.json")
-            
+
             manifest = {}
             if os.path.exists(manifest_path):
                 try:
@@ -1359,14 +1363,14 @@ class WriteChapters(BatchNode):
                         manifest = json.load(f)
                 except Exception:
                     pass
-                    
+
             for res in exec_res_list:
                 if res.get("hash") and res.get("name"):
                     manifest[res["name"]] = res["hash"]
-                    
+
             with open(manifest_path, "w", encoding="utf-8") as f:
                 json.dump(manifest, f, indent=2)
-                
+
         # Clean up the temporary instance variables
         del self.chapters_written_so_far
         del self.chapter_summaries
@@ -1440,40 +1444,40 @@ class CombineTutorial(Node):
         ui = ui_strings.get(language.lower(), ui_strings["english"])
 
         is_mkdocs = shared.get("mkdocs", False)
-        
+
         # --- Prepare index.md or nav_snippet.yml content ---
         if is_mkdocs:
             nav_items = []
             chapter_files = []
-            
+
             for i, abstraction_index in enumerate(chapter_order):
                 if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
                     abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
                     original_path = abstractions[abstraction_index].get("original_path")
-                    
+
                     if original_path:
                         doc_rel_path = os.path.splitext(original_path)[0] + ".md"
                         filename = doc_rel_path.replace(os.sep, "/")
                     else:
                         safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
                         filename = f"{safe_name}.md"
-                    
+
                     nav_items.append(f"    - '{abstraction_name}': 'api/{filename}'")
-                    
+
                     # Inject YAML Frontmatter
                     chapter_content = chapters_content[i]
                     frontmatter = f"---\ntitle: {abstraction_name}\nsidebar_position: {i + 1}\n---\n\n"
-                    
+
                     if not chapter_content.startswith("---"):
                         chapter_content = frontmatter + chapter_content
-                        
+
                     if not chapter_content.endswith("\n\n"):
                         chapter_content += "\n\n"
-                        
+
                     chapter_files.append({"filename": filename, "content": chapter_content})
-                    
+
             nav_snippet = "nav:\n  - API Reference:\n" + "\n".join(nav_items)
-            
+
             return {
                 "output_path": output_path,
                 "output_base_dir": output_base_dir,
@@ -1494,7 +1498,7 @@ class CombineTutorial(Node):
                 local_dir = shared.get("local_dir", "")
                 if local_dir:
                     index_content += f"**{ui['source_repo']}:** `{local_dir}`\n\n"
-            
+
             index_content += "```mermaid\n"
             index_content += mermaid_diagram + "\n"
             index_content += "```\n\n"
@@ -1529,7 +1533,7 @@ class CombineTutorial(Node):
     def exec(self, prep_res):
         try:
             output_path = prep_res["output_path"]
-            output_base_dir = prep_res["output_base_dir"]
+            prep_res["output_base_dir"]
             is_mkdocs = prep_res["is_mkdocs"]
             chapter_files = prep_res["chapter_files"]
             ui = prep_res["ui"]
@@ -1537,18 +1541,18 @@ class CombineTutorial(Node):
             llm_logger.info(f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}")
             print(f"Combining tutorial into directory: {output_path}")
             os.makedirs(output_path, exist_ok=True)
-            
+
             if is_mkdocs:
                 nav_snippet = prep_res["nav_snippet"]
                 project_name = prep_res["project_name"]
                 doc_mode = prep_res["doc_mode"]
                 api_docs_path = os.path.join(output_path, "docs", "api")
                 os.makedirs(api_docs_path, exist_ok=True)
-                
+
                 # Generate mkdocs.yml with Material theme + mermaid support
                 mode_labels = {
                     "tutorial": "Tutorial",
-                    "advanced": "Advanced Guide", 
+                    "advanced": "Advanced Guide",
                     "sdk": "SDK Guide",
                     "api-reference": "API Reference",
                 }
@@ -1558,7 +1562,7 @@ class CombineTutorial(Node):
                 with open(mkdocs_filepath, "w", encoding="utf-8") as f:
                     f.write(mkdocs_config)
                 print(f"  - Wrote {mkdocs_filepath}")
-                
+
                 # Generate docs/index.md landing page
                 index_content = f"# {site_title}\n\nGenerated documentation for **{project_name}**.\n\n"
                 index_content += f"Use the sidebar to navigate the {mode_labels.get(doc_mode, 'documentation').lower()} chapters.\n"
@@ -1566,13 +1570,13 @@ class CombineTutorial(Node):
                 with open(index_filepath, "w", encoding="utf-8") as f:
                     f.write(index_content)
                 print(f"  - Wrote {index_filepath}")
-                
+
                 # Write nav_snippet.yml
                 nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")
                 with open(nav_filepath, "w", encoding="utf-8") as f:
                     f.write(nav_snippet)
                 print(f"  - Wrote {nav_filepath}")
-                
+
                 # Write module API pages
                 for chapter_info in chapter_files:
                     chapter_filepath = os.path.join(api_docs_path, chapter_info["filename"])
@@ -1582,7 +1586,7 @@ class CombineTutorial(Node):
                     print(f"  - Wrote {chapter_filepath}")
             else:
                 index_content = prep_res["index_content"]
-                
+
                 # Write index.md
                 index_filepath = os.path.join(output_path, "index.md")
                 with open(index_filepath, "w", encoding="utf-8") as f:
@@ -1595,11 +1599,11 @@ class CombineTutorial(Node):
                     with open(chapter_filepath, "w", encoding="utf-8") as f:
                         f.write(chapter_info["content"])
                     print(f"  - Wrote {chapter_filepath}")
-                    
+
                 # Create full_content.md
                 toc_lines = [f"# {ui['toc']}\n"]
                 full_content_lines = []
-                
+
                 for i, chapter_info in enumerate(chapter_files):
                     content = chapter_info["content"]
                     title_line = content.split('\n', 1)[0]
@@ -1607,12 +1611,12 @@ class CombineTutorial(Node):
                         title = title_line[2:].strip()
                     else:
                         title = f"{ui['chapter']} {i+1}"
-                    
+
                     toc_lines.append(f"- [{title}](#chapter-{i+1})")
                     full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
                     full_content_lines.append(content)
                     full_content_lines.append('\n---\n')
-                    
+
                 full_content = "\n".join(toc_lines) + "\n\n" + "\n".join(full_content_lines)
                 full_content_filepath = os.path.join(output_path, "full_content.md")
                 with open(full_content_filepath, "w", encoding="utf-8") as f:

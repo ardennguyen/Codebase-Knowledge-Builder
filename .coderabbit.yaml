@@ -1,0 +1,40 @@
+# CodeRabbit Configuration
+# Docs: https://docs.coderabbit.ai/guides/configure-coderabbit
+
+language: en
+
+reviews:
+  # Auto-review every PR
+  auto_review:
+    enabled: true
+    drafts: false                    # Skip draft PRs
+    base_branches:
+      - main
+
+  # Review profile: assertive catches more issues
+  profile: assertive
+
+  # What to focus on
+  path_instructions:
+    - path: "nodes.py"
+      instructions: |
+        This is the core pipeline — 10 PocketFlow Node classes.
+        Focus on: token budget management, LLM prompt construction,
+        shared store read/write patterns, and retry/cache logic.
+    - path: "utils/*.py"
+      instructions: |
+        Utility modules. Focus on: function signatures matching
+        docs/design.md Section 9 contracts, error handling, and
+        edge cases in file crawling and token counting.
+    - path: "prompts/**/*.md"
+      instructions: |
+        LLM prompt templates. Focus on: placeholder variable names
+        matching the node code, instruction clarity, and whether
+        the prompts could cause LLM hallucination or off-topic output.
+    - path: "main.py"
+      instructions: |
+        CLI entry point. Focus on: argument validation, shared store
+        initialization, and backward compatibility of CLI flags.
+
+chat:
+  auto_reply: true

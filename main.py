@@ -1,6 +1,8 @@
-import dotenv
-import os
 import argparse
+import os
+
+import dotenv
+
 # Import the function that creates the flow
 from flow import create_tutorial_flow
 
@@ -19,7 +21,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
 
     # 2. Build, Distribution, and Framework Caches
     "dist/*", "build/*", "out/*", "output/*", "target/*", "bin/*", "obj/*",
-    ".next/*", ".nuxt/*", ".svelte-kit/*", ".expo/*", 
+    ".next/*", ".nuxt/*", ".svelte-kit/*", ".expo/*",
     "docs/*", "test/*", "tests/*", "examples/*",
     "v1/*", "experimental/*", "deprecated/*", "misc/*", "legacy/*",
     "*.log", "*.bak", "*.tmp", "*.swp",
@@ -27,7 +29,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     # 3. Environments, Dependencies & Lockfiles
     "venv/*", ".venv/*", "env/*", ".env", ".env.*",
     "node_modules/*", "bower_components/*", "jspm_packages/*",
-    "vendor/*", "packages/*", 
+    "vendor/*", "packages/*",
     "*.lock", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "poetry.lock", "mix.lock", "Pipfile.lock",
 
     # 4. Language-Specific Exclusions
@@ -81,14 +83,14 @@ def main():
     parser.add_argument("--thinking-level", default=None, help="Thinking effort level for OpenRouter models (e.g., low, medium, high). Default is auto.")
     # Add max_tokens parameter
     parser.add_argument("--max-tokens", type=int, default=None, help="Maximum number of tokens for the context window (default: fetched dynamically).")
-    
+
     # --- Documentation Mode & Generation Styles ---
     parser.add_argument("--mode", choices=["tutorial", "advanced", "api-reference", "sdk"], default="tutorial", help="Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)")
     parser.add_argument("--advanced", action="store_true", help="Legacy flag: equivalent to --mode advanced")
     parser.add_argument("--mkdocs", action="store_true", help="Format output for MkDocs Material (adds YAML frontmatter & nav snippet)")
     parser.add_argument("--incremental", action="store_true", help="Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)")
     parser.add_argument("--force-rebuild", action="store_true", help="Clear incremental cache and regenerate all chapters from scratch (use with --incremental)")
-    
+
     # Add batching parameters
     parser.add_argument("--batch", type=int, default=50, help="Max files per batch in map-reduce mode")
     parser.add_argument("--force-batch", action="store_true", help="Force map-reduce mode regardless of context size")
@@ -147,25 +149,25 @@ def main():
 
         # Add language for multi-language support
         "language": args.language,
-        
+
         # Add use_cache flag (inverse of no-cache flag)
         "use_cache": not args.no_cache,
-        
+
         # Add max_abstraction_num parameter
         "max_abstraction_num": args.max_abstractions,
 
         # Add thinking_level for LLM reasoning capabilities
         "thinking_level": args.thinking_level,
-        
+
         # Add max tokens override
         "max_tokens": args.max_tokens,
-        
+
         # Added mode, mkdocs, and incremental
         "mode": doc_mode,
         "mkdocs": args.mkdocs,
         "incremental": args.incremental,
         "advanced_mode": doc_mode == "advanced",
-        
+
         # Batching settings
         "batch_size": args.batch,
         "force_batch": args.force_batch,
@@ -201,7 +203,7 @@ def main():
             endpoint_url = "unknown"
             api_key = ""
 
-    from utils.call_llm import get_model_context_length, configure_logging
+    from utils.call_llm import configure_logging, get_model_context_length
     context_length = args.max_tokens if args.max_tokens else get_model_context_length(endpoint_url, model_name, api_key)
 
     # Derive project name for logging (before flow runs, which may override shared["project_name"])
@@ -219,7 +221,7 @@ def main():
 
     # Display configuration
     print(f"Starting tutorial generation for: {args.repo or args.dir} in {args.language.capitalize()} language")
-    print(f"--- Configuration ---")
+    print("--- Configuration ---")
     print(f"AI Provider    : {provider}")
     print(f"AI Endpoint    : {endpoint_url}")
     print(f"AI Model       : {model_name}")
@@ -233,21 +235,21 @@ def main():
     if args.incremental:
         print(f"Force Rebuild  : {'Enabled' if args.force_rebuild else 'Disabled'}")
     if doc_mode == "api-reference":
-        print(f"Max Abstractions: Ignored (api-reference uses 1:1 file mapping)")
+        print("Max Abstractions: Ignored (api-reference uses 1:1 file mapping)")
     else:
         print(f"Max Abstractions: {args.max_abstractions}")
     print(f"LLM Caching    : {'Disabled' if args.no_cache else 'Enabled'}")
     if args.debug:
-        print(f"Debug Mode     : Enabled")
+        print("Debug Mode     : Enabled")
     print(f"Log File       : {log_file}")
-    print(f"---------------------")
+    print("---------------------")
 
     # Create the flow instance
     tutorial_flow = create_tutorial_flow()
 
     # Run the flow
     tutorial_flow.run(shared)
-    
+
     # Cleanup logs and cache if requested
     if args.cleanup:
         print("\nCleaning up cache and logs...")
@@ -258,7 +260,7 @@ def main():
                 print(f" - Removed {cache_path}")
             except Exception as e:
                 print(f" - Failed to remove {cache_path}: {e}")
-                
+
         log_dir = os.environ.get("LOG_DIR", "logs")
         if os.path.exists(log_dir) and os.path.isdir(log_dir):
             import shutil

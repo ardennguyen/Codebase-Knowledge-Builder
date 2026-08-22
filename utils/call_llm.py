@@ -1,11 +1,12 @@
+import json
+import logging
+import os
+from datetime import datetime
+
+import requests
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-import os
-import logging
-import json
-import requests
-from datetime import datetime
-from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,21 +21,21 @@ logger.addHandler(logging.NullHandler())  # Absorb logs until configured
 
 def configure_logging(project_name="project", mode="tutorial"):
     """Configure file-based logging for this run.
-    
+
     Creates a new log file per invocation:
         logs/{project_name}_{mode}_{YYYYMMDD_HHmmss}.log
-    
+
     Must be called from main() after parsing CLI arguments.
     """
     log_directory = os.getenv("LOG_DIR", "logs")
     os.makedirs(log_directory, exist_ok=True)
-    
+
     # Sanitize project name for filesystem safety
     safe_project = "".join(c if c.isalnum() or c in "-_." else "_" for c in project_name)
     safe_mode = mode.replace("-", "_")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = os.path.join(log_directory, f"{safe_project}_{safe_mode}_{timestamp}.log")
-    
+
     # Remove any existing handlers (e.g., NullHandler) and add the file handler
     logger.handlers.clear()
     file_handler = logging.FileHandler(log_file, encoding='utf-8')
@@ -42,13 +43,13 @@ def configure_logging(project_name="project", mode="tutorial"):
         logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     )
     logger.addHandler(file_handler)
-    
+
     # Log run metadata at the start of every log file
     logger.info(f"{'='*80}")
     logger.info(f"RUN STARTED | project={project_name} | mode={mode} | timestamp={timestamp}")
     logger.info(f"Log file: {log_file}")
     logger.info(f"{'='*80}")
-    
+
     return log_file
 
 # Simple cache configuration
@@ -60,7 +61,7 @@ def load_cache():
         with open(cache_file, 'r') as f:
             return json.load(f)
     except:
-        logger.warning(f"Failed to load cache.")
+        logger.warning("Failed to load cache.")
     return {}
 
 
@@ -69,7 +70,7 @@ def save_cache(cache):
         with open(cache_file, 'w') as f:
             json.dump(cache, f)
     except:
-        logger.warning(f"Failed to save cache")
+        logger.warning("Failed to save cache")
 
 
 def get_llm_provider():
@@ -91,7 +92,7 @@ def _get_openrouter_model_info(model_id: str) -> dict:
             _openrouter_models_cache = resp.json().get("data", [])
         except Exception:
             _openrouter_models_cache = []
-    
+
     return next((m for m in _openrouter_models_cache if m.get("id") == model_id), None)
 
 
@@ -106,11 +107,11 @@ def get_model_context_length(endpoint_url: str, model_name: str, api_key: str = 
     try:
         if not endpoint_url:
             return default_limit
-            
+
         if "generativelanguage.googleapis.com" in endpoint_url or "gemini" in model_name.lower():
             # Safely default to 1M tokens for Gemini models
             return 1000000
-            
+
         if "openrouter.ai" in endpoint_url:
             resp = requests.get("https://openrouter.ai/api/v1/models", timeout=5)
             data = resp.json().get("data", [])
@@ -119,11 +120,11 @@ def get_model_context_length(endpoint_url: str, model_name: str, api_key: str = 
                     return m.get("context_length", default_limit)
     except Exception as e:
         logger.warning(f"Failed to fetch context length for {model_name} at {endpoint_url}: {e}")
-        
+
     return default_limit
 
 
-def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
+def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
     """
     Call an LLM provider based on environment variables.
     Environment variables:
@@ -184,7 +185,7 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
                 logger.warning(f"Invalid thinking level '{thinking_level}' for model {model}. Supported efforts: {supported_efforts}")
         else:
             logger.warning(f"Model {model} does not support reasoning via OpenRouter API.")
-            
+
     elif provider == "OLLAMA" and thinking_level:
         # Some Ollama SDKs / API versions look for `think`, others look for standard `reasoning_effort`
         payload["think"] = thinking_level.lower()
@@ -198,15 +199,15 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
         except (ValueError, requests.exceptions.JSONDecodeError):
             print(f"\033[93mWarning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}\033[0m")
             logger.warning(f"Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}")
-            raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}")
+            raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}") from None
         response.raise_for_status()
-        
+
         # Defensive check: API may return 200 with error/rate-limit payload missing 'choices'
         if "choices" not in response_json or not response_json["choices"]:
             error_detail = response_json.get("error", response_json)
             logger.warning(f"API returned 200 but no 'choices' in response: {error_detail}")
             raise ValueError(f"API response missing 'choices' key. Response: {error_detail}")
-        
+
         return response_json["choices"][0]["message"]["content"]
     except requests.exceptions.HTTPError as e:
         error_message = f"HTTP error occurred: {e}"
@@ -215,18 +216,18 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
             error_message += f" (Details: {error_details})"
         except:
             pass
-        raise Exception(error_message)
-    except requests.exceptions.ConnectionError:
-        raise Exception(f"Failed to connect to {provider} API. Check your network connection.")
-    except requests.exceptions.Timeout:
-        raise Exception(f"Request to {provider} API timed out.")
+        raise Exception(error_message) from e
+    except requests.exceptions.ConnectionError as e:
+        raise Exception(f"Failed to connect to {provider} API. Check your network connection.") from e
+    except requests.exceptions.Timeout as e:
+        raise Exception(f"Request to {provider} API timed out.") from e
     except requests.exceptions.RequestException as e:
-        raise Exception(f"An error occurred while making the request to {provider}: {e}")
-    except ValueError:
-        raise Exception(f"Failed to parse response as JSON from {provider}. The server might have returned an invalid response.")
+        raise Exception(f"An error occurred while making the request to {provider}: {e}") from e
+    except ValueError as e:
+        raise Exception(f"Failed to parse response as JSON from {provider}. The server might have returned an invalid response.") from e
 
 # By default, we use Google Gemini 3.7 flash, as it shows great performance for code understanding
-def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) -> str:
+def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -> str:
     import time
 
     from utils.token_utils import count_tokens
@@ -245,7 +246,7 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) ->
             cached_response = cache[prompt]
             logger.info(f"CACHE HIT | response_chars={len(cached_response):,}")
             logger.info(f"RESPONSE (cached):\n{cached_response}")
-            logger.info(f"LLM CALL END | result=cache_hit")
+            logger.info("LLM CALL END | result=cache_hit")
             return cached_response
 
     # Make the actual LLM call
@@ -266,13 +267,13 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) ->
         cache = load_cache()
         cache[prompt] = response_text
         save_cache(cache)
-        logger.info(f"CACHE WRITE | saved response to cache")
+        logger.info("CACHE WRITE | saved response to cache")
 
     logger.info(f"LLM CALL END | result=success | elapsed={elapsed:.1f}s")
     return response_text
 
 
-def _call_llm_gemini(prompt: str, thinking_level: str = None) -> str:
+def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -> str:
     if os.getenv("GEMINI_PROJECT_ID"):
         client = genai.Client(
             vertexai=True,
@@ -284,12 +285,12 @@ def _call_llm_gemini(prompt: str, thinking_level: str = None) -> str:
     else:
         raise ValueError("Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment")
     model = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
-    
+
     kwargs = {
         "model": model,
         "contents": [prompt]
     }
-    
+
     if thinking_level:
         # Map string levels to budgets for the installed SDK version
         budget_map = {"low": 1024, "medium": 4096, "high": 8192}
@@ -298,7 +299,7 @@ def _call_llm_gemini(prompt: str, thinking_level: str = None) -> str:
         kwargs["config"] = types.GenerateContentConfig(thinking_config=thinking_config)
 
     response = client.models.generate_content(**kwargs)
-    
+
     # Extract only text parts to avoid "non-text parts: ['thought_signature']" warnings
     if response.candidates and response.candidates[0].content.parts:
         text_parts = [part.text for part in response.candidates[0].content.parts if part.text is not None]
