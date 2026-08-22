@@ -150,10 +150,14 @@ class ContextRouter(Node):
         directory_tree = self._build_directory_tree(files_data)
         tree_tokens = count_tokens(directory_tree)
 
-        prompt_overhead = max_template_tokens + tree_tokens
+        # 3. File listing index (e.g. "- 0 # main.py\n- 1 # nodes.py\n...")
+        file_listing_str = "\n".join(f"- {i} # {path}" for i, (path, _) in enumerate(files_data))
+        listing_tokens = count_tokens(file_listing_str)
+
+        prompt_overhead = max_template_tokens + tree_tokens + listing_tokens
         print(
-            f"\033[93m[ContextRouter] Prompt overhead: ~{prompt_overhead:,} tokens "
-            f"(template: {max_template_tokens:,}, dir tree: {tree_tokens:,})\033[0m"
+            f"\033[93m[Capacity] Prompt overhead: ~{prompt_overhead:,} tokens "
+            f"(template: {max_template_tokens:,}, dir tree: {tree_tokens:,}, file listing: {listing_tokens:,})\033[0m"
         )
 
         # --- Count file content tokens ---
@@ -171,30 +175,30 @@ class ContextRouter(Node):
         force_batch = shared.get("force_batch", False)
 
         if shared.get("mode", "tutorial") == "api-reference":
-            print("\033[92m[ContextRouter] api-reference mode active. Bypassing LLM discovery and routing to DeterministicFileMapper.\033[0m")
+            print("\033[92m[Capacity] api-reference mode active. Bypassing LLM discovery and routing to DeterministicFileMapper.\033[0m")
             return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree, False)
 
         if total_tokens > effective_limit and force_batch:
             print(
-                f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
+                f"\033[93m[Capacity] File content ({total_tokens:,} tokens) exceeds effective limit "
                 f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
                 f"and --force-batch is set. Using Map-Reduce.\033[0m"
             )
         elif total_tokens > effective_limit:
             print(
-                f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
+                f"\033[93m[Capacity] File content ({total_tokens:,} tokens) exceeds effective limit "
                 f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
                 f"Using Map-Reduce.\033[0m"
             )
         elif force_batch:
             print(
-                f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
+                f"\033[93m[Capacity] File content ({total_tokens:,} tokens) fits in effective limit "
                 f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
                 f"but --force-batch is set. Using Map-Reduce.\033[0m"
             )
         else:
             print(
-                f"\033[92m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
+                f"\033[92m[Capacity] File content ({total_tokens:,} tokens) fits in effective limit "
                 f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
                 f"Proceeding normally.\033[0m"
             )
@@ -248,7 +252,7 @@ class ContextRouter(Node):
                 batches.append(current_batch)
 
         batch_word = "batch" if len(batches) == 1 else "batches"
-        print(f"\033[93m[ContextRouter] Split into {len(batches)} {batch_word}.\033[0m")
+        print(f"\033[93m[Capacity] Split into {len(batches)} {batch_word}.\033[0m")
         llm_logger.info(f"NODE COMPLETE | node=ContextRouter | route={route} | batches={len(batches)}")
 
         # Debug: show detailed batch info
@@ -603,7 +607,7 @@ class IdentifyAbstractions(Node):
             }
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            print("Identifying abstractions using LLM...")
+            print("\033[96m[LLM Call] Identifying abstractions...\033[0m")
             response = call_llm(
                 prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
             )  # Use cache only if enabled and not retrying
@@ -832,7 +836,7 @@ class AnalyzeRelationships(Node):
             }
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            print("Analyzing relationships using LLM...")
+            print("\033[96m[LLM Call] Analyzing relationships...\033[0m")
             response = call_llm(
                 prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
             )  # Use cache only if enabled and not retrying
@@ -973,7 +977,7 @@ class OrderChapters(Node):
                 project_name=project_name, list_lang_note=list_lang_note, abstraction_listing=abstraction_listing, context=context
             )
             log_token_estimation(self.__class__.__name__, prompt, max_tokens)
-            print("Determining chapter order using LLM...")
+            print("\033[96m[LLM Call] Determining chapter order...\033[0m")
             response = call_llm(
                 prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
             )  # Use cache only if enabled and not retrying
@@ -1198,10 +1202,15 @@ class WriteChapters(BatchNode):
                                 # Generate summary for cached chapter too (needed for cross-chapter context)
                                 if doc_mode != "api-reference":
                                     summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, clean_content, language)
+                                    cached_content_tokens = count_tokens(clean_content)
                                     summary_tokens = count_tokens(summary_prompt)
-                                    print(
-                                        f"\033[96m[Summarizing] Cached chapter {chapter_num} for cross-chapter context ({summary_tokens:,} tokens)...\033[0m"
-                                    )
+                                    summary_overhead = summary_tokens - cached_content_tokens
+                                    token_usage_summary = {
+                                        "chapter_content": cached_content_tokens,
+                                        "overhead": summary_overhead,
+                                    }
+                                    log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
+                                    print(f"\033[96m[Summarizing] Cached chapter {chapter_num} for cross-chapter context...\033[0m")
                                     llm_logger.info(
                                         f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache"
                                     )
@@ -1278,12 +1287,12 @@ class WriteChapters(BatchNode):
             }
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            print(f"Writing chapter {chapter_num} for: {abstraction_name.strip()} using LLM...")
+            print(f"\033[96m[LLM Call] Writing chapter {chapter_num} for: {abstraction_name.strip()}...\033[0m")
             chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
 
             # Log response token count
             response_tokens = count_tokens(chapter_content)
-            print(f"\033[92m[Response] Chapter {chapter_num}: {response_tokens:,} tokens\033[0m")
+            print(f"\033[92m[Writing Done] Chapter {chapter_num}: {response_tokens:,} tokens\033[0m")
             llm_logger.info(f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}")
 
             # Basic validation/cleanup
@@ -1303,8 +1312,15 @@ class WriteChapters(BatchNode):
             # Generate LLM summary for cross-chapter context (skip for api-reference)
             if doc_mode != "api-reference":
                 summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, chapter_content, language)
+                chapter_content_tokens = count_tokens(chapter_content)
                 summary_tokens = count_tokens(summary_prompt)
-                print(f"\033[96m[Summarizing] Chapter {chapter_num} for cross-chapter context ({summary_tokens:,} tokens)...\033[0m")
+                summary_overhead = summary_tokens - chapter_content_tokens
+                token_usage_summary = {
+                    "chapter_content": chapter_content_tokens,
+                    "overhead": summary_overhead,
+                }
+                log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
+                print(f"\033[96m[Summarizing] Chapter {chapter_num} for cross-chapter context...\033[0m")
                 llm_logger.info(f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}")
                 chapter_summary = call_llm(summary_prompt, use_cache=True, thinking_level=None)
                 summary_response_tokens = count_tokens(chapter_summary)

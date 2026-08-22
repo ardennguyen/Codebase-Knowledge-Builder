@@ -35,15 +35,22 @@ def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, t
 
     # Build token usage string if provided
     usage_str = ""
+    usage_log_str = ""
     if token_usage:
-        parts = []
+        # Find the longest label for alignment
+        max_label_len = max(len(label) for label in token_usage)
+        lines = []
+        log_parts = []
         for label, value in token_usage.items():
             pct = (value / token_count * 100) if token_count else 0
-            parts.append(f"{label}={value:,} ({pct:.0f}%)")
-        usage_str = " | " + " | ".join(parts)
+            padded_label = label.ljust(max_label_len)
+            lines.append(f"\t{padded_label} : {value:,} ({pct:.0f}%)")
+            log_parts.append(f"{label}={value:,} ({pct:.0f}%)")
+        usage_str = "\n" + "\n".join(lines)
+        usage_log_str = " | " + " | ".join(log_parts)
 
-    # Console output (yellow) with token usage
+    # Console output (yellow) with token usage on separate lines
     print(f"\033[93m[Token Analytics] {node_name}: {token_count:,} / {max_tokens:,} tokens ({percentage:.1f}% capacity){usage_str}\033[0m")
 
-    # File log with node context and token usage
-    logger.info(f"NODE EXEC | node={node_name} | prompt_tokens={token_count:,} / {max_tokens:,} ({percentage:.1f}% capacity){usage_str}")
+    # File log stays single-line for parseability
+    logger.info(f"NODE EXEC | node={node_name} | prompt_tokens={token_count:,} / {max_tokens:,} ({percentage:.1f}% capacity){usage_log_str}")
