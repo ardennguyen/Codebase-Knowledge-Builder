@@ -80,9 +80,20 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
         f"  name: material\n"
         f"  features:\n"
         f"    - content.code.copy\n"
+        f"  palette:\n"
+        f"    - scheme: default\n"
+        f"      toggle:\n"
+        f"        icon: material/brightness-7\n"
+        f"        name: Switch to dark mode\n"
+        f"    - scheme: slate\n"
+        f"      toggle:\n"
+        f"        icon: material/brightness-4\n"
+        f"        name: Switch to light mode\n"
         f"plugins:\n"
         f"  - search\n"
-        f"  - panzoom\n"
+        f"  - panzoom:\n"
+        f"      include_selectors:\n"
+        f"        - '.mermaid'\n"
         f"markdown_extensions:\n"
         f"  - pymdownx.highlight:\n"
         f"      anchor_linenums: true\n"
@@ -93,7 +104,61 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
         f"          class: mermaid\n"
         f"          format: !!python/name:pymdownx.superfences.fence_code_format\n"
         f"  - pymdownx.inlinehilite\n"
+        f"extra_css:\n"
+        f"  - stylesheets/mermaid-vibrant.css\n"
         f"nav:\n"
         f"  - Home: index.md\n"
         f"{nav_body}\n"
     )
+
+
+def build_mermaid_css() -> str:
+    """Build CSS overrides for vibrant Mermaid diagrams in MkDocs Material.
+
+    Material for MkDocs forcibly overrides Mermaid's %%{init}%% directives,
+    so we use CSS to restore vibrant colors matching Mermaid's default theme:
+    - Yellow subgraph backgrounds
+    - Lavender node fills
+    - Purple node strokes
+    """
+    return """\
+/* Vibrant Mermaid diagram theme — overrides Material's muted colors */
+/* Matches Mermaid's built-in 'default' theme (yellow subgraphs, lavender nodes) */
+
+/* Subgraph/cluster backgrounds — warm yellow */
+.mermaid .cluster rect {
+  fill: #ffffde !important;
+  stroke: #aaaa33 !important;
+  stroke-width: 1px !important;
+}
+
+/* Cluster/subgraph title text */
+.mermaid .cluster text {
+  fill: #333 !important;
+}
+
+/* Node fills — light lavender */
+.mermaid .node rect,
+.mermaid .node polygon,
+.mermaid .node circle {
+  fill: #ECECFF !important;
+  stroke: #9370DB !important;
+  stroke-width: 1px !important;
+}
+
+/* Node text */
+.mermaid .nodeLabel {
+  color: #333 !important;
+}
+
+/* Edge label backgrounds */
+.mermaid .edgeLabel {
+  background-color: #e8e8e8 !important;
+  color: #333 !important;
+}
+
+/* Edge lines */
+.mermaid .edge-pattern-solid {
+  stroke: #333 !important;
+}
+"""

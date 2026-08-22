@@ -9,7 +9,7 @@ from utils.call_llm import call_llm, get_model_context_length
 from utils.call_llm import logger as llm_logger
 from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
-from utils.prompts import build_chapter_summary_prompt, build_code_file_filter_prompt, build_mkdocs_config
+from utils.prompts import build_chapter_summary_prompt, build_code_file_filter_prompt, build_mermaid_css, build_mkdocs_config
 from utils.token_utils import count_tokens, log_token_estimation
 
 
@@ -1385,14 +1385,14 @@ class CombineTutorial(Node):
         chapters_content = shared["chapters"]  # list of strings -> content potentially translated
 
         # --- Generate Mermaid Diagram ---
-        mermaid_lines = ["%%{init: {'theme': 'default'}}%%", "flowchart TD"]
+        mermaid_lines = ["flowchart TD"]
         # Add nodes for each abstraction using potentially translated names
         for i, abstr in enumerate(abstractions):
             node_id = f"A{i}"
             # Use potentially translated name, sanitize for Mermaid ID and label
             sanitized_name = abstr["name"].replace('"', "").replace("\n", " ").strip()
             node_label = sanitized_name  # Using sanitized name only
-            mermaid_lines.append(f'    {node_id}["{node_label}"]')  # Node label uses potentially translated name
+            mermaid_lines.append(f'    {node_id}("{node_label}")')  # Node label uses potentially translated name
         # Add edges for relationships using potentially translated labels
         for rel in relationships_data["details"]:
             from_node_id = f"A{rel['from']}"
@@ -1632,6 +1632,14 @@ class CombineTutorial(Node):
                 with open(mkdocs_filepath, "w", encoding="utf-8") as f:
                     f.write(mkdocs_config)
                 print(f"  - Wrote {mkdocs_filepath}")
+
+                # Generate stylesheets/mermaid-vibrant.css for vibrant Mermaid theme
+                css_dir = os.path.join(output_path, "docs", "stylesheets")
+                os.makedirs(css_dir, exist_ok=True)
+                css_filepath = os.path.join(css_dir, "mermaid-vibrant.css")
+                with open(css_filepath, "w", encoding="utf-8") as f:
+                    f.write(build_mermaid_css())
+                print(f"  - Wrote {css_filepath}")
 
                 # Generate docs/index.md landing page
                 index_content = f"# {site_title}\n\nGenerated documentation for **{project_name}**.\n\n"
