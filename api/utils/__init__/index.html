@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/__init__/">
+      
       
         <link rel="prev" href="../../nodes/">
       
@@ -29,6 +31,9 @@
     
       <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
       
 
 
@@ -46,6 +51,8 @@
       
     
     
+      <link rel="stylesheet" href="../../../stylesheets/mermaid-vibrant.css">
+    
       <link rel="stylesheet" href="../../../assets/stylesheets/panzoom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
@@ -58,7 +65,14 @@
 <meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
   
   
-    <body dir="ltr">
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -109,6 +123,32 @@
         </div>
       </div>
     </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
     
     
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
@@ -457,10 +497,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#subsystem-architecture-namespace-layout" class="md-nav__link">
+  <a href="#package-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Subsystem Architecture &amp; Namespace Layout
+        Package Architecture
       
     </span>
   </a>
@@ -468,30 +508,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-level-definitions-symbol-exports" class="md-nav__link">
+  <a href="#module-level-definitions-symbol-inventory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module-Level Definitions &amp; Symbol Exports
+        Module-Level Definitions &amp; Symbol Inventory
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Module-Level Definitions &amp; Symbol Exports">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#export-strategy-and-namespace-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Export Strategy and Namespace Behavior
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -700,10 +723,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#subsystem-architecture-namespace-layout" class="md-nav__link">
+  <a href="#package-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Subsystem Architecture &amp; Namespace Layout
+        Package Architecture
       
     </span>
   </a>
@@ -711,30 +734,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-level-definitions-symbol-exports" class="md-nav__link">
+  <a href="#module-level-definitions-symbol-inventory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module-Level Definitions &amp; Symbol Exports
+        Module-Level Definitions &amp; Symbol Inventory
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Module-Level Definitions &amp; Symbol Exports">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#export-strategy-and-namespace-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Export Strategy and Namespace Behavior
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -767,15 +773,18 @@
 
 
 <h1 id="utilsinit">utils.<strong>init</strong></h1>
-<p><strong>Original File Path:</strong> <code>utils/__init__.py</code></p>
+<p><strong>File Path:</strong> <code>utils/__init__.py</code></p>
+<p>Following the graph execution mechanisms established in <a href="../../nodes/">nodes</a>, the <code>utils</code> package provides specialized lower-level helper components that support file ingestion, token accounting, prompt assembly, and large language model execution.</p>
+<hr />
 <h2 id="technical-overview">Technical Overview</h2>
-<p>The <code>utils/__init__.py</code> file serves as the package initialization marker for the <code>utils</code> namespace within the <code>Codebase-Knowledge-Builder</code> repository. In Python's module architecture, an <code>__init__.py</code> file designates its enclosing directory as an importable regular package, establishing the namespace hierarchy that permits explicit sub-module resolution (e.g., <code>from utils.call_llm import call_llm</code>).</p>
-<p>In <code>Codebase-Knowledge-Builder</code>, <code>utils/__init__.py</code> is maintained as a clean, zero-byte module initialization file. It does not perform eager re-exports, runtime symbol definitions, or package-level state initialization. This design pattern ensures:
-1. <strong>Decoupled Imports and Zero Side Effects</strong>: Importing individual utility sub-modules does not trigger unintended side effects or instantiate unneeded dependencies across unrelated execution paths.
-2. <strong>Elimination of Circular Dependencies</strong>: Downstream processing nodes and orchestration layers can selectively consume specific utility functions without inducing circular reference chains between utility submodules and pipeline components.
-3. <strong>Lazy Submodule Loading</strong>: Modules such as <code>utils.call_llm</code>, <code>utils.crawl_github_files</code>, <code>utils.crawl_local_files</code>, <code>utils.prompts</code>, and <code>utils.token_utils</code> are loaded into <code>sys.modules</code> strictly on demand.</p>
-<h2 id="subsystem-architecture-namespace-layout">Subsystem Architecture &amp; Namespace Layout</h2>
-<p>The <code>utils</code> package groups helper facilities used throughout the pipeline into distinct functional units: remote and local repository crawling, prompt template management, token budget computation, and large language model (LLM) execution.</p>
+<p>The <code>utils/__init__.py</code> file serves as the package initialization marker for the <code>utils</code> directory within the <code>Codebase-Knowledge-Builder</code> repository. In Python's package system, the presence of <code>__init__.py</code> marks the enclosing directory as a regular package rather than a namespace package, ensuring deterministic module resolution across diverse deployment environments and runtime configurations.</p>
+<p>By remaining empty, this file establishes a zero-overhead package boundary. It intentionally avoids eager re-exports or top-level symbol imports from its sibling utility modules. This architectural design yields several benefits:
+1. <strong>Prevents Circular Dependencies</strong>: Submodules like <a href="../call_llm/">utils.call_llm</a> and <a href="../prompts/">utils.prompts</a> can import shared dependencies without triggering circular initialization chains through <code>__init__.py</code>.
+2. <strong>Eliminates Initialization Overhead</strong>: Downstream modules that require a single utility (such as <a href="../token_utils/">utils.token_utils</a>) do not pay the runtime or memory penalty of importing heavy third-party networking or crawling libraries (e.g., <code>requests</code>, <code>google-genai</code>).
+3. <strong>Encourages Explicit Module Namespaces</strong>: Consumers must import submodules explicitly (for example, <code>from utils.call_llm import call_llm</code> or <code>from utils.crawl_local_files import crawl_local_files</code>), ensuring clear call sites and straightforward static analysis.</p>
+<hr />
+<h2 id="package-architecture">Package Architecture</h2>
+<p>The <code>utils</code> package organizes core helper modules consumed by the orchestration pipeline in <a href="../../flow/">flow</a> and processing steps in <a href="../../nodes/">nodes</a>.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -789,61 +798,99 @@
     </svg>
 </button>
     </nav>
-    <pre class="mermaid"><code>%%{init: {'theme': 'default'}}%%
-flowchart TD
+    <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    PackageRoot["utils.__init__ (Package Root)"]
-    class PackageRoot entryNode
-
-    subgraph UtilitiesSubsystem["utils Package Modules"]
-        LLM["utils.call_llm"]
-        CrawlGH["utils.crawl_github_files"]
-        CrawlLocal["utils.crawl_local_files"]
-        Prompts["utils.prompts"]
-        Tokens["utils.token_utils"]
+    subgraph UtilsPackage["utils Package (utils/__init__.py)"]
+        initNode["utils/__init__.py"]:::entryNode
+        callLLM["utils.call_llm"]
+        crawlGit["utils.crawl_github_files"]
+        crawlLoc["utils.crawl_local_files"]
+        prompts["utils.prompts"]
+        tokenUtils["utils.token_utils"]
     end
 
-    subgraph ConsumerPipeline["Pipeline Consumers"]
-        Nodes["nodes"]
-        Flow["flow"]
-        Main["main"]
+    subgraph PipelineConsumers["Consumers"]
+        nodesModule["nodes"]
+        flowModule["flow"]
+        mainModule["main"]
     end
 
-    PackageRoot -. defines namespace .-&gt; UtilitiesSubsystem
-    Nodes --&gt; LLM
-    Nodes --&gt; Prompts
-    Nodes --&gt; Tokens
-    Nodes --&gt; CrawlGH
-    Nodes --&gt; CrawlLocal
-    Flow --&gt; Nodes
-    Main --&gt; Flow</code></pre> 
+    initNode -. marks package directory .-&gt; callLLM
+    initNode -. marks package directory .-&gt; crawlGit
+    initNode -. marks package directory .-&gt; crawlLoc
+    initNode -. marks package directory .-&gt; prompts
+    initNode -. marks package directory .-&gt; tokenUtils
+
+    nodesModule --&gt; callLLM
+    nodesModule --&gt; crawlGit
+    nodesModule --&gt; crawlLoc
+    nodesModule --&gt; prompts
+    nodesModule --&gt; tokenUtils
+    flowModule --&gt; nodesModule
+    mainModule --&gt; flowModule</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
-<h2 id="module-level-definitions-symbol-exports">Module-Level Definitions &amp; Symbol Exports</h2>
-<p>The source file <code>utils/__init__.py</code> contains no top-level symbol definitions, functions, classes, or <code>__all__</code> export lists.</p>
-<h3 id="export-strategy-and-namespace-behavior">Export Strategy and Namespace Behavior</h3>
-<p>Because <code>utils/__init__.py</code> contains no direct declarations:
-- The package namespace does not expose runtime symbols upon a bare <code>import utils</code> call.
-- Consumers must explicitly target sub-modules during import:
-  - <code>from utils.call_llm import call_llm</code>
-  - <code>from utils.crawl_github_files import crawl_github_files</code>
-  - <code>from utils.crawl_local_files import crawl_local_files</code>
-  - <code>from utils.prompts import ...</code>
-  - <code>from utils.token_utils import count_tokens, truncate_to_tokens</code>
-- This minimal configuration prevents overhead during interpreter startup and preserves clean module boundaries throughout the system.</p>
+<hr />
+<h2 id="module-level-definitions-symbol-inventory">Module-Level Definitions &amp; Symbol Inventory</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># utils/__init__.py contains 0 bytes of code.</span>
+</code></pre></div>
+<p>The file defines no public or private classes, methods, functions, or package-level variables (<code>__all__</code>). All module features are accessed directly via individual submodule imports within the <code>utils</code> namespace:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Submodule</th>
+<th style="text-align: left;">Module Path</th>
+<th style="text-align: left;">Responsibility</th>
+<th style="text-align: left;">Primary Entry Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><code>call_llm</code></strong></td>
+<td style="text-align: left;"><code>utils/call_llm.py</code></td>
+<td style="text-align: left;">Interfaces with Google Gemini LLM via the <code>google-genai</code> SDK</td>
+<td style="text-align: left;"><code>call_llm()</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>crawl_github_files</code></strong></td>
+<td style="text-align: left;"><code>utils/crawl_github_files.py</code></td>
+<td style="text-align: left;">Crawls and fetches file contents from GitHub repositories</td>
+<td style="text-align: left;"><code>crawl_github_files()</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>crawl_local_files</code></strong></td>
+<td style="text-align: left;"><code>utils/crawl_local_files.py</code></td>
+<td style="text-align: left;">Recursively collects and filters local repository files</td>
+<td style="text-align: left;"><code>crawl_local_files()</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>prompts</code></strong></td>
+<td style="text-align: left;"><code>utils/prompts.py</code></td>
+<td style="text-align: left;">Contains system and user prompt templates for generation steps</td>
+<td style="text-align: left;">Prompt constants &amp; template formatters</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>token_utils</code></strong></td>
+<td style="text-align: left;"><code>utils/token_utils.py</code></td>
+<td style="text-align: left;">Computes token counts and enforces context window budget limits</td>
+<td style="text-align: left;">Token estimation &amp; slicing functions</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../../flow/">flow</a> - Pipeline workflow orchestration</li>
-<li><a href="../../main/">main</a> - Application entry point</li>
-<li><a href="../../nodes/">nodes</a> - Processing nodes interacting with utility modules</li>
-<li><a href="../call_llm/">utils.call_llm</a> - LLM invocation utilities</li>
-<li><a href="../crawl_github_files/">utils.crawl_github_files</a> - GitHub repository extraction tools</li>
-<li><a href="../crawl_local_files/">utils.crawl_local_files</a> - Local file system crawling tools</li>
-<li><a href="../prompts/">utils.prompts</a> - Prompt construction templates</li>
-<li><a href="../token_utils/">utils.token_utils</a> - Token estimation and truncation tools</li>
+<li><a href="../../flow/">flow</a> — Workflow orchestration and execution graph definition.</li>
+<li><a href="../../main/">main</a> — Command-line entry point configuring arguments and executing workflows.</li>
+<li><a href="../../nodes/">nodes</a> — Pipeline nodes that consume submodules inside the <code>utils</code> package.</li>
+<li><a href="../call_llm/">utils.call_llm</a> — LLM interface for Gemini model queries.</li>
+<li><a href="../crawl_github_files/">utils.crawl_github_files</a> — GitHub repository file extraction engine.</li>
+<li><a href="../crawl_local_files/">utils.crawl_local_files</a> — Local filesystem crawling engine.</li>
+<li><a href="../prompts/">utils.prompts</a> — LLM prompt construction templates.</li>
+<li><a href="../token_utils/">utils.token_utils</a> — Token counting and context window truncation helpers.</li>
 </ul>
 
 

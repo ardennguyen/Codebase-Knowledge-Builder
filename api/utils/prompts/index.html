@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/prompts/">
+      
       
         <link rel="prev" href="../crawl_local_files/">
       
@@ -29,6 +31,9 @@
     
       <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
       
 
 
@@ -46,6 +51,8 @@
       
     
     
+      <link rel="stylesheet" href="../../../stylesheets/mermaid-vibrant.css">
+    
       <link rel="stylesheet" href="../../../assets/stylesheets/panzoom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
@@ -58,7 +65,14 @@
 <meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
   
   
-    <body dir="ltr">
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -109,6 +123,32 @@
         </div>
       </div>
     </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
     
     
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
@@ -558,10 +598,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#architectural-role-pipeline-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Architectural Role &amp; Pipeline Integration
       
     </span>
   </a>
@@ -607,6 +647,17 @@
     <span class="md-ellipsis">
       
         build_mkdocs_config()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_mermaid_css" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_mermaid_css()
       
     </span>
   </a>
@@ -700,10 +751,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#architectural-role-pipeline-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Architectural Role &amp; Pipeline Integration
       
     </span>
   </a>
@@ -755,6 +806,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#build_mermaid_css" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_mermaid_css()
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -789,13 +851,16 @@
 
 
 <h1 id="utilsprompts">utils.prompts</h1>
-<p><strong>Original File Path</strong>: <code>utils/prompts.py</code></p>
-<h2 id="overview">Overview</h2>
-<p>The <code>utils.prompts</code> module provides reusable inline prompt builders and configuration formatters for the <code>Codebase-Knowledge-Builder</code> engine. Unlike mode-specific templates loaded dynamically from the <code>prompts/{mode}/</code> directory, the builders in this module generate specialized system instructions, cross-chapter context summaries, and static site configuration files required during internal pipeline execution.</p>
-<p>The module encapsulates three primary capabilities:
-1. <strong>Source Code Filtering</strong>: Assembles prompts that direct an LLM to distinguish core code modules from configuration, UI layouts, and assets during deterministic file mapping in API reference mode.
-2. <strong>Context Summarization</strong>: Generates structured prompts to produce technical chapter summaries, capturing component scope, technical elements, architecture patterns, and integration dependencies to maintain inter-chapter coherence.
-3. <strong>MkDocs Configuration Generation</strong>: Generates standard <code>mkdocs.yml</code> configurations with pre-configured themes (Material for MkDocs), search plugins, code copy functionality, and Mermaid diagram renderers using <code>pymdownx.superfences</code>.</p>
+<p><strong>Source File</strong>: <code>utils/prompts.py</code></p>
+<p>The <code>utils.prompts</code> module provides programmatic prompt constructors, site configuration generators, and presentation assets used across the <code>Codebase-Knowledge-Builder</code> pipeline. Unlike mode-specific chapter generation templates loaded dynamically from external filesystem directories (such as <code>prompts/{mode}/</code>), the builders in this module represent inline, structural prompts and configuration builders critical to core graph execution, inter-chapter context synthesis, deterministic file filtering, and static documentation site generation.</p>
+<hr />
+<h2 id="architectural-role-pipeline-integration">Architectural Role &amp; Pipeline Integration</h2>
+<p>The functions within <code>utils.prompts</code> serve three distinct phases of execution within the documentation pipeline:</p>
+<ol>
+<li><strong>Deterministic Code Filtering</strong>: Generates structured classification instructions for the Large Language Model (LLM) to isolate functional source code modules from non-code assets (e.g., markup, configs, build scripts).</li>
+<li><strong>Cross-Chapter Context Maintenance</strong>: Constructs structured summarization prompts across four technical dimensions (scope, components, patterns, integration) to maintain context window continuity across long-form multi-chapter generation.</li>
+<li><strong>MkDocs Static Site Generation</strong>: Synthesizes the runtime <code>mkdocs.yml</code> manifest and custom CSS rules required to render interactive Mermaid diagrams and dark/light navigation themes in the exported documentation.</li>
+</ol>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -809,17 +874,32 @@
     </svg>
 </button>
     </nav>
-    <pre class="mermaid"><code>%%{init: {'theme': 'default'}}%%
-flowchart TD
+    <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    P[Pipeline Nodes]:::entryNode --&gt;|Call| B1[build_code_file_filter_prompt]
-    P --&gt;|Call| B2[build_chapter_summary_prompt]
-    P --&gt;|Call| B3[build_mkdocs_config]
+    subgraph PromptBuilders ["Prompt Construction Layer"]
+        B1["build_code_file_filter_prompt()"]
+        B2["build_chapter_summary_prompt()"]
+    end
 
-    B1 --&gt;|Output| LLM1[LLM: Code File Index Filtering]
-    B2 --&gt;|Output| LLM2[LLM: 4-Dimension Chapter Summary]
-    B3 --&gt;|Output| OUT[mkdocs.yml Configuration File]</code></pre> 
+    subgraph SiteBuilders ["Asset &amp; Config Generation Layer"]
+        C1["build_mkdocs_config()"]
+        C2["build_mermaid_css()"]
+    end
+
+    subgraph Consumers ["Pipeline Execution Nodes"]
+        N1["DeterministicFileMapper Node"]
+        N2["Chapter Generation / Reducer Node"]
+        N3["MkDocs Export / Write Node"]
+    end
+
+    B1 --&gt;|YAML Index Filter Prompt| N1
+    B2 --&gt;|Technical Summary Prompt| N2
+    C1 --&gt;|mkdocs.yml Content| N3
+    C2 --&gt;|mermaid-vibrant.css| N3
+
+    class B1 entryNode
+    class C1 entryNode</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -829,152 +909,189 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <h3 id="build_code_file_filter_prompt"><code>build_code_file_filter_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_code_file_filter_prompt(project_name: str, file_listing: str) -&gt; str:</code></p>
-<p><strong>Description</strong>:
-Constructs the raw string prompt evaluated by the LLM (typically in <code>DeterministicFileMapper</code> within <a href="../../nodes/">nodes</a>) to filter out non-code assets. It instructs the language model to analyze a provided index of file paths and return a strict YAML list containing only the integer indices corresponding to functional code modules (such as APIs, business logic, classes, and helper functions) while explicitly discarding UI layouts, project manifests, and static documentation.</p>
+<p><strong>Description</strong>:<br />
+Constructs an LLM classification prompt designed for the <code>DeterministicFileMapper</code> step in <code>api-reference</code> mode. It instructs the language model to analyze a newline-delimited file manifest and separate executable source modules (containing APIs, classes, business logic, or interface definitions) from UI layouts, static configuration files, build definitions, and ancillary assets. The model is constrained to return a strict YAML sequence of integer indices corresponding to valid code files.</p>
 <p><strong>Parameters</strong>:
-* <code>project_name</code> (<code>str</code>): The name or identifier of the project being documented.
-* <code>file_listing</code> (<code>str</code>): A pre-formatted, indexed list of candidate files within the repository.</p>
+* <code>project_name</code> (<code>str</code>): The human-readable name or identifier of the repository/project being processed.
+* <code>file_listing</code> (<code>str</code>): The formatted, enumerated file manifest representing the repository tree.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: A formatted prompt containing instructions, project name, candidate file listing, and output schema requirements (YAML index array).</p>
+* <code>str</code>: A fully formatted zero-shot prompt with embedded YAML schema instructions and exclusion rules.</p>
 <p><strong>Raises</strong>:
-* No explicit exceptions raised internally.</p>
+* This function does not raise exceptions directly.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_code_file_filter_prompt</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_listing</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for DeterministicFileMapper to filter non-code files.</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="sd">    Used in api-reference mode to identify which files are actual code modules</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">    (APIs, functions, classes, business logic) vs. UI layouts, configs, assets.</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="sd">    """</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="sa">f</span><span class="s2">"For the project `</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2">`, here is the list of all files in the codebase:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file_listing</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="sa">f</span><span class="s2">"Your task is to identify WHICH of these files are ACTUAL CODE files that contain "</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="sa">f</span><span class="s2">"APIs, functions, classes, or core business logic.</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="sa">f</span><span class="s2">"EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files "</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="sa">f</span><span class="s2">"(like .xml, .json, .manifest, .ini), static assets, build scripts "</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="sa">f</span><span class="s2">"(like .csproj, .sln), and documentation.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="sa">f</span><span class="s2">"Return ONLY a YAML list of the file indices that should be documented as code modules.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="sa">f</span><span class="s2">"For the project `</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2">`, here is the list of all files in the codebase:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file_listing</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="sa">f</span><span class="s2">"Your task is to identify WHICH of these files are ACTUAL CODE files that contain "</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="sa">f</span><span class="s2">"APIs, functions, classes, or core business logic.</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="sa">f</span><span class="s2">"EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files "</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="sa">f</span><span class="s2">"(like .xml, .json, .manifest, .ini), static assets, build scripts "</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="sa">f</span><span class="s2">"(like .csproj, .sln), and documentation.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="sa">f</span><span class="s2">"Return ONLY a YAML list of the file indices that should be documented as code modules.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The returned prompt specifies rigid negative constraints (e.g., excluding <code>.xaml</code>, <code>.json</code>, <code>.csproj</code>, and documentation files) to prevent the documentation pipeline from attempting to generate API reference chapters for non-executable or declarative files. By requesting output in a strict <code>yaml ...</code> code block containing integer indices, the downstream parser can reliably extract and map the valid file indices back to the source inventory.</p>
+<p>The output of <code>build_code_file_filter_prompt()</code> acts as an input filter that prevents non-code files from consuming LLM context window quotas during API documentation runs. By strictly bounding the output format to a YAML sequence of integers (<code>- 0</code>, <code>- 1</code>, etc.), down-stream parser nodes can deterministically deserialize the response using standard YAML or regex loaders without encountering unstructured markdown conversational padding.</p>
 <hr />
 <h3 id="build_chapter_summary_prompt"><code>build_chapter_summary_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = "english") -&gt; str:</code></p>
-<p><strong>Description</strong>:
-Constructs a structured prompt instructing an LLM to generate a concise, multi-dimensional technical brief for an already generated chapter. The resulting brief acts as cross-chapter context in sequential pipeline executions, enabling subsequent chapter generation nodes to reference concepts, models, and boundaries established in previous chapters without exceeding context token limits.</p>
-<p>The generated prompt enforces a 4-dimensional extraction model where each dimension is answered in 3 to 5 sentences:
-1. Component scope and technical domain responsibilities.
-2. Concrete classes, functions, interfaces, and service models.
-3. Design patterns, architectural decisions, and error-handling strategies.
-4. Inter-component boundaries, dependencies, and integration touchpoints.</p>
+<p><strong>Description</strong>:<br />
+Generates a structured prompt to summarize an already-written documentation chapter. The generated summary serves as recursive inter-chapter context fed into successive chapter generation passes. It enforces a 4-dimensional technical structure covering component scope, concrete implementation entities, architectural patterns, and external system integrations. It also supports localization by dynamically prepending language constraints when <code>language</code> is not English.</p>
 <p><strong>Parameters</strong>:
-* <code>chapter_num</code> (<code>int</code>): The sequence index of the target chapter.
-* <code>abstraction_name</code> (<code>str</code>): The semantic title or abstraction name of the chapter component.
-* <code>chapter_content</code> (<code>str</code>): The full markdown text of the generated documentation chapter.
-* <code>language</code> (<code>str</code>, optional): The target output language. Defaults to <code>"english"</code>. If a non-English string is provided, a localization instruction is prepended.</p>
+* <code>chapter_num</code> (<code>int</code>): The numeric index of the chapter being summarized.
+* <code>abstraction_name</code> (<code>str</code>): The title, abstraction layer, or concept documented in the chapter.
+* <code>chapter_content</code> (<code>str</code>): The complete markdown text of the generated chapter.
+* <code>language</code> (<code>str</code>, optional): Target language for the summary output. Defaults to <code>"english"</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The assembled prompt text including localization prefixes, the 4-part analytical rubric, and the chapter content payload.</p>
+* <code>str</code>: A prompt string instructing the model to produce a 4-point technical brief.</p>
 <p><strong>Raises</strong>:
-* No explicit exceptions raised internally.</p>
+* This function does not raise exceptions directly.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_chapter_summary_prompt</span><span class="p">(</span><span class="n">chapter_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">abstraction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"english"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for generating a technical summary of a written chapter.</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="sd">    Used after each chapter is generated to create a concise technical summary</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    for cross-chapter context. The summary is fed into subsequent chapters'</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">    prompts so the LLM maintains coherence across the full document.</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">    The summary captures 4 technical dimensions with 3-5 sentences each:</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">    1. Component scope &amp; responsibility</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">    2. Key classes/services/functions and their roles</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    3. Implementation patterns &amp; architectural decisions</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    4. Inter-component interfaces &amp; dependencies</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    """</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>    <span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The function handles dynamic localization by conditionally prefixing the prompt with <code>Write the entire summary in {language.capitalize()}.</code> when <code>language</code> is not set to <code>"english"</code>. The structured 4-part rubric prevents vague summaries by forcing concrete naming of classes, services, and integration points, ensuring downstream LLM calls in <a href="../../nodes/">nodes</a> receive high-density technical context.</p>
+<p>The 4-part structure enforced by <code>build_chapter_summary_prompt()</code> prevents context drift across sequential generation passes in large codebases. By isolating scope, concrete identifiers, architectural patterns, and dependency relationships into dense 3-5 sentence blocks, the resulting summaries remain informative while keeping token counts low enough to fit within cumulative context windows for downstream nodes.</p>
 <hr />
 <h3 id="build_mkdocs_config"><code>build_mkdocs_config()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_mkdocs_config(site_name: str, nav_yaml: str) -&gt; str:</code></p>
-<p><strong>Description</strong>:
-Formats and returns a complete <code>mkdocs.yml</code> configuration string. It configures the MkDocs Material theme, clipboard copy buttons, search plugins, inline syntax highlighting, and custom Mermaid fence handlers (<code>pymdownx.superfences</code> configured with <code>fence_code_format</code>).</p>
-<p>The function splits the supplied <code>nav_yaml</code> input string to strip any leading <code>nav:</code> header line and embeds the remaining hierarchy under a root <code>- Home: index.md</code> navigation entry.</p>
+<p><strong>Description</strong>:<br />
+Assembles the complete YAML configuration string for an MkDocs documentation site using the <code>material</code> theme. It parses and strips header prefixes from the provided navigation snippet, configures light/dark mode toggles, sets up search and panzoom plugins, enables syntax highlighting with line numbering, and registers custom fence formatters to render Mermaid diagrams natively via <code>pymdownx.superfences</code>.</p>
 <p><strong>Parameters</strong>:
-* <code>site_name</code> (<code>str</code>): The documentation site title displayed in the header and navigation bar.
-* <code>nav_yaml</code> (<code>str</code>): A YAML-formatted navigation hierarchy string generated during documentation compilation.</p>
+* <code>site_name</code> (<code>str</code>): The title of the documentation project rendered in the site header and metadata.
+* <code>nav_yaml</code> (<code>str</code>): A YAML-formatted navigation hierarchy, typically containing a <code>nav:</code> root node.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The serialized YAML configuration file content ready to be written to <code>mkdocs.yml</code>.</p>
+* <code>str</code>: The full text content of a valid <code>mkdocs.yml</code> file.</p>
 <p><strong>Raises</strong>:
-* No explicit exceptions raised internally.</p>
+* This function does not raise exceptions directly.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_mkdocs_config</span><span class="p">(</span><span class="n">site_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nav_yaml</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Build a complete mkdocs.yml for local --mkdocs output.</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="sd">    Generates a ready-to-use MkDocs Material config with:</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="sd">    - Material theme with code copy buttons</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="sd">    - Syntax highlighting (pymdownx.highlight + inlinehilite)</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="sd">    - Mermaid diagram rendering via pymdownx.superfences custom fences</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="sd">    - Navigation from the generated nav_snippet</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="sd">    Users can run `mkdocs serve` or `mkdocs build` directly in the output dir.</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="sd">    """</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="c1"># Extract nav items from nav_snippet (strip the "nav:" header line)</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">nav_lines</span> <span class="o">=</span> <span class="n">nav_yaml</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="n">nav_body</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nav_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">if</span> <span class="n">nav_lines</span> <span class="k">else</span> <span class="s2">""</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="sa">f</span><span class="s2">"site_name: '</span><span class="si">{</span><span class="n">site_name</span><span class="si">}</span><span class="s2">'</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="sa">f</span><span class="s2">"theme:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="sa">f</span><span class="s2">"  name: material</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="sa">f</span><span class="s2">"  features:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="sa">f</span><span class="s2">"    - content.code.copy</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        <span class="sa">f</span><span class="s2">"plugins:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="sa">f</span><span class="s2">"  - search</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        <span class="sa">f</span><span class="s2">"  - panzoom</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="sa">f</span><span class="s2">"markdown_extensions:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.highlight:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="sa">f</span><span class="s2">"      anchor_linenums: true</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="sa">f</span><span class="s2">"      use_pygments: true</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.superfences:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        <span class="sa">f</span><span class="s2">"      custom_fences:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="sa">f</span><span class="s2">"        - name: mermaid</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>        <span class="sa">f</span><span class="s2">"          class: mermaid</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>        <span class="sa">f</span><span class="s2">"          format: !!python/name:pymdownx.superfences.fence_code_format</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.inlinehilite</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>        <span class="sa">f</span><span class="s2">"nav:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>        <span class="sa">f</span><span class="s2">"  - Home: index.md</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nav_body</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>    <span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="c1"># Extract nav items from nav_snippet (strip the "nav:" header line)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">nav_lines</span> <span class="o">=</span> <span class="n">nav_yaml</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">nav_body</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nav_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">if</span> <span class="n">nav_lines</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="sa">f</span><span class="s2">"site_name: '</span><span class="si">{</span><span class="n">site_name</span><span class="si">}</span><span class="s2">'</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="sa">f</span><span class="s2">"theme:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="sa">f</span><span class="s2">"  name: material</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="sa">f</span><span class="s2">"  features:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="sa">f</span><span class="s2">"    - content.code.copy</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="sa">f</span><span class="s2">"  palette:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="sa">f</span><span class="s2">"    - scheme: default</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="sa">f</span><span class="s2">"      toggle:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="sa">f</span><span class="s2">"        icon: material/brightness-7</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="sa">f</span><span class="s2">"        name: Switch to dark mode</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="sa">f</span><span class="s2">"    - scheme: slate</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="sa">f</span><span class="s2">"      toggle:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="sa">f</span><span class="s2">"        icon: material/brightness-4</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="sa">f</span><span class="s2">"        name: Switch to light mode</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="sa">f</span><span class="s2">"plugins:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        <span class="sa">f</span><span class="s2">"  - search</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="sa">f</span><span class="s2">"  - panzoom:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        <span class="sa">f</span><span class="s2">"      include_selectors:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="sa">f</span><span class="s2">"        - '.mermaid'</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>        <span class="sa">f</span><span class="s2">"markdown_extensions:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.highlight:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="sa">f</span><span class="s2">"      anchor_linenums: true</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>        <span class="sa">f</span><span class="s2">"      use_pygments: true</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.superfences:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="sa">f</span><span class="s2">"      custom_fences:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>        <span class="sa">f</span><span class="s2">"        - name: mermaid</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>        <span class="sa">f</span><span class="s2">"          class: mermaid</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>        <span class="sa">f</span><span class="s2">"          format: !!python/name:pymdownx.superfences.fence_code_format</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.inlinehilite</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>        <span class="sa">f</span><span class="s2">"extra_css:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>        <span class="sa">f</span><span class="s2">"  - stylesheets/mermaid-vibrant.css</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>        <span class="sa">f</span><span class="s2">"nav:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>        <span class="sa">f</span><span class="s2">"  - Home: index.md</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nav_body</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The navigation normalization logic inspects <code>nav_yaml</code> line-by-line using <code>split("\n")</code>. By taking <code>nav_lines[1:]</code>, it safely discards redundant top-level <code>nav:</code> tags emitted by language models or navigation builders, splicing the clean YAML child tree directly below the default root page (<code>- Home: index.md</code>). The returned YAML string allows users to immediately run <code>mkdocs serve</code> or <code>mkdocs build</code> on the generated output directory.</p>
+<p>This configuration builder automates the generation of local static documentation sites when the <code>--mkdocs</code> CLI flag is supplied. It uses <code>pymdownx.superfences.fence_code_format</code> for Mermaid diagram processing alongside the <code>panzoom</code> plugin, enabling interactive zooming and panning for complex architectural diagrams directly in the rendered browser UI.</p>
+<hr />
+<h3 id="build_mermaid_css"><code>build_mermaid_css()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def build_mermaid_css() -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Generates a static CSS stylesheet string that overrides default Material for MkDocs CSS rules on Mermaid diagrams. By default, MkDocs Material strips Mermaid's internal theme directives and applies muted monochromatic colors. This function returns explicit CSS rules that restore vibrant visual styling, including warm yellow cluster backgrounds, lavender node fills, and purple boundary strokes.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Raw CSS string ready to be written to <code>stylesheets/mermaid-vibrant.css</code>.</p>
+<p><strong>Raises</strong>:
+* This function does not raise exceptions directly.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_mermaid_css</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">return</span> <span class="s2">"""</span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s2">/* Vibrant Mermaid diagram theme — overrides Material's muted colors */</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s2">/* Matches Mermaid's built-in 'default' theme (yellow subgraphs, lavender nodes) */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s2">/* Subgraph/cluster backgrounds — warm yellow */</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s2">.mermaid .cluster rect {</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="s2">  fill: #ffffde !important;</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="s2">  stroke: #aaaa33 !important;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s2">  stroke-width: 1px !important;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="s2">}</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s2">/* Cluster/subgraph title text */</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s2">.mermaid .cluster text {</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="s2">  fill: #333 !important;</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="s2">}</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="s2">/* Node fills — light lavender */</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="s2">.mermaid .node rect,</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="s2">.mermaid .node polygon,</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="s2">.mermaid .node circle {</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="s2">  fill: #ECECFF !important;</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="s2">  stroke: #9370DB !important;</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="s2">  stroke-width: 1px !important;</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="s2">}</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="s2">/* Node text */</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="s2">.mermaid .nodeLabel {</span>
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="s2">  color: #333 !important;</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="s2">}</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="s2">/* Edge label backgrounds */</span>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="s2">.mermaid .edgeLabel {</span>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="s2">  background-color: #e8e8e8 !important;</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="s2">  color: #333 !important;</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="s2">}</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="s2">/* Edge lines */</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="s2">.mermaid .edge-pattern-solid {</span>
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="s2">  stroke: #333 !important;</span>
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="s2">}</span>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="s2">"""</span>
+</code></pre></div></p>
+<p>The CSS rules returned by <code>build_mermaid_css()</code> target specific SVG elements generated by Mermaid (such as <code>.cluster rect</code>, <code>.node rect</code>, and <code>.nodeLabel</code>) with <code>!important</code> declarations. This guarantees consistent visual contrast and readability across both light (<code>default</code>) and dark (<code>slate</code>) MkDocs themes without requiring client-side JavaScript execution.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../../nodes/">nodes</a> — Node execution handlers that invoke these prompt builders during workflow steps.</li>
-<li><a href="../../flow/">flow</a> — Orchestration pipeline controlling chapter generation, summarization, and output export.</li>
-<li><a href="../call_llm/">utils.call_llm</a> — Low-level invocation utility executing LLM completions with the generated prompts.</li>
-<li><a href="../token_utils/">utils.token_utils</a> — Token measurement tools used to monitor and budget prompt payloads.</li>
+<li><a href="../../nodes/">nodes</a> — Pipeline nodes that consume these prompt functions for file filtering and chapter summarization.</li>
+<li><a href="../call_llm/">utils.call_llm</a> — LLM execution client that dispatches the rendered prompts.</li>
+<li><a href="../token_utils/">utils.token_utils</a> — Context and token estimation utilities used prior to executing generated prompts.</li>
+<li><a href="../../flow/">flow</a> — Workflow orchestration governing the sequential execution of generation nodes.</li>
 </ul>
 
 
