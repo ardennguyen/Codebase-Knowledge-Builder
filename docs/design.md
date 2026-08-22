@@ -98,7 +98,8 @@ codebase_kb/
 │   ├── call_llm.py                  # Multi-provider LLM wrapper with caching
 │   ├── crawl_github_files.py        # GitHub API crawler
 │   ├── crawl_local_files.py         # Local directory crawler
-│   └── token_utils.py               # Token estimation utility
+│   ├── prompts.py                   # Reusable prompt builders for internal LLM calls
+│   └── token_utils.py               # Token counting & estimation utilities
 ├── prompts/
 │   ├── tutorial/                    # Beginner-friendly prompt templates
 │   │   ├── identify_abstractions.md
@@ -818,13 +819,52 @@ def get_model_context_length(endpoint_url, model_name, api_key) -> int:
     # Default fallback: 100,000
 ```
 
+### `count_tokens`
+```python
+def count_tokens(text: str) -> int:
+    # Returns token count using lazy-loaded tiktoken singleton
+    # Fallback: len(text) // 4 if tiktoken unavailable
+```
+- Uses `tiktoken.get_encoding('cl100k_base')` via module-level singleton (`_get_encoding()`)
+- Returns 0 for empty/None text
+- Shared by `log_token_estimation`, `call_llm` (prompt_tokens), and `WriteChapters` (breakdown + response counting)
+
 ### `log_token_estimation`
 ```python
-def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int) -> None:
-    # Prints: \033[93m[Token Analytics] {node_name}: {token_count:,} / {max_tokens:,} tokens ({percentage:.1f}% capacity)\033[0m
+def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
+                         token_usage: dict = None) -> None:
+    # Prints: \033[93m[Token Analytics] {node_name}: {token_count:,} / {max_tokens:,} tokens ({percentage:.1f}% capacity){usage_str}\033[0m
 ```
-- Uses `tiktoken.get_encoding('cl100k_base')`, fallback to `len(text) // 4`
-- **Takes 3 arguments, NOT 1** — node_name for display, prompt for counting, max_tokens for percentage
+- Uses `count_tokens()` internally for consistent measurement
+- `token_usage` dict: optional per-component token counts. Each key is a label (e.g. `file_context`, `prev_chapters`), value is token count. Displayed as `| label=N (X%)` appended to both CLI and log output.
+- **Takes 3-4 arguments** — node_name for display, prompt for counting, max_tokens for percentage, optional token_usage for diagnostics
+
+### `utils/prompts.py` — Reusable Prompt Builders
+
+Internal prompt builders for LLM calls that don't use `prompts/{mode}/` template files.
+
+#### `build_code_file_filter_prompt`
+```python
+def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
+```
+- Used by `DeterministicFileMapper` in api-reference mode
+- Asks LLM to identify which files are actual code (APIs, classes, business logic)
+- Excludes: UI layouts (.xaml, .html), configs (.json, .xml), assets, build scripts
+- Returns YAML list of file indices
+
+#### `build_chapter_summary_prompt`
+```python
+def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
+                                  chapter_content: str, language: str = "english") -> str:
+```
+- Used by `WriteChapters` after each chapter is generated
+- Generates structured technical brief with 4 dimensions (3-5 sentences each):
+  1. Component scope & responsibility
+  2. Key technical elements (classes, services, functions)
+  3. Implementation patterns & architecture
+  4. System integration & dependencies
+- Language-aware: prefixes with `"Write the entire summary in {language}."` for non-English
+- Summary output stored in `self.chapter_summaries[]` for cross-chapter context
 
 ### `get_content_for_indices` (helper in `nodes.py`)
 ```python
@@ -1100,7 +1140,7 @@ Template: `prompts/{mode}/draft_chapters.md`
 | `structure_note` | Lang note or `""` |
 | `full_chapter_listing` | All chapters formatted as `"1. [Name](filename)"` |
 | `prev_summary_note` | Lang note or `""` |
-| `previous_chapters_summary` | `"\n---\n".join(self.chapters_written_so_far)` or `"This is the first chapter."` |
+| `previous_chapters_summary` | `"\n---\n".join(self.chapter_summaries)` or `"This is the first chapter."` (empty for api-reference) |
 | `file_context_str` | File contents from `get_content_for_indices()` |
 | `language` | `shared["language"]` |
 | `instruction_lang_note` | Lang note or `""` |
@@ -1115,12 +1155,33 @@ safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
 filename = f"{i+1:02d}_{safe_name}.md"
 ```
 
+**Token usage logging:** Before each LLM call, computes per-component token counts via `count_tokens()`:
+- `file_context` — source code for this abstraction's files
+- `prev_chapters` — accumulated LLM-generated summaries
+- `chapter_listing` — full chapter index
+- `overhead` — template + instructions + language notes
+
+**Response token logging:** After each chapter is generated, logs response token count:
+- CLI: `\033[92m[Response] Chapter N: X,XXX tokens\033[0m` (green)
+- Log: `CHAPTER RESPONSE | chapter=N | name=... | response_tokens=X`
+
 **Heading cleanup:** If response doesn't start with `# Chapter {num}`, prepend or replace first heading.
-**Accumulation:** `self.chapters_written_so_far` accumulates across batch items for progressive context.
+
+**Cross-chapter summary workflow:**
+1. `self.chapters_written_so_far` accumulates FULL chapter content for output files and incremental cache
+2. `self.chapter_summaries` accumulates LLM-generated technical briefs for cross-chapter context
+3. After each chapter is written, `build_chapter_summary_prompt()` generates a summary prompt
+4. A lightweight LLM call (`thinking_level=None, use_cache=True`) produces a structured brief (4 points × 3-5 sentences)
+5. Summary is stored as `"Chapter N — Name:\n{summary}"` in `self.chapter_summaries`
+6. Subsequent chapters receive `"\n---\n".join(self.chapter_summaries)` as `previous_chapters_summary`
+7. **api-reference mode** skips summaries entirely (independent file docs, no narrative continuity)
+8. CLI output: `\033[96m[Summarizing] Chapter N for cross-chapter context (X tokens)...\033[0m` → `\033[96m[Summary Done] Chapter N: X tokens\033[0m` (cyan)
+9. Log: `CHAPTER SUMMARY START | chapter=N | prompt_tokens=X` → `CHAPTER SUMMARY DONE | chapter=N | summary_tokens=X`
+
 **Writes:** `shared["chapters"] = [markdown_str, ...]` (list of strings, NOT dicts)
 
 **`prep()` return:** `list[dict]` — each dict contains all metadata for one chapter (chapter_num, abstraction details, prev/next chapter info, etc.)
-**`post()` return:** `None`. Also cleans up: `del self.chapters_written_so_far`
+**`post()` return:** `None`. Also cleans up: `del self.chapters_written_so_far; del self.chapter_summaries`
 
 #### CombineTutorial
 No LLM call. Assembles final output files.

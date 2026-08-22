@@ -6,7 +6,8 @@ from pocketflow import Node, BatchNode
 from utils.crawl_github_files import crawl_github_files
 from utils.call_llm import call_llm, get_model_context_length, logger as llm_logger
 from utils.crawl_local_files import crawl_local_files
-from utils.token_utils import log_token_estimation
+from utils.token_utils import log_token_estimation, count_tokens
+from utils.prompts import build_code_file_filter_prompt, build_chapter_summary_prompt
 from collections import defaultdict
 
 
@@ -80,20 +81,7 @@ class DeterministicFileMapper(Node):
         
         file_listing = "\n".join([f"{i} # {path}" for i, (path, _) in enumerate(files_data)])
         
-        prompt = f"""For the project `{project_name}`, here is the list of all files in the codebase:
-
-{file_listing}
-
-Your task is to identify WHICH of these files are ACTUAL CODE files that contain APIs, functions, classes, or core business logic.
-EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files (like .xml, .json, .manifest, .ini), static assets, build scripts (like .csproj, .sln), and documentation.
-
-Return ONLY a YAML list of the file indices that should be documented as code modules.
-
-```yaml
-- 0
-- 1
-- 3
-```"""
+        prompt = build_code_file_filter_prompt(project_name, file_listing)
         return prompt, shared.get("thinking_level", None), shared.get("max_tokens", 100000)
 
     def exec(self, prep_res):
@@ -338,7 +326,12 @@ class MapAbstractions(BatchNode):
             directory_tree=item.get("directory_tree", "Not available")
         )
         
-        log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
+        token_usage = {
+            "file_content": count_tokens(context),
+            "dir_tree": count_tokens(item.get("directory_tree", "")),
+        }
+        token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
+        log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"], token_usage=token_usage)
         for i, path, _content in files:
             print(f"\033[92m    - [{i}] {path}\033[0m")
         response = call_llm(prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"])
@@ -594,7 +587,11 @@ class IdentifyAbstractions(Node):
                 file_listing_for_prompt=file_listing_for_prompt
             )
 
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+            token_usage = {
+                "file_content": count_tokens(context),
+            }
+            token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
             print(f"Identifying abstractions using LLM...")
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)  # Use cache only if enabled and not retrying
 
@@ -830,7 +827,11 @@ class AnalyzeRelationships(Node):
                 language_instruction=language_instruction,
                 lang_hint=lang_hint
             )
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+            token_usage = {
+                "file_snippets": count_tokens(context),
+            }
+            token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
             print(f"Analyzing relationships using LLM...")
             response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
 
@@ -1053,7 +1054,8 @@ class WriteChapters(BatchNode):
         # The 'previous_chapters_summary' will be built progressively in the exec context
         self.chapters_written_so_far = (
             []
-        )  # Use instance variable for temporary storage across exec calls
+        )  # Full chapter content for output files + incremental cache
+        self.chapter_summaries = []  # LLM-generated summaries for cross-chapter context
 
         # Create a complete list of all chapters
         all_chapters = []
@@ -1218,13 +1220,30 @@ class WriteChapters(BatchNode):
                                         clean_content = parts[2].strip()
                                         
                                 self.chapters_written_so_far.append(clean_content)
+                                # Generate summary for cached chapter too (needed for cross-chapter context)
+                                if doc_mode != "api-reference":
+                                    summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, clean_content, language)
+                                    summary_tokens = count_tokens(summary_prompt)
+                                    print(f"\033[96m[Summarizing] Cached chapter {chapter_num} for cross-chapter context ({summary_tokens:,} tokens)...\033[0m")
+                                    llm_logger.info(f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache")
+                                    chapter_summary = call_llm(summary_prompt, use_cache=True, thinking_level=None)
+                                    summary_response_tokens = count_tokens(chapter_summary)
+                                    self.chapter_summaries.append(f"Chapter {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
+                                    print(f"\033[96m[Summary Done] Cached chapter {chapter_num}: {summary_response_tokens:,} tokens\033[0m")
+                                    llm_logger.info(f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache")
                                 return {"content": clean_content, "hash": current_hash, "name": abstraction_name}
                     except Exception as e:
                         print(f"Warning: Failed to read manifest cache: {e}")
 
             # Get summary of chapters written *before* this one
-            # Use the temporary instance variable
-            previous_chapters_summary = "\n---\n".join(self.chapters_written_so_far)
+            # Uses LLM-generated technical summaries (3-5 sentences each) instead of
+            # full chapter dumps (which caused O(n²) token explosion)
+            if doc_mode == "api-reference":
+                # API-reference documents files independently — no continuity needed
+                previous_chapters_summary = ""
+            else:
+                # Use LLM-generated summaries for coherent cross-chapter context
+                previous_chapters_summary = "\n---\n".join(self.chapter_summaries)
 
             # Add language instruction and context notes only if not English
             language_instruction = ""
@@ -1271,9 +1290,23 @@ class WriteChapters(BatchNode):
                 mermaid_lang_note=mermaid_lang_note,
                 tone_note=tone_note
             )
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+
+            # Compute token usage for diagnostics
+            token_usage = {
+                "file_context": count_tokens(file_context_str),
+                "prev_chapters": count_tokens(previous_chapters_summary),
+                "chapter_listing": count_tokens(item["full_chapter_listing"]),
+            }
+            token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
+            log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
             print(f"Writing chapter {chapter_num} for: {abstraction_name.strip()} using LLM...")
-            chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
+            chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+
+            # Log response token count
+            response_tokens = count_tokens(chapter_content)
+            print(f"\033[92m[Response] Chapter {chapter_num}: {response_tokens:,} tokens\033[0m")
+            llm_logger.info(f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}")
+
             # Basic validation/cleanup
             actual_heading = f"# Chapter {chapter_num}: {abstraction_name}"  # Use potentially translated name
             if not chapter_content.strip().startswith(f"# Chapter {chapter_num}") and doc_mode != "api-reference":
@@ -1289,6 +1322,18 @@ class WriteChapters(BatchNode):
 
             # Add the generated content to our temporary list for the next iteration's context
             self.chapters_written_so_far.append(chapter_content)
+
+            # Generate LLM summary for cross-chapter context (skip for api-reference)
+            if doc_mode != "api-reference":
+                summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, chapter_content, language)
+                summary_tokens = count_tokens(summary_prompt)
+                print(f"\033[96m[Summarizing] Chapter {chapter_num} for cross-chapter context ({summary_tokens:,} tokens)...\033[0m")
+                llm_logger.info(f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}")
+                chapter_summary = call_llm(summary_prompt, use_cache=True, thinking_level=None)
+                summary_response_tokens = count_tokens(chapter_summary)
+                self.chapter_summaries.append(f"Chapter {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
+                print(f"\033[96m[Summary Done] Chapter {chapter_num}: {summary_response_tokens:,} tokens\033[0m")
+                llm_logger.info(f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,}")
 
             return {"content": chapter_content, "hash": current_hash, "name": abstraction_name}
         except Exception as e:
@@ -1322,8 +1367,9 @@ class WriteChapters(BatchNode):
             with open(manifest_path, "w", encoding="utf-8") as f:
                 json.dump(manifest, f, indent=2)
                 
-        # Clean up the temporary instance variable
+        # Clean up the temporary instance variables
         del self.chapters_written_so_far
+        del self.chapter_summaries
         print(f"Finished writing {len(exec_res_list)} chapters.")
 
 

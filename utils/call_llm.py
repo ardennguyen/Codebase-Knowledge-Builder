@@ -229,12 +229,13 @@ def _call_llm_provider(prompt: str, thinking_level: str = None) -> str:
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str = None) -> str:
     import time
 
+    from utils.token_utils import count_tokens
     provider = get_llm_provider()
     model = os.environ.get(f"{provider}_MODEL", os.environ.get("GEMINI_MODEL", "unknown"))
-    prompt_len = len(prompt)
+    prompt_tokens = count_tokens(prompt)
 
     logger.info(f"{'='*80}")
-    logger.info(f"LLM CALL START | provider={provider} | model={model} | thinking={thinking_level} | cache={'enabled' if use_cache else 'disabled'} | prompt_chars={prompt_len:,}")
+    logger.info(f"LLM CALL START | provider={provider} | model={model} | thinking={thinking_level} | cache={'enabled' if use_cache else 'disabled'} | prompt_tokens={prompt_tokens:,}")
     logger.info(f"PROMPT:\n{prompt}")
 
     # Check cache if enabled
