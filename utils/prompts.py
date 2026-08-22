@@ -80,6 +80,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
         f"  name: material\n"
         f"  features:\n"
         f"    - content.code.copy\n"
+        f"    - navigation.indexes\n"
         f"  palette:\n"
         f"    - scheme: default\n"
         f"      toggle:\n"
@@ -162,3 +163,33 @@ def build_mermaid_css() -> str:
   stroke: #333 !important;
 }
 """
+
+
+def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
+    """Recursively build MkDocs nav YAML lines from LLM section grouping.
+
+    Handles arbitrary nesting depth via the ``children`` key.
+    Each leaf module is matched against *chapter_files* by ``module_name``.
+    """
+    lines = []
+    pad = " " * indent
+    for section in sections:
+        lines.append(f"{pad}- {section['name']}:")
+        if "children" in section:
+            lines.extend(build_grouped_nav(section["children"], chapter_files, indent + 2))
+        for mod_name in section.get("modules", []):
+            match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
+            if match:
+                display = mod_name.split(".")[-1] if "." in mod_name else mod_name
+                lines.append(f"{pad}  - '{display}': 'api/{match['filename']}'")
+    return lines
+
+
+def collect_all_modules(sections: list) -> set:
+    """Recursively collect all module names referenced in a sections tree."""
+    result = set()
+    for section in sections:
+        result.update(section.get("modules", []))
+        if "children" in section:
+            result.update(collect_all_modules(section["children"]))
+    return result

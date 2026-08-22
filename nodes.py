@@ -9,7 +9,14 @@ from utils.call_llm import call_llm, get_model_context_length
 from utils.call_llm import logger as llm_logger
 from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
-from utils.prompts import build_chapter_summary_prompt, build_code_file_filter_prompt, build_mermaid_css, build_mkdocs_config
+from utils.prompts import (
+    build_chapter_summary_prompt,
+    build_code_file_filter_prompt,
+    build_grouped_nav,
+    build_mermaid_css,
+    build_mkdocs_config,
+    collect_all_modules,
+)
 from utils.token_utils import count_tokens, log_token_estimation
 
 
@@ -1362,6 +1369,9 @@ class WriteChapters(BatchNode):
             with open(manifest_path, "w", encoding="utf-8") as f:
                 json.dump(manifest, f, indent=2)
 
+        # Save summaries to shared store for CombineTutorial's LLM nav grouping
+        shared["chapter_summaries"] = list(self.chapter_summaries)
+
         # Clean up the temporary instance variables
         del self.chapters_written_so_far
         del self.chapter_summaries
@@ -1541,8 +1551,17 @@ class CombineTutorial(Node):
                     if not chapter_content.endswith("\n\n"):
                         chapter_content += "\n\n"
 
-                    chapter_files.append({"filename": filename, "content": chapter_content})
+                    chapter_files.append(
+                        {
+                            "filename": filename,
+                            "content": chapter_content,
+                            "module_name": abstraction_name,
+                            "description": abstractions[abstraction_index].get("description", ""),
+                        }
+                    )
 
+            # Build flat nav (will be replaced by LLM grouping in exec for api-reference)
+            nav_items.insert(0, "    - api/index.md")
             nav_snippet = "nav:\n  - API Reference:\n" + "\n".join(nav_items)
 
             return {
@@ -1554,6 +1573,9 @@ class CombineTutorial(Node):
                 "ui": ui,
                 "project_name": project_name,
                 "doc_mode": shared.get("doc_mode", "tutorial"),
+                "chapter_summaries": shared.get("chapter_summaries", []),
+                "dir_tree": shared.get("directory_tree", ""),
+                "language": shared.get("language", "english"),
             }
         # Traditional tutorial mode
         index_content = f"# {ui['tutorial']}: {project_name}\n\n"
@@ -1598,6 +1620,34 @@ class CombineTutorial(Node):
             "ui": ui,
         }
 
+    @staticmethod
+    def _build_index_sections(lines, sections, chapter_files, level=3):
+        """Recursively build index.md sections with module tables."""
+        heading = "#" * level
+        for section in sections:
+            lines.append(f"{heading} {section['name']}")
+            lines.append("")
+            if section.get("modules"):
+                lines.append("| Module | Description |")
+                lines.append("|--------|-------------|")
+                for mod_name in section["modules"]:
+                    match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
+                    if match:
+                        display = mod_name.split(".")[-1] if "." in mod_name else mod_name
+                        # Use description, but if it's the generic mapper description, extract from content
+                        desc = match["description"]
+                        if desc.startswith("Internal API reference"):
+                            content_lines = match["content"].strip().split("\n")
+                            for cl in content_lines:
+                                cs = cl.strip()
+                                if cs and not cs.startswith(("---", "#", "```", "title:", "sidebar_position:")):
+                                    desc = cs[:120]
+                                    break
+                        lines.append(f"| [{display}](api/{match['filename']}) | {desc} |")
+                lines.append("")
+            for child in section.get("children", []):
+                CombineTutorial._build_index_sections(lines, [child], chapter_files, level + 1)
+
     def exec(self, prep_res):
         try:
             output_path = prep_res["output_path"]
@@ -1613,13 +1663,11 @@ class CombineTutorial(Node):
             os.makedirs(output_path, exist_ok=True)
 
             if is_mkdocs:
-                nav_snippet = prep_res["nav_snippet"]
                 project_name = prep_res["project_name"]
                 doc_mode = prep_res["doc_mode"]
                 api_docs_path = os.path.join(output_path, "docs", "api")
                 os.makedirs(api_docs_path, exist_ok=True)
 
-                # Generate mkdocs.yml with Material theme + mermaid support
                 mode_labels = {
                     "tutorial": "Tutorial",
                     "advanced": "Advanced Guide",
@@ -1627,6 +1675,80 @@ class CombineTutorial(Node):
                     "api-reference": "API Reference",
                 }
                 site_title = f"{project_name} — {mode_labels.get(doc_mode, 'Documentation')}"
+
+                # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
+                sections = None
+                if doc_mode == "api-reference" and len(chapter_files) > 5:
+                    try:
+                        chapter_summaries = prep_res.get("chapter_summaries", [])
+                        module_entries = []
+                        for i, cf in enumerate(chapter_files):
+                            if i < len(chapter_summaries) and chapter_summaries[i]:
+                                # Use LLM-generated summary (tutorial/advanced/sdk modes)
+                                summary = chapter_summaries[i]
+                            else:
+                                # Extract first meaningful paragraph from chapter content
+                                # (api-reference mode has no chapter summaries)
+                                lines = cf["content"].strip().split("\n")
+                                summary_parts = []
+                                for line in lines:
+                                    stripped = line.strip()
+                                    # Skip frontmatter, headings, empty lines, and code fences
+                                    if stripped.startswith("---") or stripped.startswith("#") or stripped.startswith("```") or not stripped:
+                                        if summary_parts:
+                                            break  # Stop after first paragraph
+                                        continue
+                                    summary_parts.append(stripped)
+                                summary = " ".join(summary_parts)[:300] if summary_parts else cf["description"]
+                            module_entries.append(f"- {cf['module_name']}: {summary}")
+                        module_list = "\n".join(module_entries)
+
+                        # Load grouping prompt template
+                        prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", "common", "group_modules.md")
+                        with open(prompt_path, encoding="utf-8-sig") as f:
+                            group_template = f.read()
+
+                        language = prep_res.get("language", "english")
+                        language_note = f"Section names MUST be in {language}." if language.lower() != "english" else ""
+
+                        group_prompt = group_template.format(
+                            project_name=project_name,
+                            module_count=len(chapter_files),
+                            module_list=module_list,
+                            dir_tree=prep_res.get("dir_tree", "N/A"),
+                            language_note=language_note,
+                        )
+
+                        print(f"\033[96m[LLM Call]\033[0m Grouping {len(chapter_files)} modules for sidebar navigation...")
+                        from utils.call_llm import call_llm
+
+                        group_response = call_llm(group_prompt, use_cache=True)
+                        parsed = parse_yaml_response(group_response)
+                        sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
+
+                        if sections:
+                            # Validate: ensure all modules are covered
+                            grouped_modules = collect_all_modules(sections)
+                            ungrouped = [cf["module_name"] for cf in chapter_files if cf["module_name"] not in grouped_modules]
+                            if ungrouped:
+                                sections.append({"name": "Other", "modules": ungrouped})
+
+                            nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
+                            nav_lines.insert(0, "    - api/index.md")
+                            nav_snippet = "nav:\n  - API Reference:\n" + "\n".join(nav_lines)
+                            print(f"\033[92m[Grouping Done]\033[0m Created {len(sections)} sections")
+                        else:
+                            print("\033[93m[Grouping]\033[0m LLM returned empty sections, using flat nav")
+                            nav_snippet = prep_res["nav_snippet"]
+
+                    except Exception as e:
+                        print(f"\033[93m[Grouping Fallback]\033[0m LLM grouping failed ({e}), using flat nav")
+                        llm_logger.warning(f"LLM grouping failed: {e}", exc_info=True)
+                        nav_snippet = prep_res["nav_snippet"]
+                else:
+                    nav_snippet = prep_res["nav_snippet"]
+
+                # Generate mkdocs.yml with Material theme + mermaid support
                 mkdocs_config = build_mkdocs_config(site_title, nav_snippet)
                 mkdocs_filepath = os.path.join(output_path, "mkdocs.yml")
                 with open(mkdocs_filepath, "w", encoding="utf-8") as f:
@@ -1641,13 +1763,27 @@ class CombineTutorial(Node):
                     f.write(build_mermaid_css())
                 print(f"  - Wrote {css_filepath}")
 
-                # Generate docs/index.md landing page
-                index_content = f"# {site_title}\n\nGenerated documentation for **{project_name}**.\n\n"
-                index_content += f"Use the sidebar to navigate the {mode_labels.get(doc_mode, 'documentation').lower()} chapters.\n"
-                index_filepath = os.path.join(output_path, "docs", "index.md")
-                with open(index_filepath, "w", encoding="utf-8") as f:
+                # Generate docs/api/index.md — API Reference section landing page with module table
+                if sections:
+                    index_lines = [
+                        f"# {site_title}",
+                        "",
+                        f"API documentation for **{project_name}** — **{len(chapter_files)}** modules.",
+                        "",
+                        "## Module Index",
+                        "",
+                    ]
+                    self._build_index_sections(index_lines, sections, chapter_files)
+                    index_content = "\n".join(index_lines)
+                else:
+                    index_content = (
+                        f"# {site_title}\n\nGenerated documentation for **{project_name}**.\n\n"
+                        f"Use the sidebar to navigate the {mode_labels.get(doc_mode, 'documentation').lower()} chapters.\n"
+                    )
+                api_index_filepath = os.path.join(api_docs_path, "index.md")
+                with open(api_index_filepath, "w", encoding="utf-8") as f:
                     f.write(index_content)
-                print(f"  - Wrote {index_filepath}")
+                print(f"  - Wrote {api_index_filepath}")
 
                 # Write nav_snippet.yml
                 nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")

@@ -129,6 +129,8 @@ codebase_kb/
 │       ├── identify_relationships.md
 │       ├── order_chapters.md
 │       └── draft_chapters.md
+│   └── common/                      # Shared prompts used across modes
+│       └── group_modules.md         # LLM-assisted sidebar nav grouping
 └── docs/
     ├── design.md                    # THIS FILE
     ├── index.md                     # Project README/landing page
@@ -374,6 +376,7 @@ shared = {
     "relationships": {},      # Set by AnalyzeRelationships
     "chapter_order": [],      # Set by OrderChapters
     "chapters": [],           # Set by WriteChapters
+    "chapter_summaries": [],  # Set by WriteChapters.post(): list[str] — used by CombineTutorial for LLM nav grouping
     "final_output_dir": None  # Set by CombineTutorial
 }
 ```
@@ -876,6 +879,30 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
 - Merges the generated `nav_snippet` into the config's nav section
 - Output file can be used directly with `mkdocs serve` or `mkdocs build`
 
+#### `build_mermaid_css`
+```python
+def build_mermaid_css() -> str:
+```
+- Returns CSS string that overrides Material's muted Mermaid colors with vibrant defaults
+- Yellow subgraph backgrounds, lavender node fills, purple strokes
+- Written to `docs/stylesheets/mermaid-vibrant.css` by `CombineTutorial`
+
+#### `build_grouped_nav`
+```python
+def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
+```
+- Recursively builds MkDocs nav YAML lines from LLM-generated section grouping
+- Handles arbitrary nesting via `children` key in sections
+- Each module is matched to `chapter_files` by `module_name`
+- Returns list of indented YAML lines
+
+#### `collect_all_modules`
+```python
+def collect_all_modules(sections: list) -> set:
+```
+- Recursively collects all module names from a sections tree
+- Used to validate LLM grouping covers all modules (ungrouped → "Other" section)
+
 ### `get_content_for_indices` (helper in `nodes.py`)
 ```python
 def get_content_for_indices(files_data, indices):
@@ -1189,19 +1216,28 @@ filename = f"{i+1:02d}_{safe_name}.md"
 9. Log: `CHAPTER SUMMARY START | chapter=N | prompt_tokens=X` → `CHAPTER SUMMARY DONE | chapter=N | summary_tokens=X`
 
 **Writes:** `shared["chapters"] = [markdown_str, ...]` (list of strings, NOT dicts)
+**Writes:** `shared["chapter_summaries"] = [str, ...]` (list of summary strings for LLM nav grouping)
 
 **`prep()` return:** `list[dict]` — each dict contains all metadata for one chapter (chapter_num, abstraction details, prev/next chapter info, etc.)
 **`post()` return:** `None`. Also cleans up: `del self.chapters_written_so_far; del self.chapter_summaries`
 
 #### CombineTutorial
-No LLM call. Assembles final output files.
+Assembles final output files. In `api-reference` + `--mkdocs` mode with 6+ modules, makes **one LLM call** to group modules into sidebar sections.
+
+**LLM-Assisted Nav Grouping (api-reference + --mkdocs only):**
+- Loads `prompts/common/group_modules.md` template
+- Sends module names + chapter summaries + directory tree to LLM
+- LLM returns YAML with hierarchical sections (supports arbitrary nesting via `children`)
+- Validates all modules are covered; ungrouped modules → "Other" section
+- Fallback: if LLM fails, uses flat nav (all modules listed directly)
+- Only triggered for 6+ modules; smaller projects keep flat layout
 
 **Mermaid generation:**
 ```python
 mermaid_lines = ["flowchart TD"]
 for i, abstr in enumerate(abstractions):
     sanitized_name = abstr["name"].replace('"', "")
-    mermaid_lines.append(f'    A{i}["{sanitized_name}"]')
+    mermaid_lines.append(f'    A{i}("{sanitized_name}")')
 for rel in relationships_data["details"]:
     edge_label = rel["label"].replace('"', "").replace("\n", " ")
     if len(edge_label) > 30: edge_label = edge_label[:27] + "..."
@@ -1214,10 +1250,10 @@ toc_lines.append(f"- [{title}](#chapter-{i+1})")
 full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
 ```
 
-**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `doc_mode`. Standard adds: `index_content`.
+**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str, "module_name": str, "description": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `doc_mode`, `chapter_summaries`, `dir_tree`, `language`. Standard adds: `index_content`.
 **`exec()` operations:**
 - **Standard mode:** Creates output directory, writes `index.md`, individual chapter files, and `full_content.md`.
-- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme + mermaid support), `docs/index.md` landing page, `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`. Users can run `mkdocs serve` directly in the output dir.
+- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/stylesheets/mermaid-vibrant.css` (vibrant Mermaid theme), `docs/api/index.md` (section landing page with module table), `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
 **`post()` writes:** `shared["final_output_dir"] = exec_res` (output path string). Returns `None`.
 
 
@@ -1358,6 +1394,30 @@ prompt_dir = mode  # Directly selects the prompt subdirectory
 template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, f"{template_name}.md")
 with open(template_path, "r", encoding="utf-8-sig") as f:
     prompt_template = f.read()
+```
+
+### Common Prompts (`prompts/common/`)
+Shared prompts that are NOT mode-specific. Loaded directly by path, not via `load_prompt_template()`.
+
+#### `group_modules.md` — LLM Nav Grouping
+**Template variables:**
+| Variable | Source | Description |
+|---|---|---|
+| `{project_name}` | `shared["project_name"]` | Project display name |
+| `{module_count}` | `len(chapter_files)` | Number of documented modules |
+| `{module_list}` | Built from chapter_files + chapter_summaries | `- module_name: summary` per module |
+| `{dir_tree}` | `shared["directory_tree"]` | Project directory tree string |
+| `{language_note}` | Conditional on `shared["language"]` | `"Section names MUST be in {language}."` or empty |
+
+**Expected YAML response:**
+```yaml
+sections:
+  - name: "Section Name"
+    modules: ["module_name_1", "module_name_2"]
+  - name: "Parent Section"
+    children:
+      - name: "Child Section"
+        modules: ["module_name_3"]
 ```
 
 ## 15. Flow Wiring

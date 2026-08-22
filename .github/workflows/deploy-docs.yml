@@ -76,10 +76,10 @@ jobs:
 
       - name: Setup base mkdocs.yml and copy original docs
         run: |
-          # Copy all static markdown docs into the generated output directory
+          # Copy static markdown docs into generated output
           cp -R docs/* output/Codebase-Knowledge-Builder/docs/
           
-          # Remove pocketflow framework docs as per user request to keep the site strictly focused on the project itself
+          # Remove pocketflow framework docs as per user request
           rm -rf output/Codebase-Knowledge-Builder/docs/pocketflow
           
           # Create the base mkdocs config with a root nav structure
@@ -90,6 +90,7 @@ jobs:
             name: material
             features:
               - content.code.copy
+              - navigation.indexes
             palette:
               - scheme: default
                 toggle:
