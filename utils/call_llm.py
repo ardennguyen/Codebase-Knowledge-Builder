@@ -38,19 +38,18 @@ def configure_logging(project_name="project", mode="tutorial"):
 
     # Remove any existing handlers (e.g., NullHandler) and add the file handler
     logger.handlers.clear()
-    file_handler = logging.FileHandler(log_file, encoding='utf-8')
-    file_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    )
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
     logger.addHandler(file_handler)
 
     # Log run metadata at the start of every log file
-    logger.info(f"{'='*80}")
+    logger.info(f"{'=' * 80}")
     logger.info(f"RUN STARTED | project={project_name} | mode={mode} | timestamp={timestamp}")
     logger.info(f"Log file: {log_file}")
-    logger.info(f"{'='*80}")
+    logger.info(f"{'=' * 80}")
 
     return log_file
+
 
 # Simple cache configuration
 cache_file = "llm_cache.json"
@@ -58,7 +57,7 @@ cache_file = "llm_cache.json"
 
 def load_cache():
     try:
-        with open(cache_file, 'r') as f:
+        with open(cache_file, "r") as f:
             return json.load(f)
     except:
         logger.warning("Failed to load cache.")
@@ -67,7 +66,7 @@ def load_cache():
 
 def save_cache(cache):
     try:
-        with open(cache_file, 'w') as f:
+        with open(cache_file, "w") as f:
             json.dump(cache, f)
     except:
         logger.warning("Failed to save cache")
@@ -83,6 +82,7 @@ def get_llm_provider():
 
 # Cache for model capabilities to avoid repeated API calls
 _openrouter_models_cache = None
+
 
 def _get_openrouter_model_info(model_id: str) -> dict:
     global _openrouter_models_cache
@@ -177,9 +177,7 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
         if model_info and "reasoning" in model_info:
             supported_efforts = model_info["reasoning"].get("supported_efforts", [])
             if thinking_level.lower() in supported_efforts:
-                payload["reasoning"] = {
-                    "effort": thinking_level.lower()
-                }
+                payload["reasoning"] = {"effort": thinking_level.lower()}
                 payload["temperature"] = 1.0  # Required for many reasoning models
             else:
                 logger.warning(f"Invalid thinking level '{thinking_level}' for model {model}. Supported efforts: {supported_efforts}")
@@ -195,7 +193,7 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=(10, 300))
         try:
-            response_json = response.json() # Log the response
+            response_json = response.json()  # Log the response
         except (ValueError, requests.exceptions.JSONDecodeError):
             print(f"\033[93mWarning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}\033[0m")
             logger.warning(f"Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}")
@@ -226,17 +224,21 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
     except ValueError as e:
         raise Exception(f"Failed to parse response as JSON from {provider}. The server might have returned an invalid response.") from e
 
+
 # By default, we use Google Gemini 3.7 flash, as it shows great performance for code understanding
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -> str:
     import time
 
     from utils.token_utils import count_tokens
+
     provider = get_llm_provider()
     model = os.environ.get(f"{provider}_MODEL", os.environ.get("GEMINI_MODEL", "unknown"))
     prompt_tokens = count_tokens(prompt)
 
-    logger.info(f"{'='*80}")
-    logger.info(f"LLM CALL START | provider={provider} | model={model} | thinking={thinking_level} | cache={'enabled' if use_cache else 'disabled'} | prompt_tokens={prompt_tokens:,}")
+    logger.info(f"{'=' * 80}")
+    logger.info(
+        f"LLM CALL START | provider={provider} | model={model} | thinking={thinking_level} | cache={'enabled' if use_cache else 'disabled'} | prompt_tokens={prompt_tokens:,}"
+    )
     logger.info(f"PROMPT:\n{prompt}")
 
     # Check cache if enabled
@@ -275,21 +277,14 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = N
 
 def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -> str:
     if os.getenv("GEMINI_PROJECT_ID"):
-        client = genai.Client(
-            vertexai=True,
-            project=os.getenv("GEMINI_PROJECT_ID"),
-            location=os.getenv("GEMINI_LOCATION", "us-central1")
-        )
+        client = genai.Client(vertexai=True, project=os.getenv("GEMINI_PROJECT_ID"), location=os.getenv("GEMINI_LOCATION", "us-central1"))
     elif os.getenv("GEMINI_API_KEY"):
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     else:
         raise ValueError("Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment")
     model = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
 
-    kwargs = {
-        "model": model,
-        "contents": [prompt]
-    }
+    kwargs = {"model": model, "contents": [prompt]}
 
     if thinking_level:
         # Map string levels to budgets for the installed SDK version
@@ -305,6 +300,7 @@ def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -> str:
         text_parts = [part.text for part in response.candidates[0].content.parts if part.text is not None]
         return "".join(text_parts)
     return ""
+
 
 if __name__ == "__main__":
     test_prompt = "Hello, how are you?"

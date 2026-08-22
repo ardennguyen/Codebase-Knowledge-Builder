@@ -29,10 +29,10 @@ def crawl_local_files(
     files_dict = {}
 
     # --- ANSI colors ---
-    C_GREEN  = "\033[92m"
-    C_GRAY   = "\033[90m"
-    C_RED    = "\033[91m"
-    C_RESET  = "\033[0m"
+    C_GREEN = "\033[92m"
+    C_GRAY = "\033[90m"
+    C_RED = "\033[91m"
+    C_RESET = "\033[0m"
 
     # --- Counters ---
     entry_num = 0
@@ -163,7 +163,6 @@ def crawl_local_files(
     print("---------------------")
 
     return {"files": files_dict}
-
 
 
 if __name__ == "__main__":

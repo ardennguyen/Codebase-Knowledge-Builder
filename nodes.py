@@ -19,13 +19,12 @@ def get_content_for_indices(files_data, indices):
     for i in indices:
         if 0 <= i < len(files_data):
             path, content = files_data[i]
-            content_map[f"{i} # {path}"] = (
-                content  # Use index + path as key for context
-            )
+            content_map[f"{i} # {path}"] = content  # Use index + path as key for context
     return content_map
 
 
 # --- Reusable Helpers ---
+
 
 def load_prompt_template(template_name, advanced_mode=False, mode=None):
     """Load a prompt template file from the prompts/ directory."""
@@ -34,8 +33,7 @@ def load_prompt_template(template_name, advanced_mode=False, mode=None):
     else:
         prompt_dir = mode
 
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "prompts", prompt_dir, f"{template_name}.md")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", prompt_dir, f"{template_name}.md")
     with open(path, "r", encoding="utf-8-sig") as f:
         return f.read()
 
@@ -75,7 +73,6 @@ def resolve_max_tokens(shared):
     return get_model_context_length(endpoint, model_name, api_key)
 
 
-
 class DeterministicFileMapper(Node):
     def prep(self, shared):
         files_data = shared["files"]
@@ -103,6 +100,7 @@ class DeterministicFileMapper(Node):
 
     def post(self, shared, prep_res, exec_res):
         import os
+
         files = shared.get("files", [])
         valid_indices = set(exec_res)
         modules = []
@@ -115,12 +113,9 @@ class DeterministicFileMapper(Node):
 
             clean_name = os.path.splitext(file_path)[0].replace(os.sep, ".").replace("/", ".")
 
-            modules.append({
-                "name": clean_name,
-                "description": f"Internal API reference for `{file_path}`",
-                "files": [idx],
-                "original_path": file_path
-            })
+            modules.append(
+                {"name": clean_name, "description": f"Internal API reference for `{file_path}`", "files": [idx], "original_path": file_path}
+            )
             chapter_order.append(len(modules) - 1)
 
         shared["abstractions"] = modules
@@ -128,6 +123,7 @@ class DeterministicFileMapper(Node):
         shared["relationships"] = {"summary": "Deterministic Internal API Reference.", "details": []}
         print(f"\033[92m[DeterministicFileMapper] Mapped {len(modules)} ACTUAL code files for exhaustive documentation.\033[0m")
         return "default"
+
 
 class ContextRouter(Node):
     def prep(self, shared):
@@ -155,8 +151,10 @@ class ContextRouter(Node):
         tree_tokens = count_tokens(directory_tree)
 
         prompt_overhead = max_template_tokens + tree_tokens
-        print(f"\033[93m[ContextRouter] Prompt overhead: ~{prompt_overhead:,} tokens "
-              f"(template: {max_template_tokens:,}, dir tree: {tree_tokens:,})\033[0m")
+        print(
+            f"\033[93m[ContextRouter] Prompt overhead: ~{prompt_overhead:,} tokens "
+            f"(template: {max_template_tokens:,}, dir tree: {tree_tokens:,})\033[0m"
+        )
 
         # --- Count file content tokens ---
         total_tokens = 0
@@ -174,34 +172,50 @@ class ContextRouter(Node):
 
         if shared.get("mode", "tutorial") == "api-reference":
             print("\033[92m[ContextRouter] api-reference mode active. Bypassing LLM discovery and routing to DeterministicFileMapper.\033[0m")
-            return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50),
-                    None, None, directory_tree, False)
+            return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree, False)
 
         if total_tokens > effective_limit and force_batch:
-            print(f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
-                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
-                  f"and --force-batch is set. Using Map-Reduce.\033[0m")
+            print(
+                f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
+                f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
+                f"and --force-batch is set. Using Map-Reduce.\033[0m"
+            )
         elif total_tokens > effective_limit:
-            print(f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
-                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
-                  f"Using Map-Reduce.\033[0m")
+            print(
+                f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) exceeds effective limit "
+                f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
+                f"Using Map-Reduce.\033[0m"
+            )
         elif force_batch:
-            print(f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
-                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
-                  f"but --force-batch is set. Using Map-Reduce.\033[0m")
+            print(
+                f"\033[93m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
+                f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead) "
+                f"but --force-batch is set. Using Map-Reduce.\033[0m"
+            )
         else:
-            print(f"\033[92m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
-                  f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
-                  f"Proceeding normally.\033[0m")
-            return ("direct", files_data, effective_limit, shared.get("batch_size", 50),
-                    None, None, directory_tree, False)
+            print(
+                f"\033[92m[ContextRouter] File content ({total_tokens:,} tokens) fits in effective limit "
+                f"({effective_limit:,} = {safety_limit:,} - {prompt_overhead:,} overhead). "
+                f"Proceeding normally.\033[0m"
+            )
+            return ("direct", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree, False)
 
-        return ("batch", files_data, effective_limit, shared.get("batch_size", 50),
-                file_token_map, count_tokens, directory_tree, shared.get("debug", False))
+        return (
+            "batch",
+            files_data,
+            effective_limit,
+            shared.get("batch_size", 50),
+            file_token_map,
+            count_tokens,
+            directory_tree,
+            shared.get("debug", False),
+        )
 
     def exec(self, prep_res):
         route, files_data, effective_limit, batch_size, file_token_map, _count_tokens, directory_tree, debug = prep_res
-        llm_logger.info(f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}")
+        llm_logger.info(
+            f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}"
+        )
 
         if route == "direct":
             return "direct"
@@ -243,8 +257,7 @@ class ContextRouter(Node):
             C_RESET = "\033[0m"
             for idx, batch in enumerate(batches):
                 content_tokens = sum(file_token_map[i] for i, p, c in batch)
-                print(f"\033[93m  [Debug] Batch {idx}: {len(batch)} files, "
-                      f"~{content_tokens:,} content tokens (limit: {effective_limit:,})\033[0m")
+                print(f"\033[93m  [Debug] Batch {idx}: {len(batch)} files, ~{content_tokens:,} content tokens (limit: {effective_limit:,})\033[0m")
                 for i, p, c in batch:
                     print(f"{C_GREEN}    - [{i}] {p}{C_RESET}")
 
@@ -267,6 +280,7 @@ class ContextRouter(Node):
     def _build_directory_tree(files_data):
         """Build a compact directory tree string from the list of (path, content) tuples."""
         from collections import defaultdict
+
         dir_files = defaultdict(list)
         for i, (path, _content) in enumerate(files_data):
             dirname = os.path.dirname(path) or "."
@@ -293,7 +307,7 @@ class MapAbstractions(BatchNode):
                 "thinking_level": shared.get("thinking_level", None),
                 "advanced_mode": shared.get("advanced_mode", False),
                 "max_tokens": shared.get("max_tokens", 100000),
-                "directory_tree": shared.get("directory_tree", "")
+                "directory_tree": shared.get("directory_tree", ""),
             }
             for i, batch in enumerate(shared["file_batches"])
         ]
@@ -325,7 +339,7 @@ class MapAbstractions(BatchNode):
             language_instruction=language_instruction,
             name_lang_hint=name_lang_hint,
             desc_lang_hint=desc_lang_hint,
-            directory_tree=item.get("directory_tree", "Not available")
+            directory_tree=item.get("directory_tree", "Not available"),
         )
 
         token_usage = {
@@ -345,17 +359,16 @@ class MapAbstractions(BatchNode):
             for obj in abstractions:
                 if isinstance(obj, dict) and "name" in obj and "description" in obj and "file_indices" in obj:
                     import re
+
                     validated_indices = []
                     for idx_entry in obj["file_indices"]:
-                        nums = re.findall(r'\d+', str(idx_entry))
+                        nums = re.findall(r"\d+", str(idx_entry))
                         if nums:
                             validated_indices.append(int(nums[0]))
                     if validated_indices:
-                        validated_abstractions.append({
-                            "name": obj["name"],
-                            "description": obj["description"],
-                            "files": sorted(list(set(validated_indices)))
-                        })
+                        validated_abstractions.append(
+                            {"name": obj["name"], "description": obj["description"], "files": sorted(list(set(validated_indices)))}
+                        )
         return validated_abstractions
 
     def post(self, shared, prep_res, exec_res_list):
@@ -376,7 +389,7 @@ class ReduceAbstractions(Node):
             shared.get("thinking_level", None),
             shared.get("advanced_mode", False),
             shared.get("max_tokens", 100000),
-            shared.get("mode", "tutorial")
+            shared.get("mode", "tutorial"),
         )
 
     def exec(self, prep_res):
@@ -398,7 +411,7 @@ class ReduceAbstractions(Node):
             max_abstraction_num=max_abstraction_num,
             language_instruction=language_instruction,
             name_lang_hint=name_lang_hint,
-            desc_lang_hint=desc_lang_hint
+            desc_lang_hint=desc_lang_hint,
         )
 
         log_token_estimation(self.__class__.__name__, prompt, max_tokens)
@@ -412,17 +425,16 @@ class ReduceAbstractions(Node):
             for obj in abstractions:
                 if isinstance(obj, dict) and "name" in obj and "description" in obj and "files" in obj:
                     import re
+
                     validated_indices = []
                     for idx_entry in obj["files"]:
-                        nums = re.findall(r'\d+', str(idx_entry))
+                        nums = re.findall(r"\d+", str(idx_entry))
                         if nums:
                             validated_indices.append(int(nums[0]))
                     if validated_indices:
-                        validated_abstractions.append({
-                            "name": obj["name"],
-                            "description": obj["description"],
-                            "files": sorted(list(set(validated_indices)))
-                        })
+                        validated_abstractions.append(
+                            {"name": obj["name"], "description": obj["description"], "files": sorted(list(set(validated_indices)))}
+                        )
         return validated_abstractions
 
     def post(self, shared, prep_res, exec_res):
@@ -480,7 +492,7 @@ class FetchRepo(Node):
                 include_patterns=prep_res["include_patterns"],
                 exclude_patterns=prep_res["exclude_patterns"],
                 max_file_size=prep_res["max_file_size"],
-                use_relative_paths=prep_res["use_relative_paths"]
+                use_relative_paths=prep_res["use_relative_paths"],
             )
 
         # Convert dict to list of tuples: [(path, content), ...]
@@ -534,9 +546,7 @@ class IdentifyAbstractions(Node):
 
         context, file_info = create_llm_context(files_data)
         # Format file info for the prompt (comment is just a hint for LLM)
-        file_listing_for_prompt = "\n".join(
-            [f"- {idx} # {path}" for idx, path in file_info]
-        )
+        file_listing_for_prompt = "\n".join([f"- {idx} # {path}" for idx, path in file_info])
         return (
             context,
             file_listing_for_prompt,
@@ -586,7 +596,7 @@ class IdentifyAbstractions(Node):
                 max_abstraction_num=max_abstraction_num,
                 name_lang_hint=name_lang_hint,
                 desc_lang_hint=desc_lang_hint,
-                file_listing_for_prompt=file_listing_for_prompt
+                file_listing_for_prompt=file_listing_for_prompt,
             )
 
             token_usage = {
@@ -595,7 +605,9 @@ class IdentifyAbstractions(Node):
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
             print("Identifying abstractions using LLM...")
-            response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)  # Use cache only if enabled and not retrying
+            response = call_llm(
+                prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+            )  # Use cache only if enabled and not retrying
 
             # --- Validation ---
             abstractions = parse_yaml_response(response)
@@ -605,9 +617,7 @@ class IdentifyAbstractions(Node):
 
             validated_abstractions = []
             for item in abstractions:
-                if not isinstance(item, dict) or not all(
-                    k in item for k in ["name", "description", "file_indices"]
-                ):
+                if not isinstance(item, dict) or not all(k in item for k in ["name", "description", "file_indices"]):
                     raise ValueError(f"Missing keys in abstraction item: {item}")
                 if not isinstance(item["name"], str):
                     raise ValueError(f"Name is not a string in item: {item}")
@@ -618,22 +628,23 @@ class IdentifyAbstractions(Node):
 
                 # Validate indices
                 import re
+
                 validated_indices = []
                 for idx_entry in item["file_indices"]:
                     try:
                         idx_str = str(idx_entry).split("#")[0].strip()
                         # Split by '-' to handle ranges
-                        if '-' in idx_str:
-                            parts = idx_str.split('-')
+                        if "-" in idx_str:
+                            parts = idx_str.split("-")
                             if len(parts) == 2:
-                                start_idx = int(re.findall(r'\d+', parts[0])[0])
-                                end_idx = int(re.findall(r'\d+', parts[1])[0])
+                                start_idx = int(re.findall(r"\d+", parts[0])[0])
+                                end_idx = int(re.findall(r"\d+", parts[1])[0])
                                 for idx in range(start_idx, end_idx + 1):
                                     if 0 <= idx < total_files_count:
                                         validated_indices.append(idx)
                                 continue
                         # Find integers in the string
-                        nums = re.findall(r'\d+', idx_str)
+                        nums = re.findall(r"\d+", idx_str)
                         if nums:
                             idx = int(nums[0])
                             if 0 <= idx < total_files_count:
@@ -647,9 +658,7 @@ class IdentifyAbstractions(Node):
                 validated_abstractions.append(
                     {
                         "name": item["name"],  # Potentially translated name
-                        "description": item[
-                            "description"
-                        ],  # Potentially translated description
+                        "description": item["description"],  # Potentially translated description
                         "files": item["files"],
                     }
                 )
@@ -662,16 +671,12 @@ class IdentifyAbstractions(Node):
             raise e
 
     def post(self, shared, prep_res, exec_res):
-        shared["abstractions"] = (
-            exec_res  # List of {"name": str, "description": str, "files": [int]}
-        )
+        shared["abstractions"] = exec_res  # List of {"name": str, "description": str, "files": [int]}
 
 
 class AnalyzeRelationships(Node):
     def prep(self, shared):
-        abstractions = shared[
-            "abstractions"
-        ]  # Now contains 'files' list of indices, name/description potentially translated
+        abstractions = shared["abstractions"]  # Now contains 'files' list of indices, name/description potentially translated
         files_data = shared["files"]
         project_name = shared["project_name"]  # Get project name
         language = shared.get("language", "english")  # Get language
@@ -691,9 +696,7 @@ class AnalyzeRelationships(Node):
             # Abstraction name and description might be translated already
             info_line = f"- Index {i}: {abstr['name']} (Relevant file indices: [{file_indices_str}])\\n  Description: {abstr['description']}"
             context += info_line + "\\n"
-            abstraction_info_for_prompt.append(
-                f"{i} # {abstr['name']}"
-            )  # Use potentially translated name here too
+            abstraction_info_for_prompt.append(f"{i} # {abstr['name']}")  # Use potentially translated name here too
             all_relevant_indices.update(abstr["files"])
 
         context += "\\nRelevant File Snippets (per abstraction, budget-aware):\\n"
@@ -709,8 +712,6 @@ class AnalyzeRelationships(Node):
 
         total_budget = safety_limit - current_tokens - prompt_overhead
         num_abstractions = len(abstractions)
-
-
 
         # Pre-compute file token sizes for all abstractions
         abstr_file_data = []  # list of [(idx, path, content, tokens), ...] per abstraction
@@ -785,7 +786,7 @@ class AnalyzeRelationships(Node):
         return (
             context,
             "\n".join(abstraction_info_for_prompt),
-            num_abstractions, # Pass the actual count
+            num_abstractions,  # Pass the actual count
             project_name,
             language,
             use_cache,
@@ -800,7 +801,7 @@ class AnalyzeRelationships(Node):
             (
                 context,
                 abstraction_listing,
-                num_abstractions, # Receive the actual count
+                num_abstractions,  # Receive the actual count
                 project_name,
                 language,
                 use_cache,
@@ -808,7 +809,7 @@ class AnalyzeRelationships(Node):
                 _advanced_mode,
                 max_tokens,
                 doc_mode,
-             ) = prep_res  # Unpack use_cache
+            ) = prep_res  # Unpack use_cache
 
             # Add language instruction and hints only if not English
             language_instruction = ""
@@ -827,7 +828,7 @@ class AnalyzeRelationships(Node):
                 abstraction_listing=abstraction_listing,
                 context=context,
                 language_instruction=language_instruction,
-                lang_hint=lang_hint
+                lang_hint=lang_hint,
             )
             token_usage = {
                 "file_snippets": count_tokens(context),
@@ -835,17 +836,15 @@ class AnalyzeRelationships(Node):
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
             print("Analyzing relationships using LLM...")
-            response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
+            response = call_llm(
+                prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+            )  # Use cache only if enabled and not retrying
 
             # --- Validation ---
             relationships_data = parse_yaml_response(response)
 
-            if not isinstance(relationships_data, dict) or not all(
-                k in relationships_data for k in ["summary", "relationships"]
-            ):
-                raise ValueError(
-                    "LLM output is not a dict or missing keys ('summary', 'relationships')"
-                )
+            if not isinstance(relationships_data, dict) or not all(k in relationships_data for k in ["summary", "relationships"]):
+                raise ValueError("LLM output is not a dict or missing keys ('summary', 'relationships')")
             if not isinstance(relationships_data["summary"], str):
                 raise ValueError("summary is not a string")
             if not isinstance(relationships_data["relationships"], list):
@@ -853,15 +852,12 @@ class AnalyzeRelationships(Node):
 
             # Validate relationships structure
             import re
+
             validated_relationships = []
             for rel in relationships_data["relationships"]:
                 # Check for 'label' key
-                if not isinstance(rel, dict) or not all(
-                    k in rel for k in ["from_abstraction", "to_abstraction", "label"]
-                ):
-                    raise ValueError(
-                        f"Missing keys (expected from_abstraction, to_abstraction, label) in relationship item: {rel}"
-                    )
+                if not isinstance(rel, dict) or not all(k in rel for k in ["from_abstraction", "to_abstraction", "label"]):
+                    raise ValueError(f"Missing keys (expected from_abstraction, to_abstraction, label) in relationship item: {rel}")
                 # Validate 'label' is a string
                 if not isinstance(rel["label"], str):
                     raise ValueError(f"Relationship label is not a string: {rel}")
@@ -871,18 +867,18 @@ class AnalyzeRelationships(Node):
                     from_idx_str = str(rel["from_abstraction"]).split("#")[0].strip()
                     to_idx_str = str(rel["to_abstraction"]).split("#")[0].strip()
 
-                    from_nums = re.findall(r'\d+', from_idx_str)
-                    to_nums = re.findall(r'\d+', to_idx_str)
+                    from_nums = re.findall(r"\d+", from_idx_str)
+                    to_nums = re.findall(r"\d+", to_idx_str)
 
                     if not from_nums or not to_nums:
-                         raise ValueError("Missing valid integer for from_abstraction or to_abstraction.")
+                        raise ValueError("Missing valid integer for from_abstraction or to_abstraction.")
 
                     from_idx = int(from_nums[0])
                     to_idx = int(to_nums[0])
-                    if not (
-                        0 <= from_idx < num_abstractions and 0 <= to_idx < num_abstractions
-                    ):
-                        print(f"\033[93mWarning: Invalid index in relationship: from={from_idx}, to={to_idx}. Max index is {num_abstractions-1}. Skipping.\033[0m")
+                    if not (0 <= from_idx < num_abstractions and 0 <= to_idx < num_abstractions):
+                        print(
+                            f"\033[93mWarning: Invalid index in relationship: from={from_idx}, to={to_idx}. Max index is {num_abstractions - 1}. Skipping.\033[0m"
+                        )
                         llm_logger.warning(f"Invalid index in relationship: from={from_idx}, to={to_idx}")
                         continue
                     validated_relationships.append(
@@ -924,17 +920,13 @@ class OrderChapters(Node):
         # Prepare context for the LLM
         abstraction_info_for_prompt = []
         for i, a in enumerate(abstractions):
-            abstraction_info_for_prompt.append(
-                f"- {i} # {a['name']}"
-            )  # Use potentially translated name
+            abstraction_info_for_prompt.append(f"- {i} # {a['name']}")  # Use potentially translated name
         abstraction_listing = "\n".join(abstraction_info_for_prompt)
 
         # Use potentially translated summary and labels
         summary_note = ""
         if language.lower() != "english":
-            summary_note = (
-                f" (Note: Project Summary might be in {language.capitalize()})"
-            )
+            summary_note = f" (Note: Project Summary might be in {language.capitalize()})"
 
         context = f"Project Summary{summary_note}:\n{relationships['summary']}\n\n"
         context += "Relationships (Indices refer to abstractions above):\n"
@@ -981,14 +973,13 @@ class OrderChapters(Node):
             prompt_template = load_prompt_template("order_chapters", mode=doc_mode)
 
             prompt = prompt_template.format(
-                project_name=project_name,
-                list_lang_note=list_lang_note,
-                abstraction_listing=abstraction_listing,
-                context=context
+                project_name=project_name, list_lang_note=list_lang_note, abstraction_listing=abstraction_listing, context=context
             )
             log_token_estimation(self.__class__.__name__, prompt, max_tokens)
             print("Determining chapter order using LLM...")
-            response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level) # Use cache only if enabled and not retrying
+            response = call_llm(
+                prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+            )  # Use cache only if enabled and not retrying
 
             # --- Validation ---
             ordered_indices_raw = parse_yaml_response(response)
@@ -1008,18 +999,14 @@ class OrderChapters(Node):
                         idx = int(str(entry).strip())
 
                     if not (0 <= idx < num_abstractions):
-                        raise ValueError(
-                            f"Invalid index {idx} in ordered list. Max index is {num_abstractions-1}."
-                        )
+                        raise ValueError(f"Invalid index {idx} in ordered list. Max index is {num_abstractions - 1}.")
                     if idx in seen_indices:
                         raise ValueError(f"Duplicate index {idx} found in ordered list.")
                     ordered_indices.append(idx)
                     seen_indices.add(idx)
 
                 except (ValueError, TypeError) as e:
-                    raise ValueError(
-                        f"Could not parse index from ordered list entry: {entry}"
-                    ) from e
+                    raise ValueError(f"Could not parse index from ordered list entry: {entry}") from e
 
             # Check if all abstractions are included
             if len(ordered_indices) != num_abstractions:
@@ -1042,9 +1029,7 @@ class OrderChapters(Node):
 class WriteChapters(BatchNode):
     def prep(self, shared):
         chapter_order = shared["chapter_order"]  # List of indices
-        abstractions = shared[
-            "abstractions"
-        ]  # List of {"name": str, "description": str, "files": [int]}
+        abstractions = shared["abstractions"]  # List of {"name": str, "description": str, "files": [int]}
         files_data = shared["files"]  # List of (path, content) tuples
         shared["project_name"]
         language = shared.get("language", "english")
@@ -1054,9 +1039,7 @@ class WriteChapters(BatchNode):
         # Get already written chapters to provide context
         # We store them temporarily during the batch run, not in shared memory yet
         # The 'previous_chapters_summary' will be built progressively in the exec context
-        self.chapters_written_so_far = (
-            []
-        )  # Full chapter content for output files + incremental cache
+        self.chapters_written_so_far = []  # Full chapter content for output files + incremental cache
         self.chapter_summaries = []  # LLM-generated summaries for cross-chapter context
 
         # Create a complete list of all chapters
@@ -1065,9 +1048,7 @@ class WriteChapters(BatchNode):
         for i, abstraction_index in enumerate(chapter_order):
             if 0 <= abstraction_index < len(abstractions):
                 chapter_num = i + 1
-                chapter_name = abstractions[abstraction_index][
-                    "name"
-                ].replace("\n", " ").strip()  # Sanitize: match CombineTutorial's name cleaning
+                chapter_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()  # Sanitize: match CombineTutorial's name cleaning
                 is_mkdocs = shared.get("mkdocs", False)
                 if is_mkdocs and "original_path" in abstractions[abstraction_index]:
                     doc_rel_path = os.path.splitext(abstractions[abstraction_index]["original_path"])[0] + ".md"
@@ -1077,7 +1058,7 @@ class WriteChapters(BatchNode):
                     filename = f"{safe_name}.md"
                 else:
                     safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
-                    filename = f"{i+1:02d}_{safe_name}.md"
+                    filename = f"{i + 1:02d}_{safe_name}.md"
 
                 # Format with link (using potentially translated name)
                 all_chapters.append(f"{chapter_num}. [{chapter_name}]({filename})")
@@ -1094,15 +1075,11 @@ class WriteChapters(BatchNode):
         items_to_process = []
         for i, abstraction_index in enumerate(chapter_order):
             if 0 <= abstraction_index < len(abstractions):
-                abstraction_details = abstractions[
-                    abstraction_index
-                ]  # Contains potentially translated name/desc
+                abstraction_details = abstractions[abstraction_index]  # Contains potentially translated name/desc
                 # Use 'files' (list of indices) directly
                 related_file_indices = abstraction_details.get("files", [])
                 # Get content using helper, passing indices
-                related_files_content_map = get_content_for_indices(
-                    files_data, related_file_indices
-                )
+                related_files_content_map = get_content_for_indices(files_data, related_file_indices)
 
                 # Get previous chapter info for transitions (uses potentially translated name)
                 prev_chapter = None
@@ -1144,7 +1121,7 @@ class WriteChapters(BatchNode):
                         "prev_chapter": prev_chapter,  # Add previous chapter info (uses potentially translated name)
                         "next_chapter": next_chapter,  # Add next chapter info (uses potentially translated name)
                         "language": language,  # Add language for multi-language support
-                        "use_cache": use_cache, # Pass use_cache flag
+                        "use_cache": use_cache,  # Pass use_cache flag
                         "thinking_level": thinking_level,
                         "advanced_mode": shared.get("advanced_mode", False),
                         "mode": shared.get("mode", "tutorial"),
@@ -1153,14 +1130,11 @@ class WriteChapters(BatchNode):
                         "output_dir": shared.get("output_dir", "output"),
                         "filename": chapter_filenames[abstraction_index]["filename"],
                         "max_tokens": shared.get("max_tokens", 100000),
-
                         # previous_chapters_summary will be added dynamically in exec
                     }
                 )
             else:
-                print(
-                    f"Warning: Invalid abstraction index {abstraction_index} in chapter_order. Skipping."
-                )
+                print(f"Warning: Invalid abstraction index {abstraction_index} in chapter_order. Skipping.")
 
         print(f"Preparing to write {len(items_to_process)} chapters...")
         return items_to_process  # Iterable for BatchNode
@@ -1168,16 +1142,12 @@ class WriteChapters(BatchNode):
     def exec(self, item):
         try:
             # This runs for each item prepared above
-            abstraction_name = item["abstraction_details"][
-                "name"
-            ]  # Potentially translated name
-            abstraction_description = item["abstraction_details"][
-                "description"
-            ]  # Potentially translated description
+            abstraction_name = item["abstraction_details"]["name"]  # Potentially translated name
+            abstraction_description = item["abstraction_details"]["description"]  # Potentially translated description
             chapter_num = item["chapter_num"]
             project_name = item.get("project_name")
             language = item.get("language", "english")
-            use_cache = item.get("use_cache", True) # Read use_cache from item
+            use_cache = item.get("use_cache", True)  # Read use_cache from item
             thinking_level = item.get("thinking_level", None)
             item.get("advanced_mode", False)
             doc_mode = item.get("mode", "tutorial")
@@ -1198,6 +1168,7 @@ class WriteChapters(BatchNode):
             if incremental and output_dir:
                 import hashlib
                 import json
+
                 hasher = hashlib.md5()
                 hasher.update(file_context_str.encode("utf-8"))
                 current_hash = hasher.hexdigest()
@@ -1209,7 +1180,11 @@ class WriteChapters(BatchNode):
                             manifest = json.load(f)
                         if manifest.get(abstraction_name) == current_hash:
                             # Cache hit! Read existing file
-                            file_path = os.path.join(output_dir, project_name, "docs", "api", filename) if is_mkdocs else os.path.join(output_dir, project_name, filename)
+                            file_path = (
+                                os.path.join(output_dir, project_name, "docs", "api", filename)
+                                if is_mkdocs
+                                else os.path.join(output_dir, project_name, filename)
+                            )
                             if os.path.exists(file_path):
                                 print(f"Incremental Cache Hit: Skipping LLM for {abstraction_name}")
                                 with open(file_path, "r", encoding="utf-8") as f:
@@ -1227,13 +1202,19 @@ class WriteChapters(BatchNode):
                                 if doc_mode != "api-reference":
                                     summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, clean_content, language)
                                     summary_tokens = count_tokens(summary_prompt)
-                                    print(f"\033[96m[Summarizing] Cached chapter {chapter_num} for cross-chapter context ({summary_tokens:,} tokens)...\033[0m")
-                                    llm_logger.info(f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache")
+                                    print(
+                                        f"\033[96m[Summarizing] Cached chapter {chapter_num} for cross-chapter context ({summary_tokens:,} tokens)...\033[0m"
+                                    )
+                                    llm_logger.info(
+                                        f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache"
+                                    )
                                     chapter_summary = call_llm(summary_prompt, use_cache=True, thinking_level=None)
                                     summary_response_tokens = count_tokens(chapter_summary)
                                     self.chapter_summaries.append(f"Chapter {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
                                     print(f"\033[96m[Summary Done] Cached chapter {chapter_num}: {summary_response_tokens:,} tokens\033[0m")
-                                    llm_logger.info(f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache")
+                                    llm_logger.info(
+                                        f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache"
+                                    )
                                 return {"content": clean_content, "hash": current_hash, "name": abstraction_name}
                     except Exception as e:
                         print(f"Warning: Failed to read manifest cache: {e}")
@@ -1267,9 +1248,7 @@ class WriteChapters(BatchNode):
                 instruction_lang_note = f" (in {lang_cap})"
                 mermaid_lang_note = f" (Use {lang_cap} for labels/text if appropriate)"
                 code_comment_note = f" (PRESERVE original code comments exactly as-is. Add your explanatory notes OUTSIDE code blocks in {lang_cap}, not inside them.)"
-                link_lang_note = (
-                    f" (Use the {lang_cap} chapter title from the structure above)"
-                )
+                link_lang_note = f" (Use the {lang_cap} chapter title from the structure above)"
                 tone_note = f" (appropriate for {lang_cap} readers)"
 
             prompt_template = load_prompt_template("draft_chapters", mode=doc_mode)
@@ -1291,7 +1270,7 @@ class WriteChapters(BatchNode):
                 link_lang_note=link_lang_note,
                 code_comment_note=code_comment_note,
                 mermaid_lang_note=mermaid_lang_note,
-                tone_note=tone_note
+                tone_note=tone_note,
             )
 
             # Compute token usage for diagnostics
@@ -1315,9 +1294,7 @@ class WriteChapters(BatchNode):
             if not chapter_content.strip().startswith(f"# Chapter {chapter_num}") and doc_mode != "api-reference":
                 # Add heading if missing or incorrect, trying to preserve content
                 lines = chapter_content.strip().split("\n")
-                if lines and lines[0].strip().startswith(
-                    "#"
-                ):  # If there's some heading, replace it
+                if lines and lines[0].strip().startswith("#"):  # If there's some heading, replace it
                     lines[0] = actual_heading
                     chapter_content = "\n".join(lines)
                 else:  # Otherwise, prepend it
@@ -1347,6 +1324,7 @@ class WriteChapters(BatchNode):
     def post(self, shared, prep_res, exec_res_list):
         import json
         import os
+
         # exec_res_list contains dicts with content and hashes
         shared["chapters"] = [res["content"] for res in exec_res_list]
 
@@ -1390,12 +1368,8 @@ class CombineTutorial(Node):
             "relationships"
         ]  # {"summary": str, "details": [{"from": int, "to": int, "label": str}]} -> summary/label potentially translated
         chapter_order = shared["chapter_order"]  # indices
-        abstractions = shared[
-            "abstractions"
-        ]  # list of dicts -> name/description potentially translated
-        chapters_content = shared[
-            "chapters"
-        ]  # list of strings -> content potentially translated
+        abstractions = shared["abstractions"]  # list of dicts -> name/description potentially translated
+        chapters_content = shared["chapters"]  # list of strings -> content potentially translated
 
         # --- Generate Mermaid Diagram ---
         mermaid_lines = ["flowchart TD"]
@@ -1405,41 +1379,112 @@ class CombineTutorial(Node):
             # Use potentially translated name, sanitize for Mermaid ID and label
             sanitized_name = abstr["name"].replace('"', "").replace("\n", " ").strip()
             node_label = sanitized_name  # Using sanitized name only
-            mermaid_lines.append(
-                f'    {node_id}["{node_label}"]'
-            )  # Node label uses potentially translated name
+            mermaid_lines.append(f'    {node_id}["{node_label}"]')  # Node label uses potentially translated name
         # Add edges for relationships using potentially translated labels
         for rel in relationships_data["details"]:
             from_node_id = f"A{rel['from']}"
             to_node_id = f"A{rel['to']}"
             # Use potentially translated label, sanitize
-            edge_label = (
-                rel["label"].replace('"', "").replace("\n", " ")
-            )  # Basic sanitization
+            edge_label = rel["label"].replace('"', "").replace("\n", " ")  # Basic sanitization
             max_label_len = 30
             if len(edge_label) > max_label_len:
                 edge_label = edge_label[: max_label_len - 3] + "..."
-            mermaid_lines.append(
-                f'    {from_node_id} -- "{edge_label}" --> {to_node_id}'
-            )  # Edge label uses potentially translated label
+            mermaid_lines.append(f'    {from_node_id} -- "{edge_label}" --> {to_node_id}')  # Edge label uses potentially translated label
 
         mermaid_diagram = "\n".join(mermaid_lines)
         # --- End Mermaid ---
 
         # --- UI string translations for non-English output ---
         ui_strings = {
-            "english":    {"tutorial": "Tutorial", "source_repo": "Source Repository", "chapters": "Chapters", "toc": "Table of Contents", "chapter": "Chapter", "full_content": "Full Content"},
-            "vietnamese": {"tutorial": "Hướng dẫn", "source_repo": "Kho mã nguồn", "chapters": "Các chương", "toc": "Mục lục", "chapter": "Chương", "full_content": "Nội dung đầy đủ"},
-            "chinese":    {"tutorial": "教程", "source_repo": "源代码仓库", "chapters": "章节", "toc": "目录", "chapter": "第", "full_content": "完整内容"},
-            "japanese":   {"tutorial": "チュートリアル", "source_repo": "ソースリポジトリ", "chapters": "章", "toc": "目次", "chapter": "章", "full_content": "全文"},
-            "korean":     {"tutorial": "튜토리얼", "source_repo": "소스 저장소", "chapters": "챕터", "toc": "목차", "chapter": "챕터", "full_content": "전체 내용"},
-            "french":     {"tutorial": "Tutoriel", "source_repo": "Dépôt source", "chapters": "Chapitres", "toc": "Table des matières", "chapter": "Chapitre", "full_content": "Contenu complet"},
-            "spanish":    {"tutorial": "Tutorial", "source_repo": "Repositorio fuente", "chapters": "Capítulos", "toc": "Tabla de contenidos", "chapter": "Capítulo", "full_content": "Contenido completo"},
-            "german":     {"tutorial": "Anleitung", "source_repo": "Quellrepository", "chapters": "Kapitel", "toc": "Inhaltsverzeichnis", "chapter": "Kapitel", "full_content": "Vollständiger Inhalt"},
-            "portuguese": {"tutorial": "Tutorial", "source_repo": "Repositório fonte", "chapters": "Capítulos", "toc": "Índice", "chapter": "Capítulo", "full_content": "Conteúdo completo"},
-            "russian":    {"tutorial": "Руководство", "source_repo": "Исходный репозиторий", "chapters": "Главы", "toc": "Оглавление", "chapter": "Глава", "full_content": "Полное содержание"},
-            "thai":       {"tutorial": "บทเรียน", "source_repo": "แหล่งโค้ด", "chapters": "บท", "toc": "สารบัญ", "chapter": "บท", "full_content": "เนื้อหาทั้งหมด"},
-            "indonesian": {"tutorial": "Tutorial", "source_repo": "Repositori Sumber", "chapters": "Bab", "toc": "Daftar Isi", "chapter": "Bab", "full_content": "Konten Lengkap"},
+            "english": {
+                "tutorial": "Tutorial",
+                "source_repo": "Source Repository",
+                "chapters": "Chapters",
+                "toc": "Table of Contents",
+                "chapter": "Chapter",
+                "full_content": "Full Content",
+            },
+            "vietnamese": {
+                "tutorial": "Hướng dẫn",
+                "source_repo": "Kho mã nguồn",
+                "chapters": "Các chương",
+                "toc": "Mục lục",
+                "chapter": "Chương",
+                "full_content": "Nội dung đầy đủ",
+            },
+            "chinese": {
+                "tutorial": "教程",
+                "source_repo": "源代码仓库",
+                "chapters": "章节",
+                "toc": "目录",
+                "chapter": "第",
+                "full_content": "完整内容",
+            },
+            "japanese": {
+                "tutorial": "チュートリアル",
+                "source_repo": "ソースリポジトリ",
+                "chapters": "章",
+                "toc": "目次",
+                "chapter": "章",
+                "full_content": "全文",
+            },
+            "korean": {
+                "tutorial": "튜토리얼",
+                "source_repo": "소스 저장소",
+                "chapters": "챕터",
+                "toc": "목차",
+                "chapter": "챕터",
+                "full_content": "전체 내용",
+            },
+            "french": {
+                "tutorial": "Tutoriel",
+                "source_repo": "Dépôt source",
+                "chapters": "Chapitres",
+                "toc": "Table des matières",
+                "chapter": "Chapitre",
+                "full_content": "Contenu complet",
+            },
+            "spanish": {
+                "tutorial": "Tutorial",
+                "source_repo": "Repositorio fuente",
+                "chapters": "Capítulos",
+                "toc": "Tabla de contenidos",
+                "chapter": "Capítulo",
+                "full_content": "Contenido completo",
+            },
+            "german": {
+                "tutorial": "Anleitung",
+                "source_repo": "Quellrepository",
+                "chapters": "Kapitel",
+                "toc": "Inhaltsverzeichnis",
+                "chapter": "Kapitel",
+                "full_content": "Vollständiger Inhalt",
+            },
+            "portuguese": {
+                "tutorial": "Tutorial",
+                "source_repo": "Repositório fonte",
+                "chapters": "Capítulos",
+                "toc": "Índice",
+                "chapter": "Capítulo",
+                "full_content": "Conteúdo completo",
+            },
+            "russian": {
+                "tutorial": "Руководство",
+                "source_repo": "Исходный репозиторий",
+                "chapters": "Главы",
+                "toc": "Оглавление",
+                "chapter": "Глава",
+                "full_content": "Полное содержание",
+            },
+            "thai": {"tutorial": "บทเรียน", "source_repo": "แหล่งโค้ด", "chapters": "บท", "toc": "สารบัญ", "chapter": "บท", "full_content": "เนื้อหาทั้งหมด"},
+            "indonesian": {
+                "tutorial": "Tutorial",
+                "source_repo": "Repositori Sumber",
+                "chapters": "Bab",
+                "toc": "Daftar Isi",
+                "chapter": "Bab",
+                "full_content": "Konten Lengkap",
+            },
         }
         ui = ui_strings.get(language.lower(), ui_strings["english"])
 
@@ -1509,15 +1554,17 @@ class CombineTutorial(Node):
                 if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
                     abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
                     safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
-                    filename = f"{i+1:02d}_{safe_name}.md"
-                    index_content += f"{i+1}. [{abstraction_name}]({filename})\n"
+                    filename = f"{i + 1:02d}_{safe_name}.md"
+                    index_content += f"{i + 1}. [{abstraction_name}]({filename})\n"
 
                     chapter_content = chapters_content[i]
                     if not chapter_content.endswith("\n\n"):
                         chapter_content += "\n\n"
                     chapter_files.append({"filename": filename, "content": chapter_content})
                 else:
-                    print(f"Warning: Mismatch between chapter order, abstractions, or content at index {i} (abstraction index {abstraction_index}). Skipping file generation for this entry.")
+                    print(
+                        f"Warning: Mismatch between chapter order, abstractions, or content at index {i} (abstraction index {abstraction_index}). Skipping file generation for this entry."
+                    )
 
             index_content += f"\n---\n\n**{ui['full_content']}:** [full_content.md](full_content.md)\n"
 
@@ -1538,7 +1585,9 @@ class CombineTutorial(Node):
             chapter_files = prep_res["chapter_files"]
             ui = prep_res["ui"]
 
-            llm_logger.info(f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}")
+            llm_logger.info(
+                f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}"
+            )
             print(f"Combining tutorial into directory: {output_path}")
             os.makedirs(output_path, exist_ok=True)
 
@@ -1606,16 +1655,16 @@ class CombineTutorial(Node):
 
                 for i, chapter_info in enumerate(chapter_files):
                     content = chapter_info["content"]
-                    title_line = content.split('\n', 1)[0]
-                    if title_line.startswith('# '):
+                    title_line = content.split("\n", 1)[0]
+                    if title_line.startswith("# "):
                         title = title_line[2:].strip()
                     else:
-                        title = f"{ui['chapter']} {i+1}"
+                        title = f"{ui['chapter']} {i + 1}"
 
-                    toc_lines.append(f"- [{title}](#chapter-{i+1})")
-                    full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
+                    toc_lines.append(f"- [{title}](#chapter-{i + 1})")
+                    full_content_lines.append(f'<a id="chapter-{i + 1}"></a>\n')
                     full_content_lines.append(content)
-                    full_content_lines.append('\n---\n')
+                    full_content_lines.append("\n---\n")
 
                 full_content = "\n".join(toc_lines) + "\n\n" + "\n".join(full_content_lines)
                 full_content_filepath = os.path.join(output_path, "full_content.md")

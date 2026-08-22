@@ -25,8 +25,7 @@ def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
     )
 
 
-def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
-                                  chapter_content: str, language: str = "english") -> str:
+def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = "english") -> str:
     """Build the prompt for generating a technical summary of a written chapter.
 
     Used after each chapter is generated to create a concise technical summary
@@ -39,10 +38,7 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
     3. Implementation patterns & architectural decisions
     4. Inter-component interfaces & dependencies
     """
-    lang_instruction = (
-        f"Write the entire summary in {language.capitalize()}. "
-        if language.lower() != "english" else ""
-    )
+    lang_instruction = f"Write the entire summary in {language.capitalize()}. " if language.lower() != "english" else ""
     return (
         f"{lang_instruction}"
         f"Summarize the following documentation chapter as a structured technical brief. "

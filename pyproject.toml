@@ -6,12 +6,19 @@ requires-python = ">=3.10"
 line-length = 150
 target-version = "py310"
 
-# Exclude generated/vendored files
+# Exclude generated/vendored/docs/agent-rule files
 exclude = [
     "output/",
     "__pycache__/",
     ".git/",
     "logs/",
+    "docs/",
+    ".clinerules/",
+    ".windsurf/",
+    ".agents/",
+    "CLAUDE.md",
+    "tests/",
+    "prompts/",
 ]
 
 [tool.ruff.lint]

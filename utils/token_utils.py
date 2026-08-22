@@ -8,6 +8,7 @@ logger = logging.getLogger("llm_logger")
 # Lazy-loaded tiktoken encoding (singleton)
 _encoding = None
 
+
 def _get_encoding():
     global _encoding
     if _encoding is None:
@@ -16,6 +17,7 @@ def _get_encoding():
         except Exception:
             _encoding = None
     return _encoding
+
 
 def count_tokens(text: str) -> int:
     """Count tokens using tiktoken, with fallback to chars/4."""
@@ -26,8 +28,8 @@ def count_tokens(text: str) -> int:
         return len(enc.encode(text))
     return len(text) // 4
 
-def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
-                         token_usage: dict | None = None) -> None:
+
+def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, token_usage: dict | None = None) -> None:
     token_count = count_tokens(prompt_content)
     percentage = (token_count / max_tokens) * 100 if max_tokens else 0
 
@@ -45,4 +47,3 @@ def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
 
     # File log with node context and token usage
     logger.info(f"NODE EXEC | node={node_name} | prompt_tokens={token_count:,} / {max_tokens:,} ({percentage:.1f}% capacity){usage_str}")
-

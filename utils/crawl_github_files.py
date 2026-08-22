@@ -16,7 +16,7 @@ def crawl_github_files(
     max_file_size: int = 1 * 1024 * 1024,  # 1 MB
     use_relative_paths: bool = False,
     include_patterns: str | set[str] | None = None,
-    exclude_patterns: str | set[str] | None = None
+    exclude_patterns: str | set[str] | None = None,
 ):
     """
     Crawl files from a specific path in a GitHub repository at a specific commit.
@@ -88,10 +88,10 @@ def crawl_github_files(
             skipped_files = []
 
             # --- ANSI colors ---
-            C_GREEN  = "\033[92m"
-            C_GRAY   = "\033[90m"
-            C_RED    = "\033[91m"
-            C_RESET  = "\033[0m"
+            C_GREEN = "\033[92m"
+            C_GRAY = "\033[90m"
+            C_RED = "\033[91m"
+            C_RESET = "\033[0m"
 
             # --- Counters ---
             count_processed = 0
@@ -207,13 +207,13 @@ def crawl_github_files(
                     "base_path": None,
                     "include_patterns": include_patterns,
                     "exclude_patterns": exclude_patterns,
-                    "source": "ssh_clone"
-                }
+                    "source": "ssh_clone",
+                },
             }
 
     # Parse GitHub URL to extract owner, repo, commit/branch, and path
     parsed_url = urlparse(repo_url)
-    path_parts = parsed_url.path.strip('/').split('/')
+    path_parts = parsed_url.path.strip("/").split("/")
 
     if len(path_parts) < 2:
         raise ValueError(f"Invalid GitHub URL: {repo_url}")
@@ -238,11 +238,15 @@ def crawl_github_files(
 
         if response.status_code == 404:
             if not token:
-                print("Error 404: Repository not found or is private.\n"
-                      "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.")
+                print(
+                    "Error 404: Repository not found or is private.\n"
+                    "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable."
+                )
             else:
-                print("Error 404: Repository not found or insufficient permissions with the provided token.\n"
-                      "Please verify the repository exists and the token has access to this repository.")
+                print(
+                    "Error 404: Repository not found or insufficient permissions with the provided token.\n"
+                    "Please verify the repository exists and the token has access to this repository."
+                )
             return []
 
         if response.status_code != 200:
@@ -263,9 +267,10 @@ def crawl_github_files(
         return response.status_code == 200
 
     # Check if URL contains a specific branch/commit
-    if len(path_parts) > 2 and path_parts[2] == 'tree':
+    if len(path_parts) > 2 and path_parts[2] == "tree":
+
         def join_parts(i):
-            return '/'.join(path_parts[i:])
+            return "/".join(path_parts[i:])
 
         branches = fetch_branches(owner, repo)
         branch_names = map(lambda branch: branch.get("name"), branches)
@@ -288,12 +293,11 @@ def crawl_github_files(
 
         # If it is neither a tree nor a branch name
         if ref is None:
-            print("The given path does not match with any branch and any tree in the repository.\n"
-                  "Please verify the path is exists.")
+            print("The given path does not match with any branch and any tree in the repository.\nPlease verify the path is exists.")
             return
 
         # Combine all parts after the ref as the path
-        part_index = 5 if '/' in ref else 4
+        part_index = 5 if "/" in ref else 4
         specific_path = join_parts(part_index) if part_index < len(path_parts) else ""
     else:
         # Dont put the ref param to quiery
@@ -306,10 +310,10 @@ def crawl_github_files(
     skipped_files = []
 
     # --- ANSI colors ---
-    C_GREEN  = "\033[92m"
-    C_GRAY   = "\033[90m"
-    C_RED    = "\033[91m"
-    C_RESET  = "\033[0m"
+    C_GREEN = "\033[92m"
+    C_GRAY = "\033[90m"
+    C_RED = "\033[91m"
+    C_RESET = "\033[0m"
 
     # --- Counters ---
     api_counters = {"processed": 0, "excluded": 0, "size_limit": 0, "non_text": 0, "entry": 0}
@@ -325,7 +329,7 @@ def crawl_github_files(
         if gi_resp.status_code == 200:
             gi_data = gi_resp.json()
             if "content" in gi_data and gi_data.get("encoding") == "base64":
-                gi_content = base64.b64decode(gi_data["content"]).decode('utf-8')
+                gi_content = base64.b64decode(gi_data["content"]).decode("utf-8")
                 gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", gi_content.splitlines())
                 print("Loaded .gitignore patterns from repository via API.")
     except Exception:
@@ -338,10 +342,10 @@ def crawl_github_files(
 
         response = requests.get(url, headers=headers, params=params, timeout=(30, 30))
 
-        if response.status_code in (403, 429) and 'rate limit exceeded' in response.text.lower():
+        if response.status_code in (403, 429) and "rate limit exceeded" in response.text.lower():
             if not token:
                 raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
-            reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
+            reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
             wait_time = max(reset_time - time.time(), 0) + 1
             print(f"Rate limit exceeded. Waiting for {wait_time:.0f} seconds...")
             time.sleep(wait_time)
@@ -349,14 +353,20 @@ def crawl_github_files(
 
         if response.status_code == 404:
             if not token:
-                print("Error 404: Repository not found or is private.\n"
-                      "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.")
-            elif not path and ref == 'main':
-                print("Error 404: Repository not found. Check if the default branch is not 'main'\n"
-                      "Try adding branch name to the request i.e. python main.py --repo https://github.com/username/repo/tree/master")
+                print(
+                    "Error 404: Repository not found or is private.\n"
+                    "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable."
+                )
+            elif not path and ref == "main":
+                print(
+                    "Error 404: Repository not found. Check if the default branch is not 'main'\n"
+                    "Try adding branch name to the request i.e. python main.py --repo https://github.com/username/repo/tree/master"
+                )
             else:
-                print(f"Error 404: Path '{path}' not found in repository or insufficient permissions with the provided token.\n"
-                      f"Please verify the token has access to this repository and the path exists.")
+                print(
+                    f"Error 404: Path '{path}' not found in repository or insufficient permissions with the provided token.\n"
+                    f"Please verify the token has access to this repository and the path exists."
+                )
             return
 
         if response.status_code != 200:
@@ -376,7 +386,7 @@ def crawl_github_files(
             if use_relative_paths and specific_path:
                 # Make sure the path is relative to the specified subdirectory
                 if item_path.startswith(specific_path):
-                    rel_path = item_path[len(specific_path):].lstrip('/')
+                    rel_path = item_path[len(specific_path) :].lstrip("/")
                 else:
                     rel_path = item_path
             else:
@@ -407,7 +417,7 @@ def crawl_github_files(
                     file_response = requests.get(file_url, headers=headers, timeout=(30, 30))
 
                     # Final size check in case content-length header is available but differs from metadata
-                    content_length = int(file_response.headers.get('content-length', 0))
+                    content_length = int(file_response.headers.get("content-length", 0))
                     if content_length > max_file_size:
                         api_counters["size_limit"] += 1
                         api_skipped_size.append(rel_path)
@@ -438,7 +448,7 @@ def crawl_github_files(
                                 print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
                                 continue
 
-                            file_content = base64.b64decode(content_data["content"]).decode('utf-8')
+                            file_content = base64.b64decode(content_data["content"]).decode("utf-8")
                             files[rel_path] = file_content
                             api_counters["processed"] += 1
                             print(f"{C_GREEN}  [{entry_num}] {rel_path} [processed]{C_RESET}")
@@ -464,7 +474,11 @@ def crawl_github_files(
                     dir_name = item["name"]  # basename of the directory
                     for pattern in exclude_patterns:
                         dir_pattern = pattern[:-2] if pattern.endswith("/*") else pattern
-                        if fnmatch.fnmatch(item_path, dir_pattern) or fnmatch.fnmatch(rel_path, dir_pattern) or fnmatch.fnmatch(dir_name, dir_pattern):
+                        if (
+                            fnmatch.fnmatch(item_path, dir_pattern)
+                            or fnmatch.fnmatch(rel_path, dir_pattern)
+                            or fnmatch.fnmatch(dir_name, dir_pattern)
+                        ):
                             dir_excluded = True
                             dir_reason = "excluded"
                             break
@@ -506,18 +520,21 @@ def crawl_github_files(
             "skipped_files": skipped_files,
             "base_path": specific_path if use_relative_paths else None,
             "include_patterns": include_patterns,
-            "exclude_patterns": exclude_patterns
-        }
+            "exclude_patterns": exclude_patterns,
+        },
     }
+
 
 # Example usage
 if __name__ == "__main__":
     # Get token from environment variable (recommended for private repos)
     github_token = os.environ.get("GITHUB_TOKEN")
     if not github_token:
-        print("Warning: No GitHub token found in environment variable 'GITHUB_TOKEN'.\n"
-              "Private repositories will not be accessible without a token.\n"
-              "To access private repos, set the environment variable or pass the token explicitly.")
+        print(
+            "Warning: No GitHub token found in environment variable 'GITHUB_TOKEN'.\n"
+            "Private repositories will not be accessible without a token.\n"
+            "To access private repos, set the environment variable or pass the token explicitly."
+        )
 
     repo_url = "https://github.com/pydantic/pydantic/tree/6c38dc93f40a47f4d1350adca9ec0d72502e223f/pydantic"
 
