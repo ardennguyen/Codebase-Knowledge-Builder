@@ -36,8 +36,13 @@ jobs:
       - name: Detect prompt changes
         id: prompts
         run: |
-          if git diff HEAD~1 --name-only 2>/dev/null | grep -q 'prompts/'; then
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="HEAD~1"
+          fi
+          if git diff "$BEFORE" HEAD --name-only 2>/dev/null | grep -q 'prompts/'; then
             echo "changed=true" >> $GITHUB_OUTPUT
+            echo "📝 Prompt templates changed — will force rebuild"
           else
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
@@ -48,7 +53,7 @@ jobs:
           path: |
             output/Codebase-Knowledge-Builder/.doc_cache_manifest.json
             output/Codebase-Knowledge-Builder/docs/api/
-          key: doc-cache-${{ hashFiles('**/*.py') }}
+          key: doc-cache-${{ hashFiles('nodes.py', 'flow.py', 'main.py', 'utils/*.py', 'pocketflow.py', 'prompts/**') }}
           restore-keys: |
             doc-cache-
 
