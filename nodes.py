@@ -1385,7 +1385,7 @@ class CombineTutorial(Node):
         chapters_content = shared["chapters"]  # list of strings -> content potentially translated
 
         # --- Generate Mermaid Diagram ---
-        mermaid_lines = ["flowchart TD"]
+        mermaid_lines = ["%%{init: {'theme': 'default'}}%%", "flowchart TD"]
         # Add nodes for each abstraction using potentially translated names
         for i, abstr in enumerate(abstractions):
             node_id = f"A{i}"
@@ -1403,6 +1403,15 @@ class CombineTutorial(Node):
             if len(edge_label) > max_label_len:
                 edge_label = edge_label[: max_label_len - 3] + "..."
             mermaid_lines.append(f'    {from_node_id} -- "{edge_label}" --> {to_node_id}')  # Edge label uses potentially translated label
+
+        # Highlight foundation nodes (heavily depended on) with subtle red border
+        incoming = {f"A{i}": 0 for i in range(len(abstractions))}
+        for rel in relationships_data["details"]:
+            incoming[f"A{rel['to']}"] += 1
+        entry_nodes = [nid for nid, inc in incoming.items() if inc >= 2]
+        if entry_nodes:
+            mermaid_lines.append("    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5")
+            mermaid_lines.extend(f"    class {node_id} entryNode" for node_id in entry_nodes)
 
         mermaid_diagram = "\n".join(mermaid_lines)
         # --- End Mermaid ---

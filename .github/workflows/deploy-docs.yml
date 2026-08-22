@@ -32,6 +32,7 @@ jobs:
       - name: Install Dependencies
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install mkdocs-panzoom-plugin
 
       - name: Detect prompt changes
         id: prompts
@@ -88,6 +89,9 @@ jobs:
             name: material
             features:
               - content.code.copy
+          plugins:
+            - search
+            - panzoom
           markdown_extensions:
             - pymdownx.highlight:
                 anchor_linenums: true
