@@ -1,0 +1,41 @@
+[project]
+name = "codebase-knowledge-builder"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 150
+target-version = "py310"
+
+# Exclude generated/vendored files
+exclude = [
+    "output/",
+    "__pycache__/",
+    ".git/",
+    "logs/",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors (whitespace, syntax style)
+    "F",     # pyflakes (unused imports, undefined names, redefined)
+    "W",     # pycodestyle warnings
+    "I",     # isort (import ordering)
+    "UP",    # pyupgrade (modernize Python syntax)
+    "B",     # flake8-bugbear (common bug patterns)
+    "SIM",   # flake8-simplify (simplifiable code)
+    "RUF",   # Ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long — handled by line-length setting above
+    "E722",   # bare except — used intentionally in some LLM error handling
+    "B007",   # unused loop variable — common in batch processing
+    "SIM108", # ternary operator — readability preference
+    "UP015",  # redundant open mode — explicit is fine
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["utils"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
