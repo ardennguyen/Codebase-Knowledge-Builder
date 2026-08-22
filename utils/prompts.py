@@ -61,3 +61,40 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
         f"Chapter {chapter_num}: {abstraction_name}\n"
         f"{chapter_content}"
     )
+
+
+def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
+    """Build a complete mkdocs.yml for local --mkdocs output.
+    
+    Generates a ready-to-use MkDocs Material config with:
+    - Material theme with code copy buttons
+    - Syntax highlighting (pymdownx.highlight + inlinehilite)
+    - Mermaid diagram rendering via pymdownx.superfences custom fences
+    - Navigation from the generated nav_snippet
+    
+    Users can run `mkdocs serve` or `mkdocs build` directly in the output dir.
+    """
+    # Extract nav items from nav_snippet (strip the "nav:" header line)
+    nav_lines = nav_yaml.split("\n")
+    nav_body = "\n".join(nav_lines[1:]) if nav_lines else ""
+    
+    return (
+        f"site_name: '{site_name}'\n"
+        f"theme:\n"
+        f"  name: material\n"
+        f"  features:\n"
+        f"    - content.code.copy\n"
+        f"markdown_extensions:\n"
+        f"  - pymdownx.highlight:\n"
+        f"      anchor_linenums: true\n"
+        f"      use_pygments: true\n"
+        f"  - pymdownx.superfences:\n"
+        f"      custom_fences:\n"
+        f"        - name: mermaid\n"
+        f"          class: mermaid\n"
+        f"          format: !!python/name:pymdownx.superfences.fence_code_format\n"
+        f"  - pymdownx.inlinehilite\n"
+        f"nav:\n"
+        f"  - Home: index.md\n"
+        f"{nav_body}\n"
+    )

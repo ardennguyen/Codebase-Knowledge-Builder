@@ -7,7 +7,7 @@ from utils.crawl_github_files import crawl_github_files
 from utils.call_llm import call_llm, get_model_context_length, logger as llm_logger
 from utils.crawl_local_files import crawl_local_files
 from utils.token_utils import log_token_estimation, count_tokens
-from utils.prompts import build_code_file_filter_prompt, build_chapter_summary_prompt
+from utils.prompts import build_code_file_filter_prompt, build_chapter_summary_prompt, build_mkdocs_config
 from collections import defaultdict
 
 
@@ -1481,6 +1481,8 @@ class CombineTutorial(Node):
                 "nav_snippet": nav_snippet,
                 "chapter_files": chapter_files,
                 "ui": ui,
+                "project_name": project_name,
+                "doc_mode": shared.get("doc_mode", "tutorial"),
             }
         else:
             # Traditional tutorial mode
@@ -1538,8 +1540,32 @@ class CombineTutorial(Node):
             
             if is_mkdocs:
                 nav_snippet = prep_res["nav_snippet"]
+                project_name = prep_res["project_name"]
+                doc_mode = prep_res["doc_mode"]
                 api_docs_path = os.path.join(output_path, "docs", "api")
                 os.makedirs(api_docs_path, exist_ok=True)
+                
+                # Generate mkdocs.yml with Material theme + mermaid support
+                mode_labels = {
+                    "tutorial": "Tutorial",
+                    "advanced": "Advanced Guide", 
+                    "sdk": "SDK Guide",
+                    "api-reference": "API Reference",
+                }
+                site_title = f"{project_name} — {mode_labels.get(doc_mode, 'Documentation')}"
+                mkdocs_config = build_mkdocs_config(site_title, nav_snippet)
+                mkdocs_filepath = os.path.join(output_path, "mkdocs.yml")
+                with open(mkdocs_filepath, "w", encoding="utf-8") as f:
+                    f.write(mkdocs_config)
+                print(f"  - Wrote {mkdocs_filepath}")
+                
+                # Generate docs/index.md landing page
+                index_content = f"# {site_title}\n\nGenerated documentation for **{project_name}**.\n\n"
+                index_content += f"Use the sidebar to navigate the {mode_labels.get(doc_mode, 'documentation').lower()} chapters.\n"
+                index_filepath = os.path.join(output_path, "docs", "index.md")
+                with open(index_filepath, "w", encoding="utf-8") as f:
+                    f.write(index_content)
+                print(f"  - Wrote {index_filepath}")
                 
                 # Write nav_snippet.yml
                 nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")

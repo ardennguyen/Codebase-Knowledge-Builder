@@ -866,6 +866,15 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
 - Language-aware: prefixes with `"Write the entire summary in {language}."` for non-English
 - Summary output stored in `self.chapter_summaries[]` for cross-chapter context
 
+#### `build_mkdocs_config`
+```python
+def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
+```
+- Used by `CombineTutorial` in `--mkdocs` mode to generate a ready-to-use `mkdocs.yml`
+- Includes Material theme, code copy, syntax highlighting, and mermaid diagram support
+- Merges the generated `nav_snippet` into the config's nav section
+- Output file can be used directly with `mkdocs serve` or `mkdocs build`
+
 ### `get_content_for_indices` (helper in `nodes.py`)
 ```python
 def get_content_for_indices(files_data, indices):
@@ -1204,8 +1213,10 @@ toc_lines.append(f"- [{title}](#chapter-{i+1})")
 full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
 ```
 
-**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `index_content`, `chapter_files` (list of `{"filename": str, "content": str}`), `ui` (translated strings)
-**`exec()` operations:** Creates output directory, writes `index.md`, individual chapter files, and `full_content.md`.
+**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `doc_mode`. Standard adds: `index_content`.
+**`exec()` operations:**
+- **Standard mode:** Creates output directory, writes `index.md`, individual chapter files, and `full_content.md`.
+- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme + mermaid support), `docs/index.md` landing page, `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`. Users can run `mkdocs serve` directly in the output dir.
 **`post()` writes:** `shared["final_output_dir"] = exec_res` (output path string). Returns `None`.
 
 
