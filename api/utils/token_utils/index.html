@@ -381,34 +381,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../__init__/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    utils.__init__
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../call_llm/" class="md-nav__link">
         
   
@@ -581,10 +553,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Technical Overview
       
     </span>
   </a>
@@ -592,26 +564,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architectural-workflow" class="md-nav__link">
+  <a href="#module-level-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architectural Workflow
+        Module-Level Variables
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#module-level-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module-Level Attributes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Module-Level Attributes">
+    <nav class="md-nav" aria-label="Module-Level Variables">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -745,10 +706,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Technical Overview
       
     </span>
   </a>
@@ -756,26 +717,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architectural-workflow" class="md-nav__link">
+  <a href="#module-level-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architectural Workflow
+        Module-Level Variables
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#module-level-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module-Level Attributes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Module-Level Attributes">
+    <nav class="md-nav" aria-label="Module-Level Variables">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -884,68 +834,51 @@
 
 
 <h1 id="utilstoken_utils">utils.token_utils</h1>
-<p><strong>Source File</strong>: <code>utils/token_utils.py</code></p>
-<h2 id="overview">Overview</h2>
-<p>The <code>utils.token_utils</code> module provides token calculation, estimation, and logging utilities across the <code>Codebase-Knowledge-Builder</code> pipeline. Because Large Language Model (LLM) context windows are constrained by strict input token thresholds, node executions must monitor prompt sizes and log token consumption metrics before dispatching payloads to downstream LLM APIs.</p>
-<p>This module encapsulates:
-1. <strong>Lazy Singleton Encoding Initialization</strong>: Dynamically loads and caches the <code>cl100k_base</code> BPE (Byte-Pair Encoding) model from <code>tiktoken</code> upon first invocation.
-2. <strong>Graceful Token Counting &amp; Heuristic Fallbacks</strong>: Accurately counts tokens via <code>tiktoken.encode()</code> and falls back to a character-ratio heuristic (<code>len(text) // 4</code>) if <code>tiktoken</code> is unavailable or encounters initialization failures.
-3. <strong>Structured Token Analytics Logging</strong>: Computes prompt capacity utilization percentages and breakdown metrics per node execution, emitting formatted ANSI-colored diagnostics to stdout and structured log entries to the shared <code>llm_logger</code>.</p>
-<h2 id="architectural-workflow">Architectural Workflow</h2>
-<p>The following flowchart illustrates the token estimation and logging pipeline implemented in this module:</p>
+<p><code>utils/token_utils.py</code></p>
+<p>The <code>utils.token_utils</code> module provides token counting, estimation, and execution logging utilities for the <code>Codebase-Knowledge-Builder</code> pipeline. It is responsible for calculating token footprints across execution nodes, guarding against context-window saturation, and reporting capacity utilization to both console outputs and log files.</p>
+<h2 id="technical-overview">Technical Overview</h2>
+<p>Language model operations in <code>Codebase-Knowledge-Builder</code> require monitoring prompt sizes against strict model context constraints. <code>utils.token_utils</code> encapsulates the token calculation logic using OpenAI's <code>tiktoken</code> tokenizer (<code>cl100k_base</code> encoding) while providing a heuristic character-ratio fallback mechanism when the tokenizer is unavailable.</p>
+<p>The module implements a lazy-initialized singleton pattern for the tokenizer instance to minimize memory overhead and startup latency. Furthermore, it integrates with the shared logging infrastructure configured in <a href="../call_llm/">utils.call_llm</a> to emit formatted console telemetry (with ANSI terminal colors) and structured log entries detailing prompt capacities and token distributions per graph node.</p>
 <pre class="mermaid"><code>flowchart TD
-    subgraph TokenResolution["Token Calculation Pipeline"]
-        A["Input Text"] --&gt; B{"Text is Empty?"}
-        B -- Yes --&gt; C["Return 0"]
-        B -- No --&gt; D["Call _get_encoding()"]
-        D --&gt; E{"_encoding Initialized?"}
-        E -- Yes --&gt; F["len(enc.encode(text))"]
-        E -- No --&gt; G["Fallback: len(text) // 4"]
-    end
+    subgraph Token_Estimation_Flow["Token Counting and Logging Pipeline"]
+        A["Input Text / Prompt"] --&gt; B{"Is text empty?"}
+        B -- "Yes" --&gt; C["Return 0"]
+        B -- "No" --&gt; D["Invoke _get_encoding()"]
 
-    subgraph LoggingResolution["Analytics &amp; Output"]
-        H["log_token_estimation()"] --&gt; I["Calculate token_count"]
+        D --&gt; E{"Encoding Available?"}
+        E -- "Yes (tiktoken cl100k_base)" --&gt; F["len(enc.encode(text))"]
+        E -- "No (Exception/Fallback)" --&gt; G["len(text) // 4"]
+
+        F --&gt; H["Final Token Count"]
+        G --&gt; H
+
+        H --&gt; I["log_token_estimation()"]
         I --&gt; J["Compute Capacity Percentage"]
-        J --&gt; K{"token_usage provided?"}
-        K -- Yes --&gt; L["Format Label Metrics Breakdown"]
-        K -- No --&gt; M["Empty Breakdown"]
-        L --&gt; N["Write ANSI Yellow to stdout"]
-        M --&gt; N
-        N --&gt; O["logger.info() to llm_logger"]
-    end
-
-    F --&gt; H
-    G --&gt; H</code></pre>
+        I --&gt; K["Format Optional Breakdown Dict"]
+        J --&gt; L["Print ANSI Yellow Telemetry"]
+        K --&gt; L
+        J --&gt; M["Write to llm_logger"]
+        K --&gt; M
+    end</code></pre>
 <hr />
-<h2 id="module-level-attributes">Module-Level Attributes</h2>
+<h2 id="module-level-variables">Module-Level Variables</h2>
 <h3 id="logger"><code>logger</code></h3>
 <ul>
 <li><strong>Type</strong>: <code>logging.Logger</code></li>
-<li><strong>Visibility</strong>: Public</li>
-<li><strong>Value</strong>: <code>logging.getLogger("llm_logger")</code></li>
-<li><strong>Description</strong>: Module-level logger bound to the <code>"llm_logger"</code> namespace, shared with <a href="../call_llm/">utils.call_llm</a> to route execution telemetry and token analytics to the centralized file and console appenders.</li>
+<li><strong>Description</strong>: Reference to the shared <code>"llm_logger"</code> instance initialized across the application (primarily configured in <a href="../call_llm/">utils.call_llm</a>). Used for persistent operational and diagnostic logging.</li>
 </ul>
 <h3 id="_encoding"><code>_encoding</code></h3>
 <ul>
 <li><strong>Type</strong>: <code>Optional[tiktoken.Encoding]</code></li>
-<li><strong>Visibility</strong>: Private</li>
-<li><strong>Value</strong>: <code>None</code></li>
-<li><strong>Description</strong>: Singleton cache variable holding the initialized <code>cl100k_base</code> tiktoken tokenizer instance. Initialized on demand by <code>_get_encoding()</code> to avoid import-time overhead.</li>
+<li><strong>Description</strong>: Module-level global singleton holding the cached <code>tiktoken</code> encoding instance. Initialized to <code>None</code> and lazily instantiated upon the first invocation of <code>_get_encoding()</code>.</li>
 </ul>
 <hr />
 <h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="_get_encoding"><code>_get_encoding()</code></h3>
-<p><strong>Visibility</strong>: Private<br />
-<strong>Signature</strong>: <code>def _get_encoding() -&gt; Optional[tiktoken.Encoding]:</code></p>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _get_encoding()</code></p>
 <p><strong>Description</strong>:
-Retrieves or lazily instantiates the module-level singleton <code>_encoding</code> instance. It attempts to load the standard OpenAI <code>cl100k_base</code> tokenizer schema via <code>tiktoken.get_encoding("cl100k_base")</code>. If <code>tiktoken</code> raises any exception (e.g., missing network access for first-time vocabulary downloads, unsupported platform dependencies, or corrupt vocabulary cache files), the exception is swallowed and <code>_encoding</code> remains <code>None</code>. This design ensures that token counting never crashes the pipeline.</p>
-<p><strong>Parameters</strong>:
-* None</p>
-<p><strong>Returns</strong>:
-* <code>Optional[tiktoken.Encoding]</code>: The initialized <code>tiktoken</code> encoding instance, or <code>None</code> if initialization failed.</p>
-<p><strong>Raises</strong>:
-* No exceptions are propagated; all internal <code>Exception</code> instances during retrieval are caught and handled.</p>
-<p><strong>Example</strong>:
+Retrieves or lazily instantiates the module-level singleton <code>tiktoken</code> encoding instance configured for the <code>"cl100k_base"</code> tokenizer family. If the encoding has not yet been initialized, it attempts to load it from <code>tiktoken</code>. If an exception occurs (such as missing tokenizer data files, network issues downloading vocabulary assets, or underlying runtime failures), the function catches the exception and maintains <code>_encoding</code> as <code>None</code>, allowing downstream token calculation to degrade gracefully to a heuristic character-based count.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_get_encoding</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">global</span> <span class="n">_encoding</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">if</span> <span class="n">_encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -954,75 +887,111 @@ Retrieves or lazily instantiates the module-level singleton <code>_encoding</cod
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            <span class="n">_encoding</span> <span class="o">=</span> <span class="kc">None</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">return</span> <span class="n">_encoding</span>
+</code></pre></div>
+<p>The singleton pattern avoids the computational cost of reloading the BPE tokenizer dictionary on every token counting operation. By catching all broad <code>Exception</code> instances, the system guarantees uninterrupted execution even in offline or constrained environments where <code>tiktoken</code> resource downloads might fail.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>Optional[tiktoken.Encoding]</code>: The initialized <code>tiktoken.Encoding</code> instance if successfully resolved; otherwise <code>None</code>.</p>
+<p><strong>Raises</strong>:
+* No exceptions are raised; internal errors during initialization are suppressed to enable fallback operation.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Internal usage within count_tokens()</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">enc</span> <span class="o">=</span> <span class="n">_get_encoding</span><span class="p">()</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">if</span> <span class="n">enc</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
 </code></pre></div></p>
-<p><code>_get_encoding</code> manages the global tokenizer cache lifecycle through lazy instantiation. By isolating the <code>tiktoken.get_encoding</code> call inside a guarded <code>try/except</code> block, the function provides an operational guarantee that network or runtime issues within the tokenizer library do not halt execution. Subsequent calls re-use the resolved <code>_encoding</code> reference without re-executing tokenizer parsing routines.</p>
 <hr />
 <h3 id="count_tokens"><code>count_tokens()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def count_tokens(text: str) -&gt; int:</code></p>
 <p><strong>Description</strong>:
-Calculates the total number of BPE tokens in a provided text string. If the input text is empty or falsy, it immediately returns <code>0</code>. When the <code>cl100k_base</code> tokenizer is available via <code>_get_encoding()</code>, the function returns the exact token length from <code>len(enc.encode(text))</code>. If the tokenizer is unavailable (for example, if initialization failed), it falls back to the deterministic character approximation formula <code>len(text) // 4</code>, standard for English and code-heavy LLM contexts.</p>
+Calculates the total token count of a provided text string. It first performs a truthiness check on the input string to short-circuit empty or <code>None</code> inputs to <code>0</code>. It then queries <code>_get_encoding()</code> for the active <code>tiktoken</code> encoding object. If present, it tokenizes the text using <code>enc.encode(text)</code> and measures the length of the resulting token array. If the tokenizer is unavailable, it calculates an approximation based on the standard empirical heuristic of 4 characters per token (<code>len(text) // 4</code>).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_tokens</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Count tokens using tiktoken, with fallback to chars/4."""</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="k">return</span> <span class="mi">0</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">enc</span> <span class="o">=</span> <span class="n">_get_encoding</span><span class="p">()</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">if</span> <span class="n">enc</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
+</code></pre></div>
+<p>This dual-mode counting strategy ensures strict accuracy when <code>tiktoken</code> is operational while preventing execution failure if tokenizer dependencies are missing or misconfigured. The integer division <code>// 4</code> provides an integer token estimate suitable for context budgeting calculations.</p>
 <p><strong>Parameters</strong>:
-* <code>text</code> (<code>str</code>): The raw text or prompt content whose tokens need to be calculated.</p>
+* <code>text</code> (<code>str</code>): The raw text or prompt content whose tokens are to be counted.</p>
 <p><strong>Returns</strong>:
-* <code>int</code>: Total token count (either exact BPE token length or heuristic estimate).</p>
+* <code>int</code>: Total number of tokens computed by <code>tiktoken</code> or estimated via heuristic division.</p>
 <p><strong>Raises</strong>:
-* None.</p>
+* No exceptions are raised directly.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_tokens</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Count tokens using tiktoken, with fallback to chars/4."""</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="k">return</span> <span class="mi">0</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">enc</span> <span class="o">=</span> <span class="n">_get_encoding</span><span class="p">()</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">if</span> <span class="n">enc</span><span class="p">:</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Internal invocation from log_token_estimation()</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">token_count</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt_content</span><span class="p">)</span>
 </code></pre></div></p>
-<p>The function handles edge cases where <code>text</code> is passed as an empty string, <code>None</code>, or whitespace by returning <code>0</code> immediately. When processing source code or structured node prompts, <code>enc.encode(text)</code> accurately accounts for indentation tokens, special syntax symbols, and vocabulary splits. The fallback <code>len(text) // 4</code> ensures downstream nodes can still monitor rough capacity limits in restricted environments where external dependencies fail.</p>
 <hr />
 <h3 id="log_token_estimation"><code>log_token_estimation()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, token_usage: dict = None) -&gt; None:</code></p>
 <p><strong>Description</strong>:
-Performs token usage analysis for an execution step and emits formatted diagnostics to both stdout and <code>logger</code>. It calculates the prompt token count using <code>count_tokens(prompt_content)</code> and derives the percentage of context capacity utilized (<code>token_count / max_tokens * 100</code>). If an optional <code>token_usage</code> breakdown dictionary is supplied, it calculates relative percentages for each sub-component (e.g., file contents, system instructions, metadata). </p>
-<p>The formatted output is emitted to the console using ANSI yellow escape codes (<code>\033[93m...\033[0m</code>) for visibility during interactive runs, and simultaneously written to the <code>"llm_logger"</code> handler via <code>logger.info()</code>.</p>
+Computes token statistics for a specific workflow node's prompt and emits detailed diagnostic analytics to both standard console output and the shared application logger. The function determines the token count using <code>count_tokens()</code> and computes the consumption percentage against the provided <code>max_tokens</code> context limit. If a structured <code>token_usage</code> breakdown dictionary is supplied, it parses each key-value pair, calculates the individual component percentage relative to <code>token_count</code>, and builds a composite summary string.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">log_token_estimation</span><span class="p">(</span><span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>                         <span class="n">token_usage</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">token_count</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt_content</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_count</span> <span class="o">/</span> <span class="n">max_tokens</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">max_tokens</span> <span class="k">else</span> <span class="mi">0</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="c1"># Build token usage string if provided</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">usage_str</span> <span class="o">=</span> <span class="s2">""</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="k">if</span> <span class="n">token_usage</span><span class="p">:</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">token_usage</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>            <span class="n">pct</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">token_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">token_count</span> <span class="k">else</span> <span class="mi">0</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">pct</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%)"</span><span class="p">)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        <span class="n">usage_str</span> <span class="o">=</span> <span class="s2">" | "</span> <span class="o">+</span> <span class="s2">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="c1"># Console output (yellow) with token usage</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\033</span><span class="s2">[93m[Token Analytics] </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> tokens (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_str</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m"</span><span class="p">)</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="c1"># File log with node context and token usage</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NODE EXEC | node=</span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p>The function handles edge cases where <code>max_tokens</code> or <code>token_count</code> are zero by zero-guarding percentage computations. Console output is formatted using ANSI escape sequences (<code>\033[93m</code> and <code>\033[0m</code>) to render analytics in yellow for visibility during interactive CLI execution, while <code>logger.info()</code> writes a machine-parsable execution record tagged with <code>NODE EXEC</code>.</p>
 <p><strong>Parameters</strong>:
-* <code>node_name</code> (<code>str</code>): Identifier of the executing workflow node (e.g., <code>"node_file_summary"</code>).
-* <code>prompt_content</code> (<code>str</code>): Complete text payload intended for the model prompt.
-* <code>max_tokens</code> (<code>int</code>): Upper bound limit of tokens allowed for the target model or node context.
-* <code>token_usage</code> (<code>dict</code>, optional): Mapping of descriptive labels to individual token count integers representing prompt components. Defaults to <code>None</code>.</p>
+* <code>node_name</code> (<code>str</code>): The name or identifier of the pipeline node triggering the estimation (e.g., <code>"summary"</code>, <code>"architecture"</code>).
+* <code>prompt_content</code> (<code>str</code>): The full text of the prompt being dispatched to the LLM.
+* <code>max_tokens</code> (<code>int</code>): The maximum context window or budget configured for the target model or node.
+* <code>token_usage</code> (<code>dict</code>, optional): A key-value mapping of prompt sub-components (e.g., <code>{"system": 500, "files": 12000}</code>) to their respective token counts. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-* None.</p>
+* No exceptions are raised directly.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">log_token_estimation</span><span class="p">(</span><span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>                         <span class="n">token_usage</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">token_count</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt_content</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_count</span> <span class="o">/</span> <span class="n">max_tokens</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">max_tokens</span> <span class="k">else</span> <span class="mi">0</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="c1"># Build token usage string if provided</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">usage_str</span> <span class="o">=</span> <span class="s2">""</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">if</span> <span class="n">token_usage</span><span class="p">:</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">token_usage</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>            <span class="n">pct</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">token_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">token_count</span> <span class="k">else</span> <span class="mi">0</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">pct</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%)"</span><span class="p">)</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="n">usage_str</span> <span class="o">=</span> <span class="s2">" | "</span> <span class="o">+</span> <span class="s2">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="c1"># Console output (yellow) with token usage</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\033</span><span class="s2">[93m[Token Analytics] </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> tokens (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_str</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m"</span><span class="p">)</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="c1"># File log with node context and token usage</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NODE EXEC | node=</span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Full implementation from utils/token_utils.py</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">log_token_estimation</span><span class="p">(</span><span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>                         <span class="n">token_usage</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">token_count</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt_content</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_count</span> <span class="o">/</span> <span class="n">max_tokens</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">max_tokens</span> <span class="k">else</span> <span class="mi">0</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="c1"># Build token usage string if provided</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">usage_str</span> <span class="o">=</span> <span class="s2">""</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="k">if</span> <span class="n">token_usage</span><span class="p">:</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">token_usage</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>            <span class="n">pct</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">token_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">token_count</span> <span class="k">else</span> <span class="mi">0</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">pct</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%)"</span><span class="p">)</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>        <span class="n">usage_str</span> <span class="o">=</span> <span class="s2">" | "</span> <span class="o">+</span> <span class="s2">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    <span class="c1"># Console output (yellow) with token usage</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\033</span><span class="s2">[93m[Token Analytics] </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> tokens (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_str</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m"</span><span class="p">)</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>    <span class="c1"># File log with node context and token usage</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NODE EXEC | node=</span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></p>
-<p><code>log_token_estimation</code> provides real-time monitoring of token budget consumption before LLM API invocation. It safely guards against division-by-zero errors when <code>max_tokens</code> or <code>token_count</code> are zero. The optional <code>token_usage</code> parameter allows nodes to pass sub-breakdowns (such as individual source files or dependency context), which are formatted into percentage-of-total strings and appended to both the terminal output and structured file log records.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../call_llm/">utils.call_llm</a> — Consumes token logs and manages model API interactions via the shared <code>llm_logger</code>.</li>
-<li><a href="nodes.md">nodes</a> — Node definitions that format prompts and trigger <code>log_token_estimation</code> before dispatch.</li>
-<li><a href="../prompts/">utils.prompts</a> — Prompt construction templates analyzed by <code>count_tokens</code>.</li>
+<li><a href="../call_llm/">utils.call_llm</a> — Shared LLM calling infrastructure and root definition of <code>"llm_logger"</code>.</li>
+<li><a href="../../nodes/">nodes</a> — Pipeline node implementations that utilize <code>log_token_estimation</code> prior to model invocation.</li>
+<li><a href="../prompts/">utils.prompts</a> — Prompt construction templates measured by <code>count_tokens</code>.</li>
 </ul>
 
 

@@ -383,34 +383,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../__init__/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    utils.__init__
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../call_llm/" class="md-nav__link">
         
   
@@ -507,18 +479,46 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Key Capabilities
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingestion-architecture-execution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingestion Architecture &amp; Execution Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-level-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module-Level Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module-Level Functions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -531,6 +531,23 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helper Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helper Functions">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#should_include_file" class="md-nav__link">
@@ -578,6 +595,28 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
   
 </li>
       
@@ -716,18 +755,46 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Key Capabilities
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingestion-architecture-execution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingestion Architecture &amp; Execution Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-level-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module-Level Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module-Level Functions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -740,6 +807,23 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helper Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helper Functions">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#should_include_file" class="md-nav__link">
@@ -790,6 +874,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -808,144 +914,351 @@
 
 
 <h1 id="utilscrawl_github_files">utils.crawl_github_files</h1>
-<p><strong>File Path:</strong> <code>utils/crawl_github_files.py</code></p>
-<h2 id="overview">Overview</h2>
-<p>The <code>utils.crawl_github_files</code> module is responsible for ingesting source code and file trees from remote GitHub repositories. It serves as one of the underlying repository-fetching implementations called by the <a href="nodes.md">FetchRepo</a> node in the computational flow.</p>
-<p>The module provides dual retrieval mechanisms:
-1. <strong>Git SSH Cloning</strong>: For SSH URLs (<code>git@...</code> or URLs ending with <code>.git</code>), the module performs a temporary shallow repository clone using <code>git.Repo.clone_from</code>, scans the directory tree using <code>os.walk</code>, applies inclusion/exclusion filters along with <code>.gitignore</code> patterns via <code>pathspec</code>, and reads file contents directly with <code>utf-8-sig</code> encoding.
-2. <strong>GitHub REST API Traversal</strong>: For standard HTTP/HTTPS URLs, the module parses the repository owner, repository name, branch or tree commit SHA, and subdirectories. It uses the GitHub REST API (<code>/repos/{owner}/{repo}/contents/{path}</code> and <code>/git/trees/{tree}</code>) to recursively traverse directories, handle rate-limit resets (<code>403</code>/<code>429</code>), parse remote <code>.gitignore</code> files, and fetch content via raw download URLs or base64 decoding.</p>
-<p>Both mechanisms enforce file size limits, filter files against glob patterns, skip binary/non-text files, and output ANSI-colored terminal summaries.</p>
+<p><strong>Original Source File Path</strong>: <code>utils/crawl_github_files.py</code></p>
+<p>Technical documentation and API reference for the remote repository ingestion module <code>utils.crawl_github_files</code>. This module provides capabilities to inspect, filter, and fetch source files from remote GitHub repositories using either local Git SSH cloning into temporary directories or direct traversal via the GitHub REST API v3.</p>
 <hr />
-<h2 id="functions">Functions</h2>
+<h2 id="overview">Overview</h2>
+<p>The <code>utils.crawl_github_files</code> module is responsible for extracting raw file trees and text contents from remote GitHub repositories. It serves as an entry point for repository ingestion within the <code>Codebase-Knowledge-Builder</code> architecture.</p>
+<h3 id="key-capabilities">Key Capabilities</h3>
+<ul>
+<li><strong>Dual Retrieval Strategy</strong>:</li>
+<li><strong>SSH Clones (<code>git@...</code> or <code>.git</code>)</strong>: Invokes Git via <code>GitPython</code> (<code>git.Repo.clone_from</code>) into a managed <code>tempfile.TemporaryDirectory()</code>, scanning files locally via <code>os.walk()</code>.</li>
+<li><strong>GitHub REST API (<code>https://github.com/...</code>)</strong>: Parses owner, repository, branch/commit references, and subpaths from standard web URLs, fetching tree hierarchies and file blobs recursively over HTTP.</li>
+<li><strong>Granular Filtering &amp; Exclusion</strong>:</li>
+<li>Path and filename glob matching via <code>fnmatch</code> using <code>include_patterns</code> and <code>exclude_patterns</code>.</li>
+<li>Dynamic <code>.gitignore</code> parsing using <code>pathspec</code> (either by reading repository <code>.gitignore</code> directly or fetching it via the GitHub API).</li>
+<li><strong>Defensive Content Ingestion</strong>:</li>
+<li>Automatic size enforcement (<code>max_file_size</code>, default 1 MB).</li>
+<li>Binary and non-UTF-8 detection with fallback handling.</li>
+<li>Rate-limit backoff handling against GitHub API 403/429 limits using <code>X-RateLimit-Reset</code> response headers.</li>
+<li><strong>Path Normalization</strong>: Supports root-relative or subtree-relative path transformations (<code>use_relative_paths</code>).</li>
+</ul>
+<hr />
+<h2 id="ingestion-architecture-execution-flow">Ingestion Architecture &amp; Execution Flow</h2>
+<pre class="mermaid"><code>flowchart TD
+    Start([Input: repo_url, token, filters]) --&gt; CheckProtocol{URL Protocol}
+
+    subgraph SSH_Path [SSH / Git Clone Path]
+        CheckProtocol --&gt;|git@ or .git| TempDir[Create Temporary Directory]
+        TempDir --&gt; GitClone[git.Repo.clone_from]
+        GitClone --&gt; LoadGitignoreLocal[Load .gitignore with pathspec]
+        LoadGitignoreLocal --&gt; OSWalk[os.walk Directory Traversal]
+        OSWalk --&gt; FilterLocal{should_include_file?}
+        FilterLocal --&gt;|Yes| CheckLocalSize{Size &lt;= max_file_size?}
+        FilterLocal --&gt;|No| ExcludeLocal[Mark Excluded]
+        CheckLocalSize --&gt;|Yes| ReadLocal[Read UTF-8-sig File]
+        CheckLocalSize --&gt;|No| SkipLocalSize[Mark Size Limit Exceeded]
+        ReadLocal --&gt; AddLocalFile[Add to files dictionary]
+    end
+
+    subgraph REST_API_Path [GitHub REST API v3 Path]
+        CheckProtocol --&gt;|https://github.com/...| ParseURL[Parse Owner, Repo, Subpath]
+        ParseURL --&gt; ResolveRef[Resolve Branch / Commit SHA]
+        ResolveRef --&gt; FetchGitignoreAPI[Fetch .gitignore via API]
+        FetchGitignoreAPI --&gt; RecurseAPI[fetch_contents recursive]
+        RecurseAPI --&gt; RateCheck{Status 403 / 429?}
+        RateCheck --&gt;|Yes| SleepReset[Sleep until X-RateLimit-Reset]
+        SleepReset --&gt; RecurseAPI
+        RateCheck --&gt;|No| ProcessItem{Item Type}
+        ProcessItem --&gt;|dir| CheckDirFilter{Dir Excluded?}
+        CheckDirFilter --&gt;|No| RecurseAPI
+        CheckDirFilter --&gt;|Yes| SkipDir[Skip Subtree]
+        ProcessItem --&gt;|file| FilterAPI{should_include_file?}
+        FilterAPI --&gt;|Yes| FetchBlob[Download raw or Base64]
+        FilterAPI --&gt;|No| ExcludeAPI[Mark Excluded]
+        FetchBlob --&gt; AddAPIFile[Add to files dictionary]
+    end
+
+    AddLocalFile --&gt; ReturnPayload([Return files dict and stats])
+    AddAPIFile --&gt; ReturnPayload</code></pre>
+<hr />
+<h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="crawl_github_files"><code>crawl_github_files()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>def crawl_github_files(repo_url: str, token: str = None, max_file_size: int = 1 * 1024 * 1024, use_relative_paths: bool = False, include_patterns: Union[str, Set[str]] = None, exclude_patterns: Union[str, Set[str]] = None) -&gt; dict:</code></p>
-<p><strong>Description</strong>:<br />
-Crawls files from a specified GitHub repository URL at an optional branch, commit SHA, or subpath. Automatically selects between SSH repository cloning via <code>GitPython</code> and the GitHub REST API depending on the URL schema.</p>
-<p>Under the hood:
-- Normalizes <code>include_patterns</code> and <code>exclude_patterns</code> into sets.
-- If the URL starts with <code>git@</code> or ends with <code>.git</code>:
-  - Creates a temporary directory using <code>tempfile.TemporaryDirectory</code>.
-  - Clones the repository using <code>git.Repo.clone_from</code>.
-  - Parses <code>.gitignore</code> using <code>pathspec.PathSpec.from_lines("gitwildmatch", ...)</code> if present.
-  - Recursively traverses the directory tree using <code>os.walk</code>, pruning excluded directories and filtering files via <code>should_include_file</code>.
-  - Enforces <code>max_file_size</code> and reads contents using <code>utf-8-sig</code>.
-- If the URL is an HTTP/HTTPS GitHub URL:
-  - Parses the URL components (<code>owner</code>, <code>repo</code>, optional branch/tree ref, and subdirectory path).
-  - Fetches branches via <code>fetch_branches</code> or verifies trees via <code>check_tree</code> to resolve tree references and subdirectory paths.
-  - Queries <code>contents/.gitignore</code> via the REST API to construct a <code>pathspec</code> matcher.
-  - Recursively invokes <code>fetch_contents</code> to traverse the repository structure.
-  - Handles API rate-limiting headers (<code>X-RateLimit-Reset</code>), pausing execution when limits are reached if a token is supplied.
-  - Reads text contents via <code>download_url</code> HTTP requests or decodes base64 content payloads.
-- Prints a color-coded summary to standard output and returns a dictionary containing the path-to-content map and execution statistics.</p>
-<p><strong>Parameters</strong>:
-* <code>repo_url</code> (<code>str</code>): Target GitHub repository URL (e.g., <code>'https://github.com/owner/repo/tree/main/subdir'</code> or <code>'git@github.com:owner/repo.git'</code>).
-* <code>token</code> (<code>str | None</code>, optional): GitHub personal access token for authenticating private repositories and raising API rate limits. Defaults to <code>None</code>.
-* <code>max_file_size</code> (<code>int</code>, optional): Maximum file size in bytes to read into memory. Defaults to <code>1048576</code> (1 MB).
-* <code>use_relative_paths</code> (<code>bool</code>, optional): If <code>True</code>, returns dictionary keys relative to the specified URL subdirectory rather than repository root. Defaults to <code>False</code>.
-* <code>include_patterns</code> (<code>str | set[str] | None</code>, optional): File pattern or set of glob patterns to include (e.g., <code>{"*.py", "*.md"}</code>). If <code>None</code>, all files are included.
-* <code>exclude_patterns</code> (<code>str | set[str] | None</code>, optional): File pattern or set of glob patterns to exclude (e.g., <code>{"test/*", "*.png"}</code>). If <code>None</code>, no patterns are excluded.</p>
-<p><strong>Returns</strong>:
-* <code>dict</code>: A dictionary structured as:
-  - <code>"files"</code> (<code>dict[str, str]</code>): Mapping of relative file paths to string file contents.
-  - <code>"stats"</code> (<code>dict[str, Any]</code>): Metadata dictionary containing <code>downloaded_count</code>, <code>skipped_count</code>, <code>skipped_files</code>, <code>base_path</code>, <code>include_patterns</code>, <code>exclude_patterns</code>, and optionally <code>source</code> or <code>error</code>.</p>
-<p><strong>Raises</strong>:
-* <code>ValueError</code>: If <code>repo_url</code> cannot be parsed into valid GitHub repository components (owner and repository name).
-* <code>Exception</code>: If GitHub API rate limits are exceeded without a token provided, or if git clone operations fail.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">utils.crawl_github_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">crawl_github_files</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">crawl_github_files</span><span class="p">(</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">repo_url</span><span class="o">=</span><span class="s2">"https://github.com/pydantic/pydantic/tree/main/pydantic"</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">token</span><span class="o">=</span><span class="s2">"ghp_exampletoken12345"</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">max_file_size</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">use_relative_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">include_patterns</span><span class="o">=</span><span class="p">{</span><span class="s2">"*.py"</span><span class="p">},</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">exclude_patterns</span><span class="o">=</span><span class="p">{</span><span class="s2">"tests/*"</span><span class="p">}</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">files</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Downloaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files."</span><span class="p">)</span>
+<strong>Signature</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">crawl_github_files</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">repo_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">max_file_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 1 MB</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">use_relative_paths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">include_patterns</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">exclude_patterns</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 </code></pre></div></p>
+<p><strong>Description</strong>:<br />
+Main entry point for repository crawling. Analyzes the structure of <code>repo_url</code> to branch into either local temporary cloning (for SSH connections) or recursive REST API polling. It normalizes pattern lists, loads applicable <code>.gitignore</code> match specifications, manages console telemetry using ANSI terminal color codes, and compiles a comprehensive map of file paths to raw string contents alongside execution statistics.</p>
+<p><strong>Parameters</strong>:
+* <code>repo_url</code> (<code>str</code>): Full URL of the repository (e.g., <code>https://github.com/microsoft/autogen/tree/main/python</code> or <code>git@github.com:owner/repo.git</code>).
+* <code>token</code> (<code>str</code>, optional): GitHub Personal Access Token (PAT) used for private repository authentication or raising rate limits from 60 to 5,000 requests per hour. Defaults to <code>None</code>.
+* <code>max_file_size</code> (<code>int</code>, optional): Upper size limit in bytes for downloaded files. Defaults to <code>1048576</code> (1 MB).
+* <code>use_relative_paths</code> (<code>bool</code>, optional): If <code>True</code>, strips the root subpath prefix from returned file dictionary keys. Defaults to <code>False</code>.
+* <code>include_patterns</code> (<code>Union[str, Set[str]]</code>, optional): Glob pattern(s) specifying matching files to retain (e.g., <code>{"*.py", "*.md"}</code>). Defaults to <code>None</code> (all files allowed).
+* <code>exclude_patterns</code> (<code>Union[str, Set[str]]</code>, optional): Glob pattern(s) specifying files or directories to ignore. Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>Dict[str, Any]</code>: A structured dictionary containing:
+  * <code>"files"</code> (<code>Dict[str, str]</code>): Mapping of repository-relative (or subpath-relative) file paths to their decoded string content.
+  * <code>"stats"</code> (<code>Dict[str, Any]</code>): Execution statistics including <code>downloaded_count</code>, <code>skipped_count</code>, <code>skipped_files</code>, <code>base_path</code>, <code>include_patterns</code>, <code>exclude_patterns</code>, and optional <code>source</code> descriptor.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If the provided HTTP GitHub URL does not contain at least <code>owner</code> and <code>repo</code> path segments.
+* <code>Exception</code>: If GitHub API rate limits are exceeded and no <code>token</code> was supplied to authorize higher quotas.</p>
+<p><strong>Implementation Logic</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">crawl_github_files</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">repo_url</span><span class="p">,</span> 
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">max_file_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 1 MB</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">use_relative_paths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">include_patterns</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">exclude_patterns</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">):</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="c1"># Convert single pattern to set</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">if</span> <span class="n">include_patterns</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">include_patterns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">include_patterns</span> <span class="o">=</span> <span class="p">{</span><span class="n">include_patterns</span><span class="p">}</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="k">if</span> <span class="n">exclude_patterns</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude_patterns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="n">exclude_patterns</span> <span class="o">=</span> <span class="p">{</span><span class="n">exclude_patterns</span><span class="p">}</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">should_include_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gitignore_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="c1"># ... [Pattern matching and gitignore evaluation] ...</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="k">return</span> <span class="n">include_file</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="c1"># Detect SSH URL (git@ or .git suffix)</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="n">is_ssh_url</span> <span class="o">=</span> <span class="n">repo_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"git@"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">repo_url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".git"</span><span class="p">)</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    <span class="k">if</span> <span class="n">is_ssh_url</span><span class="p">:</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cloning SSH repo </span><span class="si">{</span><span class="n">repo_url</span><span class="si">}</span><span class="s2"> to temp dir </span><span class="si">{</span><span class="n">tmpdirname</span><span class="si">}</span><span class="s2"> ..."</span><span class="p">)</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                <span class="n">repo</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span><span class="n">repo_url</span><span class="p">,</span> <span class="n">tmpdirname</span><span class="p">)</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error cloning repo: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>                <span class="k">return</span> <span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"stats"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"error"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}}</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>            <span class="c1"># ... [Traverse directory via os.walk and collect files] ...</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>                <span class="s2">"files"</span><span class="p">:</span> <span class="n">files</span><span class="p">,</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>                <span class="s2">"stats"</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>                    <span class="s2">"downloaded_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>                    <span class="s2">"skipped_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">skipped_files</span><span class="p">),</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>                    <span class="s2">"skipped_files"</span><span class="p">:</span> <span class="n">skipped_files</span><span class="p">,</span>
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>                    <span class="s2">"base_path"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>                    <span class="s2">"include_patterns"</span><span class="p">:</span> <span class="n">include_patterns</span><span class="p">,</span>
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>                    <span class="s2">"exclude_patterns"</span><span class="p">:</span> <span class="n">exclude_patterns</span><span class="p">,</span>
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>                    <span class="s2">"source"</span><span class="p">:</span> <span class="s2">"ssh_clone"</span>
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>                <span class="p">}</span>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>            <span class="p">}</span>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>    <span class="c1"># Parse GitHub URL to extract owner, repo, commit/branch, and path</span>
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>    <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">repo_url</span><span class="p">)</span>
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>    <span class="n">path_parts</span> <span class="o">=</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path_parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid GitHub URL: </span><span class="si">{</span><span class="n">repo_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>    <span class="c1"># ... [Execute API-based extraction via fetch_contents] ...</span>
+</code></pre></div></p>
+<p>The function normalizes include/exclude filtering parameters into sets before checking whether the URL qualifies as an SSH target. For SSH connections, it clones the entire tree into an ephemeral directory created by <code>tempfile.TemporaryDirectory()</code>, compiles a <code>PathSpec</code> parser from <code>.gitignore</code> if present, walks the directory tree while skipping ignored folders in-place, and reads file contents using UTF-8-sig encoding.</p>
+<p>For HTTP URLs, <code>crawl_github_files</code> extracts the repository coordinates using <code>urllib.parse.urlparse</code>. If a specific tree ref or nested subdirectory path is provided (e.g., <code>/tree/main/sub/dir</code>), it verifies the ref against branch and git tree endpoints, then invokes the internal <code>fetch_contents()</code> closure to traverse GitHub's content endpoints.</p>
 <hr />
+<h2 id="internal-helper-functions">Internal Helper Functions</h2>
+<p>These helper functions are defined in the inner scope of <code>crawl_github_files</code> to manage path filtering, API branch resolution, tree validation, and recursive network requests.</p>
 <h3 id="should_include_file"><code>should_include_file()</code></h3>
 <p><strong>Visibility</strong>: Private (Internal closure within <code>crawl_github_files</code>)<br />
-<strong>Signature</strong>: <code>def should_include_file(file_path: str, file_name: str, gitignore_spec: pathspec.PathSpec = None) -&gt; bool:</code></p>
-<p><strong>Description</strong>:<br />
-Evaluates whether a given file matches the inclusion, exclusion, and <code>.gitignore</code> criteria.
-1. Tests <code>file_name</code> against <code>include_patterns</code> using <code>fnmatch.fnmatch</code>. If <code>include_patterns</code> is empty, defaults to <code>True</code>.
-2. If included and <code>gitignore_spec</code> is provided, tests <code>file_path</code> against <code>gitignore_spec.match_file(file_path)</code>; returns <code>False</code> if matched.
-3. If still included and <code>exclude_patterns</code> is defined, checks <code>file_path</code> against all exclusion patterns; returns <code>False</code> if matched.</p>
-<p><strong>Parameters</strong>:
-* <code>file_path</code> (<code>str</code>): Relative path of the candidate file.
-* <code>file_name</code> (<code>str</code>): Base filename of the candidate file.
-* <code>gitignore_spec</code> (<code>pathspec.PathSpec | None</code>, optional): Compiled <code>pathspec</code> object representing <code>.gitignore</code> rules. Defaults to <code>None</code>.</p>
-<p><strong>Returns</strong>:
-* <code>bool</code>: <code>True</code> if the file satisfies all filtering criteria and should be crawled; <code>False</code> otherwise.</p>
-<p><strong>Raises</strong>:
-* <em>None</em></p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Internal usage within crawl_github_files</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">is_valid</span> <span class="o">=</span> <span class="n">should_include_file</span><span class="p">(</span><span class="s2">"src/utils/math.py"</span><span class="p">,</span> <span class="s2">"math.py"</span><span class="p">,</span> <span class="n">gitignore_spec</span><span class="o">=</span><span class="n">gitignore_spec</span><span class="p">)</span>
+<strong>Signature</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_include_file</span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">gitignore_spec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathspec</span><span class="o">.</span><span class="n">PathSpec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </code></pre></div></p>
+<p><strong>Description</strong>:<br />
+Applies multi-stage filtering against a given file. It verifies if the file name matches <code>include_patterns</code> (if defined), validates that the relative path is not blocked by repository <code>.gitignore</code> rules via <code>pathspec</code>, and verifies that the path does not match any entry in <code>exclude_patterns</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>file_path</code> (<code>str</code>): Relative path of the candidate file within the repository.
+* <code>file_name</code> (<code>str</code>): Base filename component of the candidate file.
+* <code>gitignore_spec</code> (<code>Optional[pathspec.PathSpec]</code>): Compiled <code>PathSpec</code> instance initialized with <code>gitwildmatch</code> rules from the repository's <code>.gitignore</code>. Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if the file satisfies all inclusion criteria and avoids all exclusions; <code>False</code> otherwise.</p>
+<p><strong>Implementation Logic</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">should_include_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gitignore_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">        </span><span class="sd">"""Determine if a file should be included based on patterns"""</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="c1"># If no include patterns are specified, include all files</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_patterns</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>            <span class="n">include_file</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="c1"># Check if file matches any include pattern</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="n">include_file</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span> <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">include_patterns</span><span class="p">)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="c1"># Check gitignore if provided</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="k">if</span> <span class="n">include_file</span> <span class="ow">and</span> <span class="n">gitignore_spec</span><span class="p">:</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>            <span class="k">if</span> <span class="n">gitignore_spec</span><span class="o">.</span><span class="n">match_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>                <span class="k">return</span> <span class="kc">False</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="c1"># If exclude patterns are specified, check if file should be excluded</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        <span class="k">if</span> <span class="n">exclude_patterns</span> <span class="ow">and</span> <span class="n">include_file</span><span class="p">:</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>            <span class="c1"># Exclude if file matches any exclude pattern</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>            <span class="n">exclude_file</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span> <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">exclude_patterns</span><span class="p">)</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>            <span class="k">return</span> <span class="ow">not</span> <span class="n">exclude_file</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>        <span class="k">return</span> <span class="n">include_file</span>
+</code></pre></div></p>
+<p>The filter performs short-circuit evaluation. If <code>include_patterns</code> is provided, the filename must match at least one pattern via <code>fnmatch.fnmatch()</code>. If valid, the relative file path is checked against the parsed <code>gitignore_spec</code>. If it passes gitignore validation, it is evaluated against <code>exclude_patterns</code>. Any positive match in <code>exclude_patterns</code> causes the function to return <code>False</code>.</p>
 <hr />
 <h3 id="fetch_branches"><code>fetch_branches()</code></h3>
-<p><strong>Visibility</strong>: Private (Internal helper within <code>crawl_github_files</code>)<br />
-<strong>Signature</strong>: <code>def fetch_branches(owner: str, repo: str) -&gt; list[dict]:</code></p>
+<p><strong>Visibility</strong>: Private (Internal closure within <code>crawl_github_files</code>)<br />
+<strong>Signature</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_branches</span><span class="p">(</span><span class="n">owner</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+</code></pre></div></p>
 <p><strong>Description</strong>:<br />
-Queries the GitHub REST API endpoint <code>GET /repos/{owner}/{repo}/branches</code> to list all branches in the target repository. Validates response codes, raising an exception if unauthenticated rate limits are hit, logging 404 errors if the repository is private or not found, and returning the JSON array of branch metadata.</p>
+Queries the GitHub REST API endpoint (<code>GET /repos/{owner}/{repo}/branches</code>) to list all active branches in the repository. Used during URL parsing to match branch names containing forward slashes (e.g., <code>feature/v1</code>) against URL path components.</p>
 <p><strong>Parameters</strong>:
-* <code>owner</code> (<code>str</code>): GitHub repository owner / organization.
+* <code>owner</code> (<code>str</code>): GitHub organization or user account name.
 * <code>repo</code> (<code>str</code>): GitHub repository name.</p>
 <p><strong>Returns</strong>:
-* <code>list[dict]</code>: List of branch dictionaries returned by GitHub API, or an empty list <code>[]</code> on failure.</p>
+* <code>List[Dict[str, Any]]</code>: List of branch dictionaries returned by the GitHub API. Returns an empty list (<code>[]</code>) if the request fails or returns an HTTP error.</p>
 <p><strong>Raises</strong>:
-* <code>Exception</code>: If HTTP status code is <code>403</code> or <code>429</code> and no <code>token</code> was configured.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Internal usage within crawl_github_files</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">branches</span> <span class="o">=</span> <span class="n">fetch_branches</span><span class="p">(</span><span class="s2">"octocat"</span><span class="p">,</span> <span class="s2">"Hello-World"</span><span class="p">)</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">branches</span><span class="p">:</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+* <code>Exception</code>: When a rate-limit error (HTTP 403 or 429) occurs and no access token was configured.</p>
+<p><strong>Implementation Logic</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_branches</span><span class="p">(</span><span class="n">owner</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repo</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">        </span><span class="sd">"""Get brancshes of the repository"""</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://api.github.com/repos/</span><span class="si">{</span><span class="n">owner</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">/branches"</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">403</span><span class="p">,</span> <span class="mi">429</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var."</span><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error 404: Repository not found or is private.</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>                      <span class="sa">f</span><span class="s2">"If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable."</span><span class="p">)</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>            <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error 404: Repository not found or insufficient permissions with the provided token.</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>                      <span class="sa">f</span><span class="s2">"Please verify the repository exists and the token has access to this repository."</span><span class="p">)</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>            <span class="k">return</span> <span class="p">[]</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error fetching the branches of </span><span class="si">{</span><span class="n">owner</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>            <span class="k">return</span> <span class="p">[]</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 </code></pre></div></p>
+<p>The function executes a GET request with a 30-second connect/read timeout. It validates the response status code, emitting diagnostic console messages for 404 responses depending on whether an authentication token was supplied. If rate limits are exceeded without a token, execution halts immediately with an explanatory exception.</p>
 <hr />
 <h3 id="check_tree"><code>check_tree()</code></h3>
-<p><strong>Visibility</strong>: Private (Internal helper within <code>crawl_github_files</code>)<br />
-<strong>Signature</strong>: <code>def check_tree(owner: str, repo: str, tree: str) -&gt; bool:</code></p>
-<p><strong>Description</strong>:<br />
-Queries <code>GET /repos/{owner}/{repo}/git/trees/{tree}</code> to determine if the given tree SHA or ref exists within the repository. Used to disambiguate whether a URL segment is a branch name or a Git tree SHA.</p>
-<p><strong>Parameters</strong>:
-* <code>owner</code> (<code>str</code>): GitHub repository owner / organization.
-* <code>repo</code> (<code>str</code>): GitHub repository name.
-* <code>tree</code> (<code>str</code>): Tree SHA or reference to check.</p>
-<p><strong>Returns</strong>:
-* <code>bool</code>: <code>True</code> if the API responds with HTTP <code>200</code>, <code>False</code> otherwise.</p>
-<p><strong>Raises</strong>:
-* <code>Exception</code>: If rate limits (<code>403</code>/<code>429</code>) are encountered without a token.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Internal usage within crawl_github_files</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">exists</span> <span class="o">=</span> <span class="n">check_tree</span><span class="p">(</span><span class="s2">"octocat"</span><span class="p">,</span> <span class="s2">"Hello-World"</span><span class="p">,</span> <span class="s2">"6dcb09b5b57875f334f61aebed695e2e4193db5e"</span><span class="p">)</span>
+<p><strong>Visibility</strong>: Private (Internal closure within <code>crawl_github_files</code>)<br />
+<strong>Signature</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_tree</span><span class="p">(</span><span class="n">owner</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repo</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tree</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </code></pre></div></p>
+<p><strong>Description</strong>:<br />
+Verifies whether a given Git tree object or commit hash exists in the repository via <code>GET /repos/{owner}/{repo}/git/trees/{tree}</code>. Used when URL path parsing fails to match a branch name, verifying if the path component represents a raw Git commit SHA or tree object identifier.</p>
+<p><strong>Parameters</strong>:
+* <code>owner</code> (<code>str</code>): GitHub organization or user account name.
+* <code>repo</code> (<code>str</code>): GitHub repository name.
+* <code>tree</code> (<code>str</code>): Tree SHA, commit SHA, or branch reference string.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if GitHub returns HTTP 200; <code>False</code> otherwise.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: If rate limits (HTTP 403 or 429) are encountered without an active authentication token.</p>
+<p><strong>Implementation Logic</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">check_tree</span><span class="p">(</span><span class="n">owner</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repo</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tree</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">        </span><span class="sd">"""Check the repository has the given tree"""</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://api.github.com/repos/</span><span class="si">{</span><span class="n">owner</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">/git/trees/</span><span class="si">{</span><span class="n">tree</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">403</span><span class="p">,</span> <span class="mi">429</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var."</span><span class="p">)</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="k">else</span> <span class="kc">False</span> 
+</code></pre></div></p>
+<p>This helper issues an HTTP GET against GitHub's Git Trees API. It checks whether an ambiguous segment in a URL path (such as a 40-character commit hash) is a valid Git tree object, enabling precise routing when resolving URL segments into Git refs and relative subdirectories.</p>
 <hr />
 <h3 id="fetch_contents"><code>fetch_contents()</code></h3>
-<p><strong>Visibility</strong>: Private (Internal recursive helper within <code>crawl_github_files</code>)<br />
-<strong>Signature</strong>: <code>def fetch_contents(path: str) -&gt; None:</code></p>
-<p><strong>Description</strong>:<br />
-Recursively navigates the GitHub repository hierarchy using the REST API <code>GET /repos/{owner}/{repo}/contents/{path}</code>:
-- Appends the query parameter <code>ref</code> if a branch/commit is specified.
-- If rate-limited (<code>403</code>/<code>429</code>), reads <code>X-RateLimit-Reset</code>, sleeps until the quota resets, and retries the request.
-- Iterates over items returned in the directory listing:
-  - <strong>Directories (<code>dir</code>)</strong>: Checks <code>gitignore_spec</code> and <code>exclude_patterns</code>. If excluded, prints an ANSI exclusion log; otherwise, recursively calls <code>fetch_contents(item["path"])</code>.
-  - <strong>Files (<code>file</code>)</strong>: Checks patterns via <code>should_include_file</code> and enforces <code>max_file_size</code>. Downloads content using <code>download_url</code> or falls back to decoding base64 payloads from <code>item["url"]</code>. Updates the outer <code>files</code> dictionary and tracking counters.</p>
-<p><strong>Parameters</strong>:
-* <code>path</code> (<code>str</code>): Repository directory path to inspect.</p>
-<p><strong>Returns</strong>:
-* <code>None</code> (Updates the enclosing <code>files</code> dictionary and counter state in-place).</p>
-<p><strong>Raises</strong>:
-* <code>Exception</code>: If GitHub API rate limits are hit without a configured token.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Internal invocation within crawl_github_files</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">fetch_contents</span><span class="p">(</span><span class="s2">"src/core"</span><span class="p">)</span>
+<p><strong>Visibility</strong>: Private (Internal closure within <code>crawl_github_files</code>)<br />
+<strong>Signature</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_contents</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </code></pre></div></p>
+<p><strong>Description</strong>:<br />
+Recursively inspects directories and downloads files from GitHub's Contents API (<code>GET /repos/{owner}/{repo}/contents/{path}</code>). It handles rate-limit backoff, evaluates <code>.gitignore</code> and glob filters, ignores directories matching exclusions, downloads file contents using raw URLs or base64 decoding, and updates the shared <code>files</code> map and counter registries.</p>
+<p><strong>Parameters</strong>:
+* <code>path</code> (<code>str</code>): Repository-relative subdirectory or file path to query.</p>
+<p><strong>Returns</strong>:
+* <code>None</code>: Populates outer-scope data structures (<code>files</code>, <code>api_counters</code>, <code>api_skipped_size</code>, <code>api_skipped_non_text</code>) in place.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: When an unauthenticated rate limit is triggered.</p>
+<p><strong>Implementation Logic</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_contents</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">        </span><span class="sd">"""Fetch contents of the repository at a specific path and commit"""</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://api.github.com/repos/</span><span class="si">{</span><span class="n">owner</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">/contents/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"ref"</span><span class="p">:</span> <span class="n">ref</span><span class="p">}</span> <span class="k">if</span> <span class="n">ref</span> <span class="o">!=</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">403</span><span class="p">,</span> <span class="mi">429</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">'rate limit exceeded'</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var."</span><span class="p">)</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>            <span class="n">reset_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'X-RateLimit-Reset'</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>            <span class="n">wait_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">reset_time</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Rate limit exceeded. Waiting for </span><span class="si">{</span><span class="n">wait_time</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> seconds..."</span><span class="p">)</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>            <span class="k">return</span> <span class="n">fetch_contents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>            <span class="c1"># ... [Handle 404 error formatting] ...</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>            <span class="k">return</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error fetching </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>            <span class="k">return</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>        <span class="n">contents</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>            <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span><span class="n">contents</span><span class="p">]</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>            <span class="n">item_path</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">"path"</span><span class="p">]</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>            <span class="c1"># ... [Resolve relative paths and filter files/directories] ...</span>
+</code></pre></div></p>
+<p>When an authenticated rate-limit threshold (HTTP 403 or 429) is encountered, <code>fetch_contents</code> calculates sleep duration using the <code>X-RateLimit-Reset</code> header and sleeps before retrying the call. For each item returned in directory listings:
+* <strong>Directory (<code>type == "dir"</code>)</strong>: Evaluates <code>gitignore_spec</code> and <code>exclude_patterns</code>. If excluded, skips recursion; otherwise, recurses down the tree.
+* <strong>File (<code>type == "file"</code>)</strong>: Verifies size limits and include/exclude patterns. Downloads raw content via <code>item["download_url"]</code> or falls back to decoding base64 blobs from <code>item["url"]</code>. Decoded content is stored directly into the <code>files</code> dictionary.</p>
+<hr />
+<h2 id="usage-example">Usage Example</h2>
+<p>The module includes an execution example under <code>if __name__ == "__main__":</code> demonstrating how to fetch Python and Markdown files from a GitHub repository:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="c1"># Get token from environment variable (recommended for private repos)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">github_token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GITHUB_TOKEN"</span><span class="p">)</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">github_token</span><span class="p">:</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">"Warning: No GitHub token found in environment variable 'GITHUB_TOKEN'.</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>              <span class="s2">"Private repositories will not be accessible without a token.</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>              <span class="s2">"To access private repos, set the environment variable or pass the token explicitly."</span><span class="p">)</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="n">repo_url</span> <span class="o">=</span> <span class="s2">"https://github.com/pydantic/pydantic/tree/6c38dc93f40a47f4d1350adca9ec0d72502e223f/pydantic"</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    <span class="c1"># Example: Get Python and Markdown files, but exclude test files</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">crawl_github_files</span><span class="p">(</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        <span class="n">repo_url</span><span class="p">,</span> 
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>        <span class="n">token</span><span class="o">=</span><span class="n">github_token</span><span class="p">,</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>        <span class="n">max_file_size</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 1 MB in bytes</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>        <span class="n">use_relative_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable relative paths</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>        <span class="n">include_patterns</span><span class="o">=</span><span class="p">{</span><span class="s2">"*.py"</span><span class="p">,</span> <span class="s2">"*.md"</span><span class="p">},</span>  <span class="c1"># Include Python and Markdown files</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="p">)</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    <span class="n">files</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>    <span class="n">stats</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"stats"</span><span class="p">]</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Downloaded </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'downloaded_count'</span><span class="p">]</span><span class="si">}</span><span class="s2"> files."</span><span class="p">)</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skipped </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'skipped_count'</span><span class="p">]</span><span class="si">}</span><span class="s2"> files due to size limits or patterns."</span><span class="p">)</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Base path for relative paths: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'base_path'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Include patterns: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'include_patterns'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Exclude patterns: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'exclude_patterns'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../crawl_local_files/"><code>utils.crawl_local_files</code></a> — Local directory crawling counterpart.</li>
+<li><a href="../../nodes/"><code>nodes</code></a> — Pipeline nodes utilizing file crawling for document construction.</li>
+<li><a href="../../main/"><code>main</code></a> — Primary entry point orchestrating repository ingestion.</li>
+<li><a href="../token_utils/"><code>utils.token_utils</code></a> — Token counting utilities for extracted file content.</li>
+</ul>
 
 
 
