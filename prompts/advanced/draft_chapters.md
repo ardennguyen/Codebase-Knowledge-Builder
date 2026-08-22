@@ -63,7 +63,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   * `stateDiagram` — for entity lifecycle states (e.g., pending → confirmed → settled)
   Use AT LEAST 2 different diagram types per chapter when appropriate.
   Keep the diagrams technically precise. {mermaid_lang_note}.
-  MERMAID RENDERING RULES: Every mermaid code block MUST start with `%%{init: {'theme': 'default'}}%%` on the first line before any diagram type declaration. Keep node labels SHORT (max 40 characters) — abbreviate long names. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead (e.g., "and" not "&"). For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
+  MERMAID RENDERING RULES: Every mermaid code block MUST start with `%%{{init: {{'theme': 'default'}}}}%%` on the first line before any diagram type declaration. Keep node labels SHORT (max 40 characters) — abbreviate long names. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead (e.g., "and" not "&"). For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
   MERMAID STYLING RULES: For flowchart diagrams, highlight entry/start nodes by adding `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` and applying it with `class nodeId entryNode`. Leave all other nodes with default Mermaid styling — do NOT color every node.
 
 - Explicitly call out any important dependencies, constraints, concurrency models, or scaling characteristics{instruction_lang_note}.

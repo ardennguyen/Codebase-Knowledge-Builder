@@ -72,7 +72,7 @@ Instructions for the API reference page (Generate content in {language} unless s
   * `flowchart` — for decision logic, branching, pipeline stages, or node architecture
   * `stateDiagram` — for entity lifecycle states
   Include diagrams when they add clarity; omit them for simple data-class or utility files.
-  MERMAID RENDERING RULES: Every mermaid code block MUST start with `%%{init: {'theme': 'default'}}%%` on the first line before any diagram type declaration. Keep node labels SHORT (max 40 characters) — abbreviate long names. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
+  MERMAID RENDERING RULES: Every mermaid code block MUST start with `%%{{init: {{'theme': 'default'}}}}%%` on the first line before any diagram type declaration. Keep node labels SHORT (max 40 characters) — abbreviate long names. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
   MERMAID STYLING RULES: For flowchart diagrams, highlight entry/start nodes by adding `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` and applying it with `class nodeId entryNode`. Leave all other nodes with default Mermaid styling — do NOT color every node.
 
 - Link to other documented files using proper Markdown links: [OtherFile](filename.md){link_lang_note}. Use the Complete API Index above to find the correct filename. Translate the surrounding prose text, not the code.
