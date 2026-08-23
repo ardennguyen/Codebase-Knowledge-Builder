@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -837,7 +837,14 @@
 <li><code>--max-tokens</code> - Maximum number of tokens for the context window (default: fetched dynamically from the model).</li>
 <li><code>--mode</code> - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)</li>
 <li><code>--advanced</code> - Legacy flag: equivalent to --mode advanced</li>
-<li><code>--mkdocs</code> - Format output for MkDocs Material (adds YAML frontmatter &amp; nav snippet)</li>
+<li><code>--mkdocs</code> - Format output for MkDocs Material with rich features:<ul>
+<li>Interactive pan/zoom on Mermaid diagrams (<code>mkdocs-panzoom-plugin</code>)</li>
+<li>Vibrant Mermaid color theme (yellow subgraphs, lavender nodes)</li>
+<li>LLM-assisted sidebar grouping for <code>api-reference</code> mode (6+ modules auto-clustered into semantic sections)</li>
+<li>Section index landing page (<code>api/index.md</code>) with grouped module table</li>
+<li>Run <code>cd output/&lt;ProjectName&gt; &amp;&amp; mkdocs serve</code> to preview locally (requires <code>pip install mkdocs-material mkdocs-panzoom-plugin</code>)</li>
+</ul>
+</li>
 <li><code>--incremental</code> - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)</li>
 <li><code>--force-rebuild</code> - Clear incremental cache and regenerate all chapters from scratch (use with --incremental)</li>
 <li><code>--batch</code> - Maximum files per batch when using map-reduce mode (default: 50).</li>

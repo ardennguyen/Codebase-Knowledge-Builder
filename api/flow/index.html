@@ -62,7 +62,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -443,10 +443,9 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Technical Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pipeline-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -454,11 +453,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -776,10 +770,9 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Technical Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pipeline-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -787,11 +780,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -852,14 +840,18 @@
 
 
 <h1 id="flow">flow</h1>
-<p><strong>File:</strong> <code>flow.py</code></p>
+<p><code>flow.py</code></p>
 <h2 id="technical-overview">Technical Overview</h2>
-<p>The <code>flow.py</code> module defines the structural DAG (Directed Acyclic Graph) pipeline for the <code>Codebase-Knowledge-Builder</code> system using the <code>pocketflow</code> framework. Its primary responsibility is instantiating and wiring together processing nodes imported from <a href="../nodes/">nodes</a>, establishing transitions, branch points, retry parameters, and entry points necessary to generate end-to-end technical documentation and tutorials from repository source trees.</p>
-<p>The workflow coordinates three distinct architectural analysis pathways based on context routing:
-1. <strong>Direct Path (<code>direct</code>)</strong>: Bypasses chunked map-reduce steps for small codebases that fit within standard context windows, directly executing abstraction identification.
-2. <strong>Batch Path (<code>batch</code>)</strong>: Employs a map-reduce pipeline (<code>MapAbstractions</code> into <code>ReduceAbstractions</code>) for large repositories requiring chunk-based summarization before relationship analysis.
-3. <strong>Deterministic Path (<code>deterministic</code>)</strong>: Uses a direct 1:1 file-to-page mapper (<code>DeterministicFileMapper</code>) designed for exhaustive, file-by-file internal API reference generation, bypassing abstraction synthesis and chapter reordering.</p>
-<h3 id="pipeline-architecture">Pipeline Architecture</h3>
+<p>The <code>flow.py</code> module defines the core execution graph and orchestration pipeline for the <code>Codebase-Knowledge-Builder</code> system. Built on top of the <code>pocketflow</code> framework, this module connects all individual workflow stages—implemented as custom node classes in <a href="../nodes/">nodes</a>—into a directed acyclic computation graph (<code>Flow</code>).</p>
+<p>The pipeline models a multi-path architecture that adapts dynamically based on codebase size and token context limits:
+1. <strong>Repository Ingestion &amp; Context Routing</strong>: Ingests files via <code>FetchRepo</code> and evaluates total token volume via <code>ContextRouter</code>.
+2. <strong>Dynamic Execution Branches</strong>:
+   - <strong>Direct Branch (<code>"direct"</code>)</strong>: Small codebases that fit within context windows bypass map-reduce and proceed directly to <code>IdentifyAbstractions</code>.
+   - <strong>Batch Branch (<code>"batch"</code>)</strong>: Large codebases are partitioned across <code>MapAbstractions</code> and aggregated by <code>ReduceAbstractions</code> before feeding into <code>AnalyzeRelationships</code>.
+   - <strong>Deterministic Branch (<code>"deterministic"</code>)</strong>: Dedicated mapping using <code>DeterministicFileMapper</code> for structured, rule-based chapter mapping that directly feeds <code>WriteChapters</code>.
+3. <strong>Synthesis &amp; Assembly</strong>: Intermediate relationship graphs and abstraction models are topologically sequenced by <code>OrderChapters</code>, generated in parallel/sequence by <code>WriteChapters</code>, and aggregated into the final documentation output by <code>CombineTutorial</code>.</p>
+<p>The module configures fault tolerance across LLM-bound nodes by establishing uniform retry strategies (<code>max_retries=5</code>, <code>wait=20</code>).</p>
+<h2 id="pipeline-architecture">Pipeline Architecture</h2>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -876,41 +868,27 @@
     <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    subgraph Ingestion ["1. Ingestion and Routing"]
+    subgraph Ingestion["Ingestion and Routing"]
         fetch_repo["FetchRepo"]
-        context_router["ContextRouter"]
-        class fetch_repo entryNode;
+        context_router{"ContextRouter"}
     end
 
-    subgraph DirectPath ["2a. Direct Synthesis Pathway"]
-        identify_abstractions["IdentifyAbstractions (retries: 5, wait: 20s)"]
-        class identify_abstractions entryNode;
+    subgraph ProcessingBranches["Processing Branches"]
+        identify_abstractions["IdentifyAbstractions"]
+        map_abstractions["MapAbstractions"]
+        reduce_abstractions["ReduceAbstractions"]
+        deterministic_mapper["DeterministicFileMapper"]
     end
 
-    subgraph BatchPath ["2b. Map-Reduce Pathway"]
-        map_abstractions["MapAbstractions (retries: 5, wait: 20s)"]
-        reduce_abstractions["ReduceAbstractions (retries: 5, wait: 20s)"]
-        class map_abstractions entryNode;
-    end
-
-    subgraph DeterministicPath ["2c. Exhaustive Reference Pathway"]
-        deterministic_mapper["DeterministicFileMapper (retries: 5, wait: 20s)"]
-        class deterministic_mapper entryNode;
-    end
-
-    subgraph Synthesis ["3. Structural Analysis and Ordering"]
-        analyze_relationships["AnalyzeRelationships (retries: 5, wait: 20s)"]
-        order_chapters["OrderChapters (retries: 5, wait: 20s)"]
-        class analyze_relationships entryNode;
-    end
-
-    subgraph Generation ["4. Output Generation"]
-        write_chapters["WriteChapters (retries: 5, wait: 20s)"]
+    subgraph Synthesis["Synthesis and Assembly"]
+        analyze_relationships["AnalyzeRelationships"]
+        order_chapters["OrderChapters"]
+        write_chapters["WriteChapters"]
         combine_tutorial["CombineTutorial"]
-        class write_chapters entryNode;
     end
 
     fetch_repo --&gt; context_router
+
     context_router -- "direct" --&gt; identify_abstractions
     context_router -- "batch" --&gt; map_abstractions
     context_router -- "deterministic" --&gt; deterministic_mapper
@@ -925,7 +903,11 @@
 
     deterministic_mapper --&gt; write_chapters
 
-    write_chapters --&gt; combine_tutorial</code></pre> 
+    write_chapters --&gt; combine_tutorial
+
+    class fetch_repo entryNode
+    class identify_abstractions entryNode
+    class analyze_relationships entryNode</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -935,7 +917,15 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <h3 id="create_tutorial_flow"><code>create_tutorial_flow()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def create_tutorial_flow() -&gt; Flow:</code></p>
-<p><strong>Description</strong>: Constructs and returns the complete PocketFlow execution graph. It instantiates ten pipeline nodes with tailored retry and backoff parameters, establishes deterministic and dynamic transition edges between them, and designates the starting node for pipeline execution.</p>
+<p><strong>Description</strong>:<br />
+Instantiates all processing nodes, configures resilience parameters (retries and backoff delays), builds the edge relationships and conditional routing branches between nodes, and wraps the resulting pipeline into an executable <code>Flow</code> instance starting at <code>FetchRepo</code>.</p>
+<p><strong>Parameters</strong>:<br />
+* None.</p>
+<p><strong>Returns</strong>:<br />
+* <code>Flow</code>: A fully wired PocketFlow execution graph configured with <code>FetchRepo</code> as the root entry point.</p>
+<p><strong>Raises</strong>:<br />
+* None directly during creation; downstream exceptions during execution are governed by node-level retry policies.</p>
+<p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_tutorial_flow</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">fetch_repo</span> <span class="o">=</span> <span class="n">FetchRepo</span><span class="p">()</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">context_router</span> <span class="o">=</span> <span class="n">ContextRouter</span><span class="p">()</span>
@@ -967,30 +957,13 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">write_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">combine_tutorial</span>
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">fetch_repo</span><span class="p">)</span>
-</code></pre></div>
-<p>The function begins by instantiating nodes defined in <a href="../nodes/">nodes</a>. All nodes requiring external LLM synthesis (<code>MapAbstractions</code>, <code>ReduceAbstractions</code>, <code>IdentifyAbstractions</code>, <code>AnalyzeRelationships</code>, <code>OrderChapters</code>, <code>WriteChapters</code>, and <code>DeterministicFileMapper</code>) are initialized with <code>max_retries=5</code> and <code>wait=20</code> to guarantee resilience against rate limits or transient API connection issues. Structural/local processing nodes (<code>FetchRepo</code>, <code>ContextRouter</code>, and <code>CombineTutorial</code>) do not invoke remote LLM endpoints directly and are instantiated with default retry parameters.</p>
-<p>Next, the execution graph is configured using pocketflow operator overloads:
-- <code>&gt;&gt;</code> (unconditional edge) connects single upstream nodes to downstream targets.
-- <code>- "action" &gt;&gt;</code> (conditional branch) routes execution from <code>ContextRouter</code> based on runtime context size or target mode.
-- Multiple convergence points are established: <code>identify_abstractions</code> and <code>reduce_abstractions</code> both feed into <code>analyze_relationships</code>, while <code>order_chapters</code> and <code>deterministic_mapper</code> both feed into <code>write_chapters</code>.</p>
-<p>Finally, the function returns an initialized <code>pocketflow.Flow</code> instance whose entry point is bound to <code>fetch_repo</code>.</p>
-<p><strong>Parameters</strong>:
-* None.</p>
-<p><strong>Returns</strong>:
-* <code>Flow</code>: An initialized <code>pocketflow.Flow</code> instance configured with the complete directed graph starting at <code>FetchRepo</code>.</p>
-<p><strong>Raises</strong>:
-* No exceptions are explicitly raised by the construction logic itself.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Calling create_tutorial_flow from the main application entry point:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_tutorial_flow</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">flow</span> <span class="o">=</span> <span class="n">create_tutorial_flow</span><span class="p">()</span>
 </code></pre></div></p>
+<p>The function initializes ten node instances. Seven of these nodes (<code>MapAbstractions</code>, <code>ReduceAbstractions</code>, <code>IdentifyAbstractions</code>, <code>AnalyzeRelationships</code>, <code>OrderChapters</code>, <code>WriteChapters</code>, and <code>DeterministicFileMapper</code>) communicate with external LLM APIs and are explicitly instantiated with <code>max_retries=5</code> and <code>wait=20</code> to guarantee resilience against rate limits and transient connection failures. The structural routing relies on PocketFlow's operator overloading: <code>&gt;&gt;</code> defines unconditional sequential transitions, whereas <code>- "action" &gt;&gt;</code> defines conditional routing decisions evaluated by the <code>ContextRouter</code> node. The graph terminates with <code>CombineTutorial</code>, which compiles all chapter outputs into the final documentation artifact.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../main/">main</a> — Invokes <code>create_tutorial_flow()</code> to construct and execute the flow.</li>
-<li><a href="../nodes/">nodes</a> — Implements all <code>Node</code> and <code>BatchNode</code> subclasses wired within this pipeline.</li>
+<li><a href="../main/">main</a> — The application entry point that executes the graph returned by <code>create_tutorial_flow()</code>.</li>
+<li><a href="../nodes/">nodes</a> — The node implementations and business logic referenced in the flow graph.</li>
 </ul>
 
 
