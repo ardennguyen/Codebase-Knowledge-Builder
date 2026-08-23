@@ -62,7 +62,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -631,10 +631,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architecture-integration-flow" class="md-nav__link">
+  <a href="#architecture-and-data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture &amp; Integration Flow
+        Architecture and Data Flow
       
     </span>
   </a>
@@ -806,10 +806,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architecture-integration-flow" class="md-nav__link">
+  <a href="#architecture-and-data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture &amp; Integration Flow
+        Architecture and Data Flow
       
     </span>
   </a>
@@ -931,16 +931,9 @@
 <blockquote>
 <p><strong>Source:</strong> <code>utils/prompts.py</code></p>
 </blockquote>
-<p>The <code>utils.prompts</code> module provides reusable inline prompt builders, documentation configuration generators, and navigation tree processors for internal Large Language Model (LLM) operations and site artifact generation across the <code>Codebase-Knowledge-Builder</code> architecture. Unlike user-facing document templates located in mode-specific template directories (e.g., <code>prompts/{mode}/</code>), the builders in this module are programmatic, deterministic string formatters and structural parsers used during intermediate graph node executions.</p>
-<p>Key capabilities provided by this module include:
-- Generating classification prompts that instruct LLMs to identify pure code files from raw file listings while excluding non-code assets.
-- Constructing structured chapter summary prompts that capture 4-dimensional technical briefs (scope, key elements, patterns, dependencies) to provide context propagation across sequential chapter generation nodes.
-- Generating MkDocs configuration files (<code>mkdocs.yml</code>) configured with the Material for MkDocs theme, syntax highlighting, zoom extensions, and custom Mermaid rendering handlers.
-- Providing CSS style overrides to ensure proper color rendering and contrast for Mermaid diagrams within Material themes.
-- Traversing recursive hierarchy trees to compile formatted MkDocs navigation YAML trees and extracting module lists.</p>
-<hr />
-<h2 id="architecture-integration-flow">Architecture &amp; Integration Flow</h2>
-<p>The prompt and configuration generators in <code>utils.prompts</code> support distinct phases of the documentation generation lifecycle: file filtering, iterative chapter contextualization, and final MkDocs static site generation.</p>
+<p>The <code>utils.prompts</code> module provides specialized prompt constructors, configuration generators, and navigation tree processors used across the documentation generation pipeline. Unlike template-driven prompts loaded dynamically from disk via mode-specific directories, these inline prompt builders encapsulate fixed-schema LLM instructions, formatting specifications for static site generators, and recursive navigation hierarchy compilers.</p>
+<h2 id="architecture-and-data-flow">Architecture and Data Flow</h2>
+<p>The functions in this module support various stages of the document generation lifecycle, from initial source tree filtering to inter-chapter technical summarization and static site deployment configuration:</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -957,40 +950,23 @@
     <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    subgraph Ingestion["1. Ingestion and Filtering"]
-        RawFiles["Raw File Listing"]
-        FilterPrompt["build_code_file_filter_prompt()"]
-        LLMFilter["LLM File Filter"]
-        RawFiles --&gt; FilterPrompt
-        FilterPrompt --&gt; LLMFilter
+    subgraph PromptGeneration [LLM Prompt Builders]
+        P1["build_code_file_filter_prompt()"]:::entryNode
+        P2["build_chapter_summary_prompt()"]
     end
 
-    subgraph Generation["2. Contextual Chapter Generation"]
-        ChapterContent["Generated Chapter Content"]
-        SummaryPrompt["build_chapter_summary_prompt()"]
-        SummaryLLM["LLM Chapter Summarizer"]
-        ContextAccumulator["Cross-Chapter Context Buffer"]
-
-        ChapterContent --&gt; SummaryPrompt
-        SummaryPrompt --&gt; SummaryLLM
-        SummaryLLM --&gt; ContextAccumulator
+    subgraph SiteConfiguration [Static Site &amp; Navigation Builders]
+        M1["build_mkdocs_config()"]:::entryNode
+        M2["build_mermaid_css()"]
+        M3["build_grouped_nav()"]
+        M4["collect_all_modules()"]
     end
 
-    subgraph Publication["3. MkDocs Site Assembly"]
-        SectionTree["LLM Section Grouping Tree"]
-        GroupedNav["build_grouped_nav()"]
-        CollectMods["collect_all_modules()"]
-        MkDocsConfig["build_mkdocs_config()"]
-        MermaidCSS["build_mermaid_css()"]
-
-        SectionTree --&gt; GroupedNav
-        SectionTree --&gt; CollectMods
-        GroupedNav --&gt; MkDocsConfig
-    end
-
-    class RawFiles entryNode
-    class ChapterContent entryNode
-    class SectionTree entryNode</code></pre> 
+    P1 --&gt;|Filters file index| MapperNode["DeterministicFileMapper (nodes.py)"]
+    P2 --&gt;|Cross-chapter context| LLMCall["LLM Inference (call_llm.py)"]
+    M3 --&gt;|Formats YAML nav| M1
+    M4 --&gt;|Validates module coverage| M3
+    M2 --&gt;|Injected into static assets| M1</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -1000,15 +976,14 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <h3 id="build_code_file_filter_prompt"><code>build_code_file_filter_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_code_file_filter_prompt(project_name: str, file_listing: str) -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Constructs an LLM prompt string designed for <code>DeterministicFileMapper</code> to filter out non-code assets from an ingested repository index. The prompt explicitly details which file classes constitute code modules (APIs, core business logic, functions, classes) and commands the LLM to discard UI templates (<code>.xaml</code>, <code>.storyboard</code>, <code>.html</code>), configurations (<code>.xml</code>, <code>.json</code>, <code>.ini</code>), build system artifacts (<code>.csproj</code>, <code>.sln</code>), and static documentation. The returned instruction enforces a strict YAML list containing the zero-based indices of matching files.</p>
+<p><strong>Description</strong>: Generates an inline instruction prompt for the <code>DeterministicFileMapper</code> node. It tasks an LLM with reviewing an indexed list of repository file paths and identifying files containing executable code, APIs, classes, or business logic, while excluding layouts, static assets, markup, configuration files, and build manifests. The prompt strictly instructs the LLM to return a YAML array of integer indices.</p>
 <p><strong>Parameters</strong>:
-* <code>project_name</code> (<code>str</code>): The name of the project repository being analyzed.
-* <code>file_listing</code> (<code>str</code>): An indexed, line-separated string listing of repository files.</p>
+* <code>project_name</code> (<code>str</code>): The display or repository name of the target codebase.
+* <code>file_listing</code> (<code>str</code>): Formatted list of numbered file paths discovered in the repository.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: A formatted prompt instructing the LLM to output a YAML list of valid code indices.</p>
+* <code>str</code>: The complete system prompt string instructing the LLM on file classification and output formatting constraints.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_code_file_filter_prompt</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_listing</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">return</span> <span class="p">(</span>
@@ -1023,22 +998,21 @@ Constructs an LLM prompt string designed for <code>DeterministicFileMapper</code
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The function performs template injection using Python f-strings to format the project name and the catalog of crawled files. Downstream nodes parse the LLM's raw markdown response to extract the YAML list of numeric indices, mapping them back to physical file paths for downstream analysis.</p>
+<p>The function performs direct string interpolation to embed the project name and the formatted file listing into a pre-structured instruction template. The prompt specifies negative filtering rules to weed out non-code assets (such as markup, build manifests, and static assets) and defines an explicit YAML schema requirement. By asking for raw integer indices instead of file paths, the prompt minimizes token overhead and eliminates path string serialization mismatches during parsing.</p>
 <hr />
 <h3 id="build_chapter_summary_prompt"><code>build_chapter_summary_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = "english") -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Builds the prompt used to summarize a completed documentation chapter. The generated summary serves as historical context for subsequent chapter generation nodes in multi-chapter pipelines, preventing hallucinations and ensuring continuity across modules. The prompt enforces a structured four-dimension technical summary format (Component Scope, Key Technical Elements, Implementation Patterns &amp; Architecture, System Integration &amp; Dependencies), requiring 3-5 concise technical sentences per dimension. If a non-English language is configured, an explicit target language instruction is prepended.</p>
+<p><strong>Description</strong>: Constructs a structured technical summarization prompt targeting a recently generated documentation chapter. The generated summary extracts four distinct technical dimensions across 3–5 sentences each, producing an architectural brief used as cross-chapter context in subsequent LLM invocations.</p>
 <p><strong>Parameters</strong>:
-* <code>chapter_num</code> (<code>int</code>): The sequence number of the completed chapter.
-* <code>abstraction_name</code> (<code>str</code>): The technical abstraction or title of the chapter.
-* <code>chapter_content</code> (<code>str</code>): The full Markdown or text content of the generated chapter.
-* <code>language</code> (<code>str</code>, <em>optional</em>): The target language for the summary output. Defaults to <code>"english"</code>.</p>
+* <code>chapter_num</code> (<code>int</code>): Sequential index of the chapter within the documentation outline.
+* <code>abstraction_name</code> (<code>str</code>): Title or architectural component name covered by the chapter.
+* <code>chapter_content</code> (<code>str</code>): Full markdown text of the generated chapter body.
+* <code>language</code> (<code>str</code>, optional): Natural language for the output summary. Defaults to <code>"english"</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The formatted prompt directing the LLM to summarize the chapter across four technical dimensions.</p>
+* <code>str</code>: The formatted prompt string containing language instructions, structural guidelines, chapter metadata, and raw content.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_chapter_summary_prompt</span><span class="p">(</span><span class="n">chapter_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">abstraction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"english"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
@@ -1061,20 +1035,19 @@ Builds the prompt used to summarize a completed documentation chapter. The gener
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The prompt structure standardizes intermediate technical representations across arbitrarily long documentation pipelines. By enforcing four concrete dimensions, downstream nodes receive consistent details regarding dependencies and data structures introduced in prior chapters.</p>
+<p>The prompt structure enforces a four-pillar technical analysis covering component scope, concrete implementation elements, architectural design patterns, and cross-module integration points. If the configured output language is not English, the prompt prepends an explicit localization directive using <code>language.capitalize()</code>. The resulting summaries provide rolling architectural context to downstream nodes, ensuring consistency across long document sequences.</p>
 <hr />
 <h3 id="build_mkdocs_config"><code>build_mkdocs_config()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_mkdocs_config(site_name: str, nav_yaml: str) -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Generates a complete <code>mkdocs.yml</code> configuration string optimized for documentation produced by <code>Codebase-Knowledge-Builder</code>. The configuration configures the Material for MkDocs theme, light/dark mode palette switching, search, interactive pan-zoom for diagrams (<code>panzoom</code>), code copy buttons, Python Markdown extensions (<code>pymdownx.highlight</code>, <code>pymdownx.inlinehilite</code>), and custom Mermaid diagram fences via <code>pymdownx.superfences</code>. It injects the custom stylesheet reference <code>stylesheets/mermaid-vibrant.css</code> and combines the generated navigation snippet with a default Home index link.</p>
+<p><strong>Description</strong>: Constructs a complete <code>mkdocs.yml</code> configuration string optimized for the Material for MkDocs theme. The configuration enables code copy buttons, search, pan-zoom for diagrams, PyMdown Extensions syntax highlighting, custom fences for Mermaid diagram rendering, custom CSS references, and a structured navigation hierarchy.</p>
 <p><strong>Parameters</strong>:
-* <code>site_name</code> (<code>str</code>): The title of the documentation website.
-* <code>nav_yaml</code> (<code>str</code>): The YAML formatted navigation hierarchy string (starting with or without a <code>nav:</code> header).</p>
+* <code>site_name</code> (<code>str</code>): Project display title rendered in the MkDocs header.
+* <code>nav_yaml</code> (<code>str</code>): Pre-formatted YAML navigation block containing document links and hierarchy.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The complete contents of a valid <code>mkdocs.yml</code> file.</p>
+* <code>str</code>: A valid <code>mkdocs.yml</code> configuration file body as a string.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_mkdocs_config</span><span class="p">(</span><span class="n">site_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nav_yaml</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="c1"># Extract nav items from nav_snippet (strip the "nav:" header line)</span>
@@ -1119,22 +1092,18 @@ Generates a complete <code>mkdocs.yml</code> configuration string optimized for 
 <a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nav_body</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
 <a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The function normalizes the input <code>nav_yaml</code> snippet by splitting lines and stripping the leading <code>nav:</code> declaration, ensuring no syntax errors occur when embedding the navigation body underneath the default <code>- Home: index.md</code> root item.</p>
+<p>The function handles string normalization on the incoming <code>nav_yaml</code> parameter by splitting the input and stripping any leading <code>nav:</code> declaration before appending it under the root <code>nav</code> section. The configuration establishes light/dark mode toggles, links the custom stylesheet <code>stylesheets/mermaid-vibrant.css</code>, activates the Mermaid pan-zoom plugin, and configures <code>pymdownx.superfences</code> to format Mermaid code blocks directly through Python name bindings.</p>
 <hr />
 <h3 id="build_mermaid_css"><code>build_mermaid_css()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_mermaid_css() -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Returns a CSS stylesheet string that overrides default Material for MkDocs Mermaid styling. Material for MkDocs overrides internal Mermaid <code>%%{init}%%</code> directives, which can cause SVG diagrams to render with muted, low-contrast palettes. This CSS payload restores high-contrast, vibrant visual styling:
-- Warm yellow backgrounds (<code>#ffffde</code>) with mustard borders (<code>#aaaa33</code>) for subgraphs/clusters.
-- Light lavender node fills (<code>#ECECFF</code>) with purple borders (<code>#9370DB</code>).
-- Explicit dark text colors (<code>#333</code>) across labels, edge text, and solid edge strokes.</p>
+<p><strong>Description</strong>: Returns a standard CSS stylesheet string that overrides default Material for MkDocs Mermaid theme rules. It forces vibrant visual styles matching Mermaid's native default palette, including yellow subgraph cluster backgrounds, lavender node containers, purple node borders, and high-contrast labels.</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: CSS styling definitions targeted at <code>.mermaid</code> container selectors.</p>
+* <code>str</code>: Raw CSS content containing selector rules and <code>!important</code> property overrides.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_mermaid_css</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">return</span> <span class="s2">"""</span><span class="se">\</span>
@@ -1179,21 +1148,20 @@ Returns a CSS stylesheet string that overrides default Material for MkDocs Merma
 <a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="s2">}</span>
 <a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="s2">"""</span>
 </code></pre></div></p>
-<p>The returned CSS utilizes <code>!important</code> declarations on all rules to override specificity from the compiled Material theme CSS bundle, ensuring uniform diagram presentation across browser environments.</p>
+<p>Material for MkDocs injects CSS overrides that mute Mermaid diagram elements. This function provides hardcoded CSS rules using <code>!important</code> flags across <code>.mermaid .cluster rect</code>, <code>.mermaid .node rect</code>, <code>.mermaid .nodeLabel</code>, and edge selectors. This ensures that generated architectural diagrams remain readable across both light and dark site palettes.</p>
 <hr />
 <h3 id="build_grouped_nav"><code>build_grouped_nav()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -&gt; list[str]:</code></p>
-<p><strong>Description</strong>:<br />
-Recursively constructs a list of indented YAML lines representing a nested MkDocs navigation hierarchy. The function iterates through a section tree (typically parsed from an LLM grouping response). For each section, it appends the section title, recurses into any nested <code>children</code> sections with increased indentation, and matches leaf <code>modules</code> against the provided <code>chapter_files</code> metadata list. When a match is found, it adds a leaf entry linking the short module display name to its output file path (e.g., <code>api/{filename}</code>).</p>
+<p><strong>Description</strong>: Recursively constructs lines of MkDocs navigation YAML from a hierarchical list of section definitions. It resolves logical module references against generated chapter file metadata, formatting navigation entries with dynamic whitespace indentation.</p>
 <p><strong>Parameters</strong>:
-* <code>sections</code> (<code>list</code>): A list of dictionaries representing section groups. Each dictionary may contain <code>"name"</code> (<code>str</code>), <code>"children"</code> (<code>list</code>), and <code>"modules"</code> (<code>list[str]</code>).
-* <code>chapter_files</code> (<code>list</code>): A list of dictionaries mapping generated chapters, where each dictionary contains <code>"module_name"</code> (<code>str</code>) and <code>"filename"</code> (<code>str</code>).
-* <code>indent</code> (<code>int</code>, <em>optional</em>): The base space indentation level for the current depth. Defaults to <code>4</code>.</p>
+* <code>sections</code> (<code>list</code>): List of dictionaries representing sections. Each dictionary may contain a <code>"name"</code> (<code>str</code>), a list of <code>"modules"</code> (<code>list[str]</code>), and an optional list of nested <code>"children"</code> (<code>list[dict]</code>).
+* <code>chapter_files</code> (<code>list</code>): List of dictionaries mapping generated files, where each dictionary contains <code>"module_name"</code> and <code>"filename"</code>.
+* <code>indent</code> (<code>int</code>, optional): Indentation space count for current nesting depth. Defaults to <code>4</code>.</p>
 <p><strong>Returns</strong>:
-* <code>list[str]</code>: A list of formatted YAML lines ready to be joined into a navigation block.</p>
+* <code>list[str]</code>: A list of formatted YAML navigation lines.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* <code>KeyError</code>: If a section dictionary is missing the <code>"name"</code> key.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_grouped_nav</span><span class="p">(</span><span class="n">sections</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">chapter_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1209,19 +1177,18 @@ Recursively constructs a list of indented YAML lines representing a nested MkDoc
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">  - '</span><span class="si">{</span><span class="n">display</span><span class="si">}</span><span class="s2">': 'api/</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="k">return</span> <span class="n">lines</span>
 </code></pre></div></p>
-<p>The recursive step increments indentation by 2 spaces (<code>indent + 2</code>) for nested child sections, preserving YAML structural syntax across arbitrary hierarchy depths. Module display names are shortened to the final dot-delimited segment (<code>mod_name.split(".")[-1]</code>) to maintain clean navigation labels.</p>
+<p>The function iterates over section definitions, emitting a parent YAML key for each group. If a section contains nested <code>"children"</code>, <code>build_grouped_nav</code> calls itself recursively with <code>indent + 2</code>. For each module listed in <code>section.get("modules", [])</code>, it searches <code>chapter_files</code> for a matching <code>module_name</code>. When found, it strips prefix namespaces using <code>.split(".")[-1]</code> for display and formats the destination path relative to the <code>api/</code> documentation folder.</p>
 <hr />
 <h3 id="collect_all_modules"><code>collect_all_modules()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def collect_all_modules(sections: list) -&gt; set:</code></p>
-<p><strong>Description</strong>:<br />
-Recursively traverses a section hierarchy tree and collects all unique module names referenced across all sections and child subsections into a single flat <code>set</code>. This is used for validation and completeness checking against the target file list.</p>
+<p><strong>Description</strong>: Traverses a hierarchical section tree recursively to extract and aggregate all referenced module name strings into a single deduplicated set.</p>
 <p><strong>Parameters</strong>:
-* <code>sections</code> (<code>list</code>): A hierarchical list of section dictionaries, potentially containing nested <code>"children"</code> lists and <code>"modules"</code> lists.</p>
+* <code>sections</code> (<code>list</code>): List of section dictionaries potentially containing <code>"modules"</code> lists and nested <code>"children"</code> section lists.</p>
 <p><strong>Returns</strong>:
-* <code>set</code>: A unique set of all string module identifiers discovered across all depths of the section tree.</p>
+* <code>set</code>: Set of all unique module names found across the entire section tree.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">collect_all_modules</span><span class="p">(</span><span class="n">sections</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -1231,14 +1198,14 @@ Recursively traverses a section hierarchy tree and collects all unique module na
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">collect_all_modules</span><span class="p">(</span><span class="n">section</span><span class="p">[</span><span class="s2">"children"</span><span class="p">]))</span>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">return</span> <span class="n">result</span>
 </code></pre></div></p>
-<p>This helper ensures exhaustive traversal by combining set union operations (<code>result.update</code>) across top-level entries and recursive invocations on nested child nodes.</p>
+<p>The function initializes an empty <code>set</code> and iterates through the top-level section dictionaries, updating the set with entries from the <code>"modules"</code> key. If a section contains a <code>"children"</code> list, <code>collect_all_modules</code> recurses into the child nodes, merging their module sets into the running aggregate. This set is primarily used to validate navigation coverage against the generated documentation files.</p>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../../nodes/">nodes</a> — Node definitions that invoke these prompt builders during graph workflow execution.</li>
-<li><a href="../../flow/">flow</a> — Graph flow orchestration coordinating chapter summarization and MkDocs asset generation.</li>
-<li><a href="../call_llm/">utils.call_llm</a> — Execution interface for sending generated prompt strings to LLM providers.</li>
-<li><a href="../token_utils/">utils.token_utils</a> — Token counting utilities used alongside prompt construction to maintain context window budgets.</li>
+<li><a href="../../nodes/">nodes</a> - Pipeline nodes that consume these prompt and navigation builders.</li>
+<li><a href="../call_llm/">call_llm</a> - Core execution utility that dispatches generated prompts to LLM endpoints.</li>
+<li><a href="../token_utils/">token_utils</a> - Context sizing and token accounting for prompt structures.</li>
+<li><a href="../../flow/">flow</a> - Pipeline orchestration controlling documentation workflows.</li>
 </ul>
 
 

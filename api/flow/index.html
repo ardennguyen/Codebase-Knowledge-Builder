@@ -62,7 +62,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -435,13 +435,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architectural-overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architectural Overview
+        Technical Overview
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Technical Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -470,6 +487,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-configuration-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Configuration Matrix
+      
+    </span>
+  </a>
   
 </li>
       
@@ -751,13 +779,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architectural-overview" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architectural Overview
+        Technical Overview
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Technical Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -786,6 +831,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-configuration-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Configuration Matrix
+      
+    </span>
+  </a>
   
 </li>
       
@@ -821,20 +877,17 @@
 <blockquote>
 <p><strong>Source:</strong> <code>flow.py</code></p>
 </blockquote>
-<p>The <code>flow</code> module defines the directed acyclic graph (DAG) and orchestration pipeline for the <code>Codebase-Knowledge-Builder</code> system. Built on the <code>pocketflow</code> framework, this module assembles the individual processing stages—such as repository ingestion, context-based routing, map-reduce abstraction extraction, deterministic file mapping, relationship analysis, chapter ordering, drafting, and final compilation—into an executable workflow graph.</p>
-<h2 id="architectural-overview">Architectural Overview</h2>
-<p>The core pipeline constructed in this module routes repository data through specialized analytical and synthesis branches based on codebase size and operational configuration:</p>
+<p>The <code>flow</code> module acts as the central orchestration layer for the Codebase Knowledge Builder pipeline. It defines and compiles the directed acyclic graph (DAG) of processing nodes using the <code>pocketflow</code> workflow framework. By wiring together repository fetching, context-aware routing, abstraction extraction, relational synthesis, chapter planning, content drafting, and final document aggregation, this module formalizes the end-to-end multi-agent execution pipeline.</p>
+<hr />
+<h2 id="technical-overview">Technical Overview</h2>
+<p>The primary responsibility of <code>flow.py</code> is the structural assembly of the tutorial generation workflow via <code>create_tutorial_flow()</code>. The execution graph supports three distinct processing routes depending on repository size, token budget, and user specification:</p>
 <ol>
-<li><strong>Ingestion &amp; Routing</strong>: <a href="../nodes/">FetchRepo</a> fetches codebase contents from local or remote repositories and feeds them to <a href="../nodes/">ContextRouter</a>.</li>
-<li><strong>Branch Execution</strong>:</li>
-<li><strong>Direct Context Path (<code>"direct"</code>)</strong>: Small codebases fitting within single-prompt limits are routed directly to <a href="../nodes/">IdentifyAbstractions</a>.</li>
-<li><strong>Batch Map-Reduce Path (<code>"batch"</code>)</strong>: Large codebases exceeding single-prompt thresholds are distributed across <a href="../nodes/">MapAbstractions</a> and aggregated by <a href="../nodes/">ReduceAbstractions</a>.</li>
-<li><strong>Deterministic Path (<code>"deterministic"</code>)</strong>: Files are mapped 1:1 into dedicated documentation units via <a href="../nodes/">DeterministicFileMapper</a>.</li>
-<li><strong>Synthesis &amp; Assembly</strong>:</li>
-<li>Abstractions from the direct and batch paths flow into <a href="../nodes/">AnalyzeRelationships</a>, followed by <a href="../nodes/">OrderChapters</a> and <a href="../nodes/">WriteChapters</a>.</li>
-<li>The deterministic path bypasses abstraction analysis and connects directly to <a href="../nodes/">WriteChapters</a>.</li>
-<li>All written chapters converge into <a href="../nodes/">CombineTutorial</a> for final artifact output.</li>
+<li><strong>Direct Path (<code>"direct"</code>)</strong>: Routes smaller codebases directly to a single-pass abstraction identifier (<code>IdentifyAbstractions</code>), bypassing chunking and map-reduce phases.</li>
+<li><strong>Batch Map-Reduce Path (<code>"batch"</code>)</strong>: Routes larger codebases through chunk-level extraction (<code>MapAbstractions</code>) followed by aggregate summarization (<code>ReduceAbstractions</code>).</li>
+<li><strong>Deterministic Path (<code>"deterministic"</code>)</strong>: Bypasses dynamic abstraction analysis altogether via <code>DeterministicFileMapper</code>, mapping chapters directly from file hierarchies before chapter writing.</li>
 </ol>
+<p>Nodes executing LLM generation tasks are initialized with built-in retry and backoff policies (<code>max_retries=5, wait=20</code>) to handle transient rate-limiting and service disruptions gracefully.</p>
+<h3 id="pipeline-architecture">Pipeline Architecture</h3>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -851,41 +904,49 @@
     <pre class="mermaid"><code>flowchart TD
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
 
-    subgraph Ingestion["Ingestion and Routing"]
-        fetch_repo["FetchRepo"]:::entryNode
-        context_router["ContextRouter"]
+    subgraph Ingestion_and_Routing [Ingestion and Routing]
+        fetch_repo[FetchRepo]
+        context_router[ContextRouter]
+        class fetch_repo entryNode;
     end
 
-    subgraph AbstractionPipeline["Abstraction Discovery and Synthesis"]
-        identify_abstractions["IdentifyAbstractions (max_retries=5, wait=20)"]:::entryNode
-        map_abstractions["MapAbstractions (max_retries=5, wait=20)"]:::entryNode
-        reduce_abstractions["ReduceAbstractions (max_retries=5, wait=20)"]
-        analyze_relationships["AnalyzeRelationships (max_retries=5, wait=20)"]
-        order_chapters["OrderChapters (max_retries=5, wait=20)"]
+    subgraph Abstraction_Pipeline [Abstraction and Relational Analysis]
+        identify_abstractions[IdentifyAbstractions]
+        map_abstractions[MapAbstractions]
+        reduce_abstractions[ReduceAbstractions]
+        analyze_relationships[AnalyzeRelationships]
+        order_chapters[OrderChapters]
+        class identify_abstractions entryNode;
     end
 
-    subgraph DeterministicPipeline["Deterministic Documentation"]
-        deterministic_mapper["DeterministicFileMapper (max_retries=5, wait=20)"]:::entryNode
+    subgraph Deterministic_Path [Deterministic Mapping]
+        deterministic_mapper[DeterministicFileMapper]
+        class deterministic_mapper entryNode;
     end
 
-    subgraph Compilation["Writing and Compilation"]
-        write_chapters["WriteChapters (max_retries=5, wait=20)"]
-        combine_tutorial["CombineTutorial"]
+    subgraph Generation_and_Assembly [Generation and Assembly]
+        write_chapters[WriteChapters]
+        combine_tutorial[CombineTutorial]
+        class write_chapters entryNode;
     end
 
-    fetch_repo &gt;&gt; context_router
-    context_router -- "direct" --&gt; identify_abstractions
-    context_router -- "batch" --&gt; map_abstractions
-    context_router -- "deterministic" --&gt; deterministic_mapper
+    fetch_repo --&gt; context_router
 
-    map_abstractions &gt;&gt; reduce_abstractions
-    identify_abstractions &gt;&gt; analyze_relationships
-    reduce_abstractions &gt;&gt; analyze_relationships
-    analyze_relationships &gt;&gt; order_chapters
-    order_chapters &gt;&gt; write_chapters
+    context_router -- direct --&gt; identify_abstractions
+    context_router -- batch --&gt; map_abstractions
+    context_router -- deterministic --&gt; deterministic_mapper
 
-    deterministic_mapper &gt;&gt; write_chapters
-    write_chapters &gt;&gt; combine_tutorial</code></pre> 
+    map_abstractions --&gt; reduce_abstractions
+
+    identify_abstractions --&gt; analyze_relationships
+    reduce_abstractions --&gt; analyze_relationships
+
+    analyze_relationships --&gt; order_chapters
+    order_chapters --&gt; write_chapters
+
+    deterministic_mapper --&gt; write_chapters
+
+    write_chapters --&gt; combine_tutorial</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -896,75 +957,143 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def create_tutorial_flow() -&gt; Flow:</code></p>
 <p><strong>Description</strong>:<br />
-Instantiates all processing nodes with appropriate retry policies and configures the <code>pocketflow</code> execution graph using operator overloading (<code>&gt;&gt;</code> for sequential execution and <code>- "action" &gt;&gt;</code> for conditional branching). Returns an initialized <code>Flow</code> object rooted at the <code>FetchRepo</code> entry point.</p>
+Instantiates all processing nodes defined in <a href="../nodes/">nodes</a>, sets their fault-tolerance parameters (maximum retry counts and exponential backoff wait durations), builds directional transitions and conditional routing branches between nodes, and wraps the resulting pipeline into an executable <code>pocketflow.Flow</code> instance starting at <code>FetchRepo</code>.</p>
 <p><strong>Parameters</strong>:<br />
-<em>None</em></p>
+* None.</p>
 <p><strong>Returns</strong>:<br />
-* <code>Flow</code>: A configured <code>pocketflow.Flow</code> instance ready to accept shared runtime parameters (e.g., repository path, URLs, model preferences) and execute the pipeline from the starting node <code>FetchRepo</code>.</p>
+* <code>Flow</code>: An initialized <code>pocketflow.Flow</code> pipeline with <code>FetchRepo</code> designated as the root entry point.</p>
 <p><strong>Raises</strong>:<br />
-<em> </em>None directly raised during graph construction.* (Downstream execution raises exceptions if node dependencies or API call limits fail).</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pocketflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">nodes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">AnalyzeRelationships</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">CombineTutorial</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">ContextRouter</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">DeterministicFileMapper</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">FetchRepo</span><span class="p">,</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">IdentifyAbstractions</span><span class="p">,</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">MapAbstractions</span><span class="p">,</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">OrderChapters</span><span class="p">,</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">ReduceAbstractions</span><span class="p">,</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">WriteChapters</span><span class="p">,</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">)</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_tutorial_flow</span><span class="p">():</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">fetch_repo</span> <span class="o">=</span> <span class="n">FetchRepo</span><span class="p">()</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">context_router</span> <span class="o">=</span> <span class="n">ContextRouter</span><span class="p">()</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">map_abstractions</span> <span class="o">=</span> <span class="n">MapAbstractions</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">reduce_abstractions</span> <span class="o">=</span> <span class="n">ReduceAbstractions</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">identify_abstractions</span> <span class="o">=</span> <span class="n">IdentifyAbstractions</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">analyze_relationships</span> <span class="o">=</span> <span class="n">AnalyzeRelationships</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">order_chapters</span> <span class="o">=</span> <span class="n">OrderChapters</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">write_chapters</span> <span class="o">=</span> <span class="n">WriteChapters</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">combine_tutorial</span> <span class="o">=</span> <span class="n">CombineTutorial</span><span class="p">()</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">deterministic_mapper</span> <span class="o">=</span> <span class="n">DeterministicFileMapper</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+* None directly during creation; errors in node instantiation or invalid routing declarations are propagated from <code>pocketflow</code> during runtime flow compilation.</p>
+<p><strong>Implementation</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_tutorial_flow</span><span class="p">():</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">fetch_repo</span> <span class="o">=</span> <span class="n">FetchRepo</span><span class="p">()</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">context_router</span> <span class="o">=</span> <span class="n">ContextRouter</span><span class="p">()</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">map_abstractions</span> <span class="o">=</span> <span class="n">MapAbstractions</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">reduce_abstractions</span> <span class="o">=</span> <span class="n">ReduceAbstractions</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">identify_abstractions</span> <span class="o">=</span> <span class="n">IdentifyAbstractions</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">analyze_relationships</span> <span class="o">=</span> <span class="n">AnalyzeRelationships</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">order_chapters</span> <span class="o">=</span> <span class="n">OrderChapters</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">write_chapters</span> <span class="o">=</span> <span class="n">WriteChapters</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">combine_tutorial</span> <span class="o">=</span> <span class="n">CombineTutorial</span><span class="p">()</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">deterministic_mapper</span> <span class="o">=</span> <span class="n">DeterministicFileMapper</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">fetch_repo</span> <span class="o">&gt;&gt;</span> <span class="n">context_router</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"direct"</span> <span class="o">&gt;&gt;</span> <span class="n">identify_abstractions</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"batch"</span> <span class="o">&gt;&gt;</span> <span class="n">map_abstractions</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"deterministic"</span> <span class="o">&gt;&gt;</span> <span class="n">deterministic_mapper</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">map_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">reduce_abstractions</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">identify_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">reduce_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">analyze_relationships</span> <span class="o">&gt;&gt;</span> <span class="n">order_chapters</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">order_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">write_chapters</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">deterministic_mapper</span> <span class="o">&gt;&gt;</span> <span class="n">write_chapters</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">fetch_repo</span> <span class="o">&gt;&gt;</span> <span class="n">context_router</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">write_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">combine_tutorial</span>
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"direct"</span> <span class="o">&gt;&gt;</span> <span class="n">identify_abstractions</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"batch"</span> <span class="o">&gt;&gt;</span> <span class="n">map_abstractions</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>    <span class="n">context_router</span> <span class="o">-</span> <span class="s2">"deterministic"</span> <span class="o">&gt;&gt;</span> <span class="n">deterministic_mapper</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="n">map_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">reduce_abstractions</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    <span class="n">identify_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>    <span class="n">reduce_abstractions</span> <span class="o">&gt;&gt;</span> <span class="n">analyze_relationships</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>    <span class="n">analyze_relationships</span> <span class="o">&gt;&gt;</span> <span class="n">order_chapters</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    <span class="n">order_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">write_chapters</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>    <span class="n">deterministic_mapper</span> <span class="o">&gt;&gt;</span> <span class="n">write_chapters</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>    <span class="n">write_chapters</span> <span class="o">&gt;&gt;</span> <span class="n">combine_tutorial</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">fetch_repo</span><span class="p">)</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">fetch_repo</span><span class="p">)</span>
 </code></pre></div></p>
-<p>The <code>create_tutorial_flow</code> function defines the resilient architecture of the tutorial generation engine. All nodes that interface with language models (<code>MapAbstractions</code>, <code>ReduceAbstractions</code>, <code>IdentifyAbstractions</code>, <code>AnalyzeRelationships</code>, <code>OrderChapters</code>, <code>WriteChapters</code>, and <code>DeterministicFileMapper</code>) are initialized with <code>max_retries=5</code> and <code>wait=20</code> to guard against transient network partitions, LLM provider rate limits, and JSON parsing issues during structured outputs. Deterministic non-LLM nodes (<code>FetchRepo</code>, <code>ContextRouter</code>, and <code>CombineTutorial</code>) execute without retry overhead.</p>
-<p>Branching logic is embedded at the <code>ContextRouter</code> node:
-- Emitting <code>"direct"</code> sends the unified file payload to <code>IdentifyAbstractions</code>.
-- Emitting <code>"batch"</code> chunks the files across <code>MapAbstractions</code> and combines summaries with <code>ReduceAbstractions</code>.
-- Emitting <code>"deterministic"</code> maps every crawled file to its own dedicated chapter via <code>DeterministicFileMapper</code>.</p>
-<p>Both abstraction discovery paths converge into <code>AnalyzeRelationships</code> to discover cross-file architecture patterns before ordering and drafting chapters. The deterministic branch connects directly into <code>WriteChapters</code>, preserving exact 1:1 source file mapping without semantic clustering.</p>
+<p>The function orchestrates node dependencies through operator overloading provided by <code>pocketflow</code>:
+* The standard forward transition operator <code>&gt;&gt;</code> establishes unconditional sequential execution between nodes (e.g., <code>fetch_repo &gt;&gt; context_router</code>).
+* The branch operator <code>- "&lt;action&gt;" &gt;&gt;</code> establishes conditional routing based on the action string returned by the preceding node's <code>post()</code> method (e.g., <code>context_router - "direct" &gt;&gt; identify_abstractions</code>).
+* Multiple upstream nodes converge onto downstream synchronization points; for instance, both <code>identify_abstractions</code> and <code>reduce_abstractions</code> converge into <code>analyze_relationships</code>, while <code>order_chapters</code> and <code>deterministic_mapper</code> both feed into <code>write_chapters</code>.
+* Fault-tolerant nodes (<code>MapAbstractions</code>, <code>ReduceAbstractions</code>, <code>IdentifyAbstractions</code>, <code>AnalyzeRelationships</code>, <code>OrderChapters</code>, <code>WriteChapters</code>, <code>DeterministicFileMapper</code>) are instantiated with <code>max_retries=5</code> and <code>wait=20</code> seconds to absorb API rate-limiting exceptions or transient network timeouts during execution.</p>
+<hr />
+<h2 id="node-configuration-matrix">Node Configuration Matrix</h2>
+<p>The following table summarizes the node instances configured within <code>create_tutorial_flow()</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Node Name</th>
+<th style="text-align: left;">Class Reference</th>
+<th style="text-align: left;">Retry Count</th>
+<th style="text-align: left;">Backoff Wait (s)</th>
+<th style="text-align: left;">Role in Pipeline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>fetch_repo</code></td>
+<td style="text-align: left;"><a href="../nodes/#fetchrepo">FetchRepo</a></td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Fetches and prepares repository files from local paths or GitHub URLs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>context_router</code></td>
+<td style="text-align: left;"><a href="../nodes/#contextrouter">ContextRouter</a></td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Analyzes codebase token size and chooses the generation strategy.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>map_abstractions</code></td>
+<td style="text-align: left;"><a href="../nodes/#mapabstractions">MapAbstractions</a></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Extracts domain abstractions across chunked file batches in large codebases.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>reduce_abstractions</code></td>
+<td style="text-align: left;"><a href="../nodes/#reduceabstractions">ReduceAbstractions</a></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Merges and deduplicates chunk-level domain abstractions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>identify_abstractions</code></td>
+<td style="text-align: left;"><a href="../nodes/#identifyabstractions">IdentifyAbstractions</a></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Extracts domain abstractions in a single pass for standard codebases.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>analyze_relationships</code></td>
+<td style="text-align: left;"><a href="../nodes/#analyzerelationships">AnalyzeRelationships</a></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Analyzes interactions, interfaces, and data flow between abstractions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>order_chapters</code></td>
+<td style="text-align: left;"><a href="../nodes/#orderchapters">OrderChapters</a></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Determines pedagogical reading order and assigns prerequisite structures.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>deterministic_mapper</code></td>
+<td style="text-align: left;"><a href="../nodes/#deterministicfilemapper">DeterministicFileMapper</a></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Maps files directly to chapters deterministically without abstraction analysis.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>write_chapters</code></td>
+<td style="text-align: left;"><a href="../nodes/#writechapters">WriteChapters</a></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Generates detailed Markdown content for each chapter concurrently or iteratively.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>combine_tutorial</code></td>
+<td style="text-align: left;"><a href="../nodes/#combinetutorial">CombineTutorial</a></td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Compiles all generated chapters into the final cohesive tutorial artifact.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../main/">main</a> — Driver script that executes the flow returned by <code>create_tutorial_flow</code>.</li>
-<li><a href="../nodes/">nodes</a> — Detailed implementations of all workflow nodes referenced in this graph.</li>
-<li><a href="../utils/call_llm/">utils.call_llm</a> — Underlying LLM communication utilities used by the retry-enabled nodes.</li>
-<li><a href="../utils/token_utils/">utils.token_utils</a> — Token estimation used by <code>ContextRouter</code> to determine the routing branch.</li>
+<li><a href="../main/">main</a> - Entry-point script that invokes <code>create_tutorial_flow()</code> and executes the compiled workflow.</li>
+<li><a href="../nodes/">nodes</a> - Node class implementations containing the internal logic, prompts, and actions used in this pipeline.</li>
+<li><a href="../utils/call_llm/">utils.call_llm</a> - Underlying LLM invocation utility utilized by node operations during graph execution.</li>
 </ul>
 
 
