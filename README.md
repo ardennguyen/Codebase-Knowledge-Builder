@@ -50,7 +50,12 @@
     - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically from the model).
     - `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)
     - `--advanced` - Legacy flag: equivalent to --mode advanced
-    - `--mkdocs` - Format output for MkDocs Material (adds YAML frontmatter & nav snippet)
+    - `--mkdocs` - Format output for MkDocs Material with rich features:
+      - Interactive pan/zoom on Mermaid diagrams (`mkdocs-panzoom-plugin`)
+      - Vibrant Mermaid color theme (yellow subgraphs, lavender nodes)
+      - LLM-assisted sidebar grouping for `api-reference` mode (6+ modules auto-clustered into semantic sections)
+      - Section index landing page (`api/index.md`) with grouped module table
+      - Run `cd output/<ProjectName> && mkdocs serve` to preview locally (requires `pip install mkdocs-material mkdocs-panzoom-plugin`)
     - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)
     - `--force-rebuild` - Clear incremental cache and regenerate all chapters from scratch (use with --incremental)
     - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
@@ -152,7 +157,12 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--max-tokens` - Số lượng token tối đa cho context window (mặc định: tự động lấy từ thông tin của model).
     - `--mode` - Phong cách tài liệu cần tạo (`tutorial`, `advanced`, `api-reference`, `sdk`). Mặc định là `tutorial`.
     - `--advanced` - Cờ cũ (legacy flag). Tương đương với việc dùng `--mode advanced`.
-    - `--mkdocs` - Định dạng đầu ra cho MkDocs Material (thêm YAML frontmatter và tạo `nav_snippet.yml`).
+    - `--mkdocs` - Định dạng đầu ra cho MkDocs Material với các tính năng nâng cao:
+      - Thu phóng và kéo thả tương tác trên biểu đồ Mermaid (`mkdocs-panzoom-plugin`)
+      - Giao diện Mermaid màu sắc rực rỡ (subgraph vàng, node tím nhạt)
+      - Nhóm sidebar tự động bằng LLM cho chế độ `api-reference` (từ 6 module trở lên tự phân nhóm theo ngữ nghĩa)
+      - Trang chỉ mục nhóm module (`api/index.md`) với bảng phân loại
+      - Chạy `cd output/<TênDựÁn> && mkdocs serve` để xem trước cục bộ (yêu cầu `pip install mkdocs-material mkdocs-panzoom-plugin`)
     - `--incremental` - Kích hoạt bộ nhớ đệm MD5 gia tăng để tiết kiệm tối đa token trong các lần chạy lặp lại bằng cách bỏ qua các tệp không thay đổi (Chỉ hỗ trợ khi dùng `--mode api-reference`).
     - `--force-rebuild` - Xóa bộ nhớ đệm gia tăng và tạo lại toàn bộ các chương từ đầu (dùng kèm với `--incremental`).
     - `--batch` - Số lượng tệp tối đa mỗi lô khi sử dụng chế độ map-reduce (mặc định: 50).

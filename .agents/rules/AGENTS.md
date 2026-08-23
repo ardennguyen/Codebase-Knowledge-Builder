@@ -42,7 +42,7 @@ Read the project design document:
   - Flow wiring (Section 15)
 
 ### Step 3: Read Existing Prompt Templates
-Read all 12 prompt template files in `prompts/tutorial/` and `prompts/advanced/`. These are the LLM instructions and MUST be copied verbatim. Note the `{placeholder}` variables — they form a contract with the node code.
+Read all 25 prompt template files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `prompts/api-reference/` (6), `prompts/sdk/` (6), and `prompts/common/` (1). These are the LLM instructions and MUST be copied verbatim. Note the `{placeholder}` variables — they form a contract with the node code.
 
 ---
 
@@ -72,6 +72,9 @@ A checklist tracking progress:
 - [ ] requirements.txt
 - [ ] prompts/tutorial/* (6 files)
 - [ ] prompts/advanced/* (6 files)
+- [ ] prompts/api-reference/* (6 files)
+- [ ] prompts/sdk/* (6 files)
+- [ ] prompts/common/* (1 file)
 - [ ] Syntax check (all .py files)
 - [ ] Runtime test
 ```
@@ -87,7 +90,7 @@ Use specialized subagents for parallel work:
 | Subagent Role | Responsibility | Reads |
 |---|---|---|
 | **Utilities Builder** | Create all `utils/*.py` files | design.md Section 9 (Interface Contracts) |
-| **Prompts Copier** | Copy all 12 prompt templates verbatim | Existing `prompts/` directory |
+| **Prompts Copier** | Copy all 25 prompt templates verbatim | Existing `prompts/` directory (5 subdirs) |
 | **Nodes & Flow Builder** | Create `nodes.py` and `flow.py` | design.md Sections 8, 10, 11, 13, 15 |
 | **Main & Config Builder** | Create `main.py`, `.env.sample`, `requirements.txt` | design.md Sections 4, 5, 6, 7, 8 |
 
@@ -118,9 +121,13 @@ python -c "import ast; [ast.parse(open(f).read()) for f in ['main.py','flow.py',
 ```
 
 ### Runtime Test
-Ask the user to run:
+Ask the user to run both modes:
 ```bash
+# Tutorial/Advanced mode
 python main.py --dir <test_directory> --language Vietnamese --advanced --force-batch --batch 50
+
+# API Reference + MkDocs mode (tests LLM grouping, vibrant theme, panzoom, section indexes)
+python main.py --dir <test_directory> --mode api-reference --mkdocs --incremental
 ```
 Do NOT run this yourself — the user needs their venv activated.
 
@@ -161,7 +168,13 @@ If a new feature or bug fix changes any of these, update `docs/design.md`:
 - New language support → Section 12
 - Changed retry config → Section 13
 - New prompt template → Section 14
+- New MkDocs feature → Section 9 (utility contracts) + `.github/workflows/deploy-docs.yml`
 
+### CI Workflow Rules (`.github/workflows/deploy-docs.yml`)
+
+1. **Heredoc indentation:** Bash `cat << 'EOF'` includes leading whitespace VERBATIM. All heredoc content (mkdocs.yml, CSS) MUST start at column 0, even when the `run: |` block is indented for YAML structure. Using spaces will silently break YAML parsing.
+2. **Nav merge:** The CI creates its own `mkdocs.yml` (with `Home` + `Architecture & Design`) and appends `nav_snippet.yml` via `sed '1d'`. The `nav_snippet.yml` content must use 2-space indent to align with the base nav.
+3. **Static docs:** `docs/index.md` stays as `Home`. Generated `api/index.md` is the API Reference section landing page (requires `navigation.indexes` in Material features).
 ---
 
 ## Quick Reference: Where to Find What

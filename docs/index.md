@@ -47,7 +47,12 @@ Ever stared at a new codebase written by others feeling completely lost? This pr
 - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically from the model).
 - `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)
 - `--advanced` - Legacy flag: equivalent to --mode advanced
-- `--mkdocs` - Format output for MkDocs Material (adds YAML frontmatter & nav snippet)
+- `--mkdocs` - Format output for MkDocs Material with rich features:
+    - Interactive pan/zoom on Mermaid diagrams (`mkdocs-panzoom-plugin`)
+    - Vibrant Mermaid color theme (yellow subgraphs, lavender nodes)
+    - LLM-assisted sidebar grouping for `api-reference` mode (6+ modules auto-clustered into semantic sections)
+    - Section index landing page (`api/index.md`) with grouped module table
+    - Run `cd output/<ProjectName> && mkdocs serve` to preview locally (requires `pip install mkdocs-material mkdocs-panzoom-plugin`)
 - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)
 - `--force-rebuild` - Clear incremental cache and regenerate all chapters from scratch (use with --incremental)
 - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).

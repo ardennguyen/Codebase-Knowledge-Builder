@@ -161,6 +161,7 @@ python-dotenv>=1.2.3
 pathspec>=1.1.1
 tiktoken>=0.8.0
 mkdocs-material>=9.0.0
+mkdocs-panzoom-plugin>=0.2.0
 ```
 
 ## 5. Environment Configuration
@@ -903,6 +904,21 @@ def collect_all_modules(sections: list) -> set:
 - Recursively collects all module names from a sections tree
 - Used to validate LLM grouping covers all modules (ungrouped → "Other" section)
 
+#### `CombineTutorial._build_index_sections` (static method in `nodes.py`)
+```python
+@staticmethod
+def _build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3):
+```
+- Recursively builds markdown sections with module tables for `api/index.md`
+- Each section gets a heading (`###`, `####`, etc.) and a `| Module | Description |` table
+- **Smart description extraction:** When `description` starts with `"Internal API reference"` (the generic DeterministicFileMapper description), extracts the first meaningful paragraph from chapter content instead (skipping frontmatter, headings, code fences)
+
+#### Content-Based Summary Extraction
+When `chapter_summaries` from shared store is empty (standard in `api-reference` mode since WriteChapters skips summary generation), the LLM grouping module list builder extracts the first paragraph from each chapter's generated content:
+- Skips lines starting with `---`, `#`, `` ``` ``, or empty lines
+- Joins remaining lines and truncates to 300 characters
+- Falls back to `cf["description"]` if no paragraph found
+
 ### `get_content_for_indices` (helper in `nodes.py`)
 ```python
 def get_content_for_indices(files_data, indices):
@@ -1419,6 +1435,13 @@ sections:
       - name: "Child Section"
         modules: ["module_name_3"]
 ```
+
+### Output Format Conventions
+Standardized output formats enforced by prompt instructions to ensure consistency across chapters:
+
+| Mode | Convention | Prompt Instruction |
+|---|---|---|
+| `api-reference` | File path header | `> **Source:** \`path/to/file.ext\`` (blockquote with bold label) |
 
 ## 15. Flow Wiring
 

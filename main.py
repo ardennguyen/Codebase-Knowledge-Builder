@@ -183,7 +183,9 @@ def main():
     parser.add_argument("--max-abstractions", type=int, default=10, help="Maximum number of abstractions to identify (default: 10)")
     # Add thinking_level parameter for LLM reasoning capabilities
     parser.add_argument(
-        "--thinking-level", default=None, help="Thinking effort level for OpenRouter models (e.g., low, medium, high). Default is auto."
+        "--thinking-level",
+        default=None,
+        help="Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.",
     )
     # Add max_tokens parameter
     parser.add_argument(
@@ -207,7 +209,7 @@ def main():
     )
 
     # Add batching parameters
-    parser.add_argument("--batch", type=int, default=50, help="Max files per batch in map-reduce mode")
+    parser.add_argument("--batch", type=int, default=50, help="Maximum files per batch when using map-reduce mode (default: 50)")
     parser.add_argument("--force-batch", action="store_true", help="Force map-reduce mode regardless of context size")
     # Debug mode
     parser.add_argument("--debug", action="store_true", help="Enable verbose debug output")
