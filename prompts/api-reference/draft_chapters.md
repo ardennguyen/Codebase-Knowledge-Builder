@@ -17,7 +17,7 @@ Source Code Context:
 
 Instructions for the API reference page (Generate content in {language} unless specified otherwise):
 - Start with a clear heading `# {abstraction_name}`.
-- Below the heading, explicitly state the original file path this page documents.
+- Below the heading, state the source file path in this exact format: `> **Source:** \`path/to/file.ext\``
 - Provide a technical overview of this file's purpose, behavior, and role in the system.
 
 - If this is not the first page in the API Index, begin with a brief transition noting how this file relates to the previous one. Reference the previous page with a proper Markdown link using its name{link_lang_note}.
