@@ -82,82 +82,10 @@ jobs:
           # Remove pocketflow framework docs as per user request
           rm -rf output/Codebase-Knowledge-Builder/docs/pocketflow
           
-          # Create the base mkdocs config with a root nav structure
-          python3 -c "
-          import textwrap, pathlib
-          pathlib.Path('output/Codebase-Knowledge-Builder/mkdocs.yml').write_text(textwrap.dedent('''
-          site_name: Codebase Knowledge Builder API Reference
-          site_url: https://ardennguyen.github.io/Codebase-Knowledge-Builder/
-          theme:
-            name: material
-            features:
-              - content.code.copy
-              - navigation.indexes
-            palette:
-              - scheme: default
-                toggle:
-                  icon: material/brightness-7
-                  name: Switch to dark mode
-              - scheme: slate
-                toggle:
-                  icon: material/brightness-4
-                  name: Switch to light mode
-          plugins:
-            - search
-            - panzoom:
-                include_selectors:
-                  - .mermaid
-          markdown_extensions:
-            - pymdownx.highlight:
-                anchor_linenums: true
-                use_pygments: true
-            - pymdownx.superfences:
-                custom_fences:
-                  - name: mermaid
-                    class: mermaid
-                    format: !!python/name:pymdownx.superfences.fence_code_format
-            - pymdownx.inlinehilite
-          extra_css:
-            - stylesheets/mermaid-vibrant.css
-          nav:
-            - Home: index.md
-            - Architecture & Design: design.md
-          ''').lstrip())
-          "
-
-          # Create vibrant Mermaid theme CSS (Material overrides %%{init}%%)
-          mkdir -p output/Codebase-Knowledge-Builder/docs/stylesheets
-          python3 -c "
-          import textwrap, pathlib
-          pathlib.Path('output/Codebase-Knowledge-Builder/docs/stylesheets/mermaid-vibrant.css').write_text(textwrap.dedent('''
-          /* Vibrant Mermaid diagram theme — overrides Material muted colors */
-          .mermaid .cluster rect {
-            fill: #ffffde !important;
-            stroke: #aaaa33 !important;
-            stroke-width: 1px !important;
-          }
-          .mermaid .cluster text {
-            fill: #333 !important;
-          }
-          .mermaid .node rect,
-          .mermaid .node polygon,
-          .mermaid .node circle {
-            fill: #ECECFF !important;
-            stroke: #9370DB !important;
-            stroke-width: 1px !important;
-          }
-          .mermaid .nodeLabel {
-            color: #333 !important;
-          }
-          .mermaid .edgeLabel {
-            background-color: #e8e8e8 !important;
-            color: #333 !important;
-          }
-          .mermaid .edge-pattern-solid {
-            stroke: #333 !important;
-          }
-          ''').lstrip())
-          "
+          # Create base mkdocs.yml and vibrant Mermaid CSS
+          # Uses a committed script to avoid shell escaping issues with
+          # !!python/name: YAML tags and !important CSS values
+          python3 .github/ci_mkdocs_config.py
 
       - name: Merge Navigation Configuration
         run: |
