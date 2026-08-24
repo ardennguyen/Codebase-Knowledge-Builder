@@ -3,6 +3,43 @@ import os
 
 import pathspec
 
+from utils.output import emit, get
+
+
+def _load_gitignore(gitignore_path):
+    """Load a .gitignore file and return a PathSpec, or None on failure."""
+    try:
+        with open(gitignore_path, encoding="utf-8-sig") as f:
+            return pathspec.PathSpec.from_lines("gitwildmatch", f.readlines())
+    except Exception:
+        return None
+
+
+def _matches_any_gitignore(gitignore_specs, abs_path, is_dir=False):
+    """Check if a path matches ANY loaded .gitignore spec.
+
+    Each spec is checked with the path relative to its own .gitignore directory.
+    For directories, a trailing '/' is appended for proper gitignore matching.
+
+    Args:
+        gitignore_specs: dict of {abs_dir_path: pathspec.PathSpec}
+        abs_path: absolute path of the file or directory to check
+        is_dir: True if checking a directory
+    Returns:
+        True if the path matches any gitignore rule
+    """
+    for gi_dir, spec in gitignore_specs.items():
+        rel = os.path.relpath(abs_path, gi_dir)
+        # Skip if the path is not under this gitignore's scope
+        if rel.startswith(".."):
+            continue
+        match_path = rel.replace("\\", "/")
+        if is_dir:
+            match_path = match_path.rstrip("/") + "/"
+        if spec.match_file(match_path):
+            return True
+    return False
+
 
 def crawl_local_files(
     directory,
@@ -28,12 +65,6 @@ def crawl_local_files(
 
     files_dict = {}
 
-    # --- ANSI colors ---
-    C_GREEN = "\033[92m"
-    C_GRAY = "\033[90m"
-    C_RED = "\033[91m"
-    C_RESET = "\033[0m"
-
     # --- Counters ---
     entry_num = 0
     count_processed = 0
@@ -43,40 +74,52 @@ def crawl_local_files(
     skipped_size_limit = []
     skipped_non_text = []
 
-    # --- Load .gitignore ---
-    gitignore_path = os.path.join(directory, ".gitignore")
-    gitignore_spec = None
-    if os.path.exists(gitignore_path):
-        try:
-            with open(gitignore_path, encoding="utf-8-sig") as f:
-                gitignore_patterns = f.readlines()
-            gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", gitignore_patterns)
-            print(f"Loaded .gitignore patterns from {gitignore_path}")
-        except Exception as e:
-            print(f"Warning: Could not read or parse .gitignore file {gitignore_path}: {e}")
+    # --- Gitignore specs: {abs_dir_path: pathspec} ---
+    gitignore_specs = {}
+    root_gi_path = os.path.join(directory, ".gitignore")
+    if os.path.exists(root_gi_path):
+        spec = _load_gitignore(root_gi_path)
+        if spec:
+            gitignore_specs[os.path.abspath(directory)] = spec
+            emit("CRAWL_GITIGNORE_LOADED", path=root_gi_path)
+
+    # Translated reason strings (looked up once)
+    reason_excluded = get("CRAWL_REASON_EXCLUDED")
+    reason_gitignore = get("CRAWL_REASON_GITIGNORE")
 
     # --- Single-pass: walk, filter, and process inline ---
     for root, dirs, files in os.walk(directory):
+        abs_root = os.path.abspath(root)
+
+        # Check for nested .gitignore in current directory (skip root, already loaded)
+        if abs_root != os.path.abspath(directory):
+            nested_gi = os.path.join(root, ".gitignore")
+            if os.path.exists(nested_gi):
+                spec = _load_gitignore(nested_gi)
+                if spec:
+                    gitignore_specs[abs_root] = spec
+
         # --- Directory filtering ---
         excluded_dirs = set()
         for d in sorted(dirs):
-            dirpath_rel = os.path.relpath(os.path.join(root, d), directory)
+            abs_d = os.path.join(abs_root, d)
+            dirpath_rel = os.path.relpath(abs_d, directory)
 
             reason = None
-            if gitignore_spec and gitignore_spec.match_file(dirpath_rel):
-                reason = "excluded (.gitignore)"
+            if _matches_any_gitignore(gitignore_specs, abs_d, is_dir=True):
+                reason = reason_gitignore
             elif exclude_patterns:
                 for pattern in exclude_patterns:
                     dir_pattern = pattern.removesuffix("/*")
                     if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
-                        reason = "excluded"
+                        reason = reason_excluded
                         break
 
             if reason:
                 excluded_dirs.add(d)
                 entry_num += 1
                 count_excluded += 1
-                print(f"{C_GRAY}  [{entry_num}] {dirpath_rel}/ [{reason}]{C_RESET}")
+                emit("CRAWL_DIR_EXCLUDED", num=entry_num, path=dirpath_rel, reason=reason)
 
         for d in dirs.copy():
             if d in excluded_dirs:
@@ -88,13 +131,14 @@ def crawl_local_files(
         # --- File processing (inline, sorted) ---
         for filename in sorted(files):
             filepath = os.path.join(root, filename)
+            abs_filepath = os.path.abspath(filepath)
             relpath = os.path.relpath(filepath, directory) if use_relative_paths else filepath
             entry_num += 1
 
-            # Check gitignore
-            if gitignore_spec and gitignore_spec.match_file(relpath):
+            # Check gitignore (all levels)
+            if _matches_any_gitignore(gitignore_specs, abs_filepath):
                 count_excluded += 1
-                print(f"{C_GRAY}  [{entry_num}] {relpath} [excluded (.gitignore)]{C_RESET}")
+                emit("CRAWL_FILE_GITIGNORE", num=entry_num, path=relpath)
                 continue
 
             # Check exclude patterns
@@ -106,7 +150,7 @@ def crawl_local_files(
                         break
             if excluded:
                 count_excluded += 1
-                print(f"{C_GRAY}  [{entry_num}] {relpath} [excluded]{C_RESET}")
+                emit("CRAWL_FILE_EXCLUDED", num=entry_num, path=relpath)
                 continue
 
             # Check include patterns
@@ -118,7 +162,7 @@ def crawl_local_files(
                         break
                 if not matched:
                     count_excluded += 1
-                    print(f"{C_GRAY}  [{entry_num}] {relpath} [excluded (not in include list)]{C_RESET}")
+                    emit("CRAWL_FILE_NOT_INCLUDED", num=entry_num, path=relpath)
                     continue
 
             # Check size limit
@@ -126,7 +170,7 @@ def crawl_local_files(
                 count_size_limit += 1
                 skipped_size_limit.append(relpath)
                 size_kb = os.path.getsize(filepath) / 1024
-                print(f"{C_RED}  [{entry_num}] {relpath} [size limit: {size_kb:.0f}KB]{C_RESET}")
+                emit("CRAWL_FILE_SIZE_LIMIT", num=entry_num, path=relpath, size=f"{size_kb:.0f}")
                 continue
 
             # Try to read as text
@@ -135,32 +179,31 @@ def crawl_local_files(
                     content = f.read()
                 files_dict[relpath] = content
                 count_processed += 1
-                print(f"{C_GREEN}  [{entry_num}] {relpath} [processed]{C_RESET}")
+                emit("CRAWL_FILE_PROCESSED", num=entry_num, path=relpath)
             except (UnicodeDecodeError, ValueError):
                 count_non_text += 1
                 skipped_non_text.append(relpath)
-                print(f"{C_RED}  [{entry_num}] {relpath} [cannot process: not a text file]{C_RESET}")
+                emit("CRAWL_FILE_NOT_TEXT", num=entry_num, path=relpath)
             except Exception as e:
                 count_non_text += 1
                 skipped_non_text.append(relpath)
-                print(f"{C_RED}  [{entry_num}] {relpath} [cannot process: {e}]{C_RESET}")
+                emit("CRAWL_FILE_ERROR", num=entry_num, path=relpath, error=e)
 
     # --- Summary ---
     total_fetched = count_processed + count_excluded + count_size_limit + count_non_text
-    print("\n--- Crawl Summary ---")
-    print(f"  Total found : {total_fetched}")
-    print(f"{C_GREEN}  Processed   : {count_processed}{C_RESET}")
+    emit("CRAWL_SUMMARY_HEADER")
+    emit("CRAWL_SUMMARY_TOTAL", count=total_fetched)
+    emit("CRAWL_SUMMARY_PROCESSED", count=count_processed)
     if count_excluded > 0:
-        print(f"{C_GRAY}  Excluded    : {count_excluded}{C_RESET}")
+        emit("CRAWL_SUMMARY_EXCLUDED", count=count_excluded)
     if count_size_limit > 0:
-        print(f"{C_RED}  Size limit  : {count_size_limit}{C_RESET}")
+        emit("CRAWL_SUMMARY_SIZE_LIMIT", count=count_size_limit)
         for f in skipped_size_limit:
-            print(f"{C_RED}    - {f}{C_RESET}")
+            emit("CRAWL_SUMMARY_ITEM", name=f)
     if count_non_text > 0:
-        print(f"{C_RED}  Non-text    : {count_non_text}{C_RESET}")
+        emit("CRAWL_SUMMARY_NON_TEXT", count=count_non_text)
         for f in skipped_non_text:
-            print(f"{C_RED}    - {f}{C_RESET}")
-    print("---------------------")
+            emit("CRAWL_SUMMARY_ITEM", name=f)
 
     return {"files": files_dict}
 

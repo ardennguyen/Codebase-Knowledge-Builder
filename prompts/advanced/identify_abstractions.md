@@ -3,6 +3,9 @@ For the project `{project_name}`:
 Codebase Context:
 {context}
 
+Full Project Directory Structure:
+{directory_tree}
+
 {language_instruction}Analyze the codebase context.
 Identify the top 5-{max_abstraction_num} core architectural abstractions and components for an advanced system onboarding reference.
 
@@ -27,9 +30,6 @@ For each abstraction, provide:
    (e) what would break or degrade if this component went down.
    Use professional terminology but prioritize "understanding the system" over cataloging APIs.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
-
-List of file indices and paths present in the context:
-{file_listing_for_prompt}
 
 Format the output as a YAML list of dictionaries:
 

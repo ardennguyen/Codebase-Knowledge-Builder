@@ -6,8 +6,13 @@ File Details{concept_details_note}:
 - Description:
 {abstraction_description}
 
+Full Project Directory Structure:
+{directory_tree}
+
 Complete API Index{structure_note}:
 {full_chapter_listing}
+
+Your documentation page location: {current_doc_path}
 
 Context from previous pages{prev_summary_note}:
 {previous_chapters_summary}
@@ -69,13 +74,13 @@ Instructions for the API reference page (Generate content in {language} unless s
 - When the file defines control flows, inheritance hierarchies, state machines, or node/pipeline architectures, you MUST include Mermaid diagrams using fenced code blocks (```mermaid). NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the appropriate Mermaid diagram type:
   * `classDiagram` — for inheritance, composition, or factory patterns
   * `sequenceDiagram` — for request/response flows that cross multiple components
-  * `flowchart` — for decision logic, branching, pipeline stages, or node architecture
+  * `flowchart TD` — for decision logic, branching, pipeline stages, or node architecture (MUST use TD direction)
   * `stateDiagram` — for entity lifecycle states
   Include diagrams when they add clarity; omit them for simple data-class or utility files.
-  MERMAID RENDERING RULES: Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
-  MERMAID STYLING RULES: For flowchart diagrams, highlight entry/start nodes (the first node of the overall flow AND the first node inside each subgraph) by adding `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` and applying it with `class nodeId entryNode`. Leave all other nodes with default Mermaid styling — do NOT color every node.
+  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
+  MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
 
-- Link to other documented files using proper Markdown links: [OtherFile](filename.md){link_lang_note}. Use the Complete API Index above to find the correct filename. Translate the surrounding prose text, not the code.
+- Link to other documented files using Markdown links with relative paths. Each file's doc path is shown in the Index above as `(doc: path.md)`. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}. Translate the surrounding prose text, not the code.
 
 - PAGE LENGTH: Aim for 3,000-8,000 words per reference page. This limit includes prose AND code — use per-method extraction (not whole-file dumps) to stay within it. Only if the file defines more than 20 classes or 60+ methods should you fall back to a summary table for the least significant items:
   | Class/Function | Visibility | Responsibility | Key Methods |

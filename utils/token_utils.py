@@ -2,6 +2,8 @@ import logging
 
 import tiktoken
 
+from utils.output import emit
+
 # Get the shared logger from call_llm module
 logger = logging.getLogger("llm_logger")
 
@@ -33,11 +35,10 @@ def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, t
     token_count = count_tokens(prompt_content)
     percentage = (token_count / max_tokens) * 100 if max_tokens else 0
 
-    # Build token usage string if provided
-    usage_str = ""
+    # Build token usage breakdown suffix for stdout display
+    suffix = ""
     usage_log_str = ""
     if token_usage:
-        # Find the longest label for alignment
         max_label_len = max(len(label) for label in token_usage)
         lines = []
         log_parts = []
@@ -46,11 +47,18 @@ def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, t
             padded_label = label.ljust(max_label_len)
             lines.append(f"\t{padded_label} : {value:,} ({pct:.0f}%)")
             log_parts.append(f"{label}={value:,} ({pct:.0f}%)")
-        usage_str = "\n" + "\n".join(lines)
+        suffix = "\n" + "\n".join(lines)
         usage_log_str = " | " + " | ".join(log_parts)
 
-    # Console output (yellow) with token usage on separate lines
-    print(f"\033[93m[Token Analytics] {node_name}: {token_count:,} / {max_tokens:,} tokens ({percentage:.1f}% capacity){usage_str}\033[0m")
+    # Console output via emit (styled by CSV LEVEL=WARNING → yellow)
+    emit(
+        "TOKEN_ANALYTICS",
+        suffix=suffix,
+        node_name=node_name,
+        token_count=f"{token_count:,}",
+        max_tokens=f"{max_tokens:,}",
+        percentage=f"{percentage:.1f}",
+    )
 
-    # File log stays single-line for parseability
+    # File log stays single-line for parseability (structured, not translatable)
     logger.info(f"NODE EXEC | node={node_name} | prompt_tokens={token_count:,} / {max_tokens:,} ({percentage:.1f}% capacity){usage_log_str}")

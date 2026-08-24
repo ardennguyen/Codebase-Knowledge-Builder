@@ -5,7 +5,7 @@ Below are all {module_count} documented modules with their technical summaries:
 {module_list}
 
 Directory structure of the project:
-{dir_tree}
+{directory_tree}
 
 Group these modules into a LOGICAL HIERARCHY for a documentation sidebar.
 

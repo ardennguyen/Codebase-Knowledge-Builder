@@ -5,8 +5,13 @@ Concept Details{concept_details_note}:
 - Description:
 {abstraction_description}
 
+Full Project Directory Structure:
+{directory_tree}
+
 Complete Tutorial Structure{structure_note}:
 {full_chapter_listing}
+
+Your documentation page location: {current_doc_path}
 
 Context from previous chapters{prev_summary_note}:
 {previous_chapters_summary}
@@ -43,18 +48,18 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - Describe the internal implementation to help understand what's under the hood{instruction_lang_note}. First provide a non-code or code-light walkthrough on what happens step-by-step when the abstraction is called{instruction_lang_note}. You MUST generate Mermaid diagrams using fenced code blocks (```mermaid) to visualize this. NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the Mermaid diagram type based on what aspect of the code you're illustrating:
   * `sequenceDiagram` — for request/response flows that cross multiple components or services
-  * `flowchart` — for decision logic, branching, or pipeline stages within a single component
+  * `flowchart TD` — for decision logic, branching, or pipeline stages within a single component (MUST use TD direction)
   * `erDiagram` — for data model relationships (database schemas, entity hierarchies)
   * `classDiagram` — for inheritance, composition, or factory patterns
   * `stateDiagram` — for entity lifecycle states (e.g., pending → confirmed → settled)
   Include at least 2 different diagram types per chapter when the component warrants it.
   Keep the diagrams minimal and clean to ensure clarity. {mermaid_lang_note}.
-  MERMAID RENDERING RULES: Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
-  MERMAID STYLING RULES: For flowchart diagrams, highlight entry/start nodes (the first node of the overall flow AND the first node inside each subgraph) by adding `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` and applying it with `class nodeId entryNode`. Leave all other nodes with default Mermaid styling — do NOT color every node.
+  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
+  MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
 
 - Then dive deeper into code for the internal implementation with references to files. Provide example code blocks, but make them similarly simple and beginner-friendly. Explain{instruction_lang_note}.
 
-- IMPORTANT: When you need to refer to other core abstractions covered in other chapters, ALWAYS use proper Markdown links like this: [Chapter Title](filename.md). Use the Complete Tutorial Structure above to find the correct filename and the chapter title{link_lang_note}. Translate the surrounding text.
+- IMPORTANT: When you need to refer to other core abstractions covered in other chapters, ALWAYS use proper Markdown links with relative paths. Each chapter's doc path is shown in the Structure above as `(doc: path.md)`. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}.
 
 - Heavily use analogies and examples throughout{instruction_lang_note} to help beginners understand.
 

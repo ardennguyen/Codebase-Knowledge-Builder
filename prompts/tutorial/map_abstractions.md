@@ -23,9 +23,6 @@ For each abstraction, provide:
    Include: (a) the core problem it solves, (b) which 2-3 classes or files are most central, (c) a one-sentence note on how it connects to other parts of the system.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
 
-List of file indices and paths present in the context:
-{file_listing_for_prompt}
-
 Format the output as a YAML list of dictionaries:
 
 ```yaml

@@ -8,6 +8,9 @@ For the project `{project_name}`:
 Codebase Context:
 {context}
 
+Full Project Directory Structure:
+{directory_tree}
+
 {language_instruction}Your task is to identify ALL logical API modules, core classes, exported functions, and internal mechanics present in this context to produce an exhaustive API reference.
 Focus strictly on technical interfaces and architecture grouping. Do not use beginner analogies.
 
@@ -30,9 +33,6 @@ For each API module, provide:
    (b) key public classes/interfaces and their purpose,
    (c) its critical dependencies on other modules.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
-
-List of file indices and paths present in the context:
-{file_listing_for_prompt}
 
 Format the output as a YAML list of dictionaries:
 

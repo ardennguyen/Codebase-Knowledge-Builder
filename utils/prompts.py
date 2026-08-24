@@ -5,6 +5,8 @@ These are inline prompts used by nodes that don't load from prompts/{mode}/ temp
 Organized here for maintainability and future improvement.
 """
 
+import os
+
 
 def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
     """Build the prompt for DeterministicFileMapper to filter non-code files.
@@ -65,7 +67,9 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
     Generates a ready-to-use MkDocs Material config with:
     - Material theme with code copy buttons
     - Syntax highlighting (pymdownx.highlight + inlinehilite)
-    - Mermaid diagram rendering via pymdownx.superfences custom fences
+    - Mermaid diagram rendering via custom 'mermaid-raw' class (bypasses
+      Material's Mermaid color overrides so diagrams use Mermaid's default theme)
+    - Panzoom plugin for interactive Mermaid diagram zoom/pan
     - Navigation from the generated nav_snippet
 
     Users can run `mkdocs serve` or `mkdocs build` directly in the output dir.
@@ -94,7 +98,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
         f"  - search\n"
         f"  - panzoom:\n"
         f"      include_selectors:\n"
-        f"        - '.mermaid'\n"
+        f"        - '.mermaid-raw'\n"
         f"markdown_extensions:\n"
         f"  - pymdownx.highlight:\n"
         f"      anchor_linenums: true\n"
@@ -102,66 +106,38 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
         f"  - pymdownx.superfences:\n"
         f"      custom_fences:\n"
         f"        - name: mermaid\n"
-        f"          class: mermaid\n"
+        f"          class: mermaid-raw\n"
         f"          format: !!python/name:pymdownx.superfences.fence_code_format\n"
         f"  - pymdownx.inlinehilite\n"
-        f"extra_css:\n"
-        f"  - stylesheets/mermaid-vibrant.css\n"
+        f"extra_javascript:\n"
+        f"  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js\n"
+        f"  - javascripts/mermaid-init.js\n"
         f"nav:\n"
         f"  - Home: index.md\n"
         f"{nav_body}\n"
     )
 
 
-def build_mermaid_css() -> str:
-    """Build CSS overrides for vibrant Mermaid diagrams in MkDocs Material.
+def build_mermaid_init_js() -> str:
+    """Build JS to initialize Mermaid on .mermaid-raw elements.
 
-    Material for MkDocs forcibly overrides Mermaid's %%{init}%% directives,
-    so we use CSS to restore vibrant colors matching Mermaid's default theme:
-    - Yellow subgraph backgrounds
-    - Lavender node fills
-    - Purple node strokes
+    Material for MkDocs applies its own color overrides to elements with
+    class 'mermaid'. By using class 'mermaid-raw' in superfences config
+    and initializing Mermaid manually, diagrams render with Mermaid's
+    built-in default theme: yellow subgraph backgrounds, lavender nodes,
+    clean rectangles — matching how GitHub renders Mermaid natively.
     """
     return """\
-/* Vibrant Mermaid diagram theme — overrides Material's muted colors */
-/* Matches Mermaid's built-in 'default' theme (yellow subgraphs, lavender nodes) */
-
-/* Subgraph/cluster backgrounds — warm yellow */
-.mermaid .cluster rect {
-  fill: #ffffde !important;
-  stroke: #aaaa33 !important;
-  stroke-width: 1px !important;
-}
-
-/* Cluster/subgraph title text */
-.mermaid .cluster text {
-  fill: #333 !important;
-}
-
-/* Node fills — light lavender */
-.mermaid .node rect,
-.mermaid .node polygon,
-.mermaid .node circle {
-  fill: #ECECFF !important;
-  stroke: #9370DB !important;
-  stroke-width: 1px !important;
-}
-
-/* Node text */
-.mermaid .nodeLabel {
-  color: #333 !important;
-}
-
-/* Edge label backgrounds */
-.mermaid .edgeLabel {
-  background-color: #e8e8e8 !important;
-  color: #333 !important;
-}
-
-/* Edge lines */
-.mermaid .edge-pattern-solid {
-  stroke: #333 !important;
-}
+// Initialize Mermaid on .mermaid-raw elements (bypasses Material theme override)
+// Material for MkDocs targets .mermaid class for its own color overrides.
+// By using .mermaid-raw, diagrams render with Mermaid's default theme:
+// yellow subgraph backgrounds, lavender nodes, clean rectangles.
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+    mermaid.run({ querySelector: '.mermaid-raw' });
+  }
+});
 """
 
 
@@ -170,6 +146,9 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
 
     Handles arbitrary nesting depth via the ``children`` key.
     Each leaf module is matched against *chapter_files* by ``module_name``.
+    When a functional group spans multiple directories, files are auto-sub-grouped
+    by their full directory path (deterministic, no extra LLM call).
+    Single-directory groups remain flat (no useless nesting).
     """
     lines = []
     pad = " " * indent
@@ -177,11 +156,34 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
         lines.append(f"{pad}- {section['name']}:")
         if "children" in section:
             lines.extend(build_grouped_nav(section["children"], chapter_files, indent + 2))
+
+        # Collect matched modules with directory info
+        matched = []
         for mod_name in section.get("modules", []):
             match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
             if match:
-                display = mod_name.split(".")[-1] if "." in mod_name else mod_name
-                lines.append(f"{pad}  - '{display}': 'api/{match['filename']}'")
+                dir_path = os.path.dirname(match.get("original_path", "")) or ""
+                matched.append((dir_path, mod_name, match))
+
+        # Group by directory
+        from collections import defaultdict
+
+        dir_groups = defaultdict(list)
+        for dir_path, mod_name, match in matched:
+            dir_groups[dir_path].append((mod_name, match))
+
+        if len(dir_groups) > 1:
+            # Multiple directories → add dir sub-layer with full path
+            for dir_path in sorted(dir_groups.keys()):
+                label = dir_path or "(root)"
+                lines.append(f"{pad}  - {label}:")
+                for mod_name, match in dir_groups[dir_path]:
+                    lines.append(f"{pad}    - '{mod_name}': 'api/{match['filename']}'")
+        else:
+            # Single directory or no original_path → flat list
+            for mod_name, match in matched:
+                lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
+
     return lines
 
 

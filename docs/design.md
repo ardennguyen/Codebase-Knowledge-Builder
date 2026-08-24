@@ -55,7 +55,7 @@ This project primarily uses a **Workflow** pattern with dynamic branching into a
     *   **`MapAbstractions` (BatchNode)**: Analyzes each localized directory chunk to extract partial abstractions. Each batch receives the full directory tree for cross-batch awareness.
     *   **`ReduceAbstractions`**: Merges overlapping/partial abstractions into a global list of architecture components.
 5.  **Path C: Deterministic** (api-reference mode)
-    *   **`DeterministicFileMapper`**: Bypasses LLM-based abstraction discovery entirely. Uses a lightweight LLM call to filter out non-code files (configs, UI layouts, static assets), then creates a 1:1 mapping of each code file to a documentation module. Skips `AnalyzeRelationships` and `OrderChapters`, routing directly to `WriteChapters`.
+    *   **`DeterministicFileMapper`**: Bypasses LLM-based abstraction discovery entirely. Uses a lightweight LLM call to filter out non-code files (configs, UI layouts, static assets), then creates a 1:1 mapping of each code file to a documentation module. Sorts chapters by **directory depth (deepest first, then alphabetical)** so that utility/leaf files are documented before orchestration files — their summaries become available as cross-chapter context via `previous_chapters_summary`. This ordering is language-agnostic (works for Python, C#, C++, Java, etc.). Skips `AnalyzeRelationships` and `OrderChapters`, routing directly to `WriteChapters`.
 6.  **`AnalyzeRelationships`** (Paths A & B only): Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram. Uses token-budget-aware file inclusion: the budget is split evenly across abstractions, with unused budget redistributed in a second pass, maximizing code context without exceeding the context window.
 7.  **`OrderChapters`** (Paths A & B only): Determines the most logical sequence to present the abstractions.
 8.  **`WriteChapters` (BatchNode)**: Iterates through the ordered abstractions and writes detailed Markdown chapters using context-aware code inclusion.
@@ -85,7 +85,7 @@ flowchart TD
 
 ```
 codebase_kb/
-├── main.py                          # CLI entry point, arg parsing, shared store init
+├── main.py                          # CLI entry point: parse_arguments, build_shared_store, detect_llm_config, display_config, main orchestrator
 ├── flow.py                          # PocketFlow graph wiring
 ├── nodes.py                         # All 10 node classes + helper functions
 ├── .env.sample                      # Environment variable template
@@ -98,7 +98,10 @@ codebase_kb/
 │   ├── call_llm.py                  # Multi-provider LLM wrapper with caching
 │   ├── crawl_github_files.py        # GitHub API crawler
 │   ├── crawl_local_files.py         # Local directory crawler
+│   ├── exclude_patterns.py          # Centralized definition of DEFAULT_EXCLUDE_PATTERNS
+│   ├── output.py                    # Centralized CLI output & logging utility (emit/get/emit_raw)
 │   ├── prompts.py                   # Reusable prompt builders for internal LLM calls
+│   ├── strings.csv                  # Externalized string table (STRING_KEY, LEVEL, DEST, 12 languages)
 │   └── token_utils.py               # Token counting & estimation utilities
 ├── prompts/
 │   ├── tutorial/                    # Beginner-friendly prompt templates
@@ -122,15 +125,16 @@ codebase_kb/
 │   │   ├── identify_relationships.md
 │   │   ├── order_chapters.md
 │   │   └── draft_chapters.md
-│   └── sdk/                         # SDK integration guide templates
-│       ├── identify_abstractions.md
-│       ├── map_abstractions.md
-│       ├── reduce_abstractions.md
-│       ├── identify_relationships.md
-│       ├── order_chapters.md
-│       └── draft_chapters.md
+│   ├── sdk/                         # SDK integration guide templates
+│   │   ├── identify_abstractions.md
+│   │   ├── map_abstractions.md
+│   │   ├── reduce_abstractions.md
+│   │   ├── identify_relationships.md
+│   │   ├── order_chapters.md
+│   │   └── draft_chapters.md
 │   └── common/                      # Shared prompts used across modes
-│       └── group_modules.md         # LLM-assisted sidebar nav grouping
+│       ├── group_modules.md         # LLM-assisted sidebar nav grouping
+│       └── translate_strings.md     # LLM-assisted translation prompt
 └── docs/
     ├── design.md                    # THIS FILE
     ├── index.md                     # Project README/landing page
@@ -245,28 +249,28 @@ else:
 
 | Argument | Type | Default | Description |
 |---|---|---|---|
-| `--repo` | `str` | `None` | URL of public GitHub repository (mutually exclusive with `--dir`) |
-| `--dir` | `str` | `None` | Path to local directory (mutually exclusive with `--repo`) |
-| `-n`, `--name` | `str` | `None` | Project name (derived from repo/dir if omitted) |
-| `-t`, `--token` | `str` | `None` | GitHub personal access token (falls back to `GITHUB_TOKEN` env) |
-| `-o`, `--output` | `str` | `"output"` | Base directory for output |
-| `-i`, `--include` | `nargs="+"` | `None` | Include glob patterns (e.g., `*.py *.js`) |
-| `-e`, `--exclude` | `nargs="+"` | `None` | Exclude glob patterns (merged with DEFAULT_EXCLUDE_PATTERNS) |
-| `-s`, `--max-size` | `int` | `200000` | Maximum file size in bytes (~200KB) |
-| `--language` | `str` | `"english"` | Target language for generated tutorial |
-| `--no-cache` | `store_true` | `False` | Disable LLM response caching |
-| `--cleanup` | `store_true` | `False` | Remove `llm_cache.json` and `logs/` after completion |
-| `--max-abstractions` | `int` | `10` | Maximum number of abstractions to identify |
-| `--thinking-level` | `str` | `None` | LLM reasoning effort (`low`, `medium`, `high`) |
-| `--max-tokens` | `int` | `None` | Override context window (auto-detected if omitted) |
-| `--mode` | `str` | `"tutorial"` | Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial) |
-| `--advanced` | `store_true` | `False` | Legacy flag: equivalent to --mode advanced |
-| `--mkdocs` | `store_true` | `False` | Format output for MkDocs Material (adds YAML frontmatter & nav snippet) |
-| `--incremental` | `store_true` | `False` | Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference) |
-| `--force-rebuild` | `store_true` | `False` | Clear incremental cache manifest and regenerate all chapters from scratch (use with --incremental) |
-| `--batch` | `int` | `50` | Max files per batch in map-reduce mode |
-| `--force-batch` | `store_true` | `False` | Force map-reduce mode regardless of context size |
-| `--debug` | `store_true` | `False` | Enable verbose debug output |
+| `--repo` | `str` | `None` | URL of the public GitHub repository. |
+| `--dir` | `str` | `None` | Path to local directory. |
+| `-n`, `--name` | `str` | `None` | Project name (optional, derived from repo/directory if omitted). |
+| `-t`, `--token` | `str` | `None` | GitHub personal access token (optional, reads from GITHUB_TOKEN env var if not provided). |
+| `-o`, `--output` | `str` | `"output"` | Base directory for output (default: ./output). |
+| `-i`, `--include` | `nargs="+"` | `None` | Files to include (e.g., '*.py' '*.js'). Defaults to '*' (all files). |
+| `-e`, `--exclude` | `nargs="+"` | `None` | Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native .gitignore rules. |
+| `-s`, `--max-size` | `int` | `200000` | Maximum file size in bytes (default: 200000, about 200KB). |
+| `--language` | `str` | `"english"` | Language for the generated tutorial (default: english). |
+| `--no-cache` | `store_true` | `False` | Disable LLM response caching (default: caching enabled). |
+| `--cleanup` | `store_true` | `False` | Clean up logs and cache files. Can be used standalone or after a run. |
+| `--max-abstractions` | `int` | `10` | Maximum number of abstractions to identify (default: 10). |
+| `--thinking-level` | `str` | `None` | Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults. |
+| `--max-tokens` | `int` | `None` | Maximum number of tokens for the context window (default: fetched dynamically). |
+| `--mode` | `str` | `"tutorial"` | Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial). |
+| `--advanced` | `store_true` | `False` | Legacy flag: equivalent to --mode advanced. |
+| `--mkdocs` | `store_true` | `False` | Format output for MkDocs Material (adds YAML frontmatter & nav snippet). |
+| `--incremental` | `store_true` | `False` | Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference). |
+| `--force-rebuild` | `store_true` | `False` | Clear incremental cache and regenerate all chapters from scratch (use with --incremental). |
+| `--batch` | `int` | `50` | Maximum files per batch when using map-reduce mode (default: 50). |
+| `--force-batch` | `store_true` | `False` | Force map-reduce mode regardless of context size. |
+| `--debug` | `store_true` | `False` | Enable verbose debug output. |
 
 ### Startup Config Display
 ```python
@@ -289,7 +293,7 @@ print(f"---------------------")
 
 ## 7. Default Exclude Patterns
 
-> Notes for AI: This EXACT set must be defined in `main.py` as `DEFAULT_EXCLUDE_PATTERNS`. User-supplied `--exclude` patterns are MERGED with (not replacing) this set via `.union()`.
+> Notes for AI: This EXACT set must be defined in `utils/exclude_patterns.py` and imported into `main.py` as `DEFAULT_EXCLUDE_PATTERNS`. User-supplied `--exclude` patterns are MERGED with (not replacing) this set via `.union()`.
 
 ```python
 DEFAULT_INCLUDE_PATTERNS = {"*"}
@@ -316,7 +320,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     "*.lock", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "poetry.lock", "mix.lock", "Pipfile.lock",
 
     # 4. Language-Specific Exclusions
-    "__pycache__/*", "*.pyc", "*.pyo", "*.pyd", ".pytest_cache/*", ".tox/*", ".coverage", "htmlcov/*", # Python
+    "__pycache__/*", "*.pyc", "*.pyo", "*.pyd", ".pytest_cache/*", ".ruff_cache/*", ".tox/*", ".coverage", "htmlcov/*", # Python
     ".gradle/*", "*.class", "*.jar", "*.war", "*.ear", "*.nar", # Java / JVM
     "*.o", "*.obj", "*.dll", "*.exe", "*.so", "*.dylib", "*.lib", "*.a", # C/C++/Native
     "ios/Pods/*", "android/.gradle/*", "android/app/build/*", # Mobile
@@ -360,15 +364,15 @@ shared = {
     "max_abstraction_num": args.max_abstractions,  # int, default 10
     "thinking_level": args.thinking_level,    # str | None
     "max_tokens": args.max_tokens,            # int | None (auto-detected later)
-    "mode": doc_mode,                         # str: "tutorial", "advanced", "api-reference", or "sdk"
+    "mode": mode,                             # str: "tutorial", "advanced", "api-reference", or "sdk"
     "mkdocs": args.mkdocs,                    # bool, default False
     "incremental": args.incremental,          # bool, default False
-    "advanced_mode": doc_mode == "advanced",  # bool, derived from mode
+    "advanced_mode": mode == "advanced",  # bool, derived from mode
     "batch_size": args.batch,                 # int, default 50
     "force_batch": args.force_batch,          # bool, default False
     "debug": args.debug,                      # bool, default False
 
-    # --- Populated by downstream nodes ---
+    # --- Populated by downstream nodes (NOT initialized in main.py — set at runtime) ---
     "files": [],              # Set by FetchRepo: list[tuple[str, str]] = [(relpath, content), ...]
     "mapped_abstractions": [],# Set by MapAbstractions (batch path only): list[dict]
     "file_batches": [],       # Set by ContextRouter (batch path only): list[list[tuple[int, str, str]]]
@@ -409,8 +413,8 @@ shared = {
 
 | Stage | `shared["directory_tree"]` format |
 |---|---|
-| After ContextRouter | String built by `_build_directory_tree()` — see Section 10 for format |
-| Note | Only exists in batch path. Passed to MapAbstractions for project structure context |
+| After ContextRouter | String built by `build_directory_tree()` — see Section 10 for format |
+| Note | Used by IdentifyAbstractions (all modes), MapAbstractions (batch path), and CombineTutorial (nav grouping) for project structure context |
 
 ## 9. Utility Interface Contracts
 
@@ -424,13 +428,23 @@ def crawl_local_files(directory, include_patterns=None, exclude_patterns=None,
 ```
 
 **Directory Pruning Algorithm** (critical for nested directories like `Core.User/.vs/`):
+> Note: `DEFAULT_EXCLUDE_PATTERNS` is imported from `utils/exclude_patterns.py`. Nested `.gitignore` files are supported: during `os.walk`, each subdirectory is checked for its own `.gitignore`, and a dict of `{abs_dir_path: pathspec}` is maintained. Matching uses `os.path.relpath()` from each spec's directory.
+
 ```python
 # During os.walk, for each subdirectory d:
 excluded_dirs = set()
 for d in dirs:
-    dirpath_rel = os.path.relpath(os.path.join(root, d), directory)
-    # Check .gitignore first
-    if gitignore_spec and gitignore_spec.match_file(dirpath_rel):
+    abs_d = os.path.join(root, d)
+    dirpath_rel = os.path.relpath(abs_d, directory)
+    # Check .gitignore first (iterating through nested specs)
+    is_ignored = False
+    for spec_dir, spec in gitignore_specs.items():
+        if abs_d.startswith(spec_dir):
+            rel_to_spec = os.path.relpath(abs_d, spec_dir)
+            if spec.match_file(rel_to_spec):
+                is_ignored = True
+                break
+    if is_ignored:
         excluded_dirs.add(d)
         continue
     # Check exclude patterns — strip trailing /* for directory matching
@@ -449,10 +463,8 @@ for d in dirs.copy():
 > Note: Directory validation: raises `ValueError` if `directory` path doesn't exist. Loads `.gitignore` with `utf-8-sig` encoding (BOM-safe). All directories and files are `sorted()` for deterministic traversal order.
 
 **Progress Display Format:**
-- Green (`\033[92m`): `[processed]` — Successfully read files
-- Gray (`\033[90m`): `[excluded (.gitignore)]` / `[excluded (not in include list)]` — Skipped by pattern
-- Red (`\033[91m`): `[size limit: {size_kb:.0f}KB]` — Exceeded max_file_size
-- Red (`\033[91m`): `[cannot process: not a text file]` / `[cannot process: {e}]` — Binary/encoding errors
+Output is handled by `utils.output.emit()` using string keys (e.g., `CRAWL_FILE_PROCESSED`).
+Colors (Green for processed, Gray for excluded, Red for errors) are configured via the `LEVEL` column in `strings.csv`.
 
 > Note: After crawling, prints a `--- Crawl Summary ---` block with total found, processed, excluded, size limited, and non-text counts.
 
@@ -494,12 +506,9 @@ with tempfile.TemporaryDirectory() as tmpdirname:
 
     files = {}
     skipped_files = []
-
-    # --- ANSI colors ---
-    C_GREEN  = "\033[92m"
-    C_GRAY   = "\033[90m"
-    C_RED    = "\033[91m"
-    C_RESET  = "\033[0m"
+    
+    # Note for AI: ANSI color constants (C_GREEN, C_GRAY, C_RED, C_RESET) 
+    # are no longer needed. Use utils.output.emit() instead.
 
     # --- Counters ---
     count_processed = 0
@@ -741,7 +750,7 @@ return {
 }
 ```
 
-> Note: Progress display uses ANSI colors: Green `\033[92m` `[processed]`, Gray `\033[90m` `[excluded]` / `[excluded (.gitignore)]`, Red `\033[91m` `[size limit: {size_kb:.0f}KB]` / `[cannot process: ...]`. Each line prefixed with entry counter `[{entry_num}]`. End-of-crawl summary block with counts per category.
+> Note: Progress display output is handled by `utils.output.emit()`. Colors (Green for processed, Gray for excluded, Red for errors) are configured via the `LEVEL` column in `strings.csv`. Each line prefixed with entry counter `[{entry_num}]`. End-of-crawl summary block with counts per category.
 
 ### `call_llm`
 ```python
@@ -814,7 +823,7 @@ elif provider == "OLLAMA" and thinking_level:
     payload["temperature"] = 1.0  # MUST override to 1.0
 ```
 
-**Logging:** Daily log files in `logs/llm_calls_YYYYMMDD.log` (directory from `LOG_DIR` env var, default `"logs"`)
+**Logging:** Note that `configure_logging()` has been moved to `utils/output.py`. `call_llm` now relies on `utils.output.emit()` for all output and logging rather than managing its own logger.
 
 ### `get_model_context_length`
 ```python
@@ -838,7 +847,7 @@ def count_tokens(text: str) -> int:
 ```python
 def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
                          token_usage: dict = None) -> None:
-    # Prints: \033[93m[Token Analytics] {node_name}: {token_count:,} / {max_tokens:,} tokens ({percentage:.1f}% capacity){usage_str}\033[0m
+    # Uses emit("TOKEN_ANALYTICS", ...) for stdout and keeps logger.info() for the structured log entry.
 ```
 - Uses `count_tokens()` internally for consistent measurement
 - `token_usage` dict: optional per-component token counts. Each key is a label (e.g. `file_context`, `prev_chapters`), value is token count. Displayed as `| label=N (X%)` appended to both CLI and log output.
@@ -895,6 +904,7 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
 - Recursively builds MkDocs nav YAML lines from LLM-generated section grouping
 - Handles arbitrary nesting via `children` key in sections
 - Each module is matched to `chapter_files` by `module_name`
+- When a functional group spans multiple directories, files are auto-sub-grouped by full directory path. Single-directory groups remain flat.
 - Returns list of indented YAML lines
 
 #### `collect_all_modules`
@@ -932,6 +942,66 @@ def get_content_for_indices(files_data, indices):
     return content_map
 ```
 
+### `utils/output.py`
+
+> Notes for AI: This is the centralized output utility. ALL user-facing output (stdout prints, log file entries) goes through this module. No code file should use `print()` directly or define ANSI color constants.
+
+**Initialization:**
+```python
+def init(language="english", use_cache=True, thinking_level=None):
+    """Load utils/strings.csv, set language, auto-translate missing strings via LLM.
+    Must be called from main() after argument parsing, before any emit() calls.
+    Note: `_language` stores capitalized form (e.g., "Vietnamese") for display/LLM prompts. `_lang_col` stores lowercase (e.g., "vietnamese") for CSV column lookups."""
+```
+
+**Output functions:**
+```python
+def emit(key, suffix="", **kwargs):
+    """Emit a translatable string to stdout and/or log file.
+    - key: STRING_KEY from strings.csv
+    - suffix: optional extra text appended (e.g., token breakdown lines)
+    - **kwargs: variables to substitute into the template
+    Destination (stdout/log/both) and color styling are determined by LEVEL and DEST columns in CSV."""
+
+def emit_raw(level, text, dest="BOTH"):
+    """Emit a pre-formatted string with explicit level styling.
+    Use for dynamic/structural output not in strings.csv (e.g., token breakdown tables)."""
+
+def get(key, **kwargs):
+    """Return raw translated string without printing/logging.
+    Use for UI strings embedded in generated markdown (index.md headings, etc.)."""
+
+def configure_logging(project_name="project", mode="tutorial"):
+    """Configure file-based logging. Creates logs/{project}_{mode}_{timestamp}.log.
+    Moved here from call_llm.py to centralize output concerns."""
+```
+
+**String levels and their ANSI colors:**
+| Level | ANSI Code | Color | Usage |
+|-------|-----------|-------|-------|
+| `PROGRESS` | `\033[96m` | Cyan | LLM calls, active steps |
+| `SUCCESS` | `\033[92m` | Green | Completions, cache hits |
+| `WARNING` | `\033[93m` | Yellow | Warnings, capacity alerts |
+| `ERROR` | `\033[91m` | Red | Errors, failures |
+| `INFO` | (none) | Plain | Config display, counts |
+| `DEBUG` | `\033[90m` | Gray | Skipped files, debug |
+| `FILE_WRITE` | (none) | Plain | `  - Wrote {path}` messages |
+| `UI` | N/A | N/A | Generated markdown content (not printed) |
+
+**Destination types (DEST column in CSV):**
+| DEST | Behavior |
+|------|----------|
+| `BOTH` | Print to stdout (colored) + log to file (plain) |
+| `STDOUT` | Print to stdout only |
+| `LOG` | Log to file only |
+
+**Auto-translation flow:**
+1. On `init(language, use_cache=True, thinking_level=None)`, load `utils/strings.csv` with `csv.DictReader`.
+2. For each row, try: language column → English fallback.
+3. If any strings fell back to English (no translation found), batch-translate via LLM using `prompts/common/translate_strings.md`. `use_cache` and `thinking_level` are forwarded to the LLM call.
+4. Write translations directly back into `utils/strings.csv` using `_write_translations_to_csv()` with `utf-8-sig` encoding (BOM for Excel compatibility).
+5. The CSV write-back adds the language column if it doesn't exist.
+
 ## 10. Node Design — Template Variable Contracts
 
 > Notes for AI: This section is THE MOST CRITICAL for correct code generation. Every node that calls an LLM must pass EXACTLY these variables to `prompt_template.format()`. Do NOT invent new variable names.
@@ -945,9 +1015,6 @@ def get_content_for_indices(files_data, indices):
 context = ""
 for i, path, content in files:  # 3-tuple format from ContextRouter
     context += f"--- File Index {i}: {path} ---\n{content}\n\n"
-
-# Building "file_listing_for_prompt" (index reference — used by Identify, Map):
-file_listing_for_prompt = "\n".join([f"- {i} # {path}" for i, path, _ in files])
 
 # Building "abstraction_listing" (used by Analyze, Order):
 abstraction_listing = "\n".join([f"{i} # {abstr['name']}" for i, abstr in enumerate(abstractions)])
@@ -1049,7 +1116,7 @@ No LLM call. Routes to `"direct"` or `"batch"`. Writes `shared["max_tokens"]`, `
    - Return `"batch"`
 6. Else: Return `"direct"`
 
-**`_build_directory_tree(files_data)` format:**
+**`build_directory_tree(files_data)` format:**
 ```
 dirname/
   filename.ext (idx:0)
@@ -1086,13 +1153,13 @@ Template: `prompts/{mode}/identify_abstractions.md`
 | `max_abstraction_num` | `shared["max_abstraction_num"]` |
 | `name_lang_hint` | `f" (in {lang})"` or `""` |
 | `desc_lang_hint` | `f" (in {lang})"` or `""` |
-| `file_listing_for_prompt` | Built from `shared["files"]` — see above |
+| `directory_tree` | Built from `shared["files"]` via `build_directory_tree()` |
 
 **Expected YAML response:** List of dicts with `name`, `description`, `file_indices`
 **Index parsing:** `re.findall(r'\d+', str(idx_entry))` — handles `3`, `"3 # path.py"`, `"0-3"` range formats
 **Writes:** `shared["abstractions"] = [{"name": ..., "description": ..., "files": [int, ...]}, ...]`
 
-**`prep()` return:** 12-element `tuple` — `(context, file_listing, file_count, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, max_tokens, max_tokens)`
+**`prep()` return:** 11-element `tuple` — `(context, directory_tree, total_files_count, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, mode)`
 **Context truncation:** If total tokens exceed `int(max_tokens * 0.95)`, truncates at that file index with a warning print.
 **Range parsing:** `"0-3"` expands to `[0, 1, 2, 3]` via `range(start, end+1)`, NOT "takes first number".
 **`post()` return:** `None`
@@ -1104,7 +1171,6 @@ Template: `prompts/{mode}/map_abstractions.md`
 |---|---|
 | `project_name` | `item["project_name"]` |
 | `context` | Built from `item["files"]` (3-tuples from batch) |
-| `file_listing_for_prompt` | `"\n".join([f"- {i} # {path}" ...])` |
 | `directory_tree` | `item["directory_tree"]` (full project tree) |
 | `language_instruction` | Language prefix |
 | `name_lang_hint` | Lang hint |
@@ -1113,7 +1179,7 @@ Template: `prompts/{mode}/map_abstractions.md`
 **Expected YAML response:** Same as IdentifyAbstractions — `name`, `description`, `file_indices`
 **Writes:** `shared["mapped_abstractions"]` — flattened from all batch results
 
-**`prep()` return:** `list[dict]` — each dict has keys: `batch_index`, `files`, `project_name`, `language`, `use_cache`, `thinking_level`, `advanced_mode`, `max_tokens`, `directory_tree`
+**`prep()` return:** `list[dict]` — each dict has keys: `batch_index`, `files`, `project_name`, `language`, `use_cache`, `thinking_level`, `advanced_mode`, `max_tokens`, `directory_tree`, `mode`
 **`post()` return:** `None`
 
 #### ReduceAbstractions
@@ -1131,7 +1197,7 @@ Template: `prompts/{mode}/reduce_abstractions.md`
 **Expected YAML response:** List of dicts with `name`, `description`, `files` (⚠ NOT `file_indices` — uses `files` key here)
 **Writes:** `shared["abstractions"]`
 
-**`prep()` return:** 8-element `tuple` — `(mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens)`
+**`prep()` return:** 9-element `tuple` — `(mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, mode)`
 **`post()` return:** `None`
 
 #### AnalyzeRelationships
@@ -1179,6 +1245,19 @@ Template: `prompts/{mode}/order_chapters.md`
 **`prep()` return:** 11-element `tuple` — `(abstraction_listing, context, num_abstractions, project_name, list_lang_note, use_cache, thinking_level, advanced_mode, max_tokens, max_tokens, max_tokens)`
 **`post()` return:** `None`
 
+#### DeterministicFileMapper
+Prompt builder: `utils.prompts.build_code_file_filter_prompt(project_name, file_listing)`
+
+Filters non-code files (configs, UI layouts, static assets) and creates a 1:1 mapping of each code file to a documentation module.
+
+- **Module naming:** `clean_name = os.path.basename(file_path)` — basename with file extension
+- **Doc filename:** `original_path + '.md'` (preserves original extension, e.g., `utils/call_llm.py.md`)
+- **Abstraction dict:** `{"name": clean_name, "description": f"Internal API reference for `{file_path}`", "files": [idx], "original_path": file_path}`
+- **Writes:** `shared["abstractions"]`, `shared["chapter_order"]` (sorted by directory depth), `shared["relationships"]`
+
+**`prep()` return:** 4-element `tuple` — `(prompt, use_cache, thinking_level, max_tokens)` (passes `use_cache` from shared store)
+**`post()` return:** `"default"`
+
 #### WriteChapters (BatchNode)
 Template: `prompts/{mode}/draft_chapters.md`
 
@@ -1191,7 +1270,9 @@ Template: `prompts/{mode}/draft_chapters.md`
 | `concept_details_note` | Lang note or `""` |
 | `abstraction_description` | `abstractions[idx]["description"]` |
 | `structure_note` | Lang note or `""` |
-| `full_chapter_listing` | All chapters formatted as `"1. [Name](filename)"` |
+| `full_chapter_listing` | Flat numbered chapter listing with doc path mapping. Format: `N. name (doc: path.md)`. Same for all chapters (no per-chapter variation). |
+| `current_doc_path` | Current page doc path for LLM relative link computation |
+| `directory_tree` | Full project directory structure (from shared store) |
 | `prev_summary_note` | Lang note or `""` |
 | `previous_chapters_summary` | `"\n---\n".join(self.chapter_summaries)` or `"This is the first chapter."` (empty for api-reference) |
 | `file_context_str` | File contents from `get_content_for_indices()` |
@@ -1204,6 +1285,9 @@ Template: `prompts/{mode}/draft_chapters.md`
 
 **Chapter filename generation:**
 ```python
+# In --mkdocs mode with api-reference (DeterministicFileMapper):
+# doc_rel_path = original_path + ".md" (preserves original extension, e.g., utils/call_llm.py.md)
+# Standard mode:
 safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
 filename = f"{i+1:02d}_{safe_name}.md"
 ```
@@ -1266,7 +1350,7 @@ toc_lines.append(f"- [{title}](#chapter-{i+1})")
 full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
 ```
 
-**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str, "module_name": str, "description": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `doc_mode`, `chapter_summaries`, `dir_tree`, `language`. Standard adds: `index_content`.
+**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str, "module_name": str, "description": str, "original_path": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `mode`, `chapter_summaries`, `directory_tree`, `language`, `use_cache`, `thinking_level`, `max_tokens`. Standard adds: `index_content`.
 **`exec()` operations:**
 - **Standard mode:** Creates output directory, writes `index.md`, individual chapter files, and `full_content.md`.
 - **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/stylesheets/mermaid-vibrant.css` (vibrant Mermaid theme), `docs/api/index.md` (section landing page with module table), `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
@@ -1326,25 +1410,61 @@ Handles: `3`, `"3 # path/file.py"`, `"0-3"` (IdentifyAbstractions expands range 
 
 ## 12. Internationalization
 
-> Notes for AI: `CombineTutorial` uses this EXACT translation table for UI strings.
+> Notes for AI: UI strings and all CLI output strings are stored in `utils/strings.csv`. Do NOT hardcode strings in Python files.
 
+### String Table: `utils/strings.csv`
+
+All user-facing strings (CLI output, generated UI labels) are externalized to `utils/strings.csv`.
+
+**CSV columns:**
+| Column | Purpose |
+|--------|---------|
+| `STRING_KEY` | Unique identifier (UPPER_SNAKE_CASE, e.g., `LLM_CALL_WRITE_CHAPTER`) |
+| `LEVEL` | Output level: `PROGRESS`, `SUCCESS`, `WARNING`, `ERROR`, `INFO`, `DEBUG`, `FILE_WRITE`, `UI` |
+| `DEST` | Output destination: `BOTH`, `STDOUT`, `LOG` |
+| `english` | English text with `{placeholder}` variables |
+| `vietnamese` | Vietnamese text (pre-filled for UI strings, empty for CLI → auto-translated) |
+| ... | Additional language columns: `chinese`, `japanese`, `korean`, `french`, `spanish`, `german`, `portuguese`, `russian`, `thai`, `indonesian` |
+
+**String key conventions:**
+| Prefix | Category | Example |
+|--------|----------|---------|
+| `LLM_*` | LLM call progress | `LLM_CALL_WRITE_CHAPTER` |
+| `DONE_*` | Completion messages | `DONE_IDENTIFIED_ABSTRACTIONS` |
+| `WARN_*` | Warnings | `WARN_CONTEXT_TRUNCATED` |
+| `CACHE_*` | Cache operations | `CACHE_HIT_SKIP` |
+| `COMBINE_*` | CombineTutorial output | `COMBINE_WRITING_OUTPUT` |
+| `CFG_*` | Config display labels | `CFG_AI_PROVIDER` |
+| `CRAWL_*` | File crawl status | `CRAWL_FILE_PROCESSED` |
+| `UI_*` | Generated doc UI labels | `UI_TUTORIAL`, `UI_CHAPTERS` |
+
+**UI string keys (pre-translated for 12 languages):**
+| Key | English | Purpose |
+|-----|---------|----------|
+| `UI_TUTORIAL` | Tutorial | Section heading for generated docs |
+| `UI_SOURCE_REPO` | Source Repository | Link label to source |
+| `UI_CHAPTERS` | Chapters | Chapter listing heading |
+| `UI_TOC` | Table of Contents | TOC heading |
+| `UI_CHAPTER` | Chapter | Individual chapter prefix |
+| `UI_FULL_CONTENT` | Full Content | Full content link label |
+
+**Usage in code:**
 ```python
-ui_strings = {
-    "english":    {"tutorial": "Tutorial", "source_repo": "Source Repository", "chapters": "Chapters", "toc": "Table of Contents", "chapter": "Chapter", "full_content": "Full Content"},
-    "vietnamese": {"tutorial": "Hướng dẫn", "source_repo": "Kho mã nguồn", "chapters": "Các chương", "toc": "Mục lục", "chapter": "Chương", "full_content": "Nội dung đầy đủ"},
-    "chinese":    {"tutorial": "教程", "source_repo": "源代码仓库", "chapters": "章节", "toc": "目录", "chapter": "第", "full_content": "完整内容"},
-    "japanese":   {"tutorial": "チュートリアル", "source_repo": "ソースリポジトリ", "chapters": "章", "toc": "目次", "chapter": "章", "full_content": "全文"},
-    "korean":     {"tutorial": "튜토리얼", "source_repo": "소스 저장소", "chapters": "챕터", "toc": "목차", "chapter": "챕터", "full_content": "전체 내용"},
-    "french":     {"tutorial": "Tutoriel", "source_repo": "Dépôt source", "chapters": "Chapitres", "toc": "Table des matières", "chapter": "Chapitre", "full_content": "Contenu complet"},
-    "spanish":    {"tutorial": "Tutorial", "source_repo": "Repositorio fuente", "chapters": "Capítulos", "toc": "Tabla de contenidos", "chapter": "Capítulo", "full_content": "Contenido completo"},
-    "german":     {"tutorial": "Anleitung", "source_repo": "Quellrepository", "chapters": "Kapitel", "toc": "Inhaltsverzeichnis", "chapter": "Kapitel", "full_content": "Vollständiger Inhalt"},
-    "portuguese": {"tutorial": "Tutorial", "source_repo": "Repositório fonte", "chapters": "Capítulos", "toc": "Índice", "chapter": "Capítulo", "full_content": "Conteúdo completo"},
-    "russian":    {"tutorial": "Руководство", "source_repo": "Исходный репозиторий", "chapters": "Главы", "toc": "Оглавление", "chapter": "Глава", "full_content": "Полное содержание"},
-    "thai":       {"tutorial": "บทเรียน", "source_repo": "แหล่งโค้ด", "chapters": "บท", "toc": "สารบัญ", "chapter": "บท", "full_content": "เนื้อหาทั้งหมด"},
-    "indonesian": {"tutorial": "Tutorial", "source_repo": "Repositori Sumber", "chapters": "Bab", "toc": "Daftar Isi", "chapter": "Bab", "full_content": "Konten Lengkap"},
+from utils.output import emit, get
+
+# CLI output (prints to stdout with color + logs to file)
+emit("LLM_CALL_WRITE_CHAPTER", chapter_num=1, name="flow")
+
+# UI strings for generated markdown (no print, just returns translated text)
+ui = {
+    "tutorial": get("UI_TUTORIAL"),
+    "chapters": get("UI_CHAPTERS"),
+    "toc": get("UI_TOC"),
+    ...
 }
-ui = ui_strings.get(language.lower(), ui_strings["english"])
 ```
+
+**Auto-translation:** Missing language cells in `utils/strings.csv` are auto-translated via LLM at startup and written directly back into the CSV. The `--language` flag controls both generated document language AND CLI output language.
 
 ## 13. Error Handling & Retry Configuration
 
@@ -1422,7 +1542,7 @@ Shared prompts that are NOT mode-specific. Loaded directly by path, not via `loa
 | `{project_name}` | `shared["project_name"]` | Project display name |
 | `{module_count}` | `len(chapter_files)` | Number of documented modules |
 | `{module_list}` | Built from chapter_files + chapter_summaries | `- module_name: summary` per module |
-| `{dir_tree}` | `shared["directory_tree"]` | Project directory tree string |
+| `{directory_tree}` | `shared["directory_tree"]` | Project directory tree string |
 | `{language_note}` | Conditional on `shared["language"]` | `"Section names MUST be in {language}."` or empty |
 
 **Expected YAML response:**
@@ -1435,6 +1555,13 @@ sections:
       - name: "Child Section"
         modules: ["module_name_3"]
 ```
+
+#### `translate_strings.md` — LLM String Translation
+**Template variables:**
+| Variable | Source | Description |
+|---|---|---|
+| `{language}` | `--language` argument | The target language to translate strings into |
+| `{entries}` | Missing translations from `utils/strings.csv` | List or JSON of strings needing translation |
 
 ### Output Format Conventions
 Standardized output formats enforced by prompt instructions to ensure consistency across chapters:
@@ -1576,3 +1703,29 @@ def resolve_max_tokens(shared):
 ### When to Create New Helpers
 
 If you find yourself writing the same block of code (≥3 lines) in 2+ nodes, extract it as a module-level helper function. Name it descriptively and add a docstring explaining what it does, what it takes, and what it returns.
+
+### `main.py` Modular Design
+
+`main()` is a short orchestrator (~40 lines). All logic is extracted into module-level functions:
+
+| Function | Signature | Returns | Description |
+|---|---|---|---|
+| `parse_arguments` | `() -> tuple[ArgumentParser, Namespace]` | `(parser, args)` | All argparse setup; returns parser (for `.error()`) and parsed args |
+| `resolve_mode_and_project` | `(args) -> tuple[str, str]` | `(mode, project_name)` | Handles `--advanced` legacy flag, derives project name from args |
+| `build_shared_store` | `(args, github_token, mode) -> dict` | shared dict | Constructs the shared store dictionary passed between PocketFlow nodes |
+| `detect_llm_config` | `(args) -> tuple[str, str, str, str, int]` | `(provider, model_name, endpoint_url, api_key, context_length)` | Detects LLM provider from env vars, calculates context length |
+| `display_config` | `(args, mode, provider, model_name, endpoint_url, context_length, log_file) -> None` | — | Emits all `CFG_*` strings to console |
+| `_run_cleanup` | `() -> None` | — | Removes `llm_cache.json` and `logs/` directory |
+
+### Depth-First File Ordering (api-reference mode)
+
+In `DeterministicFileMapper.post()`, `chapter_order` is sorted by directory depth (deepest first, then alphabetical within same depth). This ensures utility/leaf files are processed before orchestration files in `WriteChapters`, making their summaries available as `previous_chapters_summary` context when processing higher-level files.
+
+```python
+shared["chapter_order"] = sorted(
+    chapter_order,
+    key=lambda idx: (-modules[idx]["original_path"].count("/") - modules[idx]["original_path"].count(os.sep), modules[idx]["original_path"].lower()),
+)
+```
+
+This ordering is **language-agnostic** — it works for any codebase (Python, C#, C++, Java, etc.) because it exploits the universal convention that utility files live in deeper directories.

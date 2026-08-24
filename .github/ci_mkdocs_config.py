@@ -1,7 +1,7 @@
-"""CI helper: create base mkdocs.yml and vibrant Mermaid CSS for GitHub Pages deployment.
+"""CI helper: create base mkdocs.yml and Mermaid init JS for GitHub Pages deployment.
 
 Called by .github/workflows/deploy-docs.yml to generate the MkDocs config
-and CSS files in the output directory. Uses plain file writes to avoid
+and JS files in the output directory. Uses plain file writes to avoid
 shell heredoc / quoting issues in GitHub Actions.
 """
 
@@ -31,7 +31,7 @@ plugins:
   - search
   - panzoom:
       include_selectors:
-        - ".mermaid"
+        - ".mermaid-raw"
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -39,44 +39,29 @@ markdown_extensions:
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
-          class: mermaid
+          class: mermaid-raw
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.inlinehilite
-extra_css:
-  - stylesheets/mermaid-vibrant.css
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
+  - javascripts/mermaid-init.js
 nav:
   - Home: index.md
   - Architecture & Design: design.md
 """
 
-# ── mermaid-vibrant.css ─────────────────────────────────────────────
-MERMAID_CSS = """\
-/* Vibrant Mermaid diagram theme — overrides Material's muted colors */
-.mermaid .cluster rect {
-  fill: #ffffde !important;
-  stroke: #aaaa33 !important;
-  stroke-width: 1px !important;
-}
-.mermaid .cluster text {
-  fill: #333 !important;
-}
-.mermaid .node rect,
-.mermaid .node polygon,
-.mermaid .node circle {
-  fill: #ECECFF !important;
-  stroke: #9370DB !important;
-  stroke-width: 1px !important;
-}
-.mermaid .nodeLabel {
-  color: #333 !important;
-}
-.mermaid .edgeLabel {
-  background-color: #e8e8e8 !important;
-  color: #333 !important;
-}
-.mermaid .edge-pattern-solid {
-  stroke: #333 !important;
-}
+# ── mermaid-init.js ─────────────────────────────────────────────────
+MERMAID_INIT_JS = """\
+// Initialize Mermaid on .mermaid-raw elements (bypasses Material theme override)
+// Material for MkDocs targets .mermaid class for its own color overrides.
+// By using .mermaid-raw, diagrams render with Mermaid's default theme:
+// yellow subgraph backgrounds, lavender nodes, clean rectangles.
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+    mermaid.run({ querySelector: '.mermaid-raw' });
+  }
+});
 """
 
 if __name__ == "__main__":
@@ -85,9 +70,9 @@ if __name__ == "__main__":
     mkdocs_path.write_text(MKDOCS_YML, encoding="utf-8")
     print(f"  Created {mkdocs_path}")
 
-    # Write mermaid-vibrant.css
-    css_dir = OUTPUT_DIR / "docs" / "stylesheets"
-    css_dir.mkdir(parents=True, exist_ok=True)
-    css_path = css_dir / "mermaid-vibrant.css"
-    css_path.write_text(MERMAID_CSS, encoding="utf-8")
-    print(f"  Created {css_path}")
+    # Write mermaid-init.js
+    js_dir = OUTPUT_DIR / "docs" / "javascripts"
+    js_dir.mkdir(parents=True, exist_ok=True)
+    js_path = js_dir / "mermaid-init.js"
+    js_path.write_text(MERMAID_INIT_JS, encoding="utf-8")
+    print(f"  Created {js_path}")

@@ -25,9 +25,6 @@ For each abstraction, provide:
    For API contracts (protobuf, OpenAPI, GraphQL): mention the primary operation names.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
 
-List of file indices and paths present in the context:
-{file_listing_for_prompt}
-
 Format the output as a YAML list of dictionaries:
 
 ```yaml

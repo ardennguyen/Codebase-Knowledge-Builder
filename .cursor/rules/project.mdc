@@ -1,9 +1,3 @@
----
-description: Codebase Knowledge Builder — Agent Orchestration Guide
-globs: 
-alwaysApply: true
----
-
 # Codebase Knowledge Builder — Agent Orchestration Guide
 
 > This document tells AI agents **how to work** on this project — what to read, how to organize, and how to coordinate subagents. For project-specific implementation details (architecture, function signatures, data flow), see [`docs/design.md`](docs/design.md).
@@ -43,12 +37,14 @@ Read the project design document:
   - **Node ↔ Template variable mapping tables** (Section 10) — THE MOST CRITICAL SECTION
   - YAML response parsing rules (Section 11)
   - Internationalization table (Section 12)
+  - String externalization & output utility (Section 12, Section 9 — utils/output.py)
   - Error handling & retry config (Section 13)
   - Prompt template rules (Section 14)
   - Flow wiring (Section 15)
+  - Code organization & DRY patterns (Section 16)
 
 ### Step 3: Read Existing Prompt Templates
-Read all 25 prompt template files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `prompts/api-reference/` (6), `prompts/sdk/` (6), and `prompts/common/` (1). These are the LLM instructions and MUST be copied verbatim. Note the `{placeholder}` variables — they form a contract with the node code.
+Read all 26 prompt template files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `prompts/api-reference/` (6), `prompts/sdk/` (6), and `prompts/common/` (2). These are the LLM instructions and MUST be copied verbatim. Note the `{placeholder}` variables — they form a contract with the node code.
 
 ---
 
@@ -71,6 +67,10 @@ A checklist tracking progress:
 - [ ] utils/call_llm.py
 - [ ] utils/crawl_local_files.py
 - [ ] utils/crawl_github_files.py
+- [ ] utils/output.py
+- [ ] utils/strings.csv
+- [ ] utils/exclude_patterns.py
+- [ ] utils/prompts.py
 - [ ] nodes.py
 - [ ] flow.py
 - [ ] main.py
@@ -80,7 +80,7 @@ A checklist tracking progress:
 - [ ] prompts/advanced/* (6 files)
 - [ ] prompts/api-reference/* (6 files)
 - [ ] prompts/sdk/* (6 files)
-- [ ] prompts/common/* (1 file)
+- [ ] prompts/common/* (2 files)
 - [ ] Syntax check (all .py files)
 - [ ] Runtime test
 ```
@@ -96,8 +96,9 @@ Use specialized subagents for parallel work:
 | Subagent Role | Responsibility | Reads |
 |---|---|---|
 | **Utilities Builder** | Create all `utils/*.py` files | design.md Section 9 (Interface Contracts) |
-| **Prompts Copier** | Copy all 25 prompt templates verbatim | Existing `prompts/` directory (5 subdirs) |
-| **Nodes & Flow Builder** | Create `nodes.py` and `flow.py` | design.md Sections 8, 10, 11, 13, 15 |
+| **Output & Strings Builder** | Create `utils/output.py` and `utils/strings.csv` | design.md Section 9 (output.py), Section 12 (utils/strings.csv) |
+| **Prompts Copier** | Copy all 26 prompt templates verbatim | Existing `prompts/` directory (5 subdirs) |
+| **Nodes & Flow Builder** | Create `nodes.py` and `flow.py` | design.md Sections 8, 10, 11, 13, 15, 16 |
 | **Main & Config Builder** | Create `main.py`, `.env.sample`, `requirements.txt` | design.md Sections 4, 5, 6, 7, 8 |
 
 ### Build Order
@@ -112,9 +113,14 @@ Use specialized subagents for parallel work:
 1. **NEVER rename function parameters** — `directory` not `directory_path`, `token` not `github_token`
 2. **NEVER invent template variable names** — use EXACTLY what design.md Section 10 specifies
 3. **NEVER paraphrase prompt templates** — copy byte-for-byte
-4. **ALWAYS pass 3 args to `log_token_estimation`** — `(node_name, prompt, max_tokens)` not just `(prompt)`
+4. **ALWAYS pass 3-4 args to `log_token_estimation`** — `(node_name, prompt, max_tokens)` required, optional `token_usage` dict for diagnostics
 5. **ALWAYS forward `thinking_level`** to `call_llm()` — it's in shared store
-6. **ALWAYS use `self.cur_retry`** for cache-on-retry pattern — `call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0))`
+6. **ALWAYS use `self.cur_retry`** for cache-on-retry pattern — `call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)`
+7. **NEVER use `print()` directly** — use `emit()` from `utils/output.py` for all CLI output. Use `get()` for UI strings in generated markdown.
+8. **NEVER define ANSI color constants** in any file — all styling is handled by `utils/output.py` based on the LEVEL column in `utils/strings.csv`.
+9. **NEVER hardcode user-facing strings** — add them to `utils/strings.csv` and reference by STRING_KEY.
+10. **Extract common prompt-building patterns to `utils/prompts.py`** — MkDocs config builders, chapter summary prompt builders, and code file filter prompts all belong here. Do NOT inline reusable prompt construction logic in node classes.
+11. **Keep `main.py` modular** — argument parsing (`parse_arguments`), mode/project resolution (`resolve_mode_and_project`), shared store construction (`build_shared_store`), LLM config detection (`detect_llm_config`), and config display (`display_config`) are separate functions. `main()` should be a short orchestrator (~40 lines).
 
 ---
 
@@ -123,7 +129,7 @@ Use specialized subagents for parallel work:
 ### Syntax Check
 After all files are created, run:
 ```bash
-python -c "import ast; [ast.parse(open(f).read()) for f in ['main.py','flow.py','nodes.py','utils/call_llm.py','utils/crawl_local_files.py','utils/crawl_github_files.py','utils/token_utils.py']]; print('All files pass syntax check')"
+python -c "import ast; [ast.parse(open(f).read()) for f in ['main.py','flow.py','nodes.py','utils/call_llm.py','utils/crawl_local_files.py','utils/crawl_github_files.py','utils/token_utils.py','utils/output.py','utils/exclude_patterns.py','utils/prompts.py']]; print('All files pass syntax check')"
 ```
 
 ### Runtime Test
@@ -175,10 +181,12 @@ If a new feature or bug fix changes any of these, update `docs/design.md`:
 - Changed retry config → Section 13
 - New prompt template → Section 14
 - New MkDocs feature → Section 9 (utility contracts) + `.github/workflows/deploy-docs.yml`
+- New CLI output string → utils/strings.csv + use emit() in code
+- New output level or styling → Section 9 (utils/output.py)
 
 ### CI Workflow Rules (`.github/workflows/deploy-docs.yml`)
 
-1. **Heredoc indentation:** Bash `cat << 'EOF'` includes leading whitespace VERBATIM. All heredoc content (mkdocs.yml, CSS) MUST start at column 0, even when the `run: |` block is indented for YAML structure. Using spaces will silently break YAML parsing.
+1. **MkDocs config generation:** The CI uses `python3 .github/ci_mkdocs_config.py` to generate `mkdocs.yml` and `mermaid-init.js`. Do NOT use bash heredocs for YAML generation — they silently break indentation.
 2. **Nav merge:** The CI creates its own `mkdocs.yml` (with `Home` + `Architecture & Design`) and appends `nav_snippet.yml` via `sed '1d'`. The `nav_snippet.yml` content must use 2-space indent to align with the base nav.
 3. **Static docs:** `docs/index.md` stays as `Home`. Generated `api/index.md` is the API Reference section landing page (requires `navigation.indexes` in Material features).
 ---
@@ -196,3 +204,9 @@ If a new feature or bug fix changes any of these, update `docs/design.md`:
 | How does PocketFlow's Node work? | docs/pocketflow/core_abstraction/node.md |
 | How does PocketFlow's BatchNode work? | docs/pocketflow/core_abstraction/batch.md |
 | How do I wire the flow graph? | docs/pocketflow/core_abstraction/flow.md |
+| How does the output utility work? | design.md Section 9 (utils/output.py) |
+| Where are externalized strings? | utils/strings.csv + design.md Section 12 |
+| How to add a new CLI output string? | Add to utils/strings.csv, use emit() in code |
+| Where are default exclude patterns? | utils/exclude_patterns.py |
+| Where are node helper functions? | design.md Section 16 |
+| Where are prompt builders? | design.md Section 9 (utils/prompts.py) |

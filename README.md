@@ -18,6 +18,8 @@
    pip install -r requirements.txt
    ```
 
+   > **Note:** CLI output language matches the `--language` flag. String translations are stored in `utils/strings.csv` and auto-translated via LLM for missing languages.
+
 3. Set up LLM in [`utils/call_llm.py`](./utils/call_llm.py) by providing credentials. To do so, you can put the values in a `.env` file. By default, you can use the AI Studio key with this client for Gemini Pro 2.5 by setting the `GEMINI_API_KEY` environment variable. If you want to use another LLM, you can set the `LLM_PROVIDER` environment variable (e.g. `OPENROUTER`), and then set the model, url, and API key (e.g. `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). If using Ollama, the base url is `http://localhost:11434` (e.g. `OLLAMA_BASE_URL`) and the API key can be omitted.
    You can use your own models. We highly recommend the latest models with thinking capabilities (Claude 3.7 with thinking, O1). You can verify that it is correctly set up by running:
    ```bash
@@ -36,32 +38,32 @@
     python main.py --repo https://github.com/username/repo --language "Vietnamese"
     ```
 
-    - `--repo` or `--dir` - Specify either a GitHub repo URL or a local directory path (required, mutually exclusive)
-    - `-n, --name` - Project name (optional, derived from URL/directory if omitted)
-    - `-t, --token` - GitHub token (or set GITHUB_TOKEN environment variable)
-    - `-o, --output` - Output directory (default: ./output)
+    - `--repo` or `--dir` - Specify either a GitHub repo URL or a local directory path (required, mutually exclusive).
+    - `-n, --name` - Project name (optional, derived from repo/directory if omitted).
+    - `-t, --token` - GitHub personal access token (optional, reads from GITHUB_TOKEN env var if not provided).
+    - `-o, --output` - Base directory for output (default: ./output).
     - `-i, --include` - Files to include (e.g., `*.py` `*.js`). Defaults to `*` (all files).
     - `-e, --exclude` - Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native `.gitignore` rules.
-    - `-s, --max-size` - Maximum file size in bytes (default: 200KB)
-    - `--language` - Language for the generated tutorial (default: "english")
-    - `--max-abstractions` - Maximum number of abstractions to identify (default: 10)
-    - `--no-cache` - Disable LLM response caching (default: caching enabled)
+    - `-s, --max-size` - Maximum file size in bytes (default: 200000, about 200KB).
+    - `--language` - Language for the generated tutorial (default: english).
+    - `--max-abstractions` - Maximum number of abstractions to identify (default: 10).
+    - `--no-cache` - Disable LLM response caching (default: caching enabled).
     - `--thinking-level` - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
-    - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically from the model).
-    - `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)
-    - `--advanced` - Legacy flag: equivalent to --mode advanced
-    - `--mkdocs` - Format output for MkDocs Material with rich features:
-      - Interactive pan/zoom on Mermaid diagrams (`mkdocs-panzoom-plugin`)
-      - Vibrant Mermaid color theme (yellow subgraphs, lavender nodes)
-      - LLM-assisted sidebar grouping for `api-reference` mode (6+ modules auto-clustered into semantic sections)
-      - Section index landing page (`api/index.md`) with grouped module table
-      - Run `cd output/<ProjectName> && mkdocs serve` to preview locally (requires `pip install mkdocs-material mkdocs-panzoom-plugin`)
-    - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)
-    - `--force-rebuild` - Clear incremental cache and regenerate all chapters from scratch (use with --incremental)
+    - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically).
+    - `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial).
+    - `--advanced` - Legacy flag: equivalent to --mode advanced.
+    - `--mkdocs` - Format output for MkDocs Material (adds YAML frontmatter & nav snippet).
+      - Interactive pan/zoom on Mermaid diagrams (`mkdocs-panzoom-plugin`).
+      - Custom Mermaid rendering with pan & zoom support.
+      - LLM-assisted sidebar grouping for `api-reference` mode (6+ modules auto-clustered into semantic sections).
+      - Section index landing page (`api/index.md`) with grouped module table.
+      - Run `cd output/<ProjectName> && mkdocs serve` to preview locally (requires `pip install mkdocs-material mkdocs-panzoom-plugin`).
+    - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference).
+    - `--force-rebuild` - Clear incremental cache and regenerate all chapters from scratch (use with --incremental).
     - `--batch` - Maximum files per batch when using map-reduce mode (default: 50).
-    - `--force-batch` - Force the pipeline to use map-reduce mode regardless of context limits.
+    - `--force-batch` - Force map-reduce mode regardless of context size.
     - `--debug` - Enable verbose debug output.
-    - `--cleanup` - Clean up logs and cache JSON at the end of the script (default: No).
+    - `--cleanup` - Clean up logs and cache files. Can be used standalone or after a run.
 
 The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an `index.md` (with a link to the full content), and a compiled `full_content.md` — all inside a project-named subdirectory.
 
@@ -125,6 +127,8 @@ To run this project in a Docker container, you'll need to pass your API keys as 
    pip install -r requirements.txt
    ```
 
+   > **Ghi chú:** Ngôn ngữ hiển thị trên terminal khớp với cờ `--language`. Bản dịch chuỗi được lưu trong `utils/strings.csv` và tự động dịch qua LLM cho các ngôn ngữ chưa có.
+
 3. Thiết lập LLM trong [`utils/call_llm.py`](./utils/call_llm.py) bằng cách cung cấp thông tin xác thực. Để thực hiện, bạn có thể đặt các giá trị trong tệp `.env`. Theo mặc định, bạn có thể sử dụng khóa API AI Studio với client này cho Gemini Pro 2.5 bằng cách cài đặt biến môi trường `GEMINI_API_KEY`. Nếu bạn muốn sử dụng LLM khác, bạn có thể thiết lập biến `LLM_PROVIDER` (ví dụ: `OPENROUTER`), và sau đó thiết lập model, url và khóa API (ví dụ: `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). Nếu dùng Ollama, base url là `http://localhost:11434` (ví dụ: `OLLAMA_BASE_URL`) và có thể bỏ qua API key.
    Bạn có thể dùng model của riêng mình. Chúng tôi đặc biệt khuyến nghị các model mới nhất có khả năng suy luận (Claude 3.7 với tính năng suy luận, O1). Bạn có thể xác minh xem nó đã được thiết lập đúng hay chưa bằng cách chạy:
    ```bash
@@ -143,32 +147,32 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     python main.py --repo https://github.com/username/repo --language "Vietnamese"
     ```
 
-    - `--repo` hoặc `--dir` - Chỉ định URL kho lưu trữ GitHub hoặc đường dẫn thư mục cục bộ (bắt buộc, chọn một trong hai)
-    - `-n, --name` - Tên dự án (tùy chọn, được trích xuất từ URL/thư mục nếu để trống)
-    - `-t, --token` - Token GitHub (hoặc thiết lập biến môi trường GITHUB_TOKEN)
-    - `-o, --output` - Thư mục đầu ra (mặc định: ./output)
+    - `--repo` hoặc `--dir` - Chỉ định URL kho lưu trữ GitHub hoặc đường dẫn thư mục cục bộ (bắt buộc, chọn một trong hai).
+    - `-n, --name` - Tên dự án (tùy chọn, được trích xuất từ URL/thư mục nếu để trống).
+    - `-t, --token` - Token GitHub (hoặc thiết lập biến môi trường GITHUB_TOKEN).
+    - `-o, --output` - Thư mục đầu ra (mặc định: ./output).
     - `-i, --include` - Các tệp cần bao gồm (ví dụ: `*.py` `*.js`). Mặc định: `*` (tất cả các tệp).
     - `-e, --exclude` - Các tệp cần loại trừ. Các mẫu (patterns) tùy chỉnh được tự động gộp với danh sách loại trừ toàn cầu (chứa các thư mục build cache, node_modules, binaries, media, biến môi trường AI) VÀ các quy tắc `.gitignore` gốc của dự án.
-    - `-s, --max-size` - Kích thước tệp tối đa tính bằng byte (mặc định: 200KB)
-    - `--language` - Ngôn ngữ cho bản hướng dẫn được tạo ra (mặc định: "english")
-    - `--max-abstractions` - Số lượng các khái niệm trừu tượng tối đa để xác định (mặc định: 10)
-    - `--no-cache` - Vô hiệu hóa bộ nhớ cache cho phản hồi LLM (mặc định: cache được bật)
+    - `-s, --max-size` - Kích thước tệp tối đa tính bằng byte (mặc định: 200000, khoảng 200KB).
+    - `--language` - Ngôn ngữ cho bản hướng dẫn được tạo ra (mặc định: english).
+    - `--max-abstractions` - Số lượng các khái niệm trừu tượng tối đa để xác định (mặc định: 10).
+    - `--no-cache` - Vô hiệu hóa bộ nhớ cache cho phản hồi LLM (mặc định: cache được bật).
     - `--thinking-level` - Mức độ nỗ lực suy luận cho các model Gemini, OpenRouter và Ollama (ví dụ: low, medium, high). Để trống để sử dụng mặc định của model.
     - `--max-tokens` - Số lượng token tối đa cho context window (mặc định: tự động lấy từ thông tin của model).
     - `--mode` - Phong cách tài liệu cần tạo (`tutorial`, `advanced`, `api-reference`, `sdk`). Mặc định là `tutorial`.
     - `--advanced` - Cờ cũ (legacy flag). Tương đương với việc dùng `--mode advanced`.
-    - `--mkdocs` - Định dạng đầu ra cho MkDocs Material với các tính năng nâng cao:
-      - Thu phóng và kéo thả tương tác trên biểu đồ Mermaid (`mkdocs-panzoom-plugin`)
-      - Giao diện Mermaid màu sắc rực rỡ (subgraph vàng, node tím nhạt)
-      - Nhóm sidebar tự động bằng LLM cho chế độ `api-reference` (từ 6 module trở lên tự phân nhóm theo ngữ nghĩa)
-      - Trang chỉ mục nhóm module (`api/index.md`) với bảng phân loại
-      - Chạy `cd output/<TênDựÁn> && mkdocs serve` để xem trước cục bộ (yêu cầu `pip install mkdocs-material mkdocs-panzoom-plugin`)
+    - `--mkdocs` - Định dạng đầu ra cho MkDocs Material (thêm YAML frontmatter & nav snippet).
+      - Thu phóng và kéo thả tương tác trên biểu đồ Mermaid (`mkdocs-panzoom-plugin`).
+      - Hiển thị Mermaid tùy chỉnh với hỗ trợ kéo & thu phóng.
+      - Nhóm sidebar tự động bằng LLM cho chế độ `api-reference` (từ 6 module trở lên tự phân nhóm theo ngữ nghĩa).
+      - Trang chỉ mục nhóm module (`api/index.md`) với bảng phân loại.
+      - Chạy `cd output/<TênDựÁn> && mkdocs serve` để xem trước cục bộ (yêu cầu `pip install mkdocs-material mkdocs-panzoom-plugin`).
     - `--incremental` - Kích hoạt bộ nhớ đệm MD5 gia tăng để tiết kiệm tối đa token trong các lần chạy lặp lại bằng cách bỏ qua các tệp không thay đổi (Chỉ hỗ trợ khi dùng `--mode api-reference`).
     - `--force-rebuild` - Xóa bộ nhớ đệm gia tăng và tạo lại toàn bộ các chương từ đầu (dùng kèm với `--incremental`).
     - `--batch` - Số lượng tệp tối đa mỗi lô khi sử dụng chế độ map-reduce (mặc định: 50).
     - `--force-batch` - Bắt buộc sử dụng chế độ map-reduce bất kể giới hạn context.
     - `--debug` - Bật chế độ debug chi tiết.
-    - `--cleanup` - Tự động xóa lịch sử logs và dữ liệu cache JSON sau khi hoàn thành tập lệnh (mặc định: Không).
+    - `--cleanup` - Dọn dẹp logs và các tệp cache. Có thể chạy độc lập hoặc sau khi tạo tài liệu.
 
 Ứng dụng sẽ thu thập dữ liệu từ kho lưu trữ, phân tích cấu trúc mã nguồn, tạo nội dung hướng dẫn bằng ngôn ngữ được chỉ định và lưu kết quả vào thư mục đầu ra (mặc định: ./output). Thư mục này bao gồm các tệp chương riêng lẻ, tệp `index.md` (có liên kết đến nội dung đầy đủ), và tệp `full_content.md` — tất cả nằm trong thư mục con mang tên dự án.
 

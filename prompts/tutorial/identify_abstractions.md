@@ -3,6 +3,9 @@ For the project `{project_name}`:
 Codebase Context:
 {context}
 
+Full Project Directory Structure:
+{directory_tree}
+
 {language_instruction}Analyze the codebase context.
 Identify the top 5-{max_abstraction_num} core most important abstractions to help those new to the codebase.
 
@@ -24,9 +27,6 @@ For each abstraction, provide:
 2. A beginner-friendly `description` explaining what it is with a simple analogy, in around 150-250 words{desc_lang_hint}.
    Include: (a) the core problem it solves, (b) which 2-3 classes or files are most central, (c) a one-sentence note on how it connects to other parts of the system.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
-
-List of file indices and paths present in the context:
-{file_listing_for_prompt}
 
 Format the output as a YAML list of dictionaries:
 

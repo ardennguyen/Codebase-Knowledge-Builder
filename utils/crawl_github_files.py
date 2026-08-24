@@ -9,6 +9,8 @@ import git
 import pathspec
 import requests
 
+from utils.output import emit, emit_raw, get
+
 
 def crawl_github_files(
     repo_url,
@@ -71,11 +73,11 @@ def crawl_github_files(
     if is_ssh_url:
         # Clone repo via SSH to temp dir
         with tempfile.TemporaryDirectory() as tmpdirname:
-            print(f"Cloning SSH repo {repo_url} to temp dir {tmpdirname} ...")
+            emit_raw("PROGRESS", f"Cloning SSH repo {repo_url} to temp dir {tmpdirname} ...")
             try:
                 repo = git.Repo.clone_from(repo_url, tmpdirname)
             except Exception as e:
-                print(f"Error cloning repo: {e}")
+                emit_raw("ERROR", f"Error cloning repo: {e}")
                 return {"files": {}, "stats": {"error": str(e)}}
 
             # Attempt to checkout specific commit/branch if in URL
@@ -85,13 +87,6 @@ def crawl_github_files(
 
             # Walk directory
             files = {}
-            skipped_files = []
-
-            # --- ANSI colors ---
-            C_GREEN = "\033[92m"
-            C_GRAY = "\033[90m"
-            C_RED = "\033[91m"
-            C_RESET = "\033[0m"
 
             # --- Counters ---
             count_processed = 0
@@ -109,7 +104,7 @@ def crawl_github_files(
                 try:
                     with open(gitignore_path, encoding="utf-8-sig") as f:
                         gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", f.readlines())
-                    print("Loaded .gitignore patterns from repository.")
+                    emit("CRAWL_GITIGNORE_LOADED", path="repository")
                 except Exception:
                     pass
 
@@ -120,19 +115,19 @@ def crawl_github_files(
                     dirpath_rel = os.path.relpath(os.path.join(root, d), tmpdirname)
                     reason = None
                     if gitignore_spec and gitignore_spec.match_file(dirpath_rel):
-                        reason = "excluded (.gitignore)"
+                        reason = get("CRAWL_REASON_GITIGNORE")
                     elif exclude_patterns:
                         for pattern in exclude_patterns:
                             dir_pattern = pattern.removesuffix("/*")
                             if fnmatch.fnmatch(dirpath_rel, dir_pattern) or fnmatch.fnmatch(d, dir_pattern):
-                                reason = "excluded"
+                                reason = get("CRAWL_REASON_EXCLUDED")
                                 break
 
                     if reason:
                         excluded_dirs.add(d)
                         entry_num += 1
                         count_excluded += 1
-                        print(f"{C_GRAY}  [{entry_num}] {dirpath_rel}/ [{reason}]{C_RESET}")
+                        emit("CRAWL_DIR_EXCLUDED", num=entry_num, path=dirpath_rel, reason=reason)
 
                 for d in dirs.copy():
                     if d in excluded_dirs:
@@ -149,7 +144,7 @@ def crawl_github_files(
                     # Check include/exclude patterns
                     if not should_include_file(rel_path, filename, gitignore_spec=gitignore_spec):
                         count_excluded += 1
-                        print(f"{C_GRAY}  [{entry_num}] {rel_path} [excluded]{C_RESET}")
+                        emit("CRAWL_FILE_EXCLUDED", num=entry_num, path=rel_path)
                         continue
 
                     # Check file size
@@ -162,7 +157,7 @@ def crawl_github_files(
                         count_size_limit += 1
                         skipped_size_list.append(rel_path)
                         size_kb = file_size / 1024
-                        print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
+                        emit("CRAWL_FILE_SIZE_LIMIT", num=entry_num, path=rel_path, size=f"{size_kb:.0f}")
                         continue
 
                     # Read content
@@ -171,39 +166,38 @@ def crawl_github_files(
                             content = f.read()
                         files[rel_path] = content
                         count_processed += 1
-                        print(f"{C_GREEN}  [{entry_num}] {rel_path} [processed]{C_RESET}")
+                        emit("CRAWL_FILE_PROCESSED", num=entry_num, path=rel_path)
                     except (UnicodeDecodeError, ValueError):
                         count_non_text += 1
                         skipped_non_text_list.append(rel_path)
-                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: not a text file]{C_RESET}")
+                        emit("CRAWL_FILE_NOT_TEXT", num=entry_num, path=rel_path)
                     except Exception as e:
                         count_non_text += 1
                         skipped_non_text_list.append(rel_path)
-                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: {e}]{C_RESET}")
+                        emit("CRAWL_FILE_ERROR", num=entry_num, path=rel_path, error=e)
 
             # --- Summary ---
             total_fetched = count_processed + count_excluded + count_size_limit + count_non_text
-            print("\n--- Crawl Summary ---")
-            print(f"  Total found : {total_fetched}")
-            print(f"{C_GREEN}  Processed   : {count_processed}{C_RESET}")
+            emit("CRAWL_SUMMARY_HEADER")
+            emit("CRAWL_SUMMARY_TOTAL", count=total_fetched)
+            emit("CRAWL_SUMMARY_PROCESSED", count=count_processed)
             if count_excluded > 0:
-                print(f"{C_GRAY}  Excluded    : {count_excluded}{C_RESET}")
+                emit("CRAWL_SUMMARY_EXCLUDED", count=count_excluded)
             if count_size_limit > 0:
-                print(f"{C_RED}  Size limit  : {count_size_limit}{C_RESET}")
+                emit("CRAWL_SUMMARY_SIZE_LIMIT", count=count_size_limit)
                 for sf in skipped_size_list:
-                    print(f"{C_RED}    - {sf}{C_RESET}")
+                    emit("CRAWL_SUMMARY_ITEM", name=sf)
             if count_non_text > 0:
-                print(f"{C_RED}  Non-text    : {count_non_text}{C_RESET}")
+                emit("CRAWL_SUMMARY_NON_TEXT", count=count_non_text)
                 for sf in skipped_non_text_list:
-                    print(f"{C_RED}    - {sf}{C_RESET}")
-            print("---------------------")
+                    emit("CRAWL_SUMMARY_ITEM", name=sf)
 
             return {
                 "files": files,
                 "stats": {
                     "downloaded_count": len(files),
-                    "skipped_count": len(skipped_files),
-                    "skipped_files": skipped_files,
+                    "skipped_count": 0,
+                    "skipped_files": [],
                     "base_path": None,
                     "include_patterns": include_patterns,
                     "exclude_patterns": exclude_patterns,
@@ -228,7 +222,7 @@ def crawl_github_files(
         headers["Authorization"] = f"token {token}"
 
     def fetch_branches(owner: str, repo: str):
-        """Get brancshes of the repository"""
+        """Get branches of the repository"""
 
         url = f"https://api.github.com/repos/{owner}/{repo}/branches"
         response = requests.get(url, headers=headers, timeout=(30, 30))
@@ -238,19 +232,21 @@ def crawl_github_files(
 
         if response.status_code == 404:
             if not token:
-                print(
+                emit_raw(
+                    "ERROR",
                     "Error 404: Repository not found or is private.\n"
-                    "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable."
+                    "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.",
                 )
             else:
-                print(
+                emit_raw(
+                    "ERROR",
                     "Error 404: Repository not found or insufficient permissions with the provided token.\n"
-                    "Please verify the repository exists and the token has access to this repository."
+                    "Please verify the repository exists and the token has access to this repository.",
                 )
             return []
 
         if response.status_code != 200:
-            print(f"Error fetching the branches of {owner}/{repo}: {response.status_code} - {response.text}")
+            emit_raw("ERROR", f"Error fetching the branches of {owner}/{repo}: {response.status_code} - {response.text}")
             return []
 
         return response.json()
@@ -267,7 +263,7 @@ def crawl_github_files(
         return response.status_code == 200
 
     # Check if URL contains a specific branch/commit
-    if len(path_parts) > 2 and path_parts[2] == "tree":
+    if len(path_parts) > 3 and path_parts[2] == "tree":
 
         def join_parts(i):
             return "/".join(path_parts[i:])
@@ -275,11 +271,11 @@ def crawl_github_files(
         branches = fetch_branches(owner, repo)
         branch_names = (branch.get("name") for branch in branches)
 
-        # Fetching branches is not successfully
+        # Fetching branches was not successful
         if len(branches) == 0:
             return None
 
-        # To check branch name
+        # Check branch name
         relevant_path = join_parts(3)
 
         # Find a match with relevant path and get the branch name
@@ -293,27 +289,20 @@ def crawl_github_files(
 
         # If it is neither a tree nor a branch name
         if ref is None:
-            print("The given path does not match with any branch and any tree in the repository.\nPlease verify the path is exists.")
+            emit_raw("ERROR", "The given path does not match with any branch and any tree in the repository.\nPlease verify the path is exists.")
             return None
 
         # Combine all parts after the ref as the path
         part_index = 5 if "/" in ref else 4
         specific_path = join_parts(part_index) if part_index < len(path_parts) else ""
     else:
-        # Dont put the ref param to quiery
+        # Don't put the ref param in query
         # and let Github decide default branch
         ref = None
         specific_path = ""
 
     # Dictionary to store path -> content mapping
     files = {}
-    skipped_files = []
-
-    # --- ANSI colors ---
-    C_GREEN = "\033[92m"
-    C_GRAY = "\033[90m"
-    C_RED = "\033[91m"
-    C_RESET = "\033[0m"
 
     # --- Counters ---
     api_counters = {"processed": 0, "excluded": 0, "size_limit": 0, "non_text": 0, "entry": 0}
@@ -331,7 +320,7 @@ def crawl_github_files(
             if "content" in gi_data and gi_data.get("encoding") == "base64":
                 gi_content = base64.b64decode(gi_data["content"]).decode("utf-8")
                 gitignore_spec = pathspec.PathSpec.from_lines("gitwildmatch", gi_content.splitlines())
-                print("Loaded .gitignore patterns from repository via API.")
+                emit("CRAWL_GITIGNORE_LOADED", path="repository (API)")
     except Exception:
         pass
 
@@ -347,30 +336,33 @@ def crawl_github_files(
                 raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
             reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
             wait_time = max(reset_time - time.time(), 0) + 1
-            print(f"Rate limit exceeded. Waiting for {wait_time:.0f} seconds...")
+            emit_raw("WARNING", f"Rate limit exceeded. Waiting for {wait_time:.0f} seconds...")
             time.sleep(wait_time)
             return fetch_contents(path)
 
         if response.status_code == 404:
             if not token:
-                print(
+                emit_raw(
+                    "ERROR",
                     "Error 404: Repository not found or is private.\n"
-                    "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable."
+                    "If this is a private repository, please provide a valid GitHub token via the 'token' argument or set the GITHUB_TOKEN environment variable.",
                 )
             elif not path and ref == "main":
-                print(
+                emit_raw(
+                    "ERROR",
                     "Error 404: Repository not found. Check if the default branch is not 'main'\n"
-                    "Try adding branch name to the request i.e. python main.py --repo https://github.com/username/repo/tree/master"
+                    "Try adding branch name to the request i.e. python main.py --repo https://github.com/username/repo/tree/master",
                 )
             else:
-                print(
+                emit_raw(
+                    "ERROR",
                     f"Error 404: Path '{path}' not found in repository or insufficient permissions with the provided token.\n"
-                    f"Please verify the token has access to this repository and the path exists."
+                    f"Please verify the token has access to this repository and the path exists.",
                 )
             return None
 
         if response.status_code != 200:
-            print(f"Error fetching {path}: {response.status_code} - {response.text}")
+            emit_raw("ERROR", f"Error fetching {path}: {response.status_code} - {response.text}")
             return None
 
         contents = response.json()
@@ -399,7 +391,7 @@ def crawl_github_files(
                 # Check if file should be included based on patterns
                 if not should_include_file(rel_path, item["name"], gitignore_spec=gitignore_spec):
                     api_counters["excluded"] += 1
-                    print(f"{C_GRAY}  [{entry_num}] {rel_path} [excluded]{C_RESET}")
+                    emit("CRAWL_FILE_EXCLUDED", num=entry_num, path=rel_path)
                     continue
 
                 # Check file size if available
@@ -408,7 +400,7 @@ def crawl_github_files(
                     api_counters["size_limit"] += 1
                     api_skipped_size.append(rel_path)
                     size_kb = file_size / 1024
-                    print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
+                    emit("CRAWL_FILE_SIZE_LIMIT", num=entry_num, path=rel_path, size=f"{size_kb:.0f}")
                     continue
 
                 # For files, get raw content
@@ -422,17 +414,17 @@ def crawl_github_files(
                         api_counters["size_limit"] += 1
                         api_skipped_size.append(rel_path)
                         size_kb = content_length / 1024
-                        print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
+                        emit("CRAWL_FILE_SIZE_LIMIT", num=entry_num, path=rel_path, size=f"{size_kb:.0f}")
                         continue
 
                     if file_response.status_code == 200:
                         files[rel_path] = file_response.text
                         api_counters["processed"] += 1
-                        print(f"{C_GREEN}  [{entry_num}] {rel_path} [processed]{C_RESET}")
+                        emit("CRAWL_FILE_PROCESSED", num=entry_num, path=rel_path)
                     else:
                         api_counters["non_text"] += 1
                         api_skipped_non_text.append(rel_path)
-                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: HTTP {file_response.status_code}]{C_RESET}")
+                        emit("CRAWL_FILE_HTTP_ERROR", num=entry_num, path=rel_path, status=file_response.status_code)
                 else:
                     # Alternative method if download_url is not available
                     content_response = requests.get(item["url"], headers=headers, timeout=(30, 30))
@@ -445,21 +437,21 @@ def crawl_github_files(
                                 api_counters["size_limit"] += 1
                                 api_skipped_size.append(rel_path)
                                 size_kb = estimated_size / 1024
-                                print(f"{C_RED}  [{entry_num}] {rel_path} [size limit: {size_kb:.0f}KB]{C_RESET}")
+                                emit("CRAWL_FILE_SIZE_LIMIT", num=entry_num, path=rel_path, size=f"{size_kb:.0f}")
                                 continue
 
                             file_content = base64.b64decode(content_data["content"]).decode("utf-8")
                             files[rel_path] = file_content
                             api_counters["processed"] += 1
-                            print(f"{C_GREEN}  [{entry_num}] {rel_path} [processed]{C_RESET}")
+                            emit("CRAWL_FILE_PROCESSED", num=entry_num, path=rel_path)
                         else:
                             api_counters["non_text"] += 1
                             api_skipped_non_text.append(rel_path)
-                            print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: unexpected format]{C_RESET}")
+                            emit("CRAWL_FILE_UNEXPECTED", num=entry_num, path=rel_path)
                     else:
                         api_counters["non_text"] += 1
                         api_skipped_non_text.append(rel_path)
-                        print(f"{C_RED}  [{entry_num}] {rel_path} [cannot process: HTTP {content_response.status_code}]{C_RESET}")
+                        emit("CRAWL_FILE_HTTP_ERROR", num=entry_num, path=rel_path, status=content_response.status_code)
 
             elif item["type"] == "dir":
                 # Check if directory should be excluded before recursing
@@ -468,7 +460,7 @@ def crawl_github_files(
 
                 if gitignore_spec and gitignore_spec.match_file(rel_path):
                     dir_excluded = True
-                    dir_reason = "excluded (.gitignore)"
+                    dir_reason = get("CRAWL_REASON_GITIGNORE")
 
                 if not dir_excluded and exclude_patterns:
                     dir_name = item["name"]  # basename of the directory
@@ -480,13 +472,13 @@ def crawl_github_files(
                             or fnmatch.fnmatch(dir_name, dir_pattern)
                         ):
                             dir_excluded = True
-                            dir_reason = "excluded"
+                            dir_reason = get("CRAWL_REASON_EXCLUDED")
                             break
 
                 if dir_excluded:
                     api_counters["entry"] += 1
                     api_counters["excluded"] += 1
-                    print(f"{C_GRAY}  [{api_counters['entry']}] {rel_path}/ [{dir_reason}]{C_RESET}")
+                    emit("CRAWL_DIR_EXCLUDED", num=api_counters["entry"], path=rel_path, reason=dir_reason)
                     continue
 
                 # Only recurse if directory is not excluded
@@ -499,27 +491,26 @@ def crawl_github_files(
 
     # --- Summary ---
     total_fetched = api_counters["processed"] + api_counters["excluded"] + api_counters["size_limit"] + api_counters["non_text"]
-    print("\n--- Crawl Summary ---")
-    print(f"  Total found : {total_fetched}")
-    print(f"{C_GREEN}  Processed   : {api_counters['processed']}{C_RESET}")
+    emit("CRAWL_SUMMARY_HEADER")
+    emit("CRAWL_SUMMARY_TOTAL", count=total_fetched)
+    emit("CRAWL_SUMMARY_PROCESSED", count=api_counters["processed"])
     if api_counters["excluded"] > 0:
-        print(f"{C_GRAY}  Excluded    : {api_counters['excluded']}{C_RESET}")
+        emit("CRAWL_SUMMARY_EXCLUDED", count=api_counters["excluded"])
     if api_counters["size_limit"] > 0:
-        print(f"{C_RED}  Size limit  : {api_counters['size_limit']}{C_RESET}")
+        emit("CRAWL_SUMMARY_SIZE_LIMIT", count=api_counters["size_limit"])
         for sf in api_skipped_size:
-            print(f"{C_RED}    - {sf}{C_RESET}")
+            emit("CRAWL_SUMMARY_ITEM", name=sf)
     if api_counters["non_text"] > 0:
-        print(f"{C_RED}  Non-text    : {api_counters['non_text']}{C_RESET}")
+        emit("CRAWL_SUMMARY_NON_TEXT", count=api_counters["non_text"])
         for sf in api_skipped_non_text:
-            print(f"{C_RED}    - {sf}{C_RESET}")
-    print("---------------------")
+            emit("CRAWL_SUMMARY_ITEM", name=sf)
 
     return {
         "files": files,
         "stats": {
             "downloaded_count": len(files),
-            "skipped_count": len(skipped_files),
-            "skipped_files": skipped_files,
+            "skipped_count": 0,
+            "skipped_files": [],
             "base_path": specific_path if use_relative_paths else None,
             "include_patterns": include_patterns,
             "exclude_patterns": exclude_patterns,

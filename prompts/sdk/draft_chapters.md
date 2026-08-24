@@ -5,8 +5,13 @@ Module Details{concept_details_note}:
 - Description:
 {abstraction_description}
 
+Full Project Directory Structure:
+{directory_tree}
+
 Complete SDK Index{structure_note}:
 {full_chapter_listing}
+
+Your documentation page location: {current_doc_path}
 
 Context from previous modules{prev_summary_note}:
 {previous_chapters_summary}
@@ -62,14 +67,14 @@ Instructions for the SDK reference page (Generate content in {language} unless s
 
 - When the module involves complex integration patterns, initialization flows, or state management, you MUST include Mermaid diagrams using fenced code blocks (```mermaid). NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the appropriate Mermaid diagram type:
   * `sequenceDiagram` — for request/response flows showing how the SDK consumer interacts with the module
-  * `flowchart` — for decision logic, configuration branching, or setup pipelines
+  * `flowchart TD` — for decision logic, configuration branching, or setup pipelines (MUST use TD direction)
   * `classDiagram` — for inheritance hierarchies or builder/factory patterns the consumer needs to understand
   * `stateDiagram` — for entity lifecycle states the consumer must track
   Include diagrams when they help a developer understand HOW to use the module; omit them for simple utility modules.
-  MERMAID RENDERING RULES: Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat horizontal sprawl.
-  MERMAID STYLING RULES: For flowchart diagrams, highlight entry/start nodes (the first node of the overall flow AND the first node inside each subgraph) by adding `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` and applying it with `class nodeId entryNode`. Leave all other nodes with default Mermaid styling — do NOT color every node.
+  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
+  MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
 
-- Link to other modules using proper Markdown links: [OtherModule](filename.md){link_lang_note}. Use the Complete SDK Index above to find the correct filename. Translate the surrounding prose text, not the code.
+- Link to other modules using Markdown links with relative paths. Each module's doc path is shown in the Index above as `(doc: path.md)`. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}. Translate the surrounding prose text, not the code.
 
 - PAGE LENGTH: Aim for 3,000-6,000 words per SDK reference page. This limit includes prose AND code — use selective extraction (not whole-file dumps) to stay within it. Only if the module exposes more than 20 public classes should you fall back to a summary table for the least important items:
   | Class/Function | Responsibility | Key Methods |

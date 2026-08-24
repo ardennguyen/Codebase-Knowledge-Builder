@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-from datetime import datetime
 
 import requests
 from dotenv import load_dotenv
@@ -17,38 +16,6 @@ logger = logging.getLogger("llm_logger")
 logger.setLevel(logging.INFO)
 logger.propagate = False  # Prevent propagation to root logger
 logger.addHandler(logging.NullHandler())  # Absorb logs until configured
-
-
-def configure_logging(project_name="project", mode="tutorial"):
-    """Configure file-based logging for this run.
-
-    Creates a new log file per invocation:
-        logs/{project_name}_{mode}_{YYYYMMDD_HHmmss}.log
-
-    Must be called from main() after parsing CLI arguments.
-    """
-    log_directory = os.getenv("LOG_DIR", "logs")
-    os.makedirs(log_directory, exist_ok=True)
-
-    # Sanitize project name for filesystem safety
-    safe_project = "".join(c if c.isalnum() or c in "-_." else "_" for c in project_name)
-    safe_mode = mode.replace("-", "_")
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = os.path.join(log_directory, f"{safe_project}_{safe_mode}_{timestamp}.log")
-
-    # Remove any existing handlers (e.g., NullHandler) and add the file handler
-    logger.handlers.clear()
-    file_handler = logging.FileHandler(log_file, encoding="utf-8")
-    file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-    logger.addHandler(file_handler)
-
-    # Log run metadata at the start of every log file
-    logger.info(f"{'=' * 80}")
-    logger.info(f"RUN STARTED | project={project_name} | mode={mode} | timestamp={timestamp}")
-    logger.info(f"Log file: {log_file}")
-    logger.info(f"{'=' * 80}")
-
-    return log_file
 
 
 # Simple cache configuration
@@ -195,7 +162,13 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
         try:
             response_json = response.json()  # Log the response
         except (ValueError, requests.exceptions.JSONDecodeError):
-            print(f"\033[93mWarning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}\033[0m")
+            from utils.output import emit_raw
+
+            emit_raw(
+                "WARNING",
+                f"Warning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}",
+                dest="STDOUT",
+            )
             logger.warning(f"Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}")
             raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}") from None
         response.raise_for_status()

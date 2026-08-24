@@ -72,7 +72,7 @@ jobs:
             FORCE_FLAG="--force-rebuild"
             echo "🔄 Force rebuild: prompt templates changed or manual trigger"
           fi
-          python main.py --dir . --name Codebase-Knowledge-Builder --mode api-reference --mkdocs --incremental $FORCE_FLAG
+          python main.py --dir . --name Codebase-Knowledge-Builder --mode api-reference --mkdocs --incremental --no-cache --thinking-level high $FORCE_FLAG
 
       - name: Setup base mkdocs.yml and copy original docs
         run: |
@@ -82,9 +82,9 @@ jobs:
           # Remove pocketflow framework docs as per user request
           rm -rf output/Codebase-Knowledge-Builder/docs/pocketflow
           
-          # Create base mkdocs.yml and vibrant Mermaid CSS
+          # Create base mkdocs.yml and mermaid-init.js
           # Uses a committed script to avoid shell escaping issues with
-          # !!python/name: YAML tags and !important CSS values
+          # !!python/name: YAML tags in mkdocs config
           python3 .github/ci_mkdocs_config.py
 
       - name: Merge Navigation Configuration
