@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 
 import dotenv
 
@@ -90,7 +91,12 @@ def resolve_mode_and_project(args):
     Returns:
         tuple[str, str]: (mode, project_name)
     """
-    mode = "advanced" if args.advanced else args.mode
+    if args.advanced:
+        if args.mode != "tutorial":  # User explicitly set --mode AND --advanced
+            emit("WARN_ADVANCED_OVERRIDES_MODE", mode=args.mode)
+        mode = "advanced"
+    else:
+        mode = args.mode
     project_name = args.name
     if not project_name:
         if args.dir:
@@ -258,6 +264,8 @@ def main():
         github_token = args.token or os.environ.get("GITHUB_TOKEN")
         if not github_token:
             emit("WARN_NO_GITHUB_TOKEN")
+    elif args.token:
+        emit("WARN_TOKEN_NO_REPO")
 
     mode, project_name = resolve_mode_and_project(args)
 
@@ -265,6 +273,11 @@ def main():
     if args.incremental and mode != "api-reference":
         emit("WARN_INCREMENTAL_API_ONLY")
         args.incremental = False
+
+    # --force-rebuild requires --incremental
+    if args.force_rebuild and not args.incremental:
+        emit("ERROR_FORCE_REBUILD_NO_INCREMENTAL")
+        sys.exit(1)
 
     # Handle --force-rebuild: delete the cache manifest to force fresh generation
     if args.force_rebuild and args.incremental:
@@ -275,8 +288,14 @@ def main():
             emit("FORCE_REBUILD_DELETED", path=manifest_path)
         else:
             emit("FORCE_REBUILD_NO_MANIFEST", path=manifest_path)
-    elif args.force_rebuild and not args.incremental:
-        emit("WARN_FORCE_REBUILD_NO_INCREMENTAL")
+
+    # Warn about args ignored in api-reference mode
+    if mode == "api-reference":
+        if args.force_batch:
+            emit("WARN_FORCE_BATCH_API_REF")
+            args.force_batch = False
+        if args.max_abstractions != 10:
+            emit("WARN_MAX_ABS_API_REF")
 
     shared = build_shared_store(args, github_token, mode)
     provider, model_name, endpoint_url, _, context_length = detect_llm_config(args)
