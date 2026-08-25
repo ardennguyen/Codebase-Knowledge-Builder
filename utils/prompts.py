@@ -172,9 +172,9 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
 
     Handles arbitrary nesting depth via the ``children`` key.
     Each leaf module is matched against *chapter_files* by ``module_name``.
-    When a functional group spans multiple directories, files are auto-sub-grouped
-    by their full directory path (deterministic, no extra LLM call).
-    Single-directory groups remain flat (no useless nesting).
+    Files in subdirectories are always auto-sub-grouped by their full
+    directory path (deterministic, no extra LLM call). Root-level files
+    remain flat. Module names inside dir sub-layers are bare (no prefix).
     """
     lines = []
     pad = " " * indent
@@ -198,19 +198,23 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
         for dir_path, mod_name, match in matched:
             dir_groups[dir_path].append((mod_name, match))
 
-        if len(dir_groups) > 1:
-            # Multiple directories → add dir sub-layer with full path
+        # Emit dir sub-layers for non-root dirs, flat for root files
+        has_non_root = any(d for d in dir_groups)
+        if has_non_root:
             for dir_path in sorted(dir_groups.keys()):
-                label = dir_path or "(root)"
-                lines.append(f"{pad}  - {label}:")
-                for mod_name, match in dir_groups[dir_path]:
-                    lines.append(f"{pad}    - '{mod_name}': 'api/{match['filename']}'")
+                if dir_path:
+                    # Non-root: add directory sub-layer with bare module names
+                    lines.append(f"{pad}  - {dir_path}:")
+                    for mod_name, match in dir_groups[dir_path]:
+                        lines.append(f"{pad}    - '{mod_name}': 'api/{match['filename']}'")
+                else:
+                    # Root files: flat (no sub-layer)
+                    for mod_name, match in dir_groups[dir_path]:
+                        lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
         else:
-            # Single directory → flat list, but prefix with dir path if non-root
-            single_dir = next(iter(dir_groups), "") if dir_groups else ""
+            # All root files → flat list
             for _dir_path, mod_name, match in matched:
-                label = f"{single_dir}/{mod_name}" if single_dir else mod_name
-                lines.append(f"{pad}  - '{label}': 'api/{match['filename']}'")
+                lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
 
     return lines
 

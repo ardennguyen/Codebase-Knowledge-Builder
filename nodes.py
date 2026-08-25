@@ -1455,8 +1455,7 @@ class CombineTutorial(Node):
                         filename = f"{safe_name}.md"
 
                     dir_prefix = os.path.dirname(original_path) if original_path else ""
-                    nav_label = f"{dir_prefix}/{abstraction_name}" if dir_prefix else abstraction_name
-                    nav_items.append(f"    - '{nav_label}': 'api/{filename}'")
+                    nav_items.append((dir_prefix, abstraction_name, filename))
 
                     # Inject YAML Frontmatter
                     chapter_content = chapters_content[i]
@@ -1478,9 +1477,36 @@ class CombineTutorial(Node):
                         }
                     )
 
-            # Build flat nav (will be replaced by LLM grouping in exec for api-reference)
-            nav_items.insert(0, "    - api/index.md")
-            nav_snippet = "nav:\n  - API Reference:\n" + "\n".join(nav_items)
+            # Build flat nav with directory sub-grouping
+            # (will be replaced by LLM grouping in exec for api-reference)
+            from collections import defaultdict
+
+            dir_groups = defaultdict(list)
+            for dir_prefix, nav_label, filename in nav_items:
+                dir_groups[dir_prefix].append((nav_label, filename))
+
+            nav_lines = ["    - api/index.md"]
+            has_non_root = any(d for d in dir_groups)
+            if has_non_root:
+                for dir_path in sorted(dir_groups.keys()):
+                    if dir_path:
+                        # Non-root: add directory sub-layer with bare module names
+                        nav_lines.append(f"    - {dir_path}:")
+                        for nav_label, filename in dir_groups[dir_path]:
+                            nav_lines.append(f"      - '{nav_label}': 'api/{filename}'")
+                    else:
+                        # Root files: flat (no sub-layer)
+                        for nav_label, filename in dir_groups[dir_path]:
+                            nav_lines.append(f"    - '{nav_label}': 'api/{filename}'")
+            else:
+                # All root files → flat list
+                for _dir_prefix, nav_label, filename in nav_items:
+                    nav_lines.append(f"    - '{nav_label}': 'api/{filename}'")
+            mode = shared.get("mode", "tutorial")
+            nav_section = {"tutorial": "Tutorial", "advanced": "Advanced Guide", "sdk": "SDK Guide", "api-reference": "API Reference"}.get(
+                mode, "Documentation"
+            )
+            nav_snippet = f"nav:\n  - {nav_section}:\n" + "\n".join(nav_lines)
 
             return {
                 "output_path": output_path,
@@ -1552,8 +1578,7 @@ class CombineTutorial(Node):
                 for mod_name in section["modules"]:
                     match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
                     if match:
-                        dir_path = os.path.dirname(match.get("original_path", "")) or ""
-                        display = f"{dir_path}/{mod_name}" if dir_path else mod_name
+                        display = mod_name
                         # Use description, but if it's the generic mapper description, extract from content
                         desc = match["description"]
                         if desc.startswith("Internal API reference"):
@@ -1645,7 +1670,8 @@ class CombineTutorial(Node):
 
                             nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
                             nav_lines.insert(0, "    - api/index.md")
-                            nav_snippet = "nav:\n  - API Reference:\n" + "\n".join(nav_lines)
+                            nav_label = mode_labels.get(mode, "Documentation")
+                            nav_snippet = f"nav:\n  - {nav_label}:\n" + "\n".join(nav_lines)
                             emit("DONE_GROUPING", count=len(sections))
                         else:
                             emit("GROUP_EMPTY_FALLBACK")

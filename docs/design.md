@@ -291,6 +291,20 @@ if args.debug:
 print(f"---------------------")
 ```
 
+### Argument Validation Rules
+
+These checks run in `main()` after `parse_args()`. All use `emit()` for bilingual output:
+
+| Condition | Severity | Action | String Key |
+|---|---|---|---|
+| `--advanced` with explicit `--mode` | WARNING | Use advanced, warn user | `WARN_ADVANCED_OVERRIDES_MODE` |
+| `--token` without `--repo` | WARNING | Ignore token, warn user | `WARN_TOKEN_NO_REPO` |
+| `--force-rebuild` without `--incremental` | ERROR | `sys.exit(1)` | `ERROR_FORCE_REBUILD_NO_INCREMENTAL` |
+| `--force-batch` with `--mode api-reference` | WARNING | Clear flag, warn user | `WARN_FORCE_BATCH_API_REF` |
+| `--max-abstractions` with `--mode api-reference` | WARNING | Warn user (flag ignored at runtime) | `WARN_MAX_ABS_API_REF` |
+
+Note: `--repo`/`--dir` exclusivity is handled by `argparse.add_mutually_exclusive_group()` (built-in argparse error).
+
 ## 7. Default Exclude Patterns
 
 > Notes for AI: This EXACT set must be defined in `utils/exclude_patterns.py` and imported into `main.py` as `DEFAULT_EXCLUDE_PATTERNS`. User-supplied `--exclude` patterns are MERGED with (not replacing) this set via `.union()`.
@@ -895,8 +909,12 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
 def build_mermaid_init_js() -> str:
 ```
 - Returns JavaScript that initializes Mermaid on `.mermaid-raw` elements (bypasses Material theme overrides)
+- **Code unwrapping:** `pymdownx.superfences` `fence_code_format` wraps content as `<pre class="mermaid-raw"><code>...</code></pre>`. The JS unwraps the `<code>` child (moves `textContent` up to `<pre>`) before calling `mermaid.run()`, since Mermaid expects diagram text directly in the target element.
+- Uses `securityLevel: 'loose'` and wraps `mermaid.run()` in try-catch with `.catch()` for resilient rendering
+- Uses `document.readyState` check instead of bare `DOMContentLoaded` listener for reliable initialization
 - Diagrams render with Mermaid's native default theme (yellow subgraph backgrounds, lavender nodes) matching GitHub rendering
 - Written to `docs/javascripts/mermaid-init.js` by `CombineTutorial`
+- **Must be kept in sync** with `.github/ci_mkdocs_config.py` `MERMAID_INIT_JS` constant
 
 #### `build_grouped_nav`
 ```python
@@ -905,7 +923,7 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
 - Recursively builds MkDocs nav YAML lines from LLM-generated section grouping
 - Handles arbitrary nesting via `children` key in sections
 - Each module is matched to `chapter_files` by `module_name`. Each `chapter_files` entry must include `original_path` for directory sub-grouping.
-- When a functional group spans multiple directories, files are auto-sub-grouped by full directory path. Single-directory groups remain flat.
+- Files in subdirectories are **always** auto-sub-grouped by their full directory path (deterministic, no extra LLM call). Root-level files remain flat (no sub-layer). Module names inside dir sub-layers are bare (no directory prefix).
 - Returns list of indented YAML lines
 
 #### `collect_all_modules`
@@ -922,8 +940,28 @@ def _build_index_sections(lines: list, sections: list, chapter_files: list, leve
 ```
 - Recursively builds markdown sections with module tables for `api/index.md`
 - Each section gets a heading (`###`, `####`, etc.) and a `| Chapter | Description |` table
+- **Bare module names:** Chapter column displays bare `mod_name` (e.g., `[call_llm.py](...)`) — directory context is provided by the section heading, not the filename
 - **Smart description extraction:** When `description` starts with `"Internal API reference"` (the generic DeterministicFileMapper description), extracts the first meaningful paragraph from chapter content instead (skipping frontmatter, headings, code fences)
 - **Link paths:** Uses `match['filename']` directly (e.g., `utils/call_llm.py.md`) — NOT prefixed with `api/` since `index.md` is already at `docs/api/index.md`
+
+#### Dynamic Nav Section Labels
+
+`CombineTutorial` uses a `mode_labels` dict for all user-facing mode names:
+
+```python
+mode_labels = {
+    "tutorial": "Tutorial",
+    "advanced": "Advanced Guide",
+    "sdk": "SDK Guide",
+    "api-reference": "API Reference",
+}
+```
+
+This drives:
+- MkDocs site title: `"{project_name} — {mode_label}"`
+- Top-level nav label in `nav_snippet.yml`: `"nav:\n  - {mode_label}:\n..."`
+- Index page title: `"# {project_name} — {mode_label}"`
+- CLI progress: `emit("COMBINE_FORMAT_MKDOCS", mode=mode_label)`
 
 #### Content-Based Summary Extraction
 When `chapter_summaries` from shared store is empty (standard in `api-reference` mode since WriteChapters skips summary generation), the LLM grouping module list builder extracts the first paragraph from each chapter's generated content:
