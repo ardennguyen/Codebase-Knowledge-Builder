@@ -93,6 +93,9 @@ codebase_kb/
 ├── pyproject.toml                   # Ruff linter/formatter configuration
 ├── .pre-commit-config.yaml          # Pre-commit hooks (ruff check + ruff format)
 ├── README.md                        # Bilingual (EN/VI) user-facing documentation
+├── CLAUDE.md                        # Agent rules for Claude Code (synced copy of AGENTS.md)
+├── .python-version                  # pyenv Python version pin
+├── .coderabbit.yaml                 # CodeRabbit AI review config
 ├── Dockerfile                       # Docker container build for CI/deployment
 ├── .dockerignore                    # Docker build exclusions
 ├── LICENSE                          # MIT license
@@ -156,6 +159,18 @@ codebase_kb/
             ├── batch.md
             ├── async.md
             └── parallel.md
+├── .agents/
+│   └── rules/
+│       ├── AGENTS.md                # Agent rules for Gemini/Antigravity
+│       └── GEMINI.md                # Agent rules (synced copy)
+├── .clinerules/
+│   └── project.md                   # Agent rules for Cline/Roo (synced copy)
+├── .cursor/
+│   └── rules/
+│       └── project.mdc              # Agent rules for Cursor (synced copy)
+└── .windsurf/
+    └── rules/
+        └── project.md               # Agent rules for Windsurf (synced copy)
 ```
 
 ## 4. Dependencies
@@ -410,19 +425,24 @@ shared = {
     "force_batch": args.force_batch,          # bool, default False
     "debug": args.debug,                      # bool, default False
 
-    # --- Populated by downstream nodes (NOT initialized in main.py — set at runtime) ---
+    # --- Populated by downstream nodes (initialized empty in main.py) ---
     "files": [],              # Set by FetchRepo: list[tuple[str, str]] = [(relpath, content), ...]
-    "mapped_abstractions": [],# Set by MapAbstractions (batch path only): list[dict]
-    "file_batches": [],       # Set by ContextRouter (batch path only): list[list[tuple[int, str, str]]]
-    "directory_tree": "",     # Set by ContextRouter (batch path only): str
     "abstractions": [],       # Set by IdentifyAbstractions OR ReduceAbstractions
     "relationships": {},      # Set by AnalyzeRelationships
     "chapter_order": [],      # Set by OrderChapters
     "chapters": [],           # Set by WriteChapters
-    "chapter_summaries": [],  # Set by WriteChapters.post(): list[str] — used by CombineTutorial for LLM nav grouping
     "final_output_dir": None  # Set by CombineTutorial
 }
 ```
+
+**Runtime-only keys** (created by nodes at runtime — do NOT add to `build_shared_store()`):
+
+| Key | Set by | Type | Description |
+|---|---|---|---|
+| `mapped_abstractions` | `MapAbstractions` (batch path) | `list[dict]` | Per-batch abstraction results |
+| `file_batches` | `ContextRouter` (batch path) | `list[list[tuple]]` | File batches with global indices |
+| `directory_tree` | `ContextRouter` (batch path) | `str` | Full directory tree string |
+| `chapter_summaries` | `WriteChapters.post()` | `list[str]` | Per-chapter summaries for LLM nav grouping |
 
 ### Data Transformations Between Nodes
 
@@ -1846,18 +1866,18 @@ def resolve_max_tokens(shared):
 **Used by:** ContextRouter, IdentifyAbstractions (2 nodes)
 
 #### `build_directory_tree`
-Used by: ContextRouter, IdentifyAbstractions, MapAbstractions, CombineTutorial (4 callers)
+Used by: ContextRouter.prep, ContextRouter.post, IdentifyAbstractions (3 callers)
 ```python
-def build_directory_tree(files_data: list[dict]) -> str:
+def build_directory_tree(files_data):
 ```
-Builds a hierarchical directory tree string with file indices from the files_data list.
+Builds a hierarchical directory tree string with file indices. `files_data` is `list[tuple[str, str]]` (the `shared["files"]` format: `[(relpath, content), ...]`).
 
 #### `get_content_for_indices`
-Used by: WriteChapters, AnalyzeRelationships (2 callers)
+Used by: WriteChapters (1 caller)
 ```python
-def get_content_for_indices(files_data: list[dict], indices: list[int]) -> dict:
+def get_content_for_indices(files_data, indices):
 ```
-Extracts file content dictionary for the given list of file indices.
+Extracts file content dictionary `{relpath: content}` for the given list of file indices. `files_data` is `list[tuple[str, str]]`.
 
 ### Anti-Patterns to Avoid
 
