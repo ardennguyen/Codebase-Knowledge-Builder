@@ -206,9 +206,11 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
                 for mod_name, match in dir_groups[dir_path]:
                     lines.append(f"{pad}    - '{mod_name}': 'api/{match['filename']}'")
         else:
-            # Single directory or no original_path → flat list
+            # Single directory → flat list, but prefix with dir path if non-root
+            single_dir = next(iter(dir_groups), "") if dir_groups else ""
             for _dir_path, mod_name, match in matched:
-                lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
+                label = f"{single_dir}/{mod_name}" if single_dir else mod_name
+                lines.append(f"{pad}  - '{label}': 'api/{match['filename']}'")
 
     return lines
 

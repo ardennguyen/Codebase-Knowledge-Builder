@@ -1454,7 +1454,9 @@ class CombineTutorial(Node):
                         safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
                         filename = f"{safe_name}.md"
 
-                    nav_items.append(f"    - '{abstraction_name}': 'api/{filename}'")
+                    dir_prefix = os.path.dirname(original_path) if original_path else ""
+                    nav_label = f"{dir_prefix}/{abstraction_name}" if dir_prefix else abstraction_name
+                    nav_items.append(f"    - '{nav_label}': 'api/{filename}'")
 
                     # Inject YAML Frontmatter
                     chapter_content = chapters_content[i]
@@ -1550,7 +1552,8 @@ class CombineTutorial(Node):
                 for mod_name in section["modules"]:
                     match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
                     if match:
-                        display = mod_name
+                        dir_path = os.path.dirname(match.get("original_path", "")) or ""
+                        display = f"{dir_path}/{mod_name}" if dir_path else mod_name
                         # Use description, but if it's the generic mapper description, extract from content
                         desc = match["description"]
                         if desc.startswith("Internal API reference"):
@@ -1706,7 +1709,8 @@ class CombineTutorial(Node):
                         "|---------|-------------|",
                     ]
                     for i, cf in enumerate(chapter_files):
-                        display = cf["module_name"]
+                        dir_path = os.path.dirname(cf.get("original_path", "")) or ""
+                        display = f"{dir_path}/{cf['module_name']}" if dir_path else cf["module_name"]
                         summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
                         # Truncate and sanitize for table cell (replace pipes and newlines)
                         summary = summary.replace("|", "—").replace("\n", " ").strip()
