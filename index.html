@@ -49,8 +49,6 @@
       
     
     
-      <link rel="stylesheet" href="stylesheets/mermaid-vibrant.css">
-    
       <link rel="stylesheet" href="assets/stylesheets/panzoom.css">
     
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
@@ -60,7 +58,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -401,6 +399,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -457,14 +459,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/flow/" class="md-nav__link">
+      <a href="api/utils/__init__.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    flow
+    __init__.py
   
 
     
@@ -485,14 +487,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/main/" class="md-nav__link">
+      <a href="api/utils/call_llm.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    main
+    call_llm.py
   
 
     
@@ -513,14 +515,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/nodes/" class="md-nav__link">
+      <a href="api/utils/crawl_github_files.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    nodes
+    crawl_github_files.py
   
 
     
@@ -541,14 +543,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/__init__/" class="md-nav__link">
+      <a href="api/utils/crawl_local_files.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    utils.__init__
+    crawl_local_files.py
   
 
     
@@ -569,14 +571,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/call_llm/" class="md-nav__link">
+      <a href="api/utils/exclude_patterns.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    utils.call_llm
+    exclude_patterns.py
   
 
     
@@ -597,14 +599,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/crawl_github_files/" class="md-nav__link">
+      <a href="api/utils/output.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    utils.crawl_github_files
+    output.py
   
 
     
@@ -625,14 +627,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/crawl_local_files/" class="md-nav__link">
+      <a href="api/utils/prompts.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    utils.crawl_local_files
+    prompts.py
   
 
     
@@ -653,14 +655,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/prompts/" class="md-nav__link">
+      <a href="api/utils/token_utils.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    utils.prompts
+    token_utils.py
   
 
     
@@ -681,14 +683,70 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/token_utils/" class="md-nav__link">
+      <a href="api/flow.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    utils.token_utils
+    flow.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/main.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/nodes.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes.py
   
 
     
@@ -806,7 +864,7 @@
 </code></pre></div></p>
 </li>
 <li>
-<p>Set up LLM in <code>utils/call_llm.py</code> by providing credentials via a <code>.env</code> file. You can use native Gemini by setting <code>GEMINI_API_KEY</code>. For OpenRouter, set <code>LLM_PROVIDER=OPENROUTER</code> and <code>OPENROUTER_API_KEY</code>. </p>
+<p>Set up LLM in <code>utils/call_llm.py</code> by providing credentials via a <code>.env</code> file. You can use native Gemini by setting <code>GEMINI_API_KEY</code> (or <code>GEMINI_PROJECT_ID</code> for Vertex AI). For OpenRouter, set <code>LLM_PROVIDER=OPENROUTER</code> and <code>OPENROUTER_API_KEY</code>. </p>
 </li>
 <li>
 <p>Generate a complete codebase tutorial by running the main script:
@@ -823,34 +881,35 @@
 </ol>
 <h3 id="cli-options">CLI Options</h3>
 <ul>
-<li><code>--repo</code> or <code>--dir</code> - Specify either a GitHub repo URL or a local directory path (required, mutually exclusive)</li>
-<li><code>-n, --name</code> - Project name (optional, derived from URL/directory if omitted)</li>
-<li><code>-t, --token</code> - GitHub token (or set GITHUB_TOKEN environment variable)</li>
-<li><code>-o, --output</code> - Output directory (default: ./output)</li>
+<li><code>--repo</code> or <code>--dir</code> - Specify either a GitHub repo URL or a local directory path (required, mutually exclusive).</li>
+<li><code>-n, --name</code> - Project name (optional, derived from repo/directory if omitted).</li>
+<li><code>-t, --token</code> - GitHub personal access token (optional, reads from GITHUB_TOKEN env var if not provided).</li>
+<li><code>-o, --output</code> - Base directory for output (default: ./output).</li>
 <li><code>-i, --include</code> - Files to include (e.g., <code>*.py</code> <code>*.js</code>). Defaults to <code>*</code> (all files).</li>
 <li><code>-e, --exclude</code> - Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native <code>.gitignore</code> rules.</li>
-<li><code>-s, --max-size</code> - Maximum file size in bytes (default: 200KB)</li>
-<li><code>--language</code> - Language for the generated tutorial (default: "english")</li>
-<li><code>--max-abstractions</code> - Maximum number of abstractions to identify (default: 10)</li>
-<li><code>--no-cache</code> - Disable LLM response caching (default: caching enabled)</li>
+<li><code>-s, --max-size</code> - Maximum file size in bytes (default: 200000, about 200KB).</li>
+<li><code>--language</code> - Language for the generated tutorial (default: english).</li>
+<li>CLI output language also follows <code>--language</code> (translations in <code>utils/strings.csv</code>, auto-translated for unsupported languages).</li>
+<li><code>--max-abstractions</code> - Maximum number of abstractions to identify (default: 10).</li>
+<li><code>--no-cache</code> - Disable LLM response caching (default: caching enabled).</li>
 <li><code>--thinking-level</code> - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.</li>
-<li><code>--max-tokens</code> - Maximum number of tokens for the context window (default: fetched dynamically from the model).</li>
-<li><code>--mode</code> - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial)</li>
-<li><code>--advanced</code> - Legacy flag: equivalent to --mode advanced</li>
-<li><code>--mkdocs</code> - Format output for MkDocs Material with rich features:<ul>
-<li>Interactive pan/zoom on Mermaid diagrams (<code>mkdocs-panzoom-plugin</code>)</li>
-<li>Vibrant Mermaid color theme (yellow subgraphs, lavender nodes)</li>
-<li>LLM-assisted sidebar grouping for <code>api-reference</code> mode (6+ modules auto-clustered into semantic sections)</li>
-<li>Section index landing page (<code>api/index.md</code>) with grouped module table</li>
-<li>Run <code>cd output/&lt;ProjectName&gt; &amp;&amp; mkdocs serve</code> to preview locally (requires <code>pip install mkdocs-material mkdocs-panzoom-plugin</code>)</li>
+<li><code>--max-tokens</code> - Maximum number of tokens for the context window (default: fetched dynamically).</li>
+<li><code>--mode</code> - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial).</li>
+<li><code>--advanced</code> - Legacy flag: equivalent to --mode advanced.</li>
+<li><code>--mkdocs</code> - Format output for MkDocs Material (adds YAML frontmatter &amp; nav snippet).<ul>
+<li>Interactive pan/zoom on Mermaid diagrams (<code>mkdocs-panzoom-plugin</code>).</li>
+<li>Custom Mermaid rendering with pan &amp; zoom support.</li>
+<li>LLM-assisted sidebar grouping for <code>api-reference</code> mode (6+ modules auto-clustered into semantic sections).</li>
+<li>Section index landing page (<code>api/index.md</code>) with grouped module table.</li>
+<li>Run <code>cd output/&lt;ProjectName&gt; &amp;&amp; mkdocs serve</code> to preview locally (requires <code>pip install mkdocs-material mkdocs-panzoom-plugin</code>).</li>
 </ul>
 </li>
-<li><code>--incremental</code> - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference)</li>
-<li><code>--force-rebuild</code> - Clear incremental cache and regenerate all chapters from scratch (use with --incremental)</li>
+<li><code>--incremental</code> - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference).</li>
+<li><code>--force-rebuild</code> - Clear incremental cache and regenerate all chapters from scratch (use with --incremental).</li>
 <li><code>--batch</code> - Maximum files per batch when using map-reduce mode (default: 50).</li>
-<li><code>--force-batch</code> - Force the pipeline to use map-reduce mode regardless of context limits.</li>
+<li><code>--force-batch</code> - Force map-reduce mode regardless of context size.</li>
 <li><code>--debug</code> - Enable verbose debug output.</li>
-<li><code>--cleanup</code> - Clean up logs and cache JSON at the end of the script (default: No).</li>
+<li><code>--cleanup</code> - Clean up logs and cache files. Can be used standalone or after a run.</li>
 </ul>
 <p>The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an <code>index.md</code>, and a compiled <code>full_content.md</code> containing the complete tutorial with a Table of Contents.</p>
 <p><em>Built using <a href="https://github.com/The-Pocket/PocketFlow">Pocket Flow</a>, a 100-line LLM framework.</em></p>
@@ -912,6 +971,10 @@
     
     
       <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="javascripts/mermaid-init.js"></script>
       
         <script src="assets/javascripts/panzoom.min.js"></script>
       

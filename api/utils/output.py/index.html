@@ -1,0 +1,1769 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/output.py/">
+      
+      
+        <link rel="prev" href="../exclude_patterns.py/">
+      
+      
+        <link rel="next" href="../prompts.py/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>output.py - Codebase Knowledge Builder API Reference</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/panzoom.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <meta name="panzoom-theme" content="material">
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#outputpy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-header__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Codebase Knowledge Builder API Reference
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              output.py
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-nav__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Codebase Knowledge Builder API Reference
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../__init__.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    __init__.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../call_llm.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_github_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_github_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_local_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_local_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output.py
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-and-execution-flows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture and Execution Flows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-constants-and-global-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module Constants and Global State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module Constants and Global State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        COLORS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RESET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log_levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOG_LEVELS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internal-state-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal State Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-level-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module-Level Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module-Level Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        init()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emit_raw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emit_raw()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure_logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        configure_logging()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_format_safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _format_safe()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_load_strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _load_strings()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_auto_translate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _auto_translate()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_write_translations_to_csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _write_translations_to_csv()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling-and-edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling and Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../flow.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../main.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nodes.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-and-execution-flows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture and Execution Flows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-constants-and-global-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module Constants and Global State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module Constants and Global State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        COLORS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RESET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log_levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOG_LEVELS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internal-state-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal State Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-level-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module-Level Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module-Level Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        init()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emit()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emit_raw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emit_raw()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure_logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        configure_logging()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_format_safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _format_safe()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_load_strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _load_strings()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_auto_translate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _auto_translate()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_write_translations_to_csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _write_translations_to_csv()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling-and-edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling and Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="outputpy">output.py</h1>
+<blockquote>
+<p><strong>Source:</strong> <code>utils/output.py</code></p>
+</blockquote>
+<p>Following the static exclusion definitions established in <a href="../exclude_patterns.py/">exclude_patterns.py</a>, the <code>output.py</code> module provides the centralized output, console telemetry, multi-channel event logging, and dynamic internationalization (i18n) infrastructure for the <code>Codebase-Knowledge-Builder</code> architecture. It serves as the unified interface through which all workflow components communicate operational state, progress telemetry, warnings, and error diagnostics to human operators via styled terminal output and persistent file-based logs.</p>
+<p>The module manages string localization via a dynamic dictionary backed by an external CSV store (<code>utils/strings.csv</code>). When non-English execution modes are requested, <code>output.py</code> integrates directly with the LLM inference pipeline in <a href="../call_llm.py/">call_llm.py</a> to automatically translate missing localized strings on demand, persisting new translations back to disk for subsequent runs.</p>
+<hr />
+<h2 id="architecture-and-execution-flows">Architecture and Execution Flows</h2>
+<p>The output system operates as a hybrid console renderer and structured logging sink. It exposes methods for template-based internationalized message dispatching (<code>emit</code>), unformatted styled output (<code>emit_raw</code>), and non-logging UI string extraction (<code>get</code>).</p>
+<div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <pre class="mermaid-raw"><code>flowchart TD
+    subgraph InitSubsystem["Initialization and Translation Lifecycle"]
+        InitCall["init(language, use_cache, thinking_level)"]
+        LoadCSV["_load_strings(): Read strings.csv (utf-8-sig)"]
+        CheckLang{"Is language english?"}
+        ScanMissing["Scan strings.csv for missing target translations"]
+        HasMissing{"Any missing translations?"}
+        CallLLM["_auto_translate(): Invoke call_llm() with translate_strings.md"]
+        ParseJSON["Extract JSON payload via regex"]
+        WriteCSV["_write_translations_to_csv(): Persist updated columns"]
+        ReloadStrings["_load_strings(): Reload in-memory dictionary"]
+        InitDone["Initialization Complete"]
+
+        InitCall --&gt; LoadCSV
+        LoadCSV --&gt; CheckLang
+        CheckLang --&gt;|Yes| InitDone
+        CheckLang --&gt;|No| ScanMissing
+        ScanMissing --&gt; HasMissing
+        HasMissing --&gt;|No| InitDone
+        HasMissing --&gt;|Yes| CallLLM
+        CallLLM --&gt; ParseJSON
+        ParseJSON --&gt; WriteCSV
+        WriteCSV --&gt; ReloadStrings
+        ReloadStrings --&gt; InitDone
+    end
+
+    subgraph EmissionSubsystem["Message Dispatching Pipeline"]
+        EmitCall["emit(key, suffix, **kwargs)"]
+        LookupKey{"Key exists in _strings?"}
+        PrintFallback["Print fallback: [UNKNOWN STRING: key]"]
+        FormatSafe["_format_safe(): Apply template interpolation"]
+        CheckDest{"Evaluate destination (dest)"}
+        ConsoleOut["Print with ANSI escape color code to STDOUT"]
+        FileLog["Dispatch message to _logger.log() with LOG_LEVELS"]
+
+        EmitCall --&gt; LookupKey
+        LookupKey --&gt;|No| PrintFallback
+        LookupKey --&gt;|Yes| FormatSafe
+        FormatSafe --&gt; CheckDest
+        CheckDest --&gt;|STDOUT or BOTH| ConsoleOut
+        CheckDest --&gt;|LOG or BOTH| FileLog
+    end
+
+    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
+    class InitCall entryNode;
+    class EmitCall entryNode;</code></pre> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div>
+<hr />
+<h2 id="module-constants-and-global-state">Module Constants and Global State</h2>
+<p>The module defines global state variables and static mapping dictionaries that govern console colorization, Python logging severity mappings, active language selection, and in-memory string caching.</p>
+<h3 id="colors"><code>COLORS</code></h3>
+<ul>
+<li><strong>Type</strong>: <code>dict[str, str]</code></li>
+<li><strong>Description</strong>: Maps symbolic message levels to ANSI escape color codes for standard output terminal styling:</li>
+<li><code>"PROGRESS"</code>: <code>"\033[96m"</code> (Cyan) — Used for active execution phases, crawler milestones, and LLM inference calls.</li>
+<li><code>"SUCCESS"</code>: <code>"\033[92m"</code> (Green) — Used for completions, cache hits, and generated document writes.</li>
+<li><code>"WARNING"</code>: <code>"\033[93m"</code> (Yellow) — Used for non-fatal execution anomalies, context capacity alerts, and retry notices.</li>
+<li><code>"ERROR"</code>: <code>"\033[91m"</code> (Red) — Used for system failures, network timeouts, and unrecoverable pipeline exceptions.</li>
+<li><code>"INFO"</code>: <code>""</code> (Plain terminal default) — Used for baseline parameters, run configurations, and counts.</li>
+<li><code>"DEBUG"</code>: <code>"\033[90m"</code> (Gray) — Used for excluded file notifications, verbose telemetry, and AST node parsing dumps.</li>
+<li><code>"FILE_WRITE"</code>: <code>""</code> (Plain) — Reserved for document creation lines (e.g., <code>"  - Wrote {path}"</code>).</li>
+<li><code>"UI"</code>: <code>""</code> (N/A) — Reserved for markdown document generation headers; never directly printed to stdout.</li>
+</ul>
+<h3 id="reset"><code>RESET</code></h3>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Value</strong>: <code>"\033[0m"</code></li>
+<li><strong>Description</strong>: ANSI escape sequence used to reset terminal color formatting back to default after printing a colored message segment.</li>
+</ul>
+<h3 id="log_levels"><code>LOG_LEVELS</code></h3>
+<ul>
+<li><strong>Type</strong>: <code>dict[str, int]</code></li>
+<li><strong>Description</strong>: Maps symbolic message severity levels to native Python <code>logging</code> module levels:</li>
+<li><code>"PROGRESS"</code> $\rightarrow$ <code>logging.INFO</code></li>
+<li><code>"SUCCESS"</code> $\rightarrow$ <code>logging.INFO</code></li>
+<li><code>"WARNING"</code> $\rightarrow$ <code>logging.WARNING</code></li>
+<li><code>"ERROR"</code> $\rightarrow$ <code>logging.ERROR</code></li>
+<li><code>"INFO"</code> $\rightarrow$ <code>logging.INFO</code></li>
+<li><code>"DEBUG"</code> $\rightarrow$ <code>logging.DEBUG</code></li>
+<li><code>"FILE_WRITE"</code> $\rightarrow$ <code>logging.DEBUG</code></li>
+</ul>
+<h3 id="internal-state-variables">Internal State Variables</h3>
+<ul>
+<li><strong><code>_strings</code></strong> (<code>dict</code>): Module-level lookup table storing loaded translation entries. Structured as <code>{key: {"text": str, "level": str, "dest": str}}</code>.</li>
+<li><strong><code>_language</code></strong> (<code>str</code>): Capitalized display name of the active target language (e.g., <code>"English"</code>, <code>"Vietnamese"</code>).</li>
+<li><strong><code>_lang_col</code></strong> (<code>str</code>): Lowercase column name matching the header row inside <code>strings.csv</code> (e.g., <code>"english"</code>, <code>"vietnamese"</code>).</li>
+<li><strong><code>_logger</code></strong> (<code>logging.Logger</code>): Dedicated logger instance named <code>"llm_logger"</code>. Initialized as a root utility logger and configured by <code>configure_logging()</code>.</li>
+<li><strong><code>_csv_path</code></strong> (<code>str | None</code>): Absolute filesystem path resolving to <code>utils/strings.csv</code>.</li>
+<li><strong><code>_use_cache</code></strong> (<code>bool</code>): Global boolean indicating whether LLM caching is active during auto-translation inference cycles.</li>
+<li><strong><code>_thinking_level</code></strong> (<code>str | int | None</code>): Reasoning effort level passed downstream to <a href="../call_llm.py/">call_llm.py</a> when executing auto-translation prompts.</li>
+</ul>
+<hr />
+<h2 id="module-level-functions">Module-Level Functions</h2>
+<h3 id="init"><code>init()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def init(language="english", use_cache=True, thinking_level=None) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Initializes the output utility subsystem. It resolves the absolute path to <code>utils/strings.csv</code>, sets the module-level target language configurations, stores inference runtime flags (<code>use_cache</code>, <code>thinking_level</code>), loads all translation records into memory via <code>_load_strings()</code>, and triggers on-demand translation for missing localization entries via <code>_auto_translate()</code>. This function must be executed in the initialization phase of <a href="../../main.py/">main.py</a> prior to executing any string emissions.</p>
+<p><strong>Parameters</strong>:
+* <code>language</code> (<code>str</code>, optional): Target localization language name (e.g., <code>"english"</code>, <code>"vietnamese"</code>). Defaults to <code>"english"</code>.
+* <code>use_cache</code> (<code>bool</code>, optional): Boolean flag dictating whether LLM prompt responses during translation should be cached on disk. Defaults to <code>True</code>.
+* <code>thinking_level</code> (<code>str | int | None</code>, optional): Reasoning effort parameter configured for the translation model call. Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* No exceptions are raised directly; underlying file or translation errors degrade gracefully to English fallbacks with warning emissions.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">"english"</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">global</span> <span class="n">_language</span><span class="p">,</span> <span class="n">_lang_col</span><span class="p">,</span> <span class="n">_csv_path</span><span class="p">,</span> <span class="n">_use_cache</span><span class="p">,</span> <span class="n">_thinking_level</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">_language</span> <span class="o">=</span> <span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">_lang_col</span> <span class="o">=</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">_csv_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">"strings.csv"</span><span class="p">)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">_use_cache</span> <span class="o">=</span> <span class="n">use_cache</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">_thinking_level</span> <span class="o">=</span> <span class="n">thinking_level</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">_load_strings</span><span class="p">()</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">_auto_translate</span><span class="p">()</span>
+</code></pre></div></p>
+<p>The <code>init()</code> function establishes the runtime state required for all downstream logging and terminal output. By computing <code>_csv_path</code> relative to <code>__file__</code>, it guarantees correct file resolution regardless of the current working directory from which the CLI is executed. The transition to <code>_load_strings()</code> populates the memory cache immediately, while <code>_auto_translate()</code> ensures that any missing keys in non-English modes are synthesized before subsequent workflow nodes attempt to look them up.</p>
+<hr />
+<h3 id="emit"><code>emit()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def emit(key: str, suffix: str = "", **kwargs) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Emits an internationalized, template-interpolated string identified by <code>key</code> to standard console output and/or the file logger. It looks up the translation record from the internal <code>_strings</code> table, performs safe keyword placeholder substitution via <code>_format_safe()</code>, appends an optional unformatted <code>suffix</code>, resolves ANSI color styling according to the string's configured level, and routes the formatted text to the configured destination (<code>"STDOUT"</code>, <code>"LOG"</code>, or <code>"BOTH"</code>). If <code>key</code> is missing from the translation catalog, a raw fallback notice (<code>[UNKNOWN STRING: {key}]</code>) is printed to stdout to ensure telemetry is never silently dropped.</p>
+<p><strong>Parameters</strong>:
+* <code>key</code> (<code>str</code>): Unique string identifier defined in <code>strings.csv</code> (e.g., <code>"LLM_CALL_WRITE_CHAPTER"</code>).
+* <code>suffix</code> (<code>str</code>, optional): Unformatted trailing text appended to the interpolated message (e.g., execution durations or token breakdown statistics). Defaults to <code>""</code>.
+* <code>**kwargs</code> (<code>Any</code>): Arbitrary keyword arguments substituted into the <code>{placeholder}</code> variables defined within the localized string template.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* No exceptions raised. Key lookup failures and format exceptions degrade safely to stdout fallback messages or unformatted raw strings.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">emit</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_strings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="c1"># Fallback for unknown keys — print raw so nothing is silently lost</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[UNKNOWN STRING: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="k">return</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">text</span> <span class="o">=</span> <span class="n">_format_safe</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">if</span> <span class="n">suffix</span><span class="p">:</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span> <span class="o">+</span> <span class="n">suffix</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">level</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"level"</span><span class="p">]</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">dest</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"dest"</span><span class="p">]</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">color</span> <span class="o">=</span> <span class="n">COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">reset</span> <span class="o">=</span> <span class="n">RESET</span> <span class="k">if</span> <span class="n">color</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="k">if</span> <span class="n">dest</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"BOTH"</span><span class="p">,</span> <span class="s2">"STDOUT"</span><span class="p">):</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">color</span><span class="si">}{</span><span class="n">text</span><span class="si">}{</span><span class="n">reset</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="k">if</span> <span class="n">dest</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"BOTH"</span><span class="p">,</span> <span class="s2">"LOG"</span><span class="p">):</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="n">_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">LOG_LEVELS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">),</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></p>
+<p>The <code>emit()</code> function serves as the standard telemetry dispatch point for all orchestrators, including <a href="../../flow.py/">flow.py</a> and <a href="../../nodes.py/">nodes.py</a>. Destination checking evaluates the string's <code>dest</code> attribute loaded from CSV: messages marked <code>STDOUT</code> bypass the file logger, messages marked <code>LOG</code> bypass terminal output, and messages marked <code>BOTH</code> are dispatched simultaneously to both sinks. The terminal stream receives ANSI color-coded text wrapped in <code>RESET</code> escapes, whereas the file logger receives clean, unescaped text to maintain log readability.</p>
+<hr />
+<h3 id="emit_raw"><code>emit_raw()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def emit_raw(level: str, text: str, dest: str = "BOTH") -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Dispatches dynamic, pre-formatted, or structurally arbitrary strings directly to standard output and the file logger without performing a template lookup in <code>strings.csv</code>. This is used for dynamically generated data that cannot be statically enumerated in a localization CSV, such as numbered file listing trees, batch progress breakdowns, crawl summary tables, and raw LLM error alerts.</p>
+<p><strong>Parameters</strong>:
+* <code>level</code> (<code>str</code>): Symbolic severity level (e.g., <code>"PROGRESS"</code>, <code>"SUCCESS"</code>, <code>"WARNING"</code>, <code>"ERROR"</code>, <code>"INFO"</code>, <code>"DEBUG"</code>, <code>"FILE_WRITE"</code>) determining ANSI color styling and Python log level mapping.
+* <code>text</code> (<code>str</code>): Pre-formatted string payload to output.
+* <code>dest</code> (<code>str</code>, optional): Target dispatch destination. Valid options are <code>"BOTH"</code>, <code>"STDOUT"</code>, or <code>"LOG"</code>. Defaults to <code>"BOTH"</code>.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* No exceptions raised.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">emit_raw</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"BOTH"</span><span class="p">):</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">color</span> <span class="o">=</span> <span class="n">COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">reset</span> <span class="o">=</span> <span class="n">RESET</span> <span class="k">if</span> <span class="n">color</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">if</span> <span class="n">dest</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"BOTH"</span><span class="p">,</span> <span class="s2">"STDOUT"</span><span class="p">):</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">color</span><span class="si">}{</span><span class="n">text</span><span class="si">}{</span><span class="n">reset</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">if</span> <span class="n">dest</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"BOTH"</span><span class="p">,</span> <span class="s2">"LOG"</span><span class="p">):</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="n">_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">LOG_LEVELS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">),</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div></p>
+<p><code>emit_raw()</code> provides a bypass for the i18n lookup engine while retaining unified ANSI color-coding and file logging synchronization. Crawlers such as <a href="../crawl_github_files.py/">crawl_github_files.py</a> and <a href="../crawl_local_files.py/">crawl_local_files.py</a> invoke this function to stream discovered file paths, size warnings, and API rate limit pauses directly to the operator console while ensuring that all output is mirrored to the active session log file.</p>
+<hr />
+<h3 id="get"><code>get()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def get(key: str, **kwargs) -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Retrieves an internationalized string with keyword variable substitution applied, without printing to standard output or writing to the logger. This function is designed for generating markdown documentation content, synthesizing table-of-contents headings, and creating section labels inside generated artifacts (such as <code>index.md</code> and chapter documentation). If the specified <code>key</code> is not present in <code>_strings</code>, the key string itself is returned as a safe fallback.</p>
+<p><strong>Parameters</strong>:
+* <code>key</code> (<code>str</code>): Unique string identifier defined in <code>strings.csv</code> (e.g., <code>"UI_TUTORIAL"</code>, <code>"UI_OVERVIEW"</code>).
+* <code>**kwargs</code> (<code>Any</code>): Named variables to interpolate into the resolved template string.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Localized and interpolated string ready for embedding into documentation.</p>
+<p><strong>Raises</strong>:
+* No exceptions raised.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_strings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="k">return</span> <span class="n">key</span>  <span class="c1"># Fallback: return the key itself</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">return</span> <span class="n">_format_safe</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div></p>
+<p><code>get()</code> is utilized within document generation nodes (e.g., in <a href="../../nodes.py/">nodes.py</a>) where localized structural headings and markdown UI labels are written into the final repository knowledge base. Because entries designated for UI documentation often have their level set to <code>"UI"</code> in <code>strings.csv</code>, <code>get()</code> extracts the clean text without triggering console side-effects or contaminating execution logs.</p>
+<hr />
+<h3 id="configure_logging"><code>configure_logging()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def configure_logging(project_name: str = "project", mode: str = "tutorial") -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Initializes and binds a persistent, timestamped file handler to the module-level <code>_logger</code> (<code>"llm_logger"</code>). It resolves the target logging directory from the <code>LOG_DIR</code> environment variable (defaulting to <code>logs/</code>), ensures the target directory exists on disk, sanitizes <code>project_name</code> and <code>mode</code> into filesystem-safe strings, and constructs a filename adhering to the pattern <code>logs/{safe_project}_{safe_mode}_{YYYYMMDD_HHmmss}.log</code>. Any pre-existing handlers bound to <code>_logger</code> (such as default <code>NullHandler</code> instances) are purged before attaching a UTF-8 encoded <code>logging.FileHandler</code>. The function writes a structured initialization banner containing execution metadata before returning the resolved log path.</p>
+<p><strong>Parameters</strong>:
+* <code>project_name</code> (<code>str</code>, optional): Identifier of the target repository or codebase being indexed. Defaults to <code>"project"</code>.
+* <code>mode</code> (<code>str</code>, optional): Active synthesis mode (e.g., <code>"tutorial"</code>, <code>"deep-dive"</code>, <code>"quickstart"</code>). Defaults to <code>"tutorial"</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Absolute or relative filesystem path to the initialized <code>.log</code> file.</p>
+<p><strong>Raises</strong>:
+* <code>OSError</code>: If log directory creation or file handle allocation fails due to disk permission constraints.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">configure_logging</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"tutorial"</span><span class="p">):</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">log_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"LOG_DIR"</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">)</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="n">safe_project</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">"-_."</span> <span class="k">else</span> <span class="s2">"_"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">project_name</span><span class="p">)</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">safe_mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">_%H%M%S"</span><span class="p">)</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_directory</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">safe_project</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">safe_mode</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">.log"</span><span class="p">)</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="c1"># Remove any existing handlers (e.g., NullHandler) and add the file handler</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="n">file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">"</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">))</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="c1"># Log run metadata at the start of every log file</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">80</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"RUN STARTED | project=</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2"> | mode=</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> | timestamp=</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Log file: </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">80</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    <span class="k">return</span> <span class="n">log_file</span>
+</code></pre></div></p>
+<p><code>configure_logging()</code> coordinates execution session traceability. It cleanses input project names using character-filtering comprehensions that replace non-alphanumeric characters (excluding <code>-</code>, <code>_</code>, and <code>.</code>) with underscores, preventing invalid path generation across Windows and POSIX filesystems. By establishing a dedicated log file per run and resetting existing handlers via <code>_logger.handlers.clear()</code>, it prevents duplicate log message propagation when multiple pipeline runs execute within the same process.</p>
+<hr />
+<h3 id="_format_safe"><code>_format_safe()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _format_safe(template: str, kwargs: dict) -&gt; str:</code></p>
+<p><strong>Description</strong>:<br />
+Applies standard Python string format interpolation (<code>str.format(**kwargs)</code>) against a template string while catching formatting-related exceptions. If a template references a placeholder key not supplied in <code>kwargs</code>, or if an indexing or type conversion error occurs during interpolation, the function catches <code>KeyError</code>, <code>IndexError</code>, and <code>ValueError</code> and returns the unformatted template verbatim rather than crashing the pipeline.</p>
+<p><strong>Parameters</strong>:
+* <code>template</code> (<code>str</code>): String containing optional <code>{key}</code> substitution placeholders.
+* <code>kwargs</code> (<code>dict</code>): Dictionary of keyword arguments to interpolate into the template.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The successfully formatted string, or the original template string if formatting fails.</p>
+<p><strong>Raises</strong>:
+* No exceptions raised; all format syntax and parameter mismatch exceptions are intercepted internally.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_format_safe</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="sd">"""Apply .format(**kwargs) with graceful fallback on missing keys."""</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="k">return</span> <span class="n">template</span>
+</code></pre></div></p>
+<p><code>_format_safe()</code> provides defensive boundary protection against runtime formatting errors. In complex multi-language environments, translations generated by LLMs may occasionally distort placeholder brackets (e.g., outputting <code>{0}</code> or omitting a variable name). By intercepting <code>(KeyError, IndexError, ValueError)</code>, this helper ensures that downstream display calls never raise unhandled exceptions due to malformed localization strings.</p>
+<hr />
+<h3 id="_load_strings"><code>_load_strings()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _load_strings() -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Reads and parses the localization catalog from <code>utils/strings.csv</code> into the internal <code>_strings</code> dictionary cache. The file is opened with <code>utf-8-sig</code> encoding to handle UTF-8 Byte Order Marks transparently. The parser skips blank lines and comment rows prefixed with <code>#</code>. For each valid row, it extracts <code>STRING_KEY</code>, <code>LEVEL</code> (defaulting to <code>INFO</code>), <code>DEST</code> (defaulting to <code>BOTH</code>), and the localized string text. The text extraction prioritizes the target language column (<code>_lang_col</code>); if the target column is missing or empty, it falls back to the <code>"english"</code> column. When all strings for a non-English language are successfully loaded, a success notification is dispatched via <code>emit_raw()</code>.</p>
+<p><strong>Parameters</strong>:
+* None</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <code>FileNotFoundError</code> / <code>PermissionError</code>: Handled gracefully by returning early if <code>_csv_path</code> does not exist on disk.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_load_strings</span><span class="p">():</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="k">global</span> <span class="n">_strings</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">_strings</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">_csv_path</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">_csv_path</span><span class="p">):</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="k">return</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">translated_count</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">total_count</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_csv_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>            <span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"STRING_KEY"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>                <span class="k">continue</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>            <span class="n">level</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"LEVEL"</span><span class="p">,</span> <span class="s2">"INFO"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>            <span class="n">dest</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DEST"</span><span class="p">,</span> <span class="s2">"BOTH"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>            <span class="c1"># Priority: language column → English fallback</span>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>            <span class="n">text</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_lang_col</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>            <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>                <span class="n">translated_count</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>            <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>                <span class="n">text</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"english"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>            <span class="n">total_count</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>            <span class="n">_strings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"text"</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span> <span class="s2">"level"</span><span class="p">:</span> <span class="n">level</span><span class="p">,</span> <span class="s2">"dest"</span><span class="p">:</span> <span class="n">dest</span><span class="p">}</span>
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a><span class="o">//</span> <span class="o">...</span>
+</code></pre></div></p>
+<p><code>_load_strings()</code> populates the lookup dictionary that powers both <code>emit()</code> and <code>get()</code>. By utilizing <code>csv.DictReader</code>, it accesses columns dynamically via field names. The fallback mechanism guarantees that the application remains fully functional even if a translation file is only partially localized, ensuring that unlocalized strings default to English rather than causing execution errors.</p>
+<hr />
+<h3 id="_auto_translate"><code>_auto_translate()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _auto_translate() -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Scans <code>strings.csv</code> for strings missing translations in the active target language column (<code>_lang_col</code>). If missing entries are detected, it constructs a batch JSON payload mapping string keys to their English reference texts. It loads the translation prompt template from <code>prompts/common/translate_strings.md</code>, formats the prompt with the target language and JSON payload, and calls the LLM inference client via <a href="../call_llm.py/">call_llm.py</a>. The function uses regular expressions to extract the JSON response object from the LLM output, writes the newly synthesized translations back to disk via <code>_write_translations_to_csv()</code>, and invokes <code>_load_strings()</code> to refresh the active memory cache.</p>
+<p><strong>Parameters</strong>:
+* None</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* Intercepts all generic <code>Exception</code> instances during LLM communication, file reading, or JSON decoding, emitting a <code>WARNING</code> and falling back to English strings.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_auto_translate</span><span class="p">():</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">if</span> <span class="n">_lang_col</span> <span class="o">==</span> <span class="s2">"english"</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="k">return</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">_csv_path</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">_csv_path</span><span class="p">):</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="k">return</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="c1"># Collect strings that have no translation in the target language column</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="n">missing</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="n">is_new_column</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_csv_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="n">fieldnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>        <span class="n">is_new_column</span> <span class="o">=</span> <span class="n">_lang_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fieldnames</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>            <span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"STRING_KEY"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>                <span class="k">continue</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>            <span class="n">lang_text</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_lang_col</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">_lang_col</span> <span class="ow">in</span> <span class="n">fieldnames</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>            <span class="k">if</span> <span class="n">lang_text</span><span class="p">:</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>                <span class="k">continue</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>            <span class="n">english_text</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"english"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>            <span class="k">if</span> <span class="n">english_text</span><span class="p">:</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>                <span class="n">missing</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">english_text</span>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">missing</span><span class="p">:</span>
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>        <span class="k">return</span>
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a><span class="o">//</span> <span class="o">...</span>
+</code></pre></div></p>
+<p><code>_auto_translate()</code> provides automated internationalization. If a user runs the system with <code>--language Vietnamese</code> or <code>--language Japanese</code> and new keys have been added to the codebase in English, this function identifies the missing keys, batches them into a single inference request, and updates the local CSV file automatically. The dynamic import <code>from utils.call_llm import call_llm</code> inside the function body avoids circular import dependencies at module load time.</p>
+<hr />
+<h3 id="_write_translations_to_csv"><code>_write_translations_to_csv()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _write_translations_to_csv(translations: dict[str, str]) -&gt; None:</code></p>
+<p><strong>Description</strong>:<br />
+Persists newly translated string key-value pairs back to <code>utils/strings.csv</code>. It reads the entire CSV file into memory, checks if the target language column header (<code>_lang_col</code>) exists in <code>fieldnames</code> (appending it if missing), updates each matching row with the new translation, and writes the entire dataset back to disk. The output file is written with <code>utf-8-sig</code> encoding to ensure compatibility with Microsoft Excel and other CSV editors that rely on a Byte Order Mark for UTF-8 detection.</p>
+<p><strong>Parameters</strong>:
+* <code>translations</code> (<code>dict[str, str]</code>): Dictionary mapping <code>STRING_KEY</code> strings to their newly translated text values.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <code>OSError</code>: If writing to <code>_csv_path</code> fails due to filesystem permission issues.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Sourced from utils/output.py implementation</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_write_translations_to_csv</span><span class="p">(</span><span class="n">translations</span><span class="p">):</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">fieldnames</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_csv_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="n">fieldnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="c1"># Add language column if it doesn't exist</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="k">if</span> <span class="n">_lang_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fieldnames</span><span class="p">:</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>            <span class="n">fieldnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_lang_col</span><span class="p">)</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>            <span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"STRING_KEY"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">translations</span><span class="p">:</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>                <span class="n">row</span><span class="p">[</span><span class="n">_lang_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">translations</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    <span class="c1"># Write with BOM so Excel opens as UTF-8 without extra import steps</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_csv_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fieldnames</span><span class="p">)</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>        <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>        <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+</code></pre></div></p>
+<p><code>_write_translations_to_csv()</code> handles schema migration and persistence for translation data. When a new language is requested, the function dynamically alters the CSV column structure by appending <code>_lang_col</code> to <code>fieldnames</code> and populating the corresponding cells. By writing back to disk using <code>csv.DictWriter</code> with <code>newline=""</code>, it maintains consistent line endings across operating systems.</p>
+<hr />
+<h2 id="error-handling-and-edge-cases">Error Handling and Edge Cases</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Scenario</th>
+<th style="text-align: left;">Subroutine</th>
+<th style="text-align: left;">Handling Strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Missing Translation Key</strong></td>
+<td style="text-align: left;"><code>emit()</code></td>
+<td style="text-align: left;">Prints <code>[UNKNOWN STRING: {key}]</code> directly to <code>stdout</code>; does not throw <code>KeyError</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Missing Translation Key</strong></td>
+<td style="text-align: left;"><code>get()</code></td>
+<td style="text-align: left;">Returns the raw <code>key</code> string back to the caller for safe rendering.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Template Variable Mismatch</strong></td>
+<td style="text-align: left;"><code>_format_safe()</code></td>
+<td style="text-align: left;">Catches <code>(KeyError, IndexError, ValueError)</code> and returns the unformatted template verbatim.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Missing <code>strings.csv</code> File</strong></td>
+<td style="text-align: left;"><code>_load_strings()</code></td>
+<td style="text-align: left;">Returns immediately without populating <code>_strings</code>; subsequent <code>emit()</code> calls fall back to unknown key handling.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>New Language Column</strong></td>
+<td style="text-align: left;"><code>_auto_translate()</code></td>
+<td style="text-align: left;">Detects missing header in <code>fieldnames</code>, requests LLM translations, and expands CSV columns dynamically.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Malformed LLM Translation Output</strong></td>
+<td style="text-align: left;"><code>_auto_translate()</code></td>
+<td style="text-align: left;">Employs regex pattern matching to extract JSON; if no valid JSON structure is found, emits a <code>WARNING</code> and falls back to English.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Translation Network/API Failure</strong></td>
+<td style="text-align: left;"><code>_auto_translate()</code></td>
+<td style="text-align: left;">Wraps inference invocation in a broad <code>try...except Exception</code> block, reporting the failure via <code>emit_raw("WARNING", ...)</code> and falling back to English.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Invalid Characters in Project Name</strong></td>
+<td style="text-align: left;"><code>configure_logging()</code></td>
+<td style="text-align: left;">Replaces non-alphanumeric characters with underscores using <code>isalnum()</code> filtering to ensure safe log filenames.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../__init__.py/"><strong>init</strong>.py</a> — Package initialization and namespace boundaries for utility modules.</li>
+<li><a href="../call_llm.py/">call_llm.py</a> — LLM inference client invoked by <code>_auto_translate()</code> for automated translation generation.</li>
+<li><a href="../crawl_github_files.py/">crawl_github_files.py</a> — Remote repository crawler consuming <code>emit()</code> and <code>emit_raw()</code> for progress telemetry.</li>
+<li><a href="../crawl_local_files.py/">crawl_local_files.py</a> — Local filesystem crawler utilizing <code>emit()</code> and <code>get()</code> for scan metrics and reporting.</li>
+<li><a href="../exclude_patterns.py/">exclude_patterns.py</a> — Centralized exclusion rules governing files scanned during repository processing.</li>
+<li><a href="../token_utils.py/">token_utils.py</a> — Token counting utilities providing metrics formatted and emitted by <code>output.py</code>.</li>
+<li><a href="../../main.py/">main.py</a> — Application entry point coordinating CLI parsing, <code>init()</code>, and <code>configure_logging()</code>.</li>
+<li><a href="../../nodes.py/">nodes.py</a> — Graph execution nodes using <code>emit()</code> for status logging and <code>get()</code> for markdown generation.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+        <script src="../../../assets/javascripts/panzoom.min.js"></script>
+      
+        <script src="../../../assets/javascripts/zoompan.js"></script>
+      
+    
+  </body>
+</html>

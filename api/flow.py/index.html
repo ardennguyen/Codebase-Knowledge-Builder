@@ -8,9 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/flow/">
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/flow.py/">
       
       
+        <link rel="prev" href="../utils/token_utils.py/">
+      
+      
+        <link rel="next" href="../main.py/">
       
       
         
@@ -21,7 +25,7 @@
     
     
       
-        <title>flow - Codebase Knowledge Builder API Reference</title>
+        <title>flow.py - Codebase Knowledge Builder API Reference</title>
       
     
     
@@ -75,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#flow" class="md-skip">
+        <a href="#flowpy" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              flow
+              flow.py
             
           </span>
         </div>
@@ -284,6 +288,8 @@
       
   
   
+    
+  
   
   
     
@@ -319,11 +325,11 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
@@ -351,7 +357,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -592,10 +598,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../flow.py/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow.py
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -611,6 +644,171 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-responsibilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Responsibilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-level-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module-Level Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module-Level Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_tutorial_flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_tutorial_flow()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architectural Deep Dive
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architectural Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-pathways-routing-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Pathways &amp; Routing Semantics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Execution Pathways &amp; Routing Semantics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-direct-pathway-direct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The Direct Pathway ("direct")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-the-batch-map-reduce-pathway-batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The Batch Map-Reduce Pathway ("batch")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-the-deterministic-pathway-deterministic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Deterministic Pathway ("deterministic")
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resilience-and-fault-tolerance-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resilience and Fault-Tolerance Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -714,16 +912,22 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pipeline-architecture" class="md-nav__link">
+    <nav class="md-nav" aria-label="Technical Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-responsibilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Architecture
+        Core Responsibilities
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -744,6 +948,84 @@
     <span class="md-ellipsis">
       
         create_tutorial_flow()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-deep-dive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architectural Deep Dive
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architectural Deep Dive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-pathways-routing-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Pathways &amp; Routing Semantics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Execution Pathways &amp; Routing Semantics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-direct-pathway-direct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The Direct Pathway ("direct")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-the-batch-map-reduce-pathway-batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The Batch Map-Reduce Pathway ("batch")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-the-deterministic-pathway-deterministic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Deterministic Pathway ("deterministic")
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resilience-and-fault-tolerance-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resilience and Fault-Tolerance Configuration
       
     </span>
   </a>
@@ -783,19 +1065,15 @@
 
 
 
-<h1 id="flow">flow</h1>
-<p><code>flow.py</code></p>
+<h1 id="flowpy">flow.py</h1>
+<blockquote>
+<p><strong>Source:</strong> <code>flow.py</code></p>
+</blockquote>
+<p>Following the token accounting and context-window capacity validation utilities documented in <a href="../utils/token_utils.py/">utils/token_utils.py</a>, the <code>flow.py</code> module defines the core execution graph and orchestration topology for the <code>Codebase-Knowledge-Builder</code> pipeline. It assembles discrete functional and LLM-driven execution nodes into a unified Directed Acyclic Graph (DAG) using the <code>pocketflow</code> framework.</p>
+<hr />
 <h2 id="technical-overview">Technical Overview</h2>
-<p>The <code>flow.py</code> module defines the core execution graph and orchestration pipeline for the <code>Codebase-Knowledge-Builder</code> system. Built on top of the <code>pocketflow</code> framework, this module connects all individual workflow stages—implemented as custom node classes in <a href="../nodes/">nodes</a>—into a directed acyclic computation graph (<code>Flow</code>).</p>
-<p>The pipeline models a multi-path architecture that adapts dynamically based on codebase size and token context limits:
-1. <strong>Repository Ingestion &amp; Context Routing</strong>: Ingests files via <code>FetchRepo</code> and evaluates total token volume via <code>ContextRouter</code>.
-2. <strong>Dynamic Execution Branches</strong>:
-   - <strong>Direct Branch (<code>"direct"</code>)</strong>: Small codebases that fit within context windows bypass map-reduce and proceed directly to <code>IdentifyAbstractions</code>.
-   - <strong>Batch Branch (<code>"batch"</code>)</strong>: Large codebases are partitioned across <code>MapAbstractions</code> and aggregated by <code>ReduceAbstractions</code> before feeding into <code>AnalyzeRelationships</code>.
-   - <strong>Deterministic Branch (<code>"deterministic"</code>)</strong>: Dedicated mapping using <code>DeterministicFileMapper</code> for structured, rule-based chapter mapping that directly feeds <code>WriteChapters</code>.
-3. <strong>Synthesis &amp; Assembly</strong>: Intermediate relationship graphs and abstraction models are topologically sequenced by <code>OrderChapters</code>, generated in parallel/sequence by <code>WriteChapters</code>, and aggregated into the final documentation output by <code>CombineTutorial</code>.</p>
-<p>The module configures fault tolerance across LLM-bound nodes by establishing uniform retry strategies (<code>max_retries=5</code>, <code>wait=20</code>).</p>
-<h2 id="pipeline-architecture">Pipeline Architecture</h2>
+<p>The <code>flow.py</code> module serves as the central orchestration definition layer of the application. It decouples the definition of individual processing tasks—implemented in <a href="../nodes.py/">nodes.py</a>—from the pipeline's topological execution flow, branching logic, and error recovery policies.</p>
+<p>The primary responsibility of <code>flow.py</code> is to instantiate all workflow nodes with appropriate fault-tolerance configurations (such as retry budgets and backoff durations) and link them using PocketFlow's graph-composition syntax (<code>&gt;&gt;</code> and <code>- "action" &gt;&gt;</code>). The resulting execution graph dynamically routes execution based on repository scale, structural complexity, and token budgets.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -823,48 +1101,54 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-
     subgraph Ingestion["Ingestion and Routing"]
         fetch_repo["FetchRepo"]
         context_router{"ContextRouter"}
     end
 
-    subgraph ProcessingBranches["Processing Branches"]
-        identify_abstractions["IdentifyAbstractions"]
-        map_abstractions["MapAbstractions"]
-        reduce_abstractions["ReduceAbstractions"]
-        deterministic_mapper["DeterministicFileMapper"]
+    subgraph DirectPath["Direct Abstraction Pathway"]
+        identify_abstractions["IdentifyAbstractions (retries=5, wait=20s)"]
     end
 
-    subgraph Synthesis["Synthesis and Assembly"]
-        analyze_relationships["AnalyzeRelationships"]
-        order_chapters["OrderChapters"]
-        write_chapters["WriteChapters"]
+    subgraph BatchPath["Map-Reduce Batch Pathway"]
+        map_abstractions["MapAbstractions (retries=5, wait=20s)"]
+        reduce_abstractions["ReduceAbstractions (retries=5, wait=20s)"]
+    end
+
+    subgraph DeterministicPath["Deterministic Pathway"]
+        deterministic_mapper["DeterministicFileMapper (retries=5, wait=20s)"]
+    end
+
+    subgraph Synthesis["Structural Analysis and Ordering"]
+        analyze_relationships["AnalyzeRelationships (retries=5, wait=20s)"]
+        order_chapters["OrderChapters (retries=5, wait=20s)"]
+    end
+
+    subgraph Generation["Content Synthesis and Assembly"]
+        write_chapters["WriteChapters (retries=5, wait=20s)"]
         combine_tutorial["CombineTutorial"]
     end
 
-    fetch_repo --&gt; context_router
+    fetch_repo &gt;&gt; context_router
 
     context_router -- "direct" --&gt; identify_abstractions
     context_router -- "batch" --&gt; map_abstractions
     context_router -- "deterministic" --&gt; deterministic_mapper
 
-    map_abstractions --&gt; reduce_abstractions
+    map_abstractions &gt;&gt; reduce_abstractions
 
-    identify_abstractions --&gt; analyze_relationships
-    reduce_abstractions --&gt; analyze_relationships
+    identify_abstractions &gt;&gt; analyze_relationships
+    reduce_abstractions &gt;&gt; analyze_relationships
 
-    analyze_relationships --&gt; order_chapters
-    order_chapters --&gt; write_chapters
+    analyze_relationships &gt;&gt; order_chapters
+    order_chapters &gt;&gt; write_chapters
 
-    deterministic_mapper --&gt; write_chapters
+    deterministic_mapper &gt;&gt; write_chapters
 
-    write_chapters --&gt; combine_tutorial
+    write_chapters &gt;&gt; combine_tutorial
 
-    class fetch_repo entryNode
-    class identify_abstractions entryNode
-    class analyze_relationships entryNode</code></pre> 
+    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
+    class fetch_repo,identify_abstractions,map_abstractions,deterministic_mapper,analyze_relationships,write_chapters entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -873,20 +1157,29 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
+<h3 id="core-responsibilities">Core Responsibilities</h3>
+<ol>
+<li><strong>Topological Pipeline Construction</strong>: Defines the dependency hierarchy between repository fetching, architectural abstraction discovery, dependency relationship analysis, chapter sequencing, markdown content generation, and final static site asset compilation.</li>
+<li><strong>Conditional Context Routing</strong>: Establishes three distinct analysis pipelines through the <code>ContextRouter</code> decision node:</li>
+<li><strong>Direct Pathway (<code>"direct"</code>)</strong>: Routes small-to-medium repositories directly through single-pass structural analysis (<code>IdentifyAbstractions</code>).</li>
+<li><strong>Batch Map-Reduce Pathway (<code>"batch"</code>)</strong>: Splits large repositories across segmented batches (<code>MapAbstractions</code>) and merges the intermediate findings into a cohesive architectural model (<code>ReduceAbstractions</code>).</li>
+<li><strong>Deterministic Pathway (<code>"deterministic"</code>)</strong>: Bypasses generative abstraction modeling in favor of deterministic directory/file-level grouping (<code>DeterministicFileMapper</code>) when requested by user configuration.</li>
+<li><strong>Resilience Policy Enforcement</strong>: Configures rate-limit and transient failure recovery across all network-bound and generative inference stages by attaching a 5-retry maximum with 20-second exponential/linear wait intervals (<code>max_retries=5, wait=20</code>).</li>
+</ol>
 <hr />
 <h2 id="module-level-functions">Module-Level Functions</h2>
 <h3 id="create_tutorial_flow"><code>create_tutorial_flow()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def create_tutorial_flow() -&gt; Flow:</code></p>
 <p><strong>Description</strong>:<br />
-Instantiates all processing nodes, configures resilience parameters (retries and backoff delays), builds the edge relationships and conditional routing branches between nodes, and wraps the resulting pipeline into an executable <code>Flow</code> instance starting at <code>FetchRepo</code>.</p>
+Instantiates all concrete pipeline nodes from <a href="../nodes.py/">nodes.py</a>, applies node-specific retry and backoff parameters, connects nodes via directed transition edges and conditional action branches, and wraps the resulting graph in a PocketFlow <code>Flow</code> instance starting at <code>FetchRepo</code>.</p>
 <p><strong>Parameters</strong>:<br />
 * None.</p>
 <p><strong>Returns</strong>:<br />
-* <code>Flow</code>: A fully wired PocketFlow execution graph configured with <code>FetchRepo</code> as the root entry point.</p>
+* <code>pocketflow.Flow</code>: An executable workflow graph with <code>FetchRepo</code> designated as the root entry point.</p>
 <p><strong>Raises</strong>:<br />
-* None directly during creation; downstream exceptions during execution are governed by node-level retry policies.</p>
-<p><strong>Example</strong>:
+* None internally; node validation or dependency misconfigurations are propagated during graph instantiation or runtime invocation.</p>
+<p><strong>Implementation</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_tutorial_flow</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">fetch_repo</span> <span class="o">=</span> <span class="n">FetchRepo</span><span class="p">()</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">context_router</span> <span class="o">=</span> <span class="n">ContextRouter</span><span class="p">()</span>
@@ -919,12 +1212,174 @@ Instantiates all processing nodes, configures resilience parameters (retries and
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">fetch_repo</span><span class="p">)</span>
 </code></pre></div></p>
-<p>The function initializes ten node instances. Seven of these nodes (<code>MapAbstractions</code>, <code>ReduceAbstractions</code>, <code>IdentifyAbstractions</code>, <code>AnalyzeRelationships</code>, <code>OrderChapters</code>, <code>WriteChapters</code>, and <code>DeterministicFileMapper</code>) communicate with external LLM APIs and are explicitly instantiated with <code>max_retries=5</code> and <code>wait=20</code> to guarantee resilience against rate limits and transient connection failures. The structural routing relies on PocketFlow's operator overloading: <code>&gt;&gt;</code> defines unconditional sequential transitions, whereas <code>- "action" &gt;&gt;</code> defines conditional routing decisions evaluated by the <code>ContextRouter</code> node. The graph terminates with <code>CombineTutorial</code>, which compiles all chapter outputs into the final documentation artifact.</p>
+<p>The <code>create_tutorial_flow()</code> function configures ten distinct node instances. Local computational nodes that execute deterministic file-system I/O or in-memory dictionary aggregation (<code>FetchRepo</code> and <code>CombineTutorial</code>) are instantiated with default retry parameters since they do not execute remote API calls. All other nodes—which interact with backend LLM inference endpoints via <a href="../utils/call_llm.py/">utils/call_llm.py</a>—receive <code>max_retries=5</code> and <code>wait=20</code> to protect the pipeline against transient provider errors, network timeouts, and HTTP 429 rate limits.</p>
+<p>The graph construction syntax uses overloaded bitwise right-shift operators (<code>&gt;&gt;</code>) provided by PocketFlow to establish sequential execution dependencies. For conditional branching, the subtraction operator paired with an action string (<code>- "action" &gt;&gt;</code>) creates guarded transitions from <code>ContextRouter</code>. </p>
+<p>The <code>direct</code> and <code>batch</code> branches converge at <code>AnalyzeRelationships</code>, which unifies single-pass and map-reduced abstractions before proceeding to <code>OrderChapters</code>. The <code>deterministic</code> branch completely bypasses relationship analysis and chapter ordering, connecting directly into <code>WriteChapters</code>. Finally, all generation branches converge at <code>CombineTutorial</code> to produce the index files, table of contents, and MkDocs static site structure.</p>
+<hr />
+<h2 id="architectural-deep-dive">Architectural Deep Dive</h2>
+<h3 id="execution-pathways-routing-semantics">Execution Pathways &amp; Routing Semantics</h3>
+<p>The workflow graph balances processing depth, token budget constraints, and codebase size through three distinct traversal pathways:</p>
+<div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <pre class="mermaid-raw"><code>sequenceDiagram
+    autonumber
+    participant Main as main.py
+    participant Flow as Flow Engine
+    participant Ingest as FetchRepo / ContextRouter
+    participant Direct as IdentifyAbstractions
+    participant Batch as Map / Reduce Abstractions
+    participant Det as DeterministicFileMapper
+    participant Rel as AnalyzeRelationships / OrderChapters
+    participant Out as WriteChapters / CombineTutorial
+
+    Main-&gt;&gt;Flow: run(shared_context)
+    Flow-&gt;&gt;Ingest: Ingest Repository &amp; Evaluate Token Size
+
+    alt Direct Branch (Small/Medium Context)
+        Ingest-&gt;&gt;Direct: Route "direct"
+        Direct-&gt;&gt;Rel: Pass Abstraction Dictionary
+        Rel-&gt;&gt;Out: Sequence Chapters
+    else Batch Branch (Large Codebase)
+        Ingest-&gt;&gt;Batch: Route "batch"
+        Batch-&gt;&gt;Rel: Map Batches &amp; Reduce Abstractions
+        Rel-&gt;&gt;Out: Sequence Chapters
+    else Deterministic Branch (File/Folder Mode)
+        Ingest-&gt;&gt;Det: Route "deterministic"
+        Det-&gt;&gt;Out: Direct Chapter Mapping
+    end
+
+    Out-&gt;&gt;Main: Complete Tutorial Artifacts</code></pre> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div>
+<h4 id="1-the-direct-pathway-direct">1. The Direct Pathway (<code>"direct"</code>)</h4>
+<ul>
+<li><strong>Trigger Condition</strong>: Ingested codebase token count fits comfortably within the LLM's single-prompt context window (calculated using <a href="../utils/token_utils.py/">utils/token_utils.py</a>).</li>
+<li><strong>Execution Flow</strong>: <code>FetchRepo</code> $\rightarrow$ <code>ContextRouter</code> $\rightarrow$ <code>IdentifyAbstractions</code> $\rightarrow$ <code>AnalyzeRelationships</code> $\rightarrow$ <code>OrderChapters</code> $\rightarrow$ <code>WriteChapters</code> $\rightarrow$ <code>CombineTutorial</code>.</li>
+<li><strong>Behavior</strong>: Evaluates all codebase files concurrently, allowing the model to detect holistic architecture and cross-cutting concerns in a single LLM call.</li>
+</ul>
+<h4 id="2-the-batch-map-reduce-pathway-batch">2. The Batch Map-Reduce Pathway (<code>"batch"</code>)</h4>
+<ul>
+<li><strong>Trigger Condition</strong>: Total token volume exceeds single-pass context limits, requiring chunked analysis.</li>
+<li><strong>Execution Flow</strong>: <code>FetchRepo</code> $\rightarrow$ <code>ContextRouter</code> $\rightarrow$ <code>MapAbstractions</code> $\rightarrow$ <code>ReduceAbstractions</code> $\rightarrow$ <code>AnalyzeRelationships</code> $\rightarrow$ <code>OrderChapters</code> $\rightarrow$ <code>WriteChapters</code> $\rightarrow$ <code>CombineTutorial</code>.</li>
+<li><strong>Behavior</strong>: <code>MapAbstractions</code> chunks files across multiple prompt payloads, extracting local structural abstractions per batch. <code>ReduceAbstractions</code> performs deduplication, hierarchical clustering, and structural merging to produce a single consolidated abstraction schema.</li>
+</ul>
+<h4 id="3-the-deterministic-pathway-deterministic">3. The Deterministic Pathway (<code>"deterministic"</code>)</h4>
+<ul>
+<li><strong>Trigger Condition</strong>: Configured via workflow parameters to map files directly to documentation chapters based on directory structure or pre-filtered indices without generative concept clustering.</li>
+<li><strong>Execution Flow</strong>: <code>FetchRepo</code> $\rightarrow$ <code>ContextRouter</code> $\rightarrow$ <code>DeterministicFileMapper</code> $\rightarrow$ <code>WriteChapters</code> $\rightarrow$ <code>CombineTutorial</code>.</li>
+<li><strong>Behavior</strong>: Skips <code>AnalyzeRelationships</code> and <code>OrderChapters</code>. File groupings and module boundaries are determined programmatically, after which <code>WriteChapters</code> generates documentation chapters directly.</li>
+</ul>
+<h3 id="resilience-and-fault-tolerance-configuration">Resilience and Fault-Tolerance Configuration</h3>
+<p>Nodes that invoke remote inference APIs inherit from PocketFlow's retry-capable base node classes. In <code>flow.py</code>, these nodes are parameterized uniformly:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Node Class</th>
+<th style="text-align: left;">Configured <code>max_retries</code></th>
+<th style="text-align: left;">Configured <code>wait</code> (seconds)</th>
+<th style="text-align: left;">Operational Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>FetchRepo</code></td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Executes local disk traversal or deterministic Git/REST cloning via <a href="../utils/crawl_local_files.py/">utils/crawl_local_files.py</a> or <a href="../utils/crawl_github_files.py/">utils/crawl_github_files.py</a>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ContextRouter</code></td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">In-memory token evaluation and branch routing; no I/O or network dependencies.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MapAbstractions</code></td>
+<td style="text-align: left;"><code>5</code></td>
+<td style="text-align: left;"><code>20</code></td>
+<td style="text-align: left;">Handles high-volume parallel batch requests against LLM endpoints; prone to rate-limiting (HTTP 429).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ReduceAbstractions</code></td>
+<td style="text-align: left;"><code>5</code></td>
+<td style="text-align: left;"><code>20</code></td>
+<td style="text-align: left;">Synthesizes large intermediate JSON schemas into unified models; protects against context limits or schema generation failures.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>IdentifyAbstractions</code></td>
+<td style="text-align: left;"><code>5</code></td>
+<td style="text-align: left;"><code>20</code></td>
+<td style="text-align: left;">Processes full repository contexts; guards against timeouts during large single-prompt analysis.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>AnalyzeRelationships</code></td>
+<td style="text-align: left;"><code>5</code></td>
+<td style="text-align: left;"><code>20</code></td>
+<td style="text-align: left;">Performs deep dependency graph and call-hierarchy synthesis; susceptible to context saturation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>OrderChapters</code></td>
+<td style="text-align: left;"><code>5</code></td>
+<td style="text-align: left;"><code>20</code></td>
+<td style="text-align: left;">Generates logical pedagogical sequences; retried on malformed JSON or formatting errors.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DeterministicFileMapper</code></td>
+<td style="text-align: left;"><code>5</code></td>
+<td style="text-align: left;"><code>20</code></td>
+<td style="text-align: left;">Validates file maps against LLM-filtered inclusion rules using prompts from <a href="../utils/prompts.py/">utils/prompts.py</a>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WriteChapters</code></td>
+<td style="text-align: left;"><code>5</code></td>
+<td style="text-align: left;"><code>20</code></td>
+<td style="text-align: left;">Generates comprehensive chapter markdown content sequentially; high token output with potential for model timeouts.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>CombineTutorial</code></td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Default (0)</td>
+<td style="text-align: left;">Final deterministic filesystem serialization and MkDocs static configuration writing via <a href="../utils/output.py/">utils/output.py</a>.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../main/">main</a> — The application entry point that executes the graph returned by <code>create_tutorial_flow()</code>.</li>
-<li><a href="../nodes/">nodes</a> — The node implementations and business logic referenced in the flow graph.</li>
+<li><a href="../nodes.py/">nodes.py</a> — Implements the operational logic and LLM interactions for every node orchestrated by this flow.</li>
+<li><a href="../main.py/">main.py</a> — The CLI and runtime entry point that initializes the execution environment and runs the workflow constructed by <code>create_tutorial_flow()</code>.</li>
+<li><a href="../utils/token_utils.py/">utils/token_utils.py</a> — Provides token measurement utilities utilized by <code>ContextRouter</code> to determine the active pipeline branch.</li>
+<li><a href="../utils/call_llm.py/">utils/call_llm.py</a> — Backend inference abstraction layer consumed by the generative nodes in this flow.</li>
 </ul>
 
 
