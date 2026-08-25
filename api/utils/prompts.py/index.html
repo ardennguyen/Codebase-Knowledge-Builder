@@ -11,10 +11,10 @@
         <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/prompts.py/">
       
       
-        <link rel="prev" href="../call_llm.py/">
+        <link rel="prev" href="../token_utils.py/">
       
       
-        <link rel="next" href="../token_utils.py/">
+        <link rel="next" href="../output.py/">
       
       
         
@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid", ".mermaid-raw", ".d2"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid-raw", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -389,7 +389,7 @@
   <span class="md-ellipsis">
     
   
-    Pipeline & Orchestration
+    Workflow Orchestration & Execution
   
 
     
@@ -405,7 +405,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Pipeline & Orchestration
+    Workflow Orchestration & Execution
   
 
           </label>
@@ -507,8 +507,6 @@
                 
   
   
-    
-  
   
   
     
@@ -520,11 +518,11 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
         
           
           <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
@@ -534,7 +532,7 @@
   <span class="md-ellipsis">
     
   
-    LLM & Prompt Engine
+    Repository Ingestion & Filtering
   
 
     
@@ -545,12 +543,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3">
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM & Prompt Engine
+    Repository Ingestion & Filtering
   
 
           </label>
@@ -560,10 +558,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -577,11 +573,11 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
         
           
           <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
@@ -602,377 +598,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    utils
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../call_llm.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    call_llm.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    prompts.py
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    prompts.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#architectural-role-execution-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architectural Role &amp; Execution Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#module-level-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module-Level Functions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Module-Level Functions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#build_code_file_filter_prompt" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        build_code_file_filter_prompt()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build_chapter_summary_prompt" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        build_chapter_summary_prompt()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build_mkdocs_config" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        build_mkdocs_config()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build_mermaid_init_js" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        build_mermaid_init_js()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build_grouped_nav" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        build_grouped_nav()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#collect_all_modules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        collect_all_modules()
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-structures-navigation-hierarchy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Structures &amp; Navigation Hierarchy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../token_utils.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    token_utils.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Repository Ingestion
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Repository Ingestion
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    utils
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1086,6 +713,485 @@
                 
   
   
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Inference & Context Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM Inference & Context Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../call_llm.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build_code_file_filter_prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_code_file_filter_prompt()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_chapter_summary_prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_chapter_summary_prompt()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_mkdocs_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_mkdocs_config()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_mermaid_init_js" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_mermaid_init_js()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_grouped_nav" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_grouped_nav()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="build_grouped_nav()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-section-traversal-child-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Section Traversal &amp; Child Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-module-identification-path-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Module Identification &amp; Path Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-directory-grouping-yaml-emission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Directory Grouping &amp; YAML Emission
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collect_all_modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        collect_all_modules()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initmermaid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        initMermaid()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#section-dictionary-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section Dictionary Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chapter-file-metadata-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chapter File Metadata Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     
@@ -1111,7 +1217,7 @@
   <span class="md-ellipsis">
     
   
-    Diagnostics & Support
+    Output & Utility Infrastructure
   
 
     
@@ -1127,7 +1233,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Diagnostics & Support
+    Output & Utility Infrastructure
   
 
           </label>
@@ -1292,10 +1398,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architectural-role-execution-flow" class="md-nav__link">
+  <a href="#technical-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architectural Role &amp; Execution Flow
+        Technical Overview
       
     </span>
   </a>
@@ -1303,15 +1409,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-level-functions" class="md-nav__link">
+  <a href="#public-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module-Level Functions
+        Public API
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Module-Level Functions">
+    <nav class="md-nav" aria-label="Public API">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1367,6 +1473,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="build_grouped_nav()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-section-traversal-child-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Section Traversal &amp; Child Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-module-identification-path-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Module Identification &amp; Path Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-directory-grouping-yaml-emission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Directory Grouping &amp; YAML Emission
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1386,10 +1531,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-structures-navigation-hierarchy" class="md-nav__link">
+  <a href="#internal-helpers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Structures &amp; Navigation Hierarchy
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initmermaid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        initMermaid()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#section-dictionary-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section Dictionary Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chapter-file-metadata-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chapter File Metadata Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
       
     </span>
   </a>
@@ -1428,15 +1640,10 @@
 <blockquote>
 <p><strong>Source:</strong> <code>utils/prompts.py</code></p>
 </blockquote>
-<p>This module provides internal programmatic prompt generation utilities, configuration templates, and navigation tree builders for the <code>Codebase-Knowledge-Builder</code> documentation pipeline. While standard chapter authoring workflows rely on external Jinja2 or file-based prompt templates, <code>utils/prompts.py</code> centralizes hardcoded, deterministic prompt routines and MkDocs asset generation logic required by pipeline coordination nodes.</p>
-<p>Following the logging and diagnostic formatting capabilities provided by <a href="../output.py/"><code>output.py</code></a> and the low-level inference mechanisms in <a href="../call_llm.py/"><code>call_llm.py</code></a>, this module supplies specialized prompt builders for codebase file filtering and cross-chapter technical summarization. It also encapsulates the structural logic for converting abstract documentation outlines into hierarchical MkDocs navigation trees (<code>mkdocs.yml</code>) and JavaScript harnesses for rendering Mermaid diagrams.</p>
-<hr />
-<h2 id="architectural-role-execution-flow">Architectural Role &amp; Execution Flow</h2>
-<p>The functions in <code>utils/prompts.py</code> operate across two distinct phases of the documentation generation lifecycle:</p>
-<ol>
-<li><strong>LLM Task Construction (Inference Phase):</strong> Constructing deterministic, structured prompts for LLM execution tasks that do not require external template files. This includes filtering raw repository file trees down to core business logic modules (<code>build_code_file_filter_prompt</code>) and generating structured technical briefs after each chapter is written (<code>build_chapter_summary_prompt</code>) to maintain context across execution boundaries.</li>
-<li><strong>Site Generation &amp; Navigation Structuring (Post-Processing Phase):</strong> Transforming LLM-derived document taxonomies into recursive navigation structures (<code>build_grouped_nav</code>, <code>collect_all_modules</code>), emitting standardized Material for MkDocs configuration files (<code>build_mkdocs_config</code>), and injecting browser-side runtime scripts (<code>build_mermaid_init_js</code>) to ensure diagram styling parity with native GitHub rendering.</li>
-</ol>
+<p>While <a href="../output.py/"><code>utils/output.py</code></a> manages localized console output, user-facing diagnostics, and real-time terminal telemetry, <code>utils/prompts.py</code> acts as the programmatic template and artifact generation engine for the Codebase-Knowledge-Builder system. It centralizes inline prompt construction routines and static asset synthesis required for documentation site compilation, eliminating ad-hoc string formatting across workflow execution nodes.</p>
+<h2 id="technical-overview">Technical Overview</h2>
+<p><code>utils/prompts.py</code> serves two distinct functional roles within the system architecture: inline Large Language Model (LLM) prompt engineering and static documentation site compilation. Unlike mode-specific document prompts that are loaded from external Markdown templates (such as <code>prompts/{mode}/</code>), the prompts generated in this module are programmatic, structured payloads designed for internal deterministic operations. These include filtering non-code files during repository analysis and compressing generated chapters into dense technical briefs for cross-chapter context chaining.</p>
+<p>In its second role, the module provides configuration and script builders for generating static documentation sites using MkDocs. It handles the dynamic assembly of <code>mkdocs.yml</code> configuration files, client-side JavaScript initializers for Mermaid diagram rendering, and the recursive compilation of nested navigation trees based on LLM section groupings and repository directory structures.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -1464,40 +1671,33 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    subgraph InferencePhase["Inference and Filtering Phase"]
-        FileListing["Raw File Listing"]
-        FilePrompt["build_code_file_filter_prompt()"]
-        SummaryPrompt["build_chapter_summary_prompt()"]
-        ChapterContent["Generated Chapter Content"]
-        LLMFilter["LLM Deterministic Filter"]
-        LLMSummary["LLM Chapter Brief"]
+    subgraph Prompt_Generation["Inline Prompt Generation"]
+        inputContext["Workflow Context &amp; Chapter AST"]
+        filterPromptNode["build_code_file_filter_prompt()"]
+        summaryPromptNode["build_chapter_summary_prompt()"]
+        inputContext --&gt; filterPromptNode
+        inputContext --&gt; summaryPromptNode
     end
 
-    subgraph SiteGenPhase["Site Generation Phase"]
-        SectionTree["Section Taxonomy Structure"]
-        CollectMods["collect_all_modules()"]
-        GroupedNav["build_grouped_nav()"]
-        MkDocsConfig["build_mkdocs_config()"]
-        MermaidJS["build_mermaid_init_js()"]
-        OutputConfig["mkdocs.yml and mermaid-init.js"]
+    subgraph Site_Artifact_Generation["MkDocs Site Asset Generation"]
+        navInput["Section Hierarchy &amp; Chapter Files"]
+        groupedNavNode["build_grouped_nav()"]
+        collectModulesNode["collect_all_modules()"]
+        mkdocsConfigNode["build_mkdocs_config()"]
+        jsInitNode["build_mermaid_init_js()"]
+
+        navInput --&gt; collectModulesNode
+        navInput --&gt; groupedNavNode
+        groupedNavNode --&gt; mkdocsConfigNode
+        jsInitNode --&gt; mkdocsConfigNode
     end
 
-    FileListing --&gt; FilePrompt
-    FilePrompt --&gt; LLFilterNode["Deterministic File Mapper Node"]
-    LLFilterNode --&gt; LLMFilter
-
-    ChapterContent --&gt; SummaryPrompt
-    SummaryPrompt --&gt; LLMSummaryNode["Chapter Summary Node"]
-    LLMSummaryNode --&gt; LLMSummary
-
-    SectionTree --&gt; CollectMods
-    SectionTree --&gt; GroupedNav
-    GroupedNav --&gt; MkDocsConfig
-    MkDocsConfig --&gt; OutputConfig
-    MermaidJS --&gt; OutputConfig
+    filterPromptNode --&gt; llmInference["call_llm Inference Pipeline"]
+    summaryPromptNode --&gt; llmInference
+    mkdocsConfigNode --&gt; diskOutput["mkdocs.yml &amp; Site Filesystem"]
 
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-    class FileListing,SectionTree entryNode;</code></pre> 
+    class inputContext,navInput entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -1506,20 +1706,18 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
-<hr />
-<h2 id="module-level-functions">Module-Level Functions</h2>
+<h2 id="public-api">Public API</h2>
 <h3 id="build_code_file_filter_prompt"><code>build_code_file_filter_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_code_file_filter_prompt(project_name: str, file_listing: str) -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Constructs an inline prompt string instructing the LLM to act as a deterministic file mapper. This prompt is utilized primarily in <code>api-reference</code> documentation mode to filter out non-code assets (such as UI markups, build manifests, configuration scripts, and documentation) from the discovered file listing, isolating files that contain core business logic, APIs, functions, and data structures. It enforces a strict output format by requiring the LLM to return only a YAML list containing the integer indices corresponding to valid code modules.</p>
+<p><strong>Description</strong>: Generates an inline prompt instructing the LLM to act as a deterministic file mapper. It takes a complete list of repository files and prompts the model to return a strict YAML list containing only the integer indices of files that represent executable or API-relevant source code (e.g., classes, functions, business logic), filtering out UI layouts, configuration files, static assets, build manifests, and documentation.</p>
 <p><strong>Parameters</strong>:
-* <code>project_name</code> (<code>str</code>): The name of the project or repository being analyzed.
-* <code>file_listing</code> (<code>str</code>): A formatted string containing the numbered index list of all files discovered in the codebase.</p>
+* <code>project_name</code> (<code>str</code>): The name of the target repository or project being analyzed.
+* <code>file_listing</code> (<code>str</code>): A formatted string representing repository file indices and relative paths.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: A formatted prompt containing the task description, exclusion criteria, input file listing, and a target YAML code block template.</p>
+* <code>str</code>: A formatted prompt ready for submission to <a href="../call_llm.py/"><code>call_llm()</code></a>.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally; string formatting handles all standard input types.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_code_file_filter_prompt</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_listing</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for DeterministicFileMapper to filter non-code files.</span>
@@ -1539,279 +1737,318 @@ Constructs an inline prompt string instructing the LLM to act as a deterministic
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The string produced by <code>build_code_file_filter_prompt</code> provides explicit negative constraints to prevent downstream documentation overhead on build manifests (such as <code>.csproj</code> and <code>.sln</code>) and static UI assets (<code>.xaml</code>, <code>.storyboard</code>, <code>.html</code>). By directing the model to output a strictly indexed YAML block (<code>- 0\n- 1</code>), the pipeline in <a href="../../nodes.py/"><code>nodes.py</code></a> can deterministically parse the integer array via standard YAML deserializers and map it directly back to file list indices without fuzzy string matching.</p>
+<p>The function guarantees strict index-based mapping constraints by embedding explicit negative rules (excluding <code>.xaml</code>, <code>.json</code>, <code>.csproj</code>, etc.) alongside a standardized YAML code block schema. This format simplifies regex or YAML parsing downstream in <a href="../../nodes.py/"><code>nodes.py</code></a>.</p>
 <hr />
 <h3 id="build_chapter_summary_prompt"><code>build_chapter_summary_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = "english") -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Generates the prompt used to synthesize a structured technical brief from a newly generated documentation chapter. The resulting summary captures four standardized dimensions: component scope, technical elements, implementation patterns, and system integration points. This summary is injected into subsequent chapter generation contexts to ensure architectural continuity and terminology consistency across long-form multi-chapter runs.</p>
+<p><strong>Description</strong>: Builds a structured summarization prompt designed to compress a generated chapter into a dense technical brief across four specific architectural dimensions. The resulting summary is passed into subsequent chapter prompts to maintain cross-chapter coherence without exhausting model context budgets.</p>
 <p><strong>Parameters</strong>:
-* <code>chapter_num</code> (<code>int</code>): The numeric sequence index of the chapter being summarized.
-* <code>abstraction_name</code> (<code>str</code>): The title or high-level architectural abstraction represented by the chapter.
-* <code>chapter_content</code> (<code>str</code>): The full Markdown text content of the generated chapter.
-* <code>language</code> (<code>str</code>, optional): The target natural language for the summary output. Defaults to <code>"english"</code>.</p>
+* <code>chapter_num</code> (<code>int</code>): The sequence number of the chapter being summarized.
+* <code>abstraction_name</code> (<code>str</code>): The title or abstraction boundary covered by the chapter.
+* <code>chapter_content</code> (<code>str</code>): The full Markdown content of the generated chapter.
+* <code>language</code> (<code>str</code>, optional): The target natural language for the output summary. Defaults to <code>"english"</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The prompt directing the LLM to generate the 4-part structured technical brief.</p>
+* <code>str</code>: The complete prompt payload for cross-chapter context generation.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_chapter_summary_prompt</span><span class="p">(</span><span class="n">chapter_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">abstraction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"english"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for generating a technical summary of a written chapter."""</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The prompt enforces a four-part structural template where each section requires 3 to 5 concise technical sentences. This constraint prevents conversational degradation and bounds the token budget consumed when earlier summaries are concatenated into the prompt contexts of later chapters. When a non-English language is passed, the function prefixes an explicit directive (<code>Write the entire summary in {language.capitalize()}.</code>) ensuring multilingual synthesis remains uniform across the pipeline.</p>
+<p>The function dynamically prepends a localization instruction when <code>language</code> is not English, ensuring consistent summarization across multi-language documentation runs. By constraining each dimension to 3–5 sentences, the prompt enforces information density and prevents unbounded token growth in downstream memory buffers managed by <a href="../token_utils.py/"><code>token_utils.py</code></a>.</p>
 <hr />
 <h3 id="build_mkdocs_config"><code>build_mkdocs_config()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_mkdocs_config(site_name: str, nav_yaml: str) -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Assembles a complete, production-ready <code>mkdocs.yml</code> configuration string for rendering documentation using Material for MkDocs. The configuration enables clipboard copy buttons, dark/light theme switching, code syntax highlighting, pan-and-zoom controls for diagrams, and superfences custom fence parsing targeting the <code>.mermaid-raw</code> CSS class.</p>
+<p><strong>Description</strong>: Assembles a complete <code>mkdocs.yml</code> configuration string optimized for the Material for MkDocs theme. The configuration includes code copy buttons, dark/light theme toggling, search, pan-zoom capabilities for Mermaid diagrams, Python Markdown syntax highlighting extensions, and custom superfences to support raw Mermaid diagram rendering.</p>
 <p><strong>Parameters</strong>:
-* <code>site_name</code> (<code>str</code>): The documentation title displayed in the header and metadata.
-* <code>nav_yaml</code> (<code>str</code>): A YAML-formatted string representing the navigation tree, typically emitted by <code>build_grouped_nav</code>.</p>
+* <code>site_name</code> (<code>str</code>): The display title for the documentation website.
+* <code>nav_yaml</code> (<code>str</code>): A YAML-formatted navigation hierarchy string.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: A valid, self-contained <code>mkdocs.yml</code> file content string.</p>
+* <code>str</code>: The complete serialized YAML content for the <code>mkdocs.yml</code> file.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_mkdocs_config</span><span class="p">(</span><span class="n">site_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nav_yaml</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="c1"># Extract nav items from nav_snippet (strip the "nav:" header line)</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">nav_lines</span> <span class="o">=</span> <span class="n">nav_yaml</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">nav_body</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nav_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">if</span> <span class="n">nav_lines</span> <span class="k">else</span> <span class="s2">""</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="sa">f</span><span class="s2">"site_name: '</span><span class="si">{</span><span class="n">site_name</span><span class="si">}</span><span class="s2">'</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="sa">f</span><span class="s2">"theme:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="sa">f</span><span class="s2">"  name: material</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="sa">f</span><span class="s2">"  features:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="sa">f</span><span class="s2">"    - content.code.copy</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="sa">f</span><span class="s2">"    - navigation.indexes</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="sa">f</span><span class="s2">"  palette:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="sa">f</span><span class="s2">"    - scheme: default</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="sa">f</span><span class="s2">"      toggle:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="sa">f</span><span class="s2">"        icon: material/brightness-7</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="sa">f</span><span class="s2">"        name: Switch to dark mode</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="sa">f</span><span class="s2">"    - scheme: slate</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="sa">f</span><span class="s2">"      toggle:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="sa">f</span><span class="s2">"        icon: material/brightness-4</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="sa">f</span><span class="s2">"        name: Switch to light mode</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        <span class="sa">f</span><span class="s2">"plugins:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="sa">f</span><span class="s2">"  - search</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        <span class="sa">f</span><span class="s2">"  - panzoom:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="sa">f</span><span class="s2">"      include_selectors:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>        <span class="sa">f</span><span class="s2">"        - '.mermaid-raw'</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="sa">f</span><span class="s2">"markdown_extensions:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.highlight:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>        <span class="sa">f</span><span class="s2">"      anchor_linenums: true</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        <span class="sa">f</span><span class="s2">"      use_pygments: true</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.superfences:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>        <span class="sa">f</span><span class="s2">"      custom_fences:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>        <span class="sa">f</span><span class="s2">"        - name: mermaid</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>        <span class="sa">f</span><span class="s2">"          class: mermaid-raw</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>        <span class="sa">f</span><span class="s2">"          format: !!python/name:pymdownx.superfences.fence_code_format</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.inlinehilite</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>        <span class="sa">f</span><span class="s2">"extra_javascript:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>        <span class="sa">f</span><span class="s2">"  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>        <span class="sa">f</span><span class="s2">"  - javascripts/mermaid-init.js</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>        <span class="sa">f</span><span class="s2">"nav:</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>        <span class="sa">f</span><span class="s2">"  - Home: index.md</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nav_body</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>    <span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Build a complete mkdocs.yml for local --mkdocs output."""</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="c1"># Extract nav items from nav_snippet (strip the "nav:" header line)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">nav_lines</span> <span class="o">=</span> <span class="n">nav_yaml</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">nav_body</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nav_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">if</span> <span class="n">nav_lines</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="sa">f</span><span class="s2">"site_name: '</span><span class="si">{</span><span class="n">site_name</span><span class="si">}</span><span class="s2">'</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="sa">f</span><span class="s2">"theme:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="sa">f</span><span class="s2">"  name: material</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="sa">f</span><span class="s2">"  features:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="sa">f</span><span class="s2">"    - content.code.copy</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="sa">f</span><span class="s2">"    - navigation.indexes</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="sa">f</span><span class="s2">"  palette:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="sa">f</span><span class="s2">"    - scheme: default</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="sa">f</span><span class="s2">"      toggle:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="sa">f</span><span class="s2">"        icon: material/brightness-7</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="sa">f</span><span class="s2">"        name: Switch to dark mode</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="sa">f</span><span class="s2">"    - scheme: slate</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="sa">f</span><span class="s2">"      toggle:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="sa">f</span><span class="s2">"        icon: material/brightness-4</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        <span class="sa">f</span><span class="s2">"        name: Switch to light mode</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="sa">f</span><span class="s2">"plugins:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        <span class="sa">f</span><span class="s2">"  - search</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="sa">f</span><span class="s2">"  - panzoom:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>        <span class="sa">f</span><span class="s2">"      include_selectors:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="sa">f</span><span class="s2">"        - '.mermaid-raw'</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="sa">f</span><span class="s2">"markdown_extensions:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.highlight:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        <span class="sa">f</span><span class="s2">"      anchor_linenums: true</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="sa">f</span><span class="s2">"      use_pygments: true</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.superfences:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>        <span class="sa">f</span><span class="s2">"      custom_fences:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>        <span class="sa">f</span><span class="s2">"        - name: mermaid</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>        <span class="sa">f</span><span class="s2">"          class: mermaid-raw</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>        <span class="sa">f</span><span class="s2">"          format: !!python/name:pymdownx.superfences.fence_code_format</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>        <span class="sa">f</span><span class="s2">"  - pymdownx.inlinehilite</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>        <span class="sa">f</span><span class="s2">"extra_javascript:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>        <span class="sa">f</span><span class="s2">"  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>        <span class="sa">f</span><span class="s2">"  - javascripts/mermaid-init.js</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>        <span class="sa">f</span><span class="s2">"nav:</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>        <span class="sa">f</span><span class="s2">"  - Home: index.md</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nav_body</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<p>The function processes <code>nav_yaml</code> by stripping any leading <code>nav:</code> declaration to prevent duplicate top-level YAML keys before concatenating the navigation body underneath <code>- Home: index.md</code>. It explicitly configures <code>pymdownx.superfences</code> to route Mermaid code blocks into a custom CSS class named <code>mermaid-raw</code>. This mechanism bypasses Material for MkDocs' built-in Mermaid color overrides, allowing diagrams to render with Mermaid's default palette via CDN-loaded Mermaid 11 and a companion initialization script.</p>
+<p>The function parses the incoming <code>nav_yaml</code> string by stripping any top-level <code>nav:</code> declaration to prevent key duplication. It maps <code>pymdownx.superfences</code> to assign the <code>.mermaid-raw</code> CSS class instead of <code>.mermaid</code>, preventing MkDocs Material from overriding diagram color palettes.</p>
 <hr />
 <h3 id="build_mermaid_init_js"><code>build_mermaid_init_js()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_mermaid_init_js() -&gt; str:</code></p>
-<p><strong>Description</strong>:<br />
-Generates the browser-side JavaScript runtime script used to initialize Mermaid diagrams. Because <code>pymdownx.superfences</code> wraps custom fence blocks inside <code>&lt;pre class="mermaid-raw"&gt;&lt;code&gt;...&lt;/code&gt;&lt;/pre&gt;</code>, standard Mermaid rendering engines fail to parse the inner block directly. This script unwraps the nested <code>&lt;code&gt;</code> text content into the parent <code>&lt;pre&gt;</code> node, initializes Mermaid with default theme settings and loose security levels, and triggers dynamic rendering against all <code>.mermaid-raw</code> selectors.</p>
+<p><strong>Description</strong>: Constructs an inline vanilla JavaScript initializer string to be written to <code>javascripts/mermaid-init.js</code>. This script resolves DOM compatibility issues between <code>pymdownx.superfences</code> and the Mermaid rendering engine, while preserving Mermaid's default styling.</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The complete JavaScript source code to be written to <code>javascripts/mermaid-init.js</code>.</p>
+* <code>str</code>: Executable JavaScript source code contained in an Immediately Invoked Function Expression (IIFE).</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_mermaid_init_js</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">return</span> <span class="s2">"""</span><span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s2">// Initialize Mermaid on .mermaid-raw elements (bypasses Material theme override)</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s2">// Material for MkDocs targets .mermaid class for its own color overrides.</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s2">// By using .mermaid-raw, diagrams render with Mermaid's default theme:</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s2">// yellow subgraph backgrounds, lavender nodes, clean rectangles.</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s2">//</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="s2">// pymdownx.superfences fence_code_format wraps content as:</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="s2">//   &lt;pre class="mermaid-raw"&gt;&lt;code&gt;flowchart TD ...&lt;/code&gt;&lt;/pre&gt;</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s2">// Mermaid expects the diagram text directly in the target element,</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="s2">// so we unwrap the &lt;code&gt; child before calling mermaid.run().</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="s2">(function() {</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s2">  function initMermaid() {</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s2">    if (typeof mermaid === 'undefined') return;</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="s2">    try {</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="s2">      // Unwrap: move &lt;code&gt; text content up to &lt;pre&gt; and remove &lt;code&gt;</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="s2">      document.querySelectorAll('pre.mermaid-raw &gt; code').forEach(function(code) {</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="s2">        var pre = code.parentElement;</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="s2">        pre.textContent = code.textContent;</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="s2">      });</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="s2">      mermaid.initialize({</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="s2">        startOnLoad: false,</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="s2">        theme: 'default',</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="s2">        securityLevel: 'loose'</span>
-<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="s2">      });</span>
-<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="s2">      mermaid.run({ querySelector: '.mermaid-raw' }).catch(function(err) {</span>
-<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="s2">        console.warn('Mermaid render error:', err);</span>
-<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="s2">      });</span>
-<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="s2">    } catch (e) {</span>
-<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="s2">      console.warn('Mermaid init error:', e);</span>
-<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="s2">    }</span>
-<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="s2">  }</span>
-<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="s2">  if (document.readyState === 'loading') {</span>
-<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="s2">    document.addEventListener('DOMContentLoaded', initMermaid);</span>
-<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="s2">  } else {</span>
-<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="s2">    initMermaid();</span>
-<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="s2">  }</span>
-<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="s2">})();</span>
-<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="s2">"""</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="sd">"""Build JS to initialize Mermaid on .mermaid-raw elements."""</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">return</span> <span class="s2">"""</span><span class="se">\</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s2">// Initialize Mermaid on .mermaid-raw elements (bypasses Material theme override)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s2">// Material for MkDocs targets .mermaid class for its own color overrides.</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s2">// By using .mermaid-raw, diagrams render with Mermaid's default theme:</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s2">// yellow subgraph backgrounds, lavender nodes, clean rectangles.</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="s2">//</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="s2">// pymdownx.superfences fence_code_format wraps content as:</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s2">//   &lt;pre class="mermaid-raw"&gt;&lt;code&gt;flowchart TD ...&lt;/code&gt;&lt;/pre&gt;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="s2">// Mermaid expects the diagram text directly in the target element,</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="s2">// so we unwrap the &lt;code&gt; child before calling mermaid.run().</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s2">(function() {</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s2">  function initMermaid() {</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="s2">    if (typeof mermaid === 'undefined') return;</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="s2">    try {</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="s2">      // Unwrap: move &lt;code&gt; text content up to &lt;pre&gt; and remove &lt;code&gt;</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="s2">      document.querySelectorAll('pre.mermaid-raw &gt; code').forEach(function(code) {</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="s2">        var pre = code.parentElement;</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="s2">        pre.textContent = code.textContent;</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="s2">      });</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="s2">      mermaid.initialize({</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="s2">        startOnLoad: false,</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="s2">        theme: 'default',</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="s2">        securityLevel: 'loose'</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="s2">      });</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="s2">      mermaid.run({ querySelector: '.mermaid-raw' }).catch(function(err) {</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="s2">        console.warn('Mermaid render error:', err);</span>
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="s2">      });</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="s2">    } catch (e) {</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="s2">      console.warn('Mermaid init error:', e);</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="s2">    }</span>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="s2">  }</span>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="s2">  if (document.readyState === 'loading') {</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="s2">    document.addEventListener('DOMContentLoaded', initMermaid);</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="s2">  } else {</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="s2">    initMermaid();</span>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="s2">  }</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="s2">})();</span>
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="s2">"""</span>
 </code></pre></div></p>
-<p>The script implements defensive DOM lifecycle handling: if the document is currently in a <code>'loading'</code> state, it binds execution to the <code>DOMContentLoaded</code> event; otherwise, it executes <code>initMermaid()</code> synchronously. Inside the initialization handler, it wraps DOM transformations and calls to <code>mermaid.run()</code> within <code>try/catch</code> blocks and Promise rejections, ensuring that syntax errors in LLM-generated diagrams log non-fatal warnings to the browser console rather than interrupting other client-side documentation features.</p>
+<p>The returned script unwraps inner <code>&lt;code&gt;</code> elements generated by <code>pymdownx.superfences</code> (<code>&lt;pre class="mermaid-raw"&gt;&lt;code&gt;...&lt;/code&gt;&lt;/pre&gt;</code>), moving text directly into the parent <code>&lt;pre&gt;</code> node. It configures <code>mermaid.initialize</code> with <code>startOnLoad: false</code> and <code>securityLevel: 'loose'</code>, invoking <code>mermaid.run()</code> explicitly across all <code>.mermaid-raw</code> selectors.</p>
 <hr />
 <h3 id="build_grouped_nav"><code>build_grouped_nav()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -&gt; list[str]:</code></p>
-<p><strong>Description</strong>:<br />
-Recursively builds MkDocs navigation YAML lines from a structured section hierarchy. The function handles arbitrary nesting depths via recursive traversal of section <code>children</code> nodes. For leaf modules, it matches module names against <code>chapter_files</code> metadata to determine physical directory paths. Files residing within subdirectories are deterministically grouped into directory sub-layers with bare module names, while root-level files remain flat under their section heading.</p>
+<p><strong>Description</strong>: Recursively constructs indented YAML navigation entries from hierarchical section groupings and a list of generated chapter files. It matches modules to their source file metadata and groups sub-directory files into structured navigation levels while keeping root-level files flat.</p>
 <p><strong>Parameters</strong>:
-* <code>sections</code> (<code>list</code>): A list of dictionaries representing the hierarchical section outline. Each dictionary may contain <code>"name"</code>, <code>"modules"</code> (list of module identifiers), and <code>"children"</code> (nested section dictionaries).
-* <code>chapter_files</code> (<code>list</code>): A list of metadata dictionaries for generated chapter files, containing keys such as <code>"module_name"</code>, <code>"original_path"</code>, and <code>"filename"</code>.
-* <code>indent</code> (<code>int</code>, optional): The base indentation level (in spaces) for the current YAML nesting depth. Defaults to <code>4</code>.</p>
+* <code>sections</code> (<code>list</code>): A list of dictionary objects defining section names, nested child sections, and assigned module names.
+* <code>chapter_files</code> (<code>list</code>): A list of metadata dictionaries containing <code>module_name</code>, <code>filename</code>, and <code>original_path</code> mappings.
+* <code>indent</code> (<code>int</code>, optional): Indentation space count for the current recursion level. Defaults to <code>4</code>.</p>
 <p><strong>Returns</strong>:
-* <code>list[str]</code>: A list of properly indented YAML string lines representing the navigation tree.</p>
+* <code>list[str]</code>: A list of formatted YAML navigation lines.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_grouped_nav</span><span class="p">(</span><span class="n">sections</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">chapter_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">pad</span> <span class="o">=</span> <span class="s2">" "</span> <span class="o">*</span> <span class="n">indent</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">- </span><span class="si">{</span><span class="n">section</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="k">if</span> <span class="s2">"children"</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>            <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">build_grouped_nav</span><span class="p">(</span><span class="n">section</span><span class="p">[</span><span class="s2">"children"</span><span class="p">],</span> <span class="n">chapter_files</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="c1"># Collect matched modules with directory info</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="n">matched</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="k">for</span> <span class="n">mod_name</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"modules"</span><span class="p">,</span> <span class="p">[]):</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>            <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">cf</span> <span class="k">for</span> <span class="n">cf</span> <span class="ow">in</span> <span class="n">chapter_files</span> <span class="k">if</span> <span class="n">cf</span><span class="p">[</span><span class="s2">"module_name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">mod_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>                <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"original_path"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span> <span class="ow">or</span> <span class="s2">""</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>                <span class="n">matched</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span><span class="p">))</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="c1"># Group by directory</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>        <span class="n">dir_groups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>        <span class="k">for</span> <span class="n">dir_path</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>            <span class="n">dir_groups</span><span class="p">[</span><span class="n">dir_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span><span class="p">))</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>        <span class="c1"># Emit dir sub-layers for non-root dirs, flat for root files</span>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>        <span class="n">has_non_root</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dir_groups</span><span class="p">)</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>        <span class="k">if</span> <span class="n">has_non_root</span><span class="p">:</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>            <span class="k">for</span> <span class="n">dir_path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dir_groups</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>                <span class="k">if</span> <span class="n">dir_path</span><span class="p">:</span>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>                    <span class="c1"># Non-root: add directory sub-layer with bare module names</span>
-<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">  - </span><span class="si">{</span><span class="n">dir_path</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
-<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>                    <span class="k">for</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">dir_groups</span><span class="p">[</span><span class="n">dir_path</span><span class="p">]:</span>
-<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>                        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">    - '</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">': 'api/</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
-<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>                <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>                    <span class="c1"># Root files: flat (no sub-layer)</span>
-<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>                    <span class="k">for</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">dir_groups</span><span class="p">[</span><span class="n">dir_path</span><span class="p">]:</span>
-<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>                        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">  - '</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">': 'api/</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
-<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>        <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>            <span class="c1"># All root files → flat list</span>
-<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>            <span class="k">for</span> <span class="n">_dir_path</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
-<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">  - '</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">': 'api/</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
-<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a>
-<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a>    <span class="k">return</span> <span class="n">lines</span>
-</code></pre></div></p>
-<p><code>build_grouped_nav</code> coordinates path resolution by inspecting <code>os.path.dirname(match.get("original_path", ""))</code>. It isolates module paths using <code>collections.defaultdict(list)</code> to partition files across directories without requiring additional LLM calls. If non-root directories are present (<code>has_non_root is True</code>), sorted directory headings are emitted at an intermediate indent level (<code>pad + "  "</code>), and their child modules are nested underneath (<code>pad + "    "</code>). If all files belong to the root level, the directory grouping step is bypassed, rendering an unnested list under the section heading.</p>
+* None.</p>
+<h4 id="phase-1-section-traversal-child-processing">Phase 1: Section Traversal &amp; Child Processing</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">pad</span> <span class="o">=</span> <span class="s2">" "</span> <span class="o">*</span> <span class="n">indent</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">- </span><span class="si">{</span><span class="n">section</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="k">if</span> <span class="s2">"children"</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>            <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">build_grouped_nav</span><span class="p">(</span><span class="n">section</span><span class="p">[</span><span class="s2">"children"</span><span class="p">],</span> <span class="n">chapter_files</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+This phase creates the top-level section header and recursively processes any nested structures defined in the <code>children</code> key, incrementing the indentation by 2 spaces per recursion level.</p>
+<h4 id="phase-2-module-identification-path-resolution">Phase 2: Module Identification &amp; Path Resolution</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>        <span class="c1"># Collect matched modules with directory info</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>        <span class="n">matched</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="k">for</span> <span class="n">mod_name</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"modules"</span><span class="p">,</span> <span class="p">[]):</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>            <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">cf</span> <span class="k">for</span> <span class="n">cf</span> <span class="ow">in</span> <span class="n">chapter_files</span> <span class="k">if</span> <span class="n">cf</span><span class="p">[</span><span class="s2">"module_name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">mod_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>                <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"original_path"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span> <span class="ow">or</span> <span class="s2">""</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>                <span class="n">matched</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span><span class="p">))</span>
+</code></pre></div>
+The algorithm iterates through all module names declared in the current section, matching each against the <code>chapter_files</code> lookup list. For every match, <code>os.path.dirname</code> extracts the directory path from <code>original_path</code>, normalizing empty strings for root-level modules.</p>
+<h4 id="phase-3-directory-grouping-yaml-emission">Phase 3: Directory Grouping &amp; YAML Emission</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>        <span class="c1"># Group by directory</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">dir_groups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="k">for</span> <span class="n">dir_path</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>            <span class="n">dir_groups</span><span class="p">[</span><span class="n">dir_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span><span class="p">))</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="c1"># Emit dir sub-layers for non-root dirs, flat for root files</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="n">has_non_root</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dir_groups</span><span class="p">)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="k">if</span> <span class="n">has_non_root</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="k">for</span> <span class="n">dir_path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dir_groups</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>                <span class="k">if</span> <span class="n">dir_path</span><span class="p">:</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>                    <span class="c1"># Non-root: add directory sub-layer with bare module names</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">  - </span><span class="si">{</span><span class="n">dir_path</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>                    <span class="k">for</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">dir_groups</span><span class="p">[</span><span class="n">dir_path</span><span class="p">]:</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>                        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">    - '</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">': 'api/</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>                <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>                    <span class="c1"># Root files: flat (no sub-layer)</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>                    <span class="k">for</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">dir_groups</span><span class="p">[</span><span class="n">dir_path</span><span class="p">]:</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>                        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">  - '</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">': 'api/</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>            <span class="c1"># All root files → flat list</span>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>            <span class="k">for</span> <span class="n">_dir_path</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s2">  - '</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">': 'api/</span><span class="si">{</span><span class="n">match</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>    <span class="k">return</span> <span class="n">lines</span>
+</code></pre></div>
+Matched modules are organized into directory buckets using <code>collections.defaultdict</code>. If any module belongs to a sub-directory, non-root paths are emitted as nested directory nodes with their contained files indented below. Root files remain flat at the section level.</p>
 <hr />
 <h3 id="collect_all_modules"><code>collect_all_modules()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def collect_all_modules(sections: list) -&gt; set:</code></p>
-<p><strong>Description</strong>:<br />
-Performs a recursive traversal over a nested section dictionary tree to extract a deduplicated set of all referenced module names. This utility enables validation checks ensuring that every documented chapter is accounted for in the structural navigation outline.</p>
+<p><strong>Description</strong>: Recursively traverses a section hierarchy tree to extract every referenced module name into a flat set.</p>
 <p><strong>Parameters</strong>:
-* <code>sections</code> (<code>list</code>): A list of dictionaries representing the hierarchical section outline, where dictionaries may contain a <code>"modules"</code> list and a nested <code>"children"</code> list.</p>
+* <code>sections</code> (<code>list</code>): The list of section dictionaries to traverse.</p>
 <p><strong>Returns</strong>:
-* <code>set</code>: A Python <code>set</code> containing all unique module identifier strings extracted from the tree.</p>
+* <code>set</code>: A set of all distinct module name strings found across the section tree.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions internally.</p>
+* None.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">collect_all_modules</span><span class="p">(</span><span class="n">sections</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">"""Recursively collect all module names referenced in a sections tree."""</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"modules"</span><span class="p">,</span> <span class="p">[]))</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="k">if</span> <span class="s2">"children"</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">collect_all_modules</span><span class="p">(</span><span class="n">section</span><span class="p">[</span><span class="s2">"children"</span><span class="p">]))</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="k">return</span> <span class="n">result</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">collect_all_modules</span><span class="p">(</span><span class="n">sections</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="sd">"""Recursively collect all module names referenced in a sections tree."""</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"modules"</span><span class="p">,</span> <span class="p">[]))</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="k">if</span> <span class="s2">"children"</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">collect_all_modules</span><span class="p">(</span><span class="n">section</span><span class="p">[</span><span class="s2">"children"</span><span class="p">]))</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="k">return</span> <span class="n">result</span>
 </code></pre></div></p>
-<p>The function initializes an empty <code>set</code> and iterates through each section dictionary, updating the accumulator set with the contents of the current section's <code>"modules"</code> list (defaulting to an empty list via <code>.get("modules", [])</code> if the key is missing). If the section contains a <code>"children"</code> key, <code>collect_all_modules</code> calls itself recursively on the child array and unions the resulting set using <code>result.update()</code>, guaranteeing complete coverage regardless of tree depth.</p>
-<hr />
-<h2 id="data-structures-navigation-hierarchy">Data Structures &amp; Navigation Hierarchy</h2>
-<p>The navigation utilities (<code>build_grouped_nav</code> and <code>collect_all_modules</code>) operate over standardized JSON/YAML schema trees generated by the LLM during architecture decomposition:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Conceptual Schema for `sections` input:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"Core</span><span class="nv"> </span><span class="s">Engine"</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">modules</span><span class="p">:</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"call_llm.py"</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"flow.py"</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">children</span><span class="p">:</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"File</span><span class="nv"> </span><span class="s">Ingestion"</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">      </span><span class="nt">modules</span><span class="p">:</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"crawl_github_files.py"</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"crawl_local_files.py"</span>
-</code></pre></div>
-<p>The matching <code>chapter_files</code> array supplies the metadata needed to bridge logical module names to generated Markdown artifacts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Conceptual Schema for `chapter_files` entries:</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="p">{</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="s2">"module_name"</span><span class="p">:</span> <span class="s2">"crawl_github_files.py"</span><span class="p">,</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="s2">"original_path"</span><span class="p">:</span> <span class="s2">"utils/crawl_github_files.py"</span><span class="p">,</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">"filename"</span><span class="p">:</span> <span class="s2">"utils_crawl_github_files.py.md"</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">}</span>
-</code></pre></div>
-<p>When rendered through <code>build_grouped_nav()</code>, this structure is converted into the following formatted YAML layout:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Core Engine</span><span class="p">:</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'call_llm.py'</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">'api/call_llm.py.md'</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'flow.py'</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">'api/flow.py.md'</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">File Ingestion</span><span class="p">:</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">utils</span><span class="p">:</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'crawl_github_files.py'</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">'api/utils_crawl_github_files.py.md'</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'crawl_local_files.py'</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">'api/utils_crawl_local_files.py.md'</span>
-</code></pre></div>
-<hr />
+<p>This helper aggregates module identifiers across arbitrary nesting depths. It is used to validate that all documented files have been assigned to navigation sections without omissions or duplicates.</p>
+<h2 id="internal-helpers">Internal Helpers</h2>
+<p>The functions defined in <code>utils/prompts.py</code> are exported as part of the module's public utility interface and are invoked across <a href="../../nodes.py/"><code>nodes.py</code></a>, <a href="../../flow.py/"><code>flow.py</code></a>, and <a href="../../main.py/"><code>main.py</code></a>. The only internal non-exported routine is <code>initMermaid()</code>, which is embedded inside the client-side JavaScript payload returned by <code>build_mermaid_init_js()</code>.</p>
+<h3 id="initmermaid"><code>initMermaid()</code></h3>
+<p><strong>Visibility</strong>: Internal (JavaScript closure scope within <code>build_mermaid_init_js()</code>)<br />
+<strong>Signature</strong>: <code>function initMermaid(): void</code></p>
+<p><strong>Description</strong>: A client-side JavaScript closure that checks for the global <code>mermaid</code> object, unwraps DOM code nodes, sets default rendering themes, and runs the rendering pipeline across <code>.mermaid-raw</code> elements while handling render exceptions.</p>
+<h2 id="data-structures">Data Structures</h2>
+<h3 id="section-dictionary-schema">Section Dictionary Schema</h3>
+<p>Used by <code>build_grouped_nav()</code> and <code>collect_all_modules()</code> to represent section hierarchies generated during workflow execution.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>name</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Display title of the navigation section.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>modules</code></td>
+<td style="text-align: left;"><code>list[str]</code></td>
+<td style="text-align: left;">Optional list of module identifiers assigned directly to this section.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>children</code></td>
+<td style="text-align: left;"><code>list[dict]</code></td>
+<td style="text-align: left;">Optional nested list of child Section Dictionaries.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="chapter-file-metadata-schema">Chapter File Metadata Schema</h3>
+<p>Used by <code>build_grouped_nav()</code> to correlate module identifiers with generated documentation files and original filesystem paths.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>module_name</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Name of the module or component (e.g., <code>"call_llm.py"</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>filename</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Target output Markdown filename (e.g., <code>"utils_call_llm.py.md"</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>original_path</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Original relative repository path (e.g., <code>"utils/call_llm.py"</code>).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="error-handling">Error Handling</h2>
+<ul>
+<li><strong>Missing Keys in Dictionaries</strong>: <code>build_grouped_nav()</code> and <code>collect_all_modules()</code> defensively use <code>.get("modules", [])</code>, <code>section.get("children")</code>, and <code>match.get("original_path", "")</code> to avoid <code>KeyError</code> exceptions when handling incomplete dictionary structures.</li>
+<li><strong>Empty Navigation YAML</strong>: <code>build_mkdocs_config()</code> handles empty or single-line <code>nav_yaml</code> strings without raising <code>IndexError</code> by slicing <code>nav_lines[1:]</code> and checking collection truthiness before joining lines.</li>
+<li><strong>Client-Side Rendering Errors</strong>: <code>build_mermaid_init_js()</code> wraps diagram unwrapping, initialization, and execution within <code>try...catch</code> blocks and appends a <code>.catch()</code> handler to the <code>mermaid.run()</code> Promise. This ensures that a single invalid diagram does not break the documentation site or halt browser execution.</li>
+</ul>
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../call_llm.py/"><code>call_llm.py</code></a> — Executes inference calls using the prompts generated by <code>build_code_file_filter_prompt</code> and <code>build_chapter_summary_prompt</code>.</li>
-<li><a href="../output.py/"><code>output.py</code></a> — Formats terminal outputs and diagnostic events during document generation.</li>
-<li><a href="../token_utils.py/"><code>token_utils.py</code></a> — Measures and bounds token consumption for prompt strings and chapter content payloads.</li>
-<li><a href="../../nodes.py/"><code>nodes.py</code></a> — Pipeline nodes that invoke these prompt builders during execution workflows.</li>
-<li><a href="../../flow.py/"><code>flow.py</code></a> — Coordinates the overarching multi-step execution graph across file mapping, generation, and site synthesis.</li>
+<li><a href="../output.py/"><code>utils/output.py</code></a> — Centralized terminal logging, message emission, and string localization subsystem.</li>
+<li><a href="../call_llm.py/"><code>utils/call_llm.py</code></a> — Model execution gateway that consumes prompts built by this module.</li>
+<li><a href="../token_utils.py/"><code>utils/token_utils.py</code></a> — Context window budgeting and token counting utilities.</li>
+<li><a href="../../nodes.py/"><code>nodes.py</code></a> — Workflow execution nodes that invoke prompt builders and navigation generators.</li>
+<li><a href="../../flow.py/"><code>flow.py</code></a> — Graph orchestration pipelines managing chapter sequencing and summarization.</li>
+<li><a href="../../main.py/"><code>main.py</code></a> — CLI entry point coordinating output artifact generation and site builds.</li>
 </ul>
 
 
