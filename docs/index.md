@@ -4,7 +4,7 @@ title: "Home"
 
 # AI Codebase Knowledge Builder
 
-Ever stared at a new codebase written by others feeling completely lost? This project analyzes GitHub repositories and creates beginner-friendly tutorials explaining exactly how the code works - all powered by AI! Our intelligent system automatically breaks down complex codebases into digestible explanations that even beginners can understand.
+Ever stared at a new codebase feeling completely lost? This project analyzes GitHub repositories or local directories and generates structured documentation — from beginner-friendly tutorials to exhaustive API references — all powered by AI. Choose from 4 documentation modes to match your audience, and optionally deploy as a full MkDocs site.
 
 ## 🚀 Getting Started
 
@@ -18,7 +18,7 @@ Ever stared at a new codebase written by others feeling completely lost? This pr
    pip install -r requirements.txt
    ```
 
-3. Set up LLM in `utils/call_llm.py` by providing credentials via a `.env` file. You can use native Gemini by setting `GEMINI_API_KEY` (or `GEMINI_PROJECT_ID` for Vertex AI). For OpenRouter, set `LLM_PROVIDER=OPENROUTER` and `OPENROUTER_API_KEY`. 
+3. Set up LLM by copying `.env.sample` to `.env` and providing credentials. Native Gemini: set `GEMINI_API_KEY` (or `GEMINI_PROJECT_ID` for Vertex AI). OpenRouter: set `LLM_PROVIDER=OPENROUTER` and `OPENROUTER_API_KEY`. Ollama: set `LLM_PROVIDER=OLLAMA` and `OLLAMA_BASE_URL=http://localhost:11434`.
 
 4. Generate a complete codebase tutorial by running the main script:
     ```bash
@@ -66,6 +66,11 @@ The application will crawl the repository, analyze the codebase structure, gener
 
 *Built using [Pocket Flow](https://github.com/The-Pocket/PocketFlow), a 100-line LLM framework.*
 
-## Generated Tutorials
+## Documentation Modes
 
-(No tutorials generated yet. Run the system against a codebase to generate and view tutorials here.)
+| Mode | Audience | Description |
+|---|---|---|
+| `tutorial` | Beginners | Step-by-step walkthrough of key concepts with gentle explanations |
+| `advanced` | Senior devs / PMs | Architectural deep-dive with implementation details and data structures |
+| `api-reference` | Developers | Exhaustive per-file API documentation with public/internal separation |
+| `sdk` | Integration devs | SDK-oriented docs focused on public API, configuration, and usage patterns |

@@ -17,7 +17,7 @@ title: "Architecture & Design"
 - A publicly accessible GitHub repository URL or a local directory path.
 - A project name (optional, will be derived from the URL/directory if not provided).
 - Desired language for the tutorial (optional, defaults to English).
-- Advanced configurations: documentation style (`--mode`), token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--thinking-level`, `--max-abstractions`), caching (`--no-cache`), output format (`--mkdocs`, `--incremental`), debugging (`--debug`), and execution cleanup (`--cleanup`).
+- Advanced configurations: documentation style (`--mode`, `--advanced`), token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--thinking-level`, `--max-abstractions`), caching (`--no-cache`), output format (`--mkdocs`, `--incremental`, `--force-rebuild`), file filtering (`-i`/`--include`, `-e`/`--exclude`, `-s`/`--max-size`), output directory (`-o`/`--output`), GitHub token (`-t`/`--token`), debugging (`--debug`), and execution cleanup (`--cleanup`).
 
 **Output:**
 - A directory named after the project containing:
@@ -28,7 +28,7 @@ title: "Architecture & Design"
         - A link to `full_content.md` at the bottom.
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
     - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
-    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and a `nav_snippet.yml` navigation file is generated for MkDocs integration.
+    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table), and `docs/nav_snippet.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode).
     - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of source files to skip regeneration of unchanged modules across runs.
 
 ## 2. Flow Design
@@ -90,9 +90,17 @@ codebase_kb/
 ├── nodes.py                         # All 10 node classes + helper functions
 ├── .env.sample                      # Environment variable template
 ├── requirements.txt                 # Python dependencies
+├── pyproject.toml                   # Ruff linter/formatter configuration
+├── .pre-commit-config.yaml          # Pre-commit hooks (ruff check + ruff format)
+├── README.md                        # Bilingual (EN/VI) user-facing documentation
+├── Dockerfile                       # Docker container build for CI/deployment
+├── .dockerignore                    # Docker build exclusions
+├── LICENSE                          # MIT license
 ├── .github/
+│   ├── ci_mkdocs_config.py          # CI helper: generates mkdocs.yml and mermaid-init.js (avoids bash heredoc issues)
 │   └── workflows/
-│       └── deploy-docs.yml          # GitHub Actions CI/CD for auto-generating & deploying API docs
+│       ├── deploy-docs.yml          # GitHub Actions CI/CD for auto-generating & deploying API docs
+│       └── lint.yml                 # GitHub Actions workflow for Ruff linting
 ├── utils/
 │   ├── __init__.py                  # Empty
 │   ├── call_llm.py                  # Multi-provider LLM wrapper with caching
@@ -231,7 +239,7 @@ if os.getenv("GEMINI_PROJECT_ID"):
 elif os.getenv("GEMINI_API_KEY"):
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 else:
-    raise ValueError("Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set")
+    raise ValueError("Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment")
 ```
 
 ### `.env.sample` Additional Variables
@@ -239,6 +247,9 @@ else:
 # Gemini Vertex AI (alternative to API key)
 # GEMINI_PROJECT_ID = <YOUR_GCP_PROJECT_ID>
 # GEMINI_LOCATION = us-central1
+
+# Directory for log files (default: logs). Used by main.py and utils/output.py.
+# LOG_DIR = logs
 ```
 
 ## 6. CLI Arguments & Startup Display
@@ -274,21 +285,33 @@ else:
 
 ### Startup Config Display
 ```python
-print(f"Starting tutorial generation for: {args.repo or args.dir} in {args.language.capitalize()} language")
-print(f"--- Configuration ---")
-print(f"AI Provider    : {provider}")
-print(f"AI Endpoint    : {endpoint_url}")
-print(f"AI Model       : {model_name}")
-print(f"Context Length : {context_length:,} tokens")
-print(f"Thinking Level : {args.thinking_level if args.thinking_level else 'None'}")
-print(f"Advanced Prompts: {'Enabled' if args.advanced else 'Disabled'}")
-print(f"Batch Size     : {args.batch} files/batch")
-print(f"Force Batch    : {'Enabled' if args.force_batch else 'Disabled'}")
-print(f"Max Abstractions: {args.max_abstractions}")
-print(f"LLM Caching    : {'Disabled' if args.no_cache else 'Enabled'}")
-if args.debug:
-    print(f"Debug Mode     : Enabled")
-print(f"---------------------")
+def display_config(args, mode, provider, model_name, endpoint_url, context_length, log_file):
+    """Emit all configuration values to the console."""
+    emit("START_GENERATION", source=args.repo or args.dir, language=args.language.capitalize())
+    emit("CFG_HEADER")
+    emit("CFG_AI_PROVIDER", value=provider)
+    emit("CFG_AI_ENDPOINT", value=endpoint_url)
+    emit("CFG_AI_MODEL", value=model_name)
+    emit("CFG_CONTEXT_LENGTH", value=f"{context_length:,}")
+    emit("CFG_THINKING_LEVEL", value=args.thinking_level or "None")
+    emit("CFG_BATCH_SIZE", value=f"{args.batch}")
+    _enabled = get("CFG_VALUE_ENABLED")
+    _disabled = get("CFG_VALUE_DISABLED")
+    emit("CFG_FORCE_BATCH", value=_enabled if args.force_batch else _disabled)
+    emit("CFG_OUTPUT_MODE", value=mode)
+    emit("CFG_MKDOCS", value=_enabled if args.mkdocs else _disabled)
+    emit("CFG_INCREMENTAL", value=_enabled if args.incremental else _disabled)
+    if args.incremental:
+        emit("CFG_FORCE_REBUILD", value=_enabled if args.force_rebuild else _disabled)
+    if mode == "api-reference":
+        emit("CFG_MAX_ABSTRACTIONS", value=get("CFG_VALUE_API_REF_MAX"))
+    else:
+        emit("CFG_MAX_ABSTRACTIONS", value=str(args.max_abstractions))
+    emit("CFG_LLM_CACHING", value=_disabled if args.no_cache else _enabled)
+    if args.debug:
+        emit("CFG_DEBUG_MODE")
+    emit("CFG_LOG_FILE", value=log_file)
+    print()  # Blank line after config block
 ```
 
 ### Argument Validation Rules
@@ -302,12 +325,13 @@ These checks run in `main()` after `parse_args()`. All use `emit()` for bilingua
 | `--force-rebuild` without `--incremental` | ERROR | `sys.exit(1)` | `ERROR_FORCE_REBUILD_NO_INCREMENTAL` |
 | `--force-batch` with `--mode api-reference` | WARNING | Clear flag, warn user | `WARN_FORCE_BATCH_API_REF` |
 | `--max-abstractions` with `--mode api-reference` | WARNING | Warn user (flag ignored at runtime) | `WARN_MAX_ABS_API_REF` |
+| `--incremental` with `--mode` != `api-reference` | WARNING | Clear flag, warn user | `WARN_INCREMENTAL_API_ONLY` |
 
 Note: `--repo`/`--dir` exclusivity is handled by `argparse.add_mutually_exclusive_group()` (built-in argparse error).
 
 ## 7. Default Exclude Patterns
 
-> Notes for AI: This EXACT set must be defined in `utils/exclude_patterns.py` and imported into `main.py` as `DEFAULT_EXCLUDE_PATTERNS`. User-supplied `--exclude` patterns are MERGED with (not replacing) this set via `.union()`.
+> Notes for AI: `DEFAULT_EXCLUDE_PATTERNS` is defined in `utils/exclude_patterns.py`, while `DEFAULT_INCLUDE_PATTERNS = {"*"}` is defined in `main.py`. `DEFAULT_EXCLUDE_PATTERNS` is imported into `main.py`. User-supplied `--exclude` patterns are MERGED with (not replacing) this set via `.union()`.
 
 ```python
 DEFAULT_INCLUDE_PATTERNS = {"*"}
@@ -522,8 +546,10 @@ with tempfile.TemporaryDirectory() as tmpdirname:
     files = {}
     skipped_files = []
     
-    # Note for AI: ANSI color constants (C_GREEN, C_GRAY, C_RED, C_RESET) 
-    # are no longer needed. Use utils.output.emit() instead.
+    # All logging uses emit() from utils/output.py — no raw ANSI constants.
+    # emit("CRAWL_ENTRY_PROCESSED", num=entry_num, path=rel_path)
+    # emit("CRAWL_ENTRY_EXCLUDED", num=entry_num, path=rel_path, reason=reason)
+    # emit("CRAWL_SUMMARY_HEADER"); emit("CRAWL_SUMMARY_TOTAL", count=total)
 
     # --- Counters ---
     count_processed = 0
@@ -1191,8 +1217,8 @@ Template: `prompts/{mode}/identify_abstractions.md`
 | `context` | Built from `shared["files"]` — see "Building context" above |
 | `language_instruction` | Language prefix string |
 | `max_abstraction_num` | `shared["max_abstraction_num"]` |
-| `name_lang_hint` | `f" (in {lang})"` or `""` |
-| `desc_lang_hint` | `f" (in {lang})"` or `""` |
+| `name_lang_hint` | `f" (value in {language.capitalize()})"` or `""` |
+| `desc_lang_hint` | `f" (value in {language.capitalize()})"` or `""` |
 | `directory_tree` | Built from `shared["files"]` via `build_directory_tree()` |
 
 **Expected YAML response:** List of dicts with `name`, `description`, `file_indices`
@@ -1265,7 +1291,7 @@ Template: `prompts/{mode}/identify_relationships.md`
 **Post-processing:** Parse `from_abstraction`/`to_abstraction` to int indices via `re.findall(r'\d+', ...)`
 **Writes:** `shared["relationships"] = {"summary": str, "details": [{"from": int, "to": int, "label": str}, ...]}`
 
-**`prep()` return:** 11-element `tuple` — `(context, abstraction_listing, num_abstractions, project_name, language, use_cache, thinking_level, advanced_mode, max_tokens, max_tokens, max_tokens)`
+**`prep()` return:** 10-element `tuple` — `(context, abstraction_listing, num_abstractions, project_name, language, use_cache, thinking_level, advanced_mode, max_tokens, mode)`
 **`post()` return:** `None`
 
 #### OrderChapters
@@ -1282,7 +1308,7 @@ Template: `prompts/{mode}/order_chapters.md`
 **Validation:** Must cover all abstractions, no duplicates, indices in valid range
 **Writes:** `shared["chapter_order"] = [int, ...]`
 
-**`prep()` return:** 11-element `tuple` — `(abstraction_listing, context, num_abstractions, project_name, list_lang_note, use_cache, thinking_level, advanced_mode, max_tokens, max_tokens, max_tokens)`
+**`prep()` return:** 10-element `tuple` — `(abstraction_listing, context, num_abstractions, project_name, list_lang_note, use_cache, thinking_level, advanced_mode, max_tokens, mode)`
 **`post()` return:** `None`
 
 #### DeterministicFileMapper
@@ -1351,7 +1377,7 @@ filename = f"{i+1:02d}_{safe_name}.md"
 4. A lightweight LLM call (`thinking_level=None, use_cache=True`) produces a structured brief (4 points × 3-5 sentences)
 5. Summary is stored as `"Chapter N — Name:\n{summary}"` in `self.chapter_summaries`
 6. Subsequent chapters receive `"\n---\n".join(self.chapter_summaries)` as `previous_chapters_summary`
-7. **api-reference mode** skips summaries entirely (independent file docs, no narrative continuity)
+7. **api-reference mode** generates summaries on fresh runs (for LLM nav grouping) but skips summary regeneration on incremental cache hits
 8. CLI output: `\033[96m[Summarizing] Chapter N for cross-chapter context (X tokens)...\033[0m` → `\033[96m[Summary Done] Chapter N: X tokens\033[0m` (cyan)
 9. Log: `CHAPTER SUMMARY START | chapter=N | prompt_tokens=X` → `CHAPTER SUMMARY DONE | chapter=N | summary_tokens=X`
 
@@ -1534,16 +1560,35 @@ First attempt uses cache; retries always get fresh responses.
 ```python
 try:
     response = requests.post(url, headers=headers, json=payload, timeout=(10, 300))
-    response_json = response.json()
+    try:
+        response_json = response.json()
+    except (ValueError, requests.exceptions.JSONDecodeError):
+        emit_raw("WARNING", f"Warning: Provider returned invalid JSON. Status Code: {response.status_code}")
+        raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}") from None
     response.raise_for_status()
+
+    # Defensive check: API may return 200 with error/rate-limit payload missing 'choices'
+    if "choices" not in response_json or not response_json["choices"]:
+        error_detail = response_json.get("error", response_json)
+        raise ValueError(f"API response missing 'choices' key. Response: {error_detail}")
+
     return response_json["choices"][0]["message"]["content"]
 except requests.exceptions.HTTPError as e:
-    error_details = response.json().get("error", "No additional details")
-    raise Exception(f"HTTP error occurred: {e} (Details: {error_details})")
-except requests.exceptions.ConnectionError:
-    raise Exception(f"Failed to connect to {provider} API.")
-except requests.exceptions.Timeout:
-    raise Exception(f"Request to {provider} API timed out.")
+    error_message = f"HTTP error occurred: {e}"
+    try:
+        error_details = response.json().get("error", "No additional details")
+        error_message += f" (Details: {error_details})"
+    except Exception:
+        pass
+    raise Exception(error_message) from e
+except requests.exceptions.ConnectionError as e:
+    raise Exception(f"Failed to connect to {provider} API. Check your network connection.") from e
+except requests.exceptions.Timeout as e:
+    raise Exception(f"Request to {provider} API timed out.") from e
+except requests.exceptions.RequestException as e:
+    raise Exception(f"An error occurred while making the request to {provider}: {e}") from e
+except ValueError as e:
+    raise Exception(f"Failed to parse response as JSON from {provider}.") from e
 ```
 
 ### Cleanup Logic
@@ -1609,6 +1654,76 @@ Standardized output formats enforced by prompt instructions to ensure consistenc
 | Mode | Convention | Prompt Instruction |
 |---|---|---|
 | `api-reference` | File path header | `> **Source:** \`path/to/file.ext\`` (blockquote with bold label) |
+
+### Mandatory Page Skeletons (`draft_chapters.md`)
+
+Each mode's `draft_chapters.md` enforces a fixed set of `##` headings. Only these headings are allowed at the `##` level — the LLM must NOT invent headings like "Pipeline Context", "Key Architectural Capabilities", or "Standalone Execution Block". `###` and `####` headings are free-form.
+
+| Mode | Skeleton (`##` headings) |
+|---|---|
+| `tutorial` | Motivation & Use Case → Key Concepts → How It Works → Under the Hood → Summary |
+| `advanced` | Technical Overview → Implementation Deep-Dive → Data Structures → Error Handling → Practical Notes |
+| `api-reference` | Technical Overview → Public API → Internal Helpers → Data Structures → Error Handling → See Also |
+| `sdk` | Technical Overview → Public API → Configuration & Options → Data Structures → Error Handling → See Also |
+
+All `##` skeleton headings MUST be translated to the target `{language}`.
+
+### Function Documentation Depth
+
+Depth scales proportionally to the function's **logical complexity** — NOT by counting lines of code:
+
+| Complexity | Documentation approach |
+|---|---|
+| **Simple** (single responsibility, linear flow) | One code block + one explanation paragraph under `###` |
+| **Multi-phase** (distinct logical phases) | Split into `####` sub-sections, one per logical phase. Each gets its own code block + explanation paragraph |
+| **Very large** (many distinct phases) | Phase overview, then a `####` sub-section per phase. There is NO cap on sub-sections — if a function has 12 logical phases, create 12 `####` sub-sections |
+
+Phase names must describe the actual phase (e.g., "Tree Traversal", "Response Assembly") — NOT generic labels like "Implementation Walkthrough: Part 1".
+
+**Consistency rule:** If two chapters cover functions of similar complexity, they MUST get similar documentation depth.
+
+### Diagram & Mermaid Standards (ABSOLUTE)
+
+**NEVER use ASCII art** — no `+---+`, `|`, `-->`, box-drawing characters, or plaintext diagrams. ALL diagrams must be fenced ` ```mermaid ` blocks using one of: `flowchart TD`, `classDiagram`, `sequenceDiagram`, `stateDiagram`, `erDiagram`.
+
+Mermaid rendering rules:
+- All flowcharts use `flowchart TD` (top-down only; never LR, RL, or BT)
+- Process nodes use rectangular brackets with quoted labels: `nodeId["Label"]`
+- Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`
+- For 6+ nodes, use `subgraph` blocks to prevent flat sprawl
+- Define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` once at the end, apply to first node of flow and each subgraph
+- Do NOT use `%%{{init}}%%` directives — the site handles theming
+
+### Mandatory Data Structures Section
+
+Required in `api-reference`, `sdk`, and `advanced` modes. Every type, schema, container class, and complex return dictionary shape must be documented with field-by-field tables:
+
+```markdown
+| Field | Type | Description |
+|---|---|---|
+| `name` | `str` | The abstraction name |
+| `files` | `list[int]` | File indices containing this abstraction |
+```
+
+### Language-Agnostic Grouping (api-reference / sdk)
+
+Criteria for categorizing symbols into Public API, Internal Helpers, and Data Structures are language-agnostic. The LLM determines visibility using the language's own conventions — access modifiers, naming conventions, export mechanisms, header declarations, etc. For non-typed languages (HTML, CSS, config files), document structural contracts instead.
+
+### Code Extraction Rules
+
+- Code fidelity: preserve exact code and original comments without translation inside code fences
+- Block size caps: 30 lines (tutorial), 60 lines (advanced), 50 lines (api-reference/sdk)
+- Minimum 1 full paragraph (3-5 sentences) of technical explanation after every code block
+- Minimum 55-60% prose ratio across chapters
+
+### Target Chapter Length
+
+| Mode | Word range |
+|---|---|
+| `tutorial` | 3,000–6,000 |
+| `advanced` | 5,000–10,000 |
+| `api-reference` | 3,000–8,000 |
+| `sdk` | 3,000–6,000 |
 
 ## 15. Flow Wiring
 
@@ -1692,9 +1807,9 @@ def parse_yaml_response(response):
         yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
         return yaml.safe_load(yaml_str)
     except Exception as e:
-        raise ValueError(f"Failed to parse YAML: {e}")
+        raise ValueError(f"Failed to parse YAML: {e}") from e
 ```
-**Used by:** MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters (5 nodes)
+**Used by:** MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper, CombineTutorial (7 nodes)
 
 #### `create_token_counter()` → `Callable[[str], int]`
 Creates a token counting function using tiktoken with char-count fallback.
@@ -1729,6 +1844,20 @@ def resolve_max_tokens(shared):
     return get_model_context_length(endpoint, model_name, api_key)
 ```
 **Used by:** ContextRouter, IdentifyAbstractions (2 nodes)
+
+#### `build_directory_tree`
+Used by: ContextRouter, IdentifyAbstractions, MapAbstractions, CombineTutorial (4 callers)
+```python
+def build_directory_tree(files_data: list[dict]) -> str:
+```
+Builds a hierarchical directory tree string with file indices from the files_data list.
+
+#### `get_content_for_indices`
+Used by: WriteChapters, AnalyzeRelationships (2 callers)
+```python
+def get_content_for_indices(files_data: list[dict], indices: list[int]) -> dict:
+```
+Extracts file content dictionary for the given list of file indices.
 
 ### Anti-Patterns to Avoid
 

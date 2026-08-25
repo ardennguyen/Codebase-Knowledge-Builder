@@ -20,7 +20,7 @@
 
    > **Note:** CLI output language matches the `--language` flag. String translations are stored in `utils/strings.csv` and auto-translated via LLM for missing languages.
 
-3. Set up LLM in [`utils/call_llm.py`](./utils/call_llm.py) by providing credentials. To do so, you can put the values in a `.env` file. By default, you can use the AI Studio key with this client for Gemini Pro 2.5 by setting the `GEMINI_API_KEY` environment variable. If you want to use another LLM, you can set the `LLM_PROVIDER` environment variable (e.g. `OPENROUTER`), and then set the model, url, and API key (e.g. `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). If using Ollama, the base url is `http://localhost:11434` (e.g. `OLLAMA_BASE_URL`) and the API key can be omitted.
+3. Set up LLM by copying `.env.sample` to `.env` and providing credentials. By default, you can use the AI Studio key for Gemini by setting the `GEMINI_API_KEY` environment variable (or `GEMINI_PROJECT_ID` for Vertex AI). If you want to use another LLM, you can set the `LLM_PROVIDER` environment variable (e.g. `OPENROUTER`), and then set the model, url, and API key (e.g. `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). If using Ollama, set `LLM_PROVIDER=OLLAMA` and the base url (e.g. `OLLAMA_BASE_URL=http://localhost:11434`) — the API key can be omitted.
    You can use your own models. We highly recommend the latest models with thinking capabilities (Claude 3.7 with thinking, O1). You can verify that it is correctly set up by running:
    ```bash
    python utils/call_llm.py
@@ -66,6 +66,31 @@
     - `--cleanup` - Clean up logs and cache files. Can be used standalone or after a run.
 
 The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an `index.md` (with a link to the full content), and a compiled `full_content.md` — all inside a project-named subdirectory.
+
+### Documentation Modes
+
+| Mode | Audience | Description |
+|---|---|---|
+| `tutorial` | Beginners | Step-by-step walkthrough of key concepts with gentle explanations and analogies |
+| `advanced` | Senior devs / PMs | Architectural deep-dive with implementation details, data structures, and design patterns |
+| `api-reference` | Developers | Exhaustive per-file API documentation with public/internal separation (1:1 file mapping) |
+| `sdk` | Integration devs | SDK-oriented docs focused on public API, configuration, and usage patterns |
+
+### Usage Examples
+
+```bash
+# API Reference with MkDocs site + incremental caching
+python main.py --dir /path/to/project --mode api-reference --mkdocs --incremental
+
+# SDK documentation in Vietnamese
+python main.py --dir /path/to/project --mode sdk --language Vietnamese
+
+# Advanced mode for architecture review
+python main.py --repo https://github.com/user/repo --mode advanced --thinking-level high
+
+# Tutorial from GitHub repo with file filters
+python main.py --repo https://github.com/user/repo --include "*.py" --exclude "tests/*"
+```
 
 
 <details>
@@ -129,7 +154,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
 
    > **Ghi chú:** Ngôn ngữ hiển thị trên terminal khớp với cờ `--language`. Bản dịch chuỗi được lưu trong `utils/strings.csv` và tự động dịch qua LLM cho các ngôn ngữ chưa có.
 
-3. Thiết lập LLM trong [`utils/call_llm.py`](./utils/call_llm.py) bằng cách cung cấp thông tin xác thực. Để thực hiện, bạn có thể đặt các giá trị trong tệp `.env`. Theo mặc định, bạn có thể sử dụng khóa API AI Studio với client này cho Gemini Pro 2.5 bằng cách cài đặt biến môi trường `GEMINI_API_KEY`. Nếu bạn muốn sử dụng LLM khác, bạn có thể thiết lập biến `LLM_PROVIDER` (ví dụ: `OPENROUTER`), và sau đó thiết lập model, url và khóa API (ví dụ: `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). Nếu dùng Ollama, base url là `http://localhost:11434` (ví dụ: `OLLAMA_BASE_URL`) và có thể bỏ qua API key.
+3. Thiết lập LLM bằng cách sao chép `.env.sample` thành `.env` và cung cấp thông tin xác thực. Theo mặc định, bạn có thể sử dụng khóa API AI Studio cho Gemini bằng cách cài đặt biến môi trường `GEMINI_API_KEY` (hoặc `GEMINI_PROJECT_ID` cho Vertex AI). Nếu bạn muốn sử dụng LLM khác, bạn có thể thiết lập biến `LLM_PROVIDER` (ví dụ: `OPENROUTER`), và sau đó thiết lập model, url và khóa API (ví dụ: `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). Nếu dùng Ollama, thiết lập `LLM_PROVIDER=OLLAMA` và base url (ví dụ: `OLLAMA_BASE_URL=http://localhost:11434`) — có thể bỏ qua API key.
    Bạn có thể dùng model của riêng mình. Chúng tôi đặc biệt khuyến nghị các model mới nhất có khả năng suy luận (Claude 3.7 với tính năng suy luận, O1). Bạn có thể xác minh xem nó đã được thiết lập đúng hay chưa bằng cách chạy:
    ```bash
    python utils/call_llm.py
