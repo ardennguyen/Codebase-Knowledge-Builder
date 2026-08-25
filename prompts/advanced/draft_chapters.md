@@ -23,13 +23,35 @@ Relevant Code Snippets (Code itself remains unchanged):
 Instructions for the chapter (Generate content in {language} unless specified otherwise):
 - Start with a clear heading (e.g., `# Chapter {chapter_num}: {abstraction_name}`). Use the provided component name.
 
+PAGE SKELETON (MANDATORY): Every chapter MUST follow this section ordering. Translate section headings to {language}. You may SKIP a section if the component has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
+
+```
+## Technical Overview          ← always first: architectural role, design patterns, responsibilities, dependencies
+## Implementation Deep-Dive    ← code analysis, function-by-function breakdown
+## Data Structures             ← types, schemas, return structures, config objects, state shapes
+## Error Handling              ← notable error patterns, recovery strategies
+## Practical Notes             ← debugging, config, known quirks, code review patterns
+```
+
+SECTION HEADING RULES:
+- The `##` headings above are the ONLY allowed `##` headings. Do NOT invent `##` headings like "Pipeline Context and Data Flow", "Performance Characteristics", "Architectural Traversal Logic", "Standalone Execution Block", or "Key Architectural Capabilities" — fold that content into Technical Overview or Implementation Deep-Dive.
+- `###` and `####` headings are free-form (for individual features, classes, phases).
+
+FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
+  Every function/method gets its own `###` entry. Determine depth by analyzing the function's logical structure — NOT by counting lines:
+  * **Simple** (single responsibility, linear flow): One code block + one explanation paragraph under `###`.
+  * **Multi-phase** (distinct logical phases): Split into `####` sub-sections, one per logical phase. Each phase gets its own code block + explanation paragraph.
+  * **Very large** (many distinct phases, nested loops, multiple branching paths): Start with a brief phase overview listing all phases, then a `####` sub-section for each. There is NO cap — if a function has 12 logical phases, create 12 `####` sub-sections.
+  The `####` phase names must describe the actual phase — NOT generic labels like "Implementation Walkthrough: Part 1". Use descriptive names derived from what the code does.
+  CONSISTENCY: Functions of similar complexity across different components in the same project MUST get similar documentation depth.
+
 - If this is not the first chapter, begin with a brief transition from the previous chapter{instruction_lang_note}, referencing it with a proper Markdown link using its name{link_lang_note}.
 
 - Begin with a technical overview structured as follows{instruction_lang_note}:
   1. **Architectural Role**: What this component does and WHY it exists as a separate concern. What would happen if it didn't exist?
   2. **Design Patterns**: Which patterns are used and what tradeoffs they represent (not just naming the pattern — explain WHY this pattern was chosen over alternatives).
   3. **Core Responsibilities**: A bullet list of 3-7 key things this component is accountable for.
-  4. **Key Dependencies**: Which other components does this one rely on? Draw an ASCII or Mermaid diagram showing this component in context with its immediate neighbors.
+  4. **Key Dependencies**: Which other components does this one rely on? Draw a Mermaid diagram showing this component in context with its immediate neighbors.
 
 - Dive into the implementation. The reader is experienced — don't explain basic programming concepts. Instead focus on{instruction_lang_note}:
   * How the key classes are structured and WHY they're structured that way
@@ -60,7 +82,13 @@ Instructions for the chapter (Generate content in {language} unless specified ot
   Do NOT paste entire files. If a file has 50 methods, show the 5 most important ones and describe the rest in a brief summary table:
   | Method/Property | Responsibility | Key Behavior |
 
-- Describe the internal execution flow or state transitions{instruction_lang_note}. You MUST generate Mermaid diagrams using fenced code blocks (```mermaid). NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the diagram type based on what aspect of the code you're illustrating:
+- DATA STRUCTURES (MANDATORY): In the `## Data Structures` section, document ALL types, classes used as data containers, return value schemas, configuration objects, state shapes, and inter-component contracts defined or returned by this component. For each structure, include:
+  * A field-by-field table: `| Field | Type | Description |`
+  * Example values where visible in the source code
+  * If a function returns a complex dict/list/object (not a simple scalar), document its shape here even if there is no formal type definition.
+  A senior engineer joining the project needs to understand exactly what data flows through each component. Skip this section ONLY if every function returns simple scalars or void.
+
+- Describe the internal execution flow or state transitions{instruction_lang_note}. You MUST generate Mermaid diagrams using fenced code blocks (```mermaid). DIAGRAM RULES (ABSOLUTE): NEVER use ASCII art, box-drawing characters (+---+, |, v, -->), or plaintext diagrams anywhere in the document — not in the overview, not in architecture diagrams, not anywhere. Every diagram MUST use fenced ```mermaid code blocks. Choose the diagram type based on what aspect of the code you're illustrating:
   * `sequenceDiagram` — for request/response flows that cross multiple components or services
   * `flowchart TD` — for decision logic, branching, or pipeline stages within a single component (MUST use TD direction)
   * `erDiagram` — for data model relationships (database schemas, entity hierarchies)
@@ -75,7 +103,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - IMPORTANT: When you need to refer to other core abstractions covered in other chapters, ALWAYS use proper Markdown links with relative paths. Each chapter's doc path is shown in the Structure above as `(doc: path.md)`. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}.
 
-- Add a "Practical Notes for New Team Members" subsection near the end covering{instruction_lang_note}:
+- Add the `## Practical Notes` section near the end covering{instruction_lang_note}:
   * Where to find the relevant configuration (config files, environment variables, feature flags)
   * Common debugging entry points (which logs to check, which methods to breakpoint)
   * Known quirks or technical debt visible in the code

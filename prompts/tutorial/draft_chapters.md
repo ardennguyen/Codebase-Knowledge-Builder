@@ -22,6 +22,28 @@ Relevant Code Snippets (Code itself remains unchanged):
 Instructions for the chapter (Generate content in {language} unless specified otherwise):
 - Start with a clear heading (e.g., `# Chapter {chapter_num}: {abstraction_name}`). Use the provided concept name.
 
+PAGE SKELETON (MANDATORY): Every chapter MUST follow this section ordering. Translate section headings to {language}. You may SKIP a section if the concept has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
+
+```
+## Motivation & Use Case       ← always first: what problem does this solve?
+## Key Concepts                ← break down the abstraction into learnable pieces
+## How It Works                ← usage examples, inputs/outputs
+## Under the Hood              ← internal implementation walkthrough + mermaid diagrams
+## Summary                     ← what was learned, transition to next chapter
+```
+
+SECTION HEADING RULES:
+- The `##` headings above are the ONLY allowed `##` headings. Do NOT invent `##` headings like "Pipeline Context", "Performance Characteristics", "Architectural Overview", or "Key Capabilities" — fold that content into the appropriate section above.
+- `###` and `####` headings are free-form (for individual features, code walkthrough phases).
+
+FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
+  Determine depth by analyzing the function's logical structure — NOT by counting lines:
+  * **Simple** (single responsibility, linear flow): One code block + one explanation paragraph.
+  * **Multi-phase** (distinct logical phases): Split into `####` sub-sections, one per logical phase. Each phase gets its own code block + explanation paragraph.
+  * **Very large** (many distinct phases): Start with a brief phase overview, then a `####` sub-section for each. There is NO cap on sub-sections.
+  The `####` phase names must describe the actual phase — NOT generic labels like "Implementation Walkthrough: Part 1".
+  CONSISTENCY: If two chapters cover functions of similar complexity, they MUST get similar documentation depth.
+
 - If this is not the first chapter, begin with a brief transition from the previous chapter{instruction_lang_note}, referencing it with a proper Markdown link using its name{link_lang_note}.
 
 - Begin with a high-level motivation explaining what problem this abstraction solves{instruction_lang_note}. Start with a central use case as a concrete example. The whole chapter should guide the reader to understand how to solve this use case. Make it very minimal and friendly to beginners.
@@ -46,7 +68,7 @@ Instructions for the chapter (Generate content in {language} unless specified ot
 
 - EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of explanation immediately after it. The overall chapter should be at least 60% prose and at most 40% code by line count. If you find yourself showing code block after code block with only a single sentence between them, STOP and add more explanation — describe what the code achieves, why it's designed this way, what edge cases it handles, and how it connects to the next block.
 
-- Describe the internal implementation to help understand what's under the hood{instruction_lang_note}. First provide a non-code or code-light walkthrough on what happens step-by-step when the abstraction is called{instruction_lang_note}. You MUST generate Mermaid diagrams using fenced code blocks (```mermaid) to visualize this. NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the Mermaid diagram type based on what aspect of the code you're illustrating:
+- Describe the internal implementation to help understand what's under the hood{instruction_lang_note}. First provide a non-code or code-light walkthrough on what happens step-by-step when the abstraction is called{instruction_lang_note}. You MUST generate Mermaid diagrams using fenced code blocks (```mermaid) to visualize this. DIAGRAM RULES (ABSOLUTE): NEVER use ASCII art, box-drawing characters (+---+, |, v, -->), or plaintext diagrams anywhere in the document — not in the overview, not in architecture diagrams, not anywhere. Every diagram MUST use fenced ```mermaid code blocks. Choose the Mermaid diagram type based on what aspect of the code you're illustrating:
   * `sequenceDiagram` — for request/response flows that cross multiple components or services
   * `flowchart TD` — for decision logic, branching, or pipeline stages within a single component (MUST use TD direction)
   * `erDiagram` — for data model relationships (database schemas, entity hierarchies)

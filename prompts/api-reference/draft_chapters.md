@@ -21,25 +21,53 @@ Source Code Context:
 {file_context_str}
 
 Instructions for the API reference page (Generate content in {language} unless specified otherwise):
-- Start with a clear heading `# {abstraction_name}`.
-- Below the heading, state the source file path in this exact format: `> **Source:** \`path/to/file.ext\``
-- Provide a technical overview of this file's purpose, behavior, and role in the system.
+
+PAGE SKELETON (MANDATORY): Every page MUST follow this exact section ordering. Translate section headings to {language}. You may SKIP a section if the file has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
+
+```
+# {abstraction_name}
+> **Source:** `path/to/file`
+
+## Technical Overview          ← always first, 1-3 paragraphs + mermaid diagram
+## Public API                  ← exported/public classes and functions
+## Internal Helpers            ← private/internal functions, nested helpers
+## Data Structures             ← types, schemas, return structures, config objects
+## Error Handling              ← notable error patterns, custom exceptions
+## See Also                    ← always last
+```
+
+Section grouping criteria — apply to ANY programming language or file type:
+- **Public API**: Symbols that are part of the file's external contract — imported by other files, exported, or callable by external consumers. Determine visibility using the language's own conventions (access modifiers, naming conventions, export mechanisms, header declarations, etc.).
+- **Internal Helpers**: Symbols used only within this file — private methods, nested functions, utility closures, file-scoped helpers. If the language has no explicit visibility system, use context: is it called only within this file? Then it's internal.
+- **Data Structures**: ALL types, classes, structs, interfaces, enums, schemas, AND complex return value shapes (e.g., a function returning a dict/object with multiple fields — document its structure here). Include field-by-field tables for each. For non-typed languages (HTML, CSS, config files), document the structural contracts instead (e.g., expected attributes, class naming conventions, selector patterns).
+
+SECTION HEADING RULES:
+- The `##` headings above are the ONLY allowed `##` headings. Do NOT invent `##` headings like "Standalone Execution Block", "Pipeline Context and Data Flow", "Performance Characteristics", "Architectural Traversal Logic", or "Key Architectural Capabilities" — fold that content into Technical Overview or the relevant function's explanation.
+- `###` and `####` headings are free-form (for individual functions, classes, phases).
+
+Now the detailed rules:
+
+- Start with `# {abstraction_name}`.
+- Below the heading, state the source file path: `> **Source:** \`path/to/file.ext\``
+- The `## Technical Overview` section: 1-3 paragraphs on purpose, behavior, and system role. Include a mermaid diagram if the file has control flows, pipelines, or architectural patterns.
 
 - If this is not the first page in the API Index, begin with a brief transition noting how this file relates to the previous one. Reference the previous page with a proper Markdown link using its name{link_lang_note}.
 
 - This is an EXHAUSTIVE internal reference. Extract ALL classes, methods, functions, AND important class properties/fields defined in this file.
 - CRITICAL: You MUST include all private methods, protected methods (e.g., methods starting with `_` or `__`), and internal helper functions present in the Source Code Context above. Do not skip any classes or functions — document EVERYTHING in this file.
 
-- FUNCTION-BY-FUNCTION BREAKDOWN (CRITICAL): Do NOT dump the entire source file and call it documentation. Instead, go method-by-method:
-  1. Give each public method/function its own `###` subsection using the template below
-  2. For each method, show its signature and the core implementation logic (10-50 lines, using `// ...` to skip boilerplate)
-  3. Follow each code block with a prose paragraph explaining the behavior, edge cases, and error handling
-  If the file implements multiple distinct features or handlers (e.g., 8 button click handlers), each MUST get its own documented subsection — do not lump them into one giant code block.
+FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
+  Every function/method gets its own `###` entry. Determine depth by analyzing the function's logical structure — NOT by counting lines:
+  * **Simple** (single responsibility, linear flow): One code block + one explanation paragraph under `###`.
+  * **Multi-phase** (distinct logical phases — e.g., validation → core logic → cleanup → result formatting): Split into `####` sub-sections, one per logical phase. Each phase gets its own code block + explanation paragraph.
+  * **Very large** (many distinct phases, nested loops, multiple branching paths): Start with a brief phase overview listing all phases, then a `####` sub-section for each. There is NO cap — if a function has 12 logical phases, create 12 `####` sub-sections.
+  The `####` phase names must describe the actual phase — NOT generic labels like "Implementation Walkthrough: Part 1" or "Section A". Use descriptive names derived from what the code does (e.g., "Tree Traversal", "Filter Chain", "Response Assembly", "Cache Invalidation").
+  CONSISTENCY: Functions of similar complexity across different files in the same project MUST get similar documentation depth. Do not over-document a trivial helper or under-document a complex orchestrator.
 
 - Generate standard Markdown API documentation enforcing this exact structure for each method/function:
 
 ### `function_or_method_name()`
-**Visibility**: (Specify Public, Protected, or Private)
+**Visibility**: (Public, Protected, or Private)
 **Signature**: `def _function_name(arg1: type) -> type:` (or equivalent in the source language)
 
 **Description**: Technical description of the behavior and internal implementation details. What does this actually do under the hood?
@@ -59,8 +87,6 @@ Instructions for the API reference page (Generate content in {language} unless s
 # or the method's own implementation. NEVER invent example code.
 ```
 
-- Group methods and properties under their respective class headings (`## ClassName`). For top-level functions not inside a class, group them under `## Module-Level Functions`.
-
 - IMPORTANT: You MUST reference ACTUAL code from the provided Source Code Context — never invent examples. However, DO NOT dump the entire source file into one massive code block. Instead, extract method-by-method.
 
 - NO INVENTED CODE: Every code block, usage example, and snippet MUST come from the actual Source Code Context provided above. If no usage example exists in the source for a method, show the method's own implementation as the example. Never fabricate hypothetical calling code.
@@ -71,22 +97,29 @@ Instructions for the API reference page (Generate content in {language} unless s
 
 - EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of technical explanation immediately after it — describe the behavior, implementation strategy, error handling, and edge cases. Do NOT just show code with a one-liner description.
 
-- When the file defines control flows, inheritance hierarchies, state machines, or node/pipeline architectures, you MUST include Mermaid diagrams using fenced code blocks (```mermaid). NEVER use ASCII art, box-drawing characters (+---+, |, v), or plaintext diagrams — they render poorly in web documentation. Choose the appropriate Mermaid diagram type:
+- DATA STRUCTURES (MANDATORY): In the `## Data Structures` section, document ALL types, classes used as data containers, return value schemas, and configuration objects defined or returned by this file. For each structure, include:
+  * A field-by-field table: `| Field | Type | Description |`
+  * Example values where visible in the source code
+  * If a function returns a complex dict/list/object (not a simple scalar), document its shape here even if there is no formal type definition.
+  Skip this section ONLY if every function in the file returns simple scalars (strings, numbers, booleans) or None/void.
+
+- DIAGRAM RULES (ABSOLUTE — applies to ALL visual diagrams in the document):
+  NEVER use ASCII art, box-drawing characters (+---+, |, v, -->), or plaintext diagrams anywhere — not in the overview section, not in architecture diagrams, not anywhere. Every diagram MUST use fenced ```mermaid code blocks. If you are tempted to draw a text-art box diagram, STOP and write a ```mermaid flowchart TD instead.
+  Include Mermaid diagrams for: control flows, inheritance hierarchies, state machines, node/pipeline architectures, and architectural overviews. Choose the appropriate type:
   * `classDiagram` — for inheritance, composition, or factory patterns
   * `sequenceDiagram` — for request/response flows that cross multiple components
-  * `flowchart TD` — for decision logic, branching, pipeline stages, or node architecture (MUST use TD direction)
+  * `flowchart TD` — for decision logic, branching, pipeline stages, node architecture, or architectural overviews (MUST use TD direction)
   * `stateDiagram` — for entity lifecycle states
   Include diagrams when they add clarity; omit them for simple data-class or utility files.
   MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
-  MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
+  MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{init}%%` directives — the site handles theming automatically.
 
 - Link to other documented files using Markdown links with relative paths. Each file's doc path is shown in the Index above as `(doc: path.md)`. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}. Translate the surrounding prose text, not the code.
 
 - PAGE LENGTH: Aim for 3,000-8,000 words per reference page. This limit includes prose AND code — use per-method extraction (not whole-file dumps) to stay within it. Only if the file defines more than 20 classes or 60+ methods should you fall back to a summary table for the least significant items:
   | Class/Function | Visibility | Responsibility | Key Methods |
-  Even then, fully document as many as possible and use the table only for trivial accessors or boilerplate wrappers.
 
-- End the page with a brief "See Also" section listing related files with Markdown links{link_lang_note}, based on imports or call relationships visible in the source code.
+- End the page with the `## See Also` section listing related files with Markdown links{link_lang_note}, based on imports or call relationships visible in the source code.
 
 - Return ONLY valid Markdown content. Do not include conversational filler.
 
