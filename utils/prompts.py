@@ -181,7 +181,7 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
                     lines.append(f"{pad}    - '{mod_name}': 'api/{match['filename']}'")
         else:
             # Single directory or no original_path → flat list
-            for mod_name, match in matched:
+            for _dir_path, mod_name, match in matched:
                 lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
 
     return lines

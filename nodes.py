@@ -176,26 +176,34 @@ class ContextRouter(Node):
         count_tokens = create_token_counter()
 
         # --- Calculate prompt overhead FIRST ---
-        # 1. Prompt template (measure both, use the larger)
+        # 1. Prompt templates: check both IA/MA (for batching) and WC (for chapter writing)
+        #    Use the largest template across all modes as worst-case estimate
         prompt_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
         max_template_tokens = 0
-        for subdir in ["tutorial", "advanced"]:
-            template_path = os.path.join(prompt_dir, subdir, "map_abstractions.md")
-            if os.path.exists(template_path):
-                with open(template_path, encoding="utf-8-sig") as f:
-                    t = count_tokens(f.read())
-                max_template_tokens = max(max_template_tokens, t)
+        for subdir in ["tutorial", "advanced", "api-reference", "sdk"]:
+            for template_name in ["map_abstractions.md", "identify_abstractions.md", "draft_chapters.md"]:
+                template_path = os.path.join(prompt_dir, subdir, template_name)
+                if os.path.exists(template_path):
+                    with open(template_path, encoding="utf-8-sig") as f:
+                        t = count_tokens(f.read())
+                    max_template_tokens = max(max_template_tokens, t)
 
-        # 2. Directory tree (built from all files, shared across batches)
+        # 2. Directory tree (shared across IA, MA, and WC prompts)
         directory_tree = build_directory_tree(files_data)
         tree_tokens = count_tokens(directory_tree)
 
-        prompt_overhead = max_template_tokens + tree_tokens
+        # 3. Chapter listing estimate (used in WC draft_chapters prompts)
+        #    Format: "N. basename (doc: path.md)" per file
+        chapter_listing_estimate = "\n".join(f"{i + 1}. {os.path.basename(path)} (doc: {path}.md)" for i, (path, _) in enumerate(files_data))
+        listing_tokens = count_tokens(chapter_listing_estimate)
+
+        prompt_overhead = max_template_tokens + tree_tokens + listing_tokens
         emit(
             "CAPACITY_PROMPT_OVERHEAD",
             total=f"{prompt_overhead:,}",
             template=f"{max_template_tokens:,}",
             tree=f"{tree_tokens:,}",
+            listing=f"{listing_tokens:,}",
         )
 
         # --- Count file content tokens ---
@@ -1542,7 +1550,7 @@ class CombineTutorial(Node):
                 for mod_name in section["modules"]:
                     match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
                     if match:
-                        display = mod_name.split(".")[-1] if "." in mod_name else mod_name
+                        display = mod_name
                         # Use description, but if it's the generic mapper description, extract from content
                         desc = match["description"]
                         if desc.startswith("Internal API reference"):
@@ -1552,7 +1560,7 @@ class CombineTutorial(Node):
                                 if cs and not cs.startswith(("---", "#", "```", "title:", "sidebar_position:")):
                                     desc = cs[:120]
                                     break
-                        lines.append(f"| [{display}](api/{match['filename']}) | {desc} |")
+                        lines.append(f"| [{display}]({match['filename']}) | {desc} |")
                 lines.append("")
             for child in section.get("children", []):
                 CombineTutorial._build_index_sections(lines, [child], chapter_files, level + 1)
@@ -1644,6 +1652,7 @@ class CombineTutorial(Node):
                         emit("GROUP_ERROR_FALLBACK", error=e)
                         llm_logger.warning(f"LLM grouping failed: {e}", exc_info=True)
                         nav_snippet = prep_res["nav_snippet"]
+                        sections = None
                 else:
                     nav_snippet = prep_res["nav_snippet"]
 
@@ -1697,13 +1706,13 @@ class CombineTutorial(Node):
                         "|---------|-------------|",
                     ]
                     for i, cf in enumerate(chapter_files):
-                        display = cf["module_name"].split(".")[-1] if "." in cf["module_name"] else cf["module_name"]
+                        display = cf["module_name"]
                         summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
                         # Truncate and sanitize for table cell (replace pipes and newlines)
                         summary = summary.replace("|", "—").replace("\n", " ").strip()
                         if len(summary) > 200:
                             summary = summary[:197] + "..."
-                        index_lines.append(f"| [{display}](api/{cf['filename']}) | {summary} |")
+                        index_lines.append(f"| [{display}]({cf['filename']}) | {summary} |")
                     index_lines.append("")
                     index_content = "\n".join(index_lines)
                 api_index_filepath = os.path.join(api_docs_path, "index.md")
