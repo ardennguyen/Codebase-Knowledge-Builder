@@ -43,6 +43,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     "build/*",
     "out/*",
     "output/*",
+    "output-test*/*",
     "target/*",
     "bin/*",
     "obj/*",
