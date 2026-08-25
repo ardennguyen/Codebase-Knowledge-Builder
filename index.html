@@ -58,7 +58,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid-raw", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -323,10 +323,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#generated-tutorials" class="md-nav__link">
+  <a href="#documentation-modes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Generated Tutorials
+        Documentation Modes
       
     </span>
   </a>
@@ -471,7 +471,7 @@
   <span class="md-ellipsis">
     
   
-    Workflow Orchestration & Execution
+    Workflow & Execution
   
 
     
@@ -487,7 +487,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Workflow Orchestration & Execution
+    Workflow & Execution
   
 
           </label>
@@ -614,7 +614,7 @@
   <span class="md-ellipsis">
     
   
-    Repository Ingestion & Filtering
+    Source Code Ingestion
   
 
     
@@ -630,7 +630,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Repository Ingestion & Filtering
+    Source Code Ingestion
   
 
           </label>
@@ -820,7 +820,7 @@
   <span class="md-ellipsis">
     
   
-    LLM Inference & Context Management
+    LLM & Prompting
   
 
     
@@ -836,7 +836,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM Inference & Context Management
+    LLM & Prompting
   
 
           </label>
@@ -932,14 +932,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/token_utils.py/" class="md-nav__link">
+      <a href="api/utils/prompts.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    token_utils.py
+    prompts.py
   
 
     
@@ -960,14 +960,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/prompts.py/" class="md-nav__link">
+      <a href="api/utils/token_utils.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    prompts.py
+    token_utils.py
   
 
     
@@ -1026,7 +1026,7 @@
   <span class="md-ellipsis">
     
   
-    Output & Utility Infrastructure
+    Output & Utilities
   
 
     
@@ -1042,7 +1042,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Output & Utility Infrastructure
+    Output & Utilities
   
 
           </label>
@@ -1235,10 +1235,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#generated-tutorials" class="md-nav__link">
+  <a href="#documentation-modes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Generated Tutorials
+        Documentation Modes
       
     </span>
   </a>
@@ -1263,7 +1263,7 @@
 
 
 <h1 id="ai-codebase-knowledge-builder">AI Codebase Knowledge Builder</h1>
-<p>Ever stared at a new codebase written by others feeling completely lost? This project analyzes GitHub repositories and creates beginner-friendly tutorials explaining exactly how the code works - all powered by AI! Our intelligent system automatically breaks down complex codebases into digestible explanations that even beginners can understand.</p>
+<p>Ever stared at a new codebase feeling completely lost? This project analyzes GitHub repositories or local directories and generates structured documentation — from beginner-friendly tutorials to exhaustive API references — all powered by AI. Choose from 4 documentation modes to match your audience, and optionally deploy as a full MkDocs site.</p>
 <h2 id="getting-started">🚀 Getting Started</h2>
 <ol>
 <li>
@@ -1277,7 +1277,7 @@
 </code></pre></div></p>
 </li>
 <li>
-<p>Set up LLM in <code>utils/call_llm.py</code> by providing credentials via a <code>.env</code> file. You can use native Gemini by setting <code>GEMINI_API_KEY</code> (or <code>GEMINI_PROJECT_ID</code> for Vertex AI). For OpenRouter, set <code>LLM_PROVIDER=OPENROUTER</code> and <code>OPENROUTER_API_KEY</code>. </p>
+<p>Set up LLM by copying <code>.env.sample</code> to <code>.env</code> and providing credentials. Native Gemini: set <code>GEMINI_API_KEY</code> (or <code>GEMINI_PROJECT_ID</code> for Vertex AI). OpenRouter: set <code>LLM_PROVIDER=OPENROUTER</code> and <code>OPENROUTER_API_KEY</code>. Ollama: set <code>LLM_PROVIDER=OLLAMA</code> and <code>OLLAMA_BASE_URL=http://localhost:11434</code>.</p>
 </li>
 <li>
 <p>Generate a complete codebase tutorial by running the main script:
@@ -1326,8 +1326,38 @@
 </ul>
 <p>The application will crawl the repository, analyze the codebase structure, generate tutorial content in the specified language, and save the output in the specified directory (default: ./output). This includes individual chapter files, an <code>index.md</code>, and a compiled <code>full_content.md</code> containing the complete tutorial with a Table of Contents.</p>
 <p><em>Built using <a href="https://github.com/The-Pocket/PocketFlow">Pocket Flow</a>, a 100-line LLM framework.</em></p>
-<h2 id="generated-tutorials">Generated Tutorials</h2>
-<p>(No tutorials generated yet. Run the system against a codebase to generate and view tutorials here.)</p>
+<h2 id="documentation-modes">Documentation Modes</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Audience</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tutorial</code></td>
+<td>Beginners</td>
+<td>Step-by-step walkthrough of key concepts with gentle explanations</td>
+</tr>
+<tr>
+<td><code>advanced</code></td>
+<td>Senior devs / PMs</td>
+<td>Architectural deep-dive with implementation details and data structures</td>
+</tr>
+<tr>
+<td><code>api-reference</code></td>
+<td>Developers</td>
+<td>Exhaustive per-file API documentation with public/internal separation</td>
+</tr>
+<tr>
+<td><code>sdk</code></td>
+<td>Integration devs</td>
+<td>SDK-oriented docs focused on public API, configuration, and usage patterns</td>
+</tr>
+</tbody>
+</table>
 
 
 
