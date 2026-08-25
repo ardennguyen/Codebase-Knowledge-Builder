@@ -48,7 +48,7 @@ This project primarily uses a **Workflow** pattern with dynamic branching into a
 ### Flow high-level Design:
 
 1.  **`FetchRepo`**: Crawls the specified repository/directory using `crawl_github_files` or `crawl_local_files`.
-2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. Dynamically calculates **prompt overhead** (template tokens + directory tree tokens) and computes an **effective limit** = `safety_limit - prompt_overhead`. If `--mode api-reference` is used, routes to `"deterministic"`. If the file content tokens exceed this effective limit or if `--force-batch` is used, it chunks files into **token-aware, directory-isolated batches** (never mixing files from different directories) and routes to `"batch"`. Also builds a compact directory tree of all files (stored in `shared["directory_tree"]`) for cross-batch awareness. With `--debug`, displays detailed per-batch file lists and token breakdowns. Otherwise, it routes to `"direct"`.
+2.  **`ContextRouter`**: Analyzes the total token payload of the fetched files using `tiktoken`. Dynamically calculates **prompt overhead** (worst-case template tokens across 4 modes × 3 templates + directory tree tokens + chapter listing estimate tokens) and computes an **effective limit** = `safety_limit - prompt_overhead`. If `--mode api-reference` is used, routes to `"deterministic"`. If the file content tokens exceed this effective limit or if `--force-batch` is used, it chunks files into **token-aware, directory-isolated batches** (never mixing files from different directories) and routes to `"batch"`. Also builds a compact directory tree of all files (stored in `shared["directory_tree"]`) for cross-batch awareness. With `--debug`, displays detailed per-batch file lists and token breakdowns. Otherwise, it routes to `"direct"`.
 3.  **Path A: Direct**
     *   **`IdentifyAbstractions`**: Analyzes the entire codebase at once to identify core abstractions.
 4.  **Path B: Map-Reduce**
@@ -307,7 +307,7 @@ DEFAULT_EXCLUDE_PATTERNS = {
     "*.zip", "*.tar", "*.gz", "*.rar", "*.7z",
 
     # 2. Build, Distribution, and Framework Caches
-    "dist/*", "build/*", "out/*", "output/*", "target/*", "bin/*", "obj/*",
+    "dist/*", "build/*", "out/*", "output/*", "output-test*/*", "target/*", "bin/*", "obj/*",
     ".next/*", ".nuxt/*", ".svelte-kit/*", ".expo/*",
     "docs/*", "test/*", "tests/*", "examples/*",
     "v1/*", "experimental/*", "deprecated/*", "misc/*", "legacy/*",
@@ -399,7 +399,8 @@ shared = {
 | Stage | `shared["abstractions"]` format |
 |---|---|
 | After Identify/Reduce | `[{"name": str, "description": str, "files": [int, ...]}, ...]` |
-| Note | `"files"` key contains validated integer indices into `shared["files"]` |
+| After DeterministicFileMapper | `[{"name": str, "description": str, "files": [int], "original_path": str}, ...]` |
+| Note | `"files"` key contains validated integer indices into `shared["files"]`. In api-reference mode, `"original_path"` stores the relative repository path of the source file. |
 
 | Stage | `shared["relationships"]` format |
 |---|---|
@@ -889,13 +890,13 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
 - Merges the generated `nav_snippet` into the config's nav section
 - Output file can be used directly with `mkdocs serve` or `mkdocs build`
 
-#### `build_mermaid_css`
+#### `build_mermaid_init_js`
 ```python
-def build_mermaid_css() -> str:
+def build_mermaid_init_js() -> str:
 ```
-- Returns CSS string that overrides Material's muted Mermaid colors with vibrant defaults
-- Yellow subgraph backgrounds, lavender node fills, purple strokes
-- Written to `docs/stylesheets/mermaid-vibrant.css` by `CombineTutorial`
+- Returns JavaScript that initializes Mermaid on `.mermaid-raw` elements (bypasses Material theme overrides)
+- Diagrams render with Mermaid's native default theme (yellow subgraph backgrounds, lavender nodes) matching GitHub rendering
+- Written to `docs/javascripts/mermaid-init.js` by `CombineTutorial`
 
 #### `build_grouped_nav`
 ```python
@@ -903,7 +904,7 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
 ```
 - Recursively builds MkDocs nav YAML lines from LLM-generated section grouping
 - Handles arbitrary nesting via `children` key in sections
-- Each module is matched to `chapter_files` by `module_name`
+- Each module is matched to `chapter_files` by `module_name`. Each `chapter_files` entry must include `original_path` for directory sub-grouping.
 - When a functional group spans multiple directories, files are auto-sub-grouped by full directory path. Single-directory groups remain flat.
 - Returns list of indented YAML lines
 
@@ -920,8 +921,9 @@ def collect_all_modules(sections: list) -> set:
 def _build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3):
 ```
 - Recursively builds markdown sections with module tables for `api/index.md`
-- Each section gets a heading (`###`, `####`, etc.) and a `| Module | Description |` table
+- Each section gets a heading (`###`, `####`, etc.) and a `| Chapter | Description |` table
 - **Smart description extraction:** When `description` starts with `"Internal API reference"` (the generic DeterministicFileMapper description), extracts the first meaningful paragraph from chapter content instead (skipping frontmatter, headings, code fences)
+- **Link paths:** Uses `match['filename']` directly (e.g., `utils/call_llm.py.md`) — NOT prefixed with `api/` since `index.md` is already at `docs/api/index.md`
 
 #### Content-Based Summary Extraction
 When `chapter_summaries` from shared store is empty (standard in `api-reference` mode since WriteChapters skips summary generation), the LLM grouping module list builder extracts the first paragraph from each chapter's generated content:
@@ -1107,7 +1109,7 @@ No LLM call. Routes to `"direct"` or `"batch"`. Writes `shared["max_tokens"]`, `
 
 **ContextRouter Algorithm:**
 1. Auto-detect `max_tokens` from provider if not set; write to `shared["max_tokens"]`
-2. Measure prompt overhead = max(template_tokens for tutorial/advanced `map_abstractions.md`) + directory_tree_tokens
+2. Measure prompt overhead = max(template_tokens across ALL 4 mode subdirs × 3 template types: `identify_abstractions.md`, `map_abstractions.md`, `draft_chapters.md`) + directory_tree_tokens + chapter_listing_tokens (estimated as `"N. basename (doc: path.md)"` per file)
 3. `safety_limit = int(max_tokens * 0.95)`; `effective_limit = safety_limit - prompt_overhead`
 4. Count total file content tokens using `f"--- File Index {i}: {path} ---\n{content}\n\n"` per file
 5. If `total_tokens > effective_limit` OR `force_batch`:
@@ -1353,7 +1355,7 @@ full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
 **`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str, "module_name": str, "description": str, "original_path": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `mode`, `chapter_summaries`, `directory_tree`, `language`, `use_cache`, `thinking_level`, `max_tokens`. Standard adds: `index_content`.
 **`exec()` operations:**
 - **Standard mode:** Creates output directory, writes `index.md`, individual chapter files, and `full_content.md`.
-- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/stylesheets/mermaid-vibrant.css` (vibrant Mermaid theme), `docs/api/index.md` (section landing page with module table), `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
+- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/javascripts/mermaid-init.js` (native Mermaid default theme initializer), `docs/api/index.md` (section landing page with chapter table and relative links), `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
 **`post()` writes:** `shared["final_output_dir"] = exec_res` (output path string). Returns `None`.
 
 

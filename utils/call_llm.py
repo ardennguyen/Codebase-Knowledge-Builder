@@ -276,9 +276,10 @@ def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -> str:
 
 
 if __name__ == "__main__":
+    from utils.output import emit
+
     test_prompt = "Hello, how are you?"
 
-    # First call - should hit the API
-    print("Making call...")
+    emit("SELFTEST_LLM_CALL")
     response1 = call_llm(test_prompt, use_cache=False)
-    print(f"Response: {response1}")
+    emit("SELFTEST_LLM_RESPONSE", response=response1)
