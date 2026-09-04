@@ -628,6 +628,7 @@ class IdentifyAbstractions(Node):
 
             token_usage = {
                 "file_content": count_tokens(context),
+                "directory_tree": count_tokens(directory_tree),
             }
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             emit("LLM_CALL_IDENTIFY_ABSTRACTIONS")
@@ -856,7 +857,8 @@ class AnalyzeRelationships(Node):
                 lang_hint=lang_hint,
             )
             token_usage = {
-                "file_snippets": count_tokens(context),
+                "context": count_tokens(context),
+                "abstraction_listing": count_tokens(abstraction_listing),
             }
             token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
             emit("LLM_CALL_ANALYZE_RELATIONSHIPS")
