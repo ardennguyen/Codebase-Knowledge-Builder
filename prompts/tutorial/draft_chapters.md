@@ -22,7 +22,8 @@ Relevant Code Snippets (Code itself remains unchanged):
 Instructions for the chapter (Generate content in {language} unless specified otherwise):
 - Start with a clear heading (e.g., `# Chapter {chapter_num}: {abstraction_name}`). Use the provided concept name.
 
-PAGE SKELETON (MANDATORY): Every chapter MUST follow this section ordering. Translate section headings to {language}. You may SKIP a section if the concept has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
+PAGE SKELETON (MANDATORY): Every chapter MUST follow this section ordering. You may SKIP a section if the concept has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
+HEADING TRANSLATION RULE: The `##` headings below are shown in English for reference only. You MUST translate ALL `##` headings to {language}. Output ONLY the translated heading — do NOT append the English original in parentheses (e.g., write `## Tổng quan Kỹ thuật`, NOT `## Tổng quan Kỹ thuật (Technical Overview)`). This rule also applies to `###` and `####` sub-headings you create.
 
 ```
 ## Motivation & Use Case       ← always first: what problem does this solve?
@@ -76,12 +77,13 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
   * `stateDiagram` — for entity lifecycle states (e.g., pending → confirmed → settled)
   Include at least 2 different diagram types per chapter when the component warrants it.
   Keep the diagrams minimal and clean to ensure clarity. {mermaid_lang_note}.
-  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
+  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead (standard accented letters/diacritics are fully supported inside quotes). For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
   MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
+  MERMAID LANGUAGE RULES: All diagram text — node labels, decision diamond texts, edge labels, and subgraph titles — MUST be written in the same language as the rest of the document{mermaid_lang_note}. Node identifiers (IDs) MUST remain ASCII alphanumeric (e.g. `startNode`, `stepInit`), but the displayed label inside quotes MUST use the target language with proper diacritics.
 
 - Then dive deeper into code for the internal implementation with references to files. Provide example code blocks, but make them similarly simple and beginner-friendly. Explain{instruction_lang_note}.
 
-- IMPORTANT: When you need to refer to other core abstractions covered in other chapters, ALWAYS use proper Markdown links with relative paths. Each chapter's doc path is shown in the Structure above as `(doc: path.md)`. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}.
+- IMPORTANT: When you need to refer to other core abstractions covered in other chapters, ALWAYS use proper Markdown links with relative paths. Each chapter's doc path is shown in the Structure above as `(doc: path.md)`. The link target filename MUST be copied EXACTLY and VERBATIM from the `(doc: ...)` annotation — NEVER re-derive, re-slugify, or guess filenames. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}.
 
 - Heavily use analogies and examples throughout{instruction_lang_note} to help beginners understand.
 

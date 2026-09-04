@@ -61,7 +61,7 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapte
     )
 
 
-def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
+def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True, lang_code: str = "") -> str:
     """Build a complete mkdocs.yml for local --mkdocs output.
 
     Generates a ready-to-use MkDocs Material config with:
@@ -71,6 +71,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
       Material's Mermaid color overrides so diagrams use Mermaid's default theme)
     - Panzoom plugin for interactive Mermaid diagram zoom/pan
     - Navigation from the generated nav_snippet
+    - Optional theme language for UI localization (Search, Table of Contents, etc.)
 
     Users can run `mkdocs serve` or `mkdocs build` directly in the output dir.
     """
@@ -78,10 +79,17 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
     nav_lines = nav_yaml.split("\n")
     nav_body = "\n".join(nav_lines[1:]) if nav_lines else ""
 
+    # Conditional Home nav entry (CI has root index.md, local mkdocs doesn't)
+    home_line = "  - Home: index.md\n" if include_home else ""
+
+    # Optional Material theme language (e.g. "vi", "zh", "ja", "ko")
+    lang_line = f"  language: {lang_code}\n" if lang_code else ""
+
     return (
         f"site_name: '{site_name}'\n"
         f"theme:\n"
         f"  name: material\n"
+        f"{lang_line}"
         f"  features:\n"
         f"    - content.code.copy\n"
         f"    - navigation.indexes\n"
@@ -113,7 +121,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
         f"  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js\n"
         f"  - javascripts/mermaid-init.js\n"
         f"nav:\n"
-        f"  - Home: index.md\n"
+        f"{home_line}"
         f"{nav_body}\n"
     )
 

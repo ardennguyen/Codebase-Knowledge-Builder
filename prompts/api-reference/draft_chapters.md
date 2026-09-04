@@ -22,7 +22,8 @@ Source Code Context:
 
 Instructions for the API reference page (Generate content in {language} unless specified otherwise):
 
-PAGE SKELETON (MANDATORY): Every page MUST follow this exact section ordering. Translate section headings to {language}. You may SKIP a section if the file has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
+PAGE SKELETON (MANDATORY): Every page MUST follow this exact section ordering. You may SKIP a section if the file has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
+HEADING TRANSLATION RULE: The `##` headings below are shown in English for reference only. You MUST translate ALL `##` headings to {language}. Output ONLY the translated heading — do NOT append the English original in parentheses (e.g., write `## Tổng quan Kỹ thuật`, NOT `## Tổng quan Kỹ thuật (Technical Overview)`). This rule also applies to `###` and `####` sub-headings you create.
 
 ```
 # {abstraction_name}
@@ -111,15 +112,16 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
   * `flowchart TD` — for decision logic, branching, pipeline stages, node architecture, or architectural overviews (MUST use TD direction)
   * `stateDiagram` — for entity lifecycle states
   Include diagrams when they add clarity; omit them for simple data-class or utility files.
-  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead. For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
+  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead (standard accented letters/diacritics are fully supported inside quotes). For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
   MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
+  MERMAID LANGUAGE RULES: All diagram text — node labels, decision diamond texts, edge labels, and subgraph titles — MUST be written in the same language as the rest of the document{mermaid_lang_note}. Node identifiers (IDs) MUST remain ASCII alphanumeric (e.g. `startNode`, `stepInit`), but the displayed label inside quotes MUST use the target language with proper diacritics.
 
-- Link to other documented files using Markdown links with relative paths. Each file's doc path is shown in the Index above as `(doc: path.md)`. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}. Translate the surrounding prose text, not the code.
+- Link to other documented files using Markdown links with relative paths. Each file's doc path is shown in the Index above as `(doc: path.md)`. The link target filename MUST be copied EXACTLY and VERBATIM from the `(doc: ...)` annotation — NEVER re-derive, re-slugify, or guess filenames. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}. Translate the surrounding prose text, not the code.
 
 - PAGE LENGTH: Aim for 3,000-8,000 words per reference page. This limit includes prose AND code — use per-method extraction (not whole-file dumps) to stay within it. Only if the file defines more than 20 classes or 60+ methods should you fall back to a summary table for the least significant items:
   | Class/Function | Visibility | Responsibility | Key Methods |
 
-- End the page with the `## See Also` section listing related files with Markdown links{link_lang_note}, based on imports or call relationships visible in the source code.
+- End the page with the `## See Also` section listing related files with Markdown links{link_lang_note}, based on imports or call relationships visible in the source code. Link targets MUST be copied EXACTLY from the `(doc: ...)` annotations in the Index.
 
 - Return ONLY valid Markdown content. Do not include conversational filler.
 

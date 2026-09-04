@@ -1259,9 +1259,9 @@ class WriteChapters(BatchNode):
                 structure_note = f" (Note: Chapter names might be in {lang_cap})"
                 prev_summary_note = f" (Note: This summary might be in {lang_cap})"
                 instruction_lang_note = f" (in {lang_cap})"
-                mermaid_lang_note = f" (Use {lang_cap} for labels/text if appropriate)"
+                mermaid_lang_note = f" (All diagram labels, edge text, and subgraph titles MUST use {lang_cap} with proper diacritics/tones — NEVER use unaccented/romanized text)"
                 code_comment_note = f" (PRESERVE original code comments exactly as-is. Add your explanatory notes OUTSIDE code blocks in {lang_cap}, not inside them.)"
-                link_lang_note = f" (Use the {lang_cap} chapter title from the structure above)"
+                link_lang_note = f" (Link text: use the {lang_cap} chapter title. Link target: copy EXACTLY from the (doc: filename.md) annotation in the Index — NEVER re-derive or re-slugify)"
                 tone_note = f" (appropriate for {lang_cap} readers)"
 
             prompt_template = load_prompt_template("draft_chapters", mode=mode)
@@ -1305,8 +1305,9 @@ class WriteChapters(BatchNode):
             llm_logger.info(f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}")
 
             # Basic validation/cleanup
-            actual_heading = f"# Chapter {chapter_num}: {abstraction_name}"  # Use potentially translated name
-            if not chapter_content.strip().startswith(f"# Chapter {chapter_num}") and mode != "api-reference":
+            chapter_word = get("UI_CHAPTER")
+            actual_heading = f"# {chapter_word} {chapter_num}: {abstraction_name}"  # Use potentially translated name
+            if not chapter_content.strip().startswith(f"# {chapter_word} {chapter_num}") and mode != "api-reference":
                 # Add heading if missing or incorrect, trying to preserve content
                 lines = chapter_content.strip().split("\n")
                 if lines and lines[0].strip().startswith("#"):  # If there's some heading, replace it
@@ -1505,9 +1506,12 @@ class CombineTutorial(Node):
                 for _dir_prefix, nav_label, filename in nav_items:
                     nav_lines.append(f"    - '{nav_label}': 'api/{filename}'")
             mode = shared.get("mode", "tutorial")
-            nav_section = {"tutorial": "Tutorial", "advanced": "Advanced Guide", "sdk": "SDK Guide", "api-reference": "API Reference"}.get(
-                mode, "Documentation"
-            )
+            nav_section = {
+                "tutorial": get("UI_MODE_TUTORIAL"),
+                "advanced": get("UI_MODE_ADVANCED"),
+                "sdk": get("UI_MODE_SDK"),
+                "api-reference": get("UI_MODE_API_REF"),
+            }.get(mode, "Documentation")
             nav_snippet = f"nav:\n  - {nav_section}:\n" + "\n".join(nav_lines)
 
             return {
@@ -1575,7 +1579,7 @@ class CombineTutorial(Node):
             lines.append(f"{heading} {section['name']}")
             lines.append("")
             if section.get("modules"):
-                lines.append("| Chapter | Description |")
+                lines.append(f"| {get('UI_TH_CHAPTER')} | {get('UI_TH_DESCRIPTION')} |")
                 lines.append("|---------|-------------|")
                 for mod_name in section["modules"]:
                     match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
@@ -1616,10 +1620,10 @@ class CombineTutorial(Node):
                 os.makedirs(api_docs_path, exist_ok=True)
 
                 mode_labels = {
-                    "tutorial": "Tutorial",
-                    "advanced": "Advanced Guide",
-                    "sdk": "SDK Guide",
-                    "api-reference": "API Reference",
+                    "tutorial": get("UI_MODE_TUTORIAL"),
+                    "advanced": get("UI_MODE_ADVANCED"),
+                    "sdk": get("UI_MODE_SDK"),
+                    "api-reference": get("UI_MODE_API_REF"),
                 }
                 site_title = f"{project_name} — {mode_labels.get(mode, 'Documentation')}"
                 emit("COMBINE_FORMAT_MKDOCS", mode=mode_labels.get(mode, "Documentation"))
@@ -1668,7 +1672,7 @@ class CombineTutorial(Node):
                             grouped_modules = collect_all_modules(sections)
                             ungrouped = [cf["module_name"] for cf in chapter_files if cf["module_name"] not in grouped_modules]
                             if ungrouped:
-                                sections.append({"name": "Other", "modules": ungrouped})
+                                sections.append({"name": get("UI_OTHER"), "modules": ungrouped})
 
                             nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
                             nav_lines.insert(0, "    - api/index.md")
@@ -1695,7 +1699,24 @@ class CombineTutorial(Node):
                     emit("COMBINE_NAV_FLAT")
 
                 # Generate mkdocs.yml with Material theme + mermaid support
-                mkdocs_config = build_mkdocs_config(site_title, nav_snippet)
+                # Map language name to MkDocs Material language code for UI localization
+                lang_code_map = {
+                    "vietnamese": "vi",
+                    "chinese": "zh",
+                    "japanese": "ja",
+                    "korean": "ko",
+                    "french": "fr",
+                    "spanish": "es",
+                    "german": "de",
+                    "portuguese": "pt",
+                    "russian": "ru",
+                    "thai": "th",
+                    "indonesian": "id",
+                    "arabic": "ar",
+                }
+                language = prep_res.get("language", "english")
+                lang_code = lang_code_map.get(language.lower(), "")
+                mkdocs_config = build_mkdocs_config(site_title, nav_snippet, include_home=False, lang_code=lang_code)
                 mkdocs_filepath = os.path.join(output_path, "mkdocs.yml")
                 with open(mkdocs_filepath, "w", encoding="utf-8") as f:
                     f.write(mkdocs_config)
@@ -1712,12 +1733,14 @@ class CombineTutorial(Node):
                 # Generate docs/api/index.md — API Reference section landing page with module table
                 if sections:
                     mode_label = mode_labels.get(mode, "Documentation")
+                    chapter_index_label = get("UI_CHAPTER_INDEX")
+                    chapters_label = get("UI_CHAPTERS")
                     index_lines = [
                         f"# {project_name} — {mode_label}",
                         "",
-                        f"{mode_label} for **{project_name}** — **{len(chapter_files)}** chapters.",
+                        f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
                         "",
-                        "## Chapter Index",
+                        f"## {chapter_index_label}",
                         "",
                     ]
                     self._build_index_sections(index_lines, sections, chapter_files)
@@ -1726,14 +1749,18 @@ class CombineTutorial(Node):
                     # Build a rich flat index with module listing table
                     chapter_summaries = prep_res.get("chapter_summaries", [])
                     mode_label = mode_labels.get(mode, "Documentation")
+                    chapter_index_label = get("UI_CHAPTER_INDEX")
+                    chapters_label = get("UI_CHAPTERS")
+                    th_chapter = get("UI_TH_CHAPTER")
+                    th_description = get("UI_TH_DESCRIPTION")
                     index_lines = [
                         f"# {project_name} — {mode_label}",
                         "",
-                        f"{mode_label} for **{project_name}** — **{len(chapter_files)}** chapters.",
+                        f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
                         "",
-                        "## Chapter Index",
+                        f"## {chapter_index_label}",
                         "",
-                        "| Chapter | Description |",
+                        f"| {th_chapter} | {th_description} |",
                         "|---------|-------------|",
                     ]
                     for i, cf in enumerate(chapter_files):
