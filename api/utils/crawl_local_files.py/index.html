@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -389,7 +389,7 @@
   <span class="md-ellipsis">
     
   
-    Workflow & Execution
+    Pipeline Orchestration & Execution
   
 
     
@@ -405,7 +405,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Workflow & Execution
+    Pipeline Orchestration & Execution
   
 
           </label>
@@ -534,7 +534,7 @@
   <span class="md-ellipsis">
     
   
-    Source Code Ingestion
+    Repository Ingestion & Filtering
   
 
     
@@ -550,7 +550,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Source Code Ingestion
+    Repository Ingestion & Filtering
   
 
           </label>
@@ -715,10 +715,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-directory-validation-and-metric-initialization" class="md-nav__link">
+  <a href="#phase-1-directory-validation-and-baseline-setup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Directory Validation and Metric Initialization
+        Phase 1: Directory Validation and Baseline Setup
       
     </span>
   </a>
@@ -726,10 +726,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-traversal-setup-and-nested-gitignore-discovery" class="md-nav__link">
+  <a href="#phase-2-dynamic-gitignore-specification-registry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Traversal Setup and Nested Gitignore Discovery
+        Phase 2: Dynamic GitIgnore Specification Registry
       
     </span>
   </a>
@@ -737,10 +737,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-directory-pruning-and-pattern-exclusion" class="md-nav__link">
+  <a href="#phase-3-directory-traversal-and-in-place-pruning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Directory Pruning and Pattern Exclusion
+        Phase 3: Directory Traversal and In-Place Pruning
       
     </span>
   </a>
@@ -748,10 +748,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-4-multi-stage-file-filtering-cascade" class="md-nav__link">
+  <a href="#phase-4-per-file-pattern-filtering" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 4: Multi-Stage File Filtering Cascade
+        Phase 4: Per-File Pattern Filtering
       
     </span>
   </a>
@@ -759,10 +759,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-5-file-size-check-and-safe-text-ingestion" class="md-nav__link">
+  <a href="#phase-5-file-ingestion-and-unicode-decoding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 5: File Size Check and Safe Text Ingestion
+        Phase 5: File Ingestion and Unicode Decoding
       
     </span>
   </a>
@@ -770,10 +770,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-6-telemetry-reporting-and-result-packaging" class="md-nav__link">
+  <a href="#phase-6-telemetry-reporting-and-payload-assembly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 6: Telemetry Reporting and Result Packaging
+        Phase 6: Telemetry Reporting and Payload Assembly
       
     </span>
   </a>
@@ -842,38 +842,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#crawl-result-dictionary-schema" class="md-nav__link">
+  <a href="#crawllocalresult" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Crawl Result Dictionary Schema
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Crawl Result Dictionary Schema">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#structural-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Structural Example:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#gitignore-specs-registry-gitignore_specs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Gitignore Specs Registry (gitignore_specs)
+        CrawlLocalResult
       
     </span>
   </a>
@@ -881,10 +853,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ingestion-telemetry-state-counters" class="md-nav__link">
+  <a href="#gitignorespecsmap" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ingestion Telemetry State Counters
+        GitIgnoreSpecsMap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crawlstatecounters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CrawlStateCounters
       
     </span>
   </a>
@@ -904,45 +887,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Error Handling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#directory-existence-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Directory Existence Validation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#robust-gitignore-loading" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Robust Gitignore Loading
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#binary-and-decoding-fault-isolation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Binary and Decoding Fault Isolation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1067,7 +1011,7 @@
   <span class="md-ellipsis">
     
   
-    LLM & Prompting
+    LLM Inference & Prompt Engineering
   
 
     
@@ -1083,7 +1027,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM & Prompting
+    LLM Inference & Prompt Engineering
   
 
           </label>
@@ -1097,8 +1041,6 @@
   
     
     
-      
-        
       
         
       
@@ -1200,34 +1142,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../token_utils.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    token_utils.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1273,7 +1187,7 @@
   <span class="md-ellipsis">
     
   
-    Output & Utilities
+    Telemetry & Observability
   
 
     
@@ -1289,7 +1203,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Output & Utilities
+    Telemetry & Observability
   
 
           </label>
@@ -1355,14 +1269,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../output.py/" class="md-nav__link">
+      <a href="../token_utils.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    output.py
+    token_utils.py
   
 
     
@@ -1383,14 +1297,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../__init__.py/" class="md-nav__link">
+      <a href="../output.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    __init__.py
+    output.py
   
 
     
@@ -1489,10 +1403,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-directory-validation-and-metric-initialization" class="md-nav__link">
+  <a href="#phase-1-directory-validation-and-baseline-setup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Directory Validation and Metric Initialization
+        Phase 1: Directory Validation and Baseline Setup
       
     </span>
   </a>
@@ -1500,10 +1414,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-traversal-setup-and-nested-gitignore-discovery" class="md-nav__link">
+  <a href="#phase-2-dynamic-gitignore-specification-registry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Traversal Setup and Nested Gitignore Discovery
+        Phase 2: Dynamic GitIgnore Specification Registry
       
     </span>
   </a>
@@ -1511,10 +1425,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-directory-pruning-and-pattern-exclusion" class="md-nav__link">
+  <a href="#phase-3-directory-traversal-and-in-place-pruning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Directory Pruning and Pattern Exclusion
+        Phase 3: Directory Traversal and In-Place Pruning
       
     </span>
   </a>
@@ -1522,10 +1436,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-4-multi-stage-file-filtering-cascade" class="md-nav__link">
+  <a href="#phase-4-per-file-pattern-filtering" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 4: Multi-Stage File Filtering Cascade
+        Phase 4: Per-File Pattern Filtering
       
     </span>
   </a>
@@ -1533,10 +1447,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-5-file-size-check-and-safe-text-ingestion" class="md-nav__link">
+  <a href="#phase-5-file-ingestion-and-unicode-decoding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 5: File Size Check and Safe Text Ingestion
+        Phase 5: File Ingestion and Unicode Decoding
       
     </span>
   </a>
@@ -1544,10 +1458,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-6-telemetry-reporting-and-result-packaging" class="md-nav__link">
+  <a href="#phase-6-telemetry-reporting-and-payload-assembly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 6: Telemetry Reporting and Result Packaging
+        Phase 6: Telemetry Reporting and Payload Assembly
       
     </span>
   </a>
@@ -1616,38 +1530,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#crawl-result-dictionary-schema" class="md-nav__link">
+  <a href="#crawllocalresult" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Crawl Result Dictionary Schema
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Crawl Result Dictionary Schema">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#structural-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Structural Example:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#gitignore-specs-registry-gitignore_specs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Gitignore Specs Registry (gitignore_specs)
+        CrawlLocalResult
       
     </span>
   </a>
@@ -1655,10 +1541,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ingestion-telemetry-state-counters" class="md-nav__link">
+  <a href="#gitignorespecsmap" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ingestion Telemetry State Counters
+        GitIgnoreSpecsMap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crawlstatecounters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CrawlStateCounters
       
     </span>
   </a>
@@ -1678,45 +1575,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Error Handling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#directory-existence-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Directory Existence Validation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#robust-gitignore-loading" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Robust Gitignore Loading
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#binary-and-decoding-fault-isolation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Binary and Decoding Fault Isolation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1753,9 +1611,9 @@
 <p><strong>Source:</strong> <code>utils/crawl_local_files.py</code></p>
 </blockquote>
 <h2 id="technical-overview">Technical Overview</h2>
-<p>While <a href="../crawl_github_files.py/">crawl_github_files.py</a> handles remote GitHub repository extraction across REST API endpoints and temporary clone sandboxes, <code>utils/crawl_local_files.py</code> implements the local filesystem ingestion engine for the Codebase-Knowledge-Builder system. Its primary responsibility is to recursively traverse on-disk directory trees, evaluate exclusion and inclusion rules, compile and apply hierarchical <code>.gitignore</code> path specifications, filter out non-text binaries or oversized files, and assemble the resulting source code into a standardized in-memory dictionary for downstream processing.</p>
-<p>The module operates as a single-pass filesystem crawler built on Python's standard <code>os.walk()</code> generator. Rather than performing an unconstrained scan and filtering results post-traversal, <code>crawl_local_files.py</code> performs in-place mutation of directory lists during traversal (<code>dirs[:]</code>). This early-pruning strategy avoids descending into ignored subtrees such as <code>.git</code>, virtual environments, build directories, or nested ignore targets. It manages hierarchical <code>.gitignore</code> files dynamically, parsing nested <code>.gitignore</code> configurations as new directory scopes are encountered during traversal and scoping rule evaluations relative to the directory containing the respective ignore file.</p>
-<p>In addition to Git-compliant ignore rules powered by the <code>pathspec</code> library, the crawler evaluates glob-based include and exclude pattern sets via <code>fnmatch</code>. Files that survive the multi-tier filtering pipeline undergo size checks against a configurable byte threshold before safe UTF-8-SIG reading. Binary files, decode failures, and I/O errors are trapped defensively and recorded into telemetry streams via <code>utils.output.emit()</code>. The module produces an identical dictionary schema to its remote counterpart, enabling seamless interchangeability within the workflow execution graph in <a href="../../nodes.py/">nodes.py</a>.</p>
+<p>The <code>crawl_local_files.py</code> module serves as the primary filesystem ingestion engine within the knowledge extraction pipeline. While its sibling component, <a href="../crawl_github_files.py/">crawl_github_files.py</a>, provides ingestion over remote GitHub repositories via API queries or ephemeral Git clones, <code>crawl_local_files.py</code> executes synchronous, local directory traversals. It presents a structurally symmetric interface to downstream pipeline consumers, accepting path inclusion and exclusion rules and returning an in-memory dictionary mapping discovered file paths directly to their decoded text content.</p>
+<p>Operating directly on the host filesystem via Python's standard <code>os.walk</code> iterator, the module enforces a multi-phase pruning and filtering workflow. As it encounters directories, it dynamically locates, parses, and stacks local <code>.gitignore</code> files using <code>pathspec</code>, ensuring that scoped exclusion rules defined at any directory tier take immediate effect. Directories matching exclusion patterns or <code>.gitignore</code> specifications are pruned in-place from the traversal stack, avoiding costly filesystem traversal into large trees like <code>node_modules</code>, <code>.git</code>, or build outputs. Files that pass structural checks are evaluated for size thresholds, opened using <code>utf-8-sig</code> encoding to handle optional Byte Order Marks, and gracefully skipped if binary or corrupt.</p>
+<p>Throughout execution, the module integrates tightly with the runtime output bus via <code>utils/output.py</code>. Instead of writing directly to standard streams or raising non-critical filesystem exceptions, the crawler emits fine-grained lifecycle and diagnostic events (<code>CRAWL_DIR_EXCLUDED</code>, <code>CRAWL_FILE_GITIGNORE</code>, <code>CRAWL_FILE_SIZE_LIMIT</code>, <code>CRAWL_FILE_PROCESSED</code>). This ensures high-visibility operational metrics and seamless localization support across the document synthesis lifecycle.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -1783,65 +1641,55 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    subgraph Initialization["Initialization &amp; Root Spec"]
-        initNode["Validate directory path"]
-        checkRootGI{"Root .gitignore exists?"}
-        loadRootGI["Load root .gitignore into specs registry"]
+    subgraph InitPhase ["Initialization and Discovery"]
+        startNode["Validate directory exists"]
+        loadRootGi["Load root .gitignore into pathspec"]
+        walkDir["Walk directory tree with os.walk"]
     end
 
-    subgraph DirectoryTraversal["Directory Walk &amp; Pruning"]
-        walkStep["os.walk(directory)"]
-        checkNestedGI{"Nested .gitignore in root?"}
-        loadNestedGI["Register nested PathSpec scope"]
-        evalDirs["Evaluate dirs against gitignore and exclude patterns"]
-        pruneDirs["Mutate dirs in-place to exclude subtrees"]
+    subgraph DirPhase ["Directory Pruning"]
+        checkNestedGi["Discover and load nested .gitignore"]
+        evalDirRule{"Check dir against gitignore or exclude patterns"}
+        pruneDirs["Prune excluded dirs from walk in-place"]
     end
 
-    subgraph FileFilterCascade["File Filtering Cascade"]
-        evalFileGI{"Matches gitignore specs?"}
-        evalFileEx{"Matches exclude_patterns?"}
-        evalFileInc{"Matches include_patterns?"}
-        evalFileSize{"File size exceeds max_file_size?"}
-        readText["Read content as utf-8-sig"]
+    subgraph FilePhase ["File Filtering and Ingestion"]
+        evalFileRule{"Check file against gitignore or glob patterns"}
+        checkFileSize{"File size exceeds max_file_size?"}
+        readContent["Read content with utf-8-sig"]
+        checkTextErr{"Unicode or read exception?"}
+        storeFile["Store path and content in files_dict"]
+        logSkip["Increment counter and record skip reason"]
     end
 
-    subgraph OutputAssembly["Telemetry &amp; Assembly"]
-        recordSuccess["Append to files_dict and increment processed count"]
-        recordSkip["Log skip reason and increment skip counter"]
+    subgraph SummaryPhase ["Telemetry and Return"]
         emitSummary["Emit crawl summary metrics"]
-        returnDict["Return files dictionary"]
+        returnResult["Return files_dict payload"]
     end
 
-    initNode --&gt; checkRootGI
-    checkRootGI -- "Yes" --&gt; loadRootGI --&gt; walkStep
-    checkRootGI -- "No" --&gt; walkStep
-
-    walkStep --&gt; checkNestedGI
-    checkNestedGI -- "Yes" --&gt; loadNestedGI --&gt; evalDirs
-    checkNestedGI -- "No" --&gt; evalDirs
-    evalDirs --&gt; pruneDirs --&gt; evalFileGI
-
-    evalFileGI -- "Matched" --&gt; recordSkip
-    evalFileGI -- "Unmatched" --&gt; evalFileEx
-    evalFileEx -- "Matched" --&gt; recordSkip
-    evalFileEx -- "Unmatched" --&gt; evalFileInc
-    evalFileInc -- "Not Matched" --&gt; recordSkip
-    evalFileInc -- "Matched" --&gt; evalFileSize
-    evalFileSize -- "Exceeded" --&gt; recordSkip
-    evalFileSize -- "Within Limit" --&gt; readText
-
-    readText -- "Success" --&gt; recordSuccess
-    readText -- "Decode / IO Error" --&gt; recordSkip
-
-    recordSuccess --&gt; walkStep
-    recordSkip --&gt; walkStep
-    walkStep -- "Walk Complete" --&gt; emitSummary --&gt; returnDict
+    startNode --&gt; loadRootGi
+    loadRootGi --&gt; walkDir
+    walkDir --&gt; checkNestedGi
+    checkNestedGi --&gt; evalDirRule
+    evalDirRule -- "Excluded" --&gt; pruneDirs
+    evalDirRule -- "Allowed" --&gt; evalFileRule
+    pruneDirs --&gt; evalFileRule
+    evalFileRule -- "Excluded" --&gt; logSkip
+    evalFileRule -- "Passed" --&gt; checkFileSize
+    checkFileSize -- "Yes" --&gt; logSkip
+    checkFileSize -- "No" --&gt; readContent
+    readContent --&gt; checkTextErr
+    checkTextErr -- "Error" --&gt; logSkip
+    checkTextErr -- "Success" --&gt; storeFile
+    storeFile --&gt; emitSummary
+    logSkip --&gt; emitSummary
+    emitSummary --&gt; returnResult
 
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-    class initNode entryNode;
-    class walkStep entryNode;
-    class evalFileGI entryNode;
-    class recordSuccess entryNode;</code></pre> 
+    class startNode entryNode;
+    class checkNestedGi entryNode;
+    class evalFileRule entryNode;
+    class emitSummary entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -1850,14 +1698,23 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
-<hr />
 <h2 id="public-api">Public API</h2>
 <h3 id="crawl_local_files"><code>crawl_local_files()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def crawl_local_files(directory, include_patterns=None, exclude_patterns=None, max_file_size=None, use_relative_paths=True)</code></p>
-<p><strong>Description</strong>:<br />
-Traverses a local filesystem directory recursively, applying layered exclusion patterns, inclusion patterns, hierarchical <code>.gitignore</code> rules, file size limits, and binary decoding filters. Operates in a single pass using <code>os.walk()</code> with in-place directory mutation for performance. Files successfully parsed as UTF-8 text are captured in a mapping of normalized filepaths to their text content. Traversal progress and summary statistics are published through the <code>utils.output</code> messaging system.</p>
-<h4 id="phase-1-directory-validation-and-metric-initialization">Phase 1: Directory Validation and Metric Initialization</h4>
+<p><strong>Description</strong>: Crawls a target local directory tree, applying hierarchical <code>.gitignore</code> rules, inclusion globs, exclusion globs, and maximum file size boundaries. Discovered readable text files are decoded and assembled into a path-to-content map. Operational metrics and skipping events are emitted directly to the logging system.</p>
+<p><strong>Parameters</strong>:
+* <code>directory</code> (<code>str</code>): Target filesystem directory path to crawl.
+* <code>include_patterns</code> (<code>set[str]</code>, optional): Set of Unix glob patterns that files must match to be included (e.g., <code>{"*.py", "*.js"}</code>). Defaults to <code>None</code>.
+* <code>exclude_patterns</code> (<code>set[str]</code>, optional): Set of Unix glob patterns specifying files or directories to exclude (e.g., <code>{"tests/*", "*.pyc"}</code>). Defaults to <code>None</code>.
+* <code>max_file_size</code> (<code>int</code>, optional): Maximum permissible file size in bytes. Files exceeding this threshold are bypassed. Defaults to <code>None</code>.
+* <code>use_relative_paths</code> (<code>bool</code>): If <code>True</code>, keys in the returned dictionary are paths relative to <code>directory</code>; if <code>False</code>, keys are absolute or raw joined filesystem paths. Defaults to <code>True</code>.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A dictionary containing a single key <code>"files"</code>, mapped to a sub-dictionary of <code>{filepath: content}</code>.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If <code>directory</code> does not exist or does not point to a valid directory on the host filesystem.</p>
+<p>The function executes across six discrete operational phases detailed below.</p>
+<h4 id="phase-1-directory-validation-and-baseline-setup">Phase 1: Directory Validation and Baseline Setup</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Directory does not exist: </span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1885,8 +1742,8 @@ Traverses a local filesystem directory recursively, applying layered exclusion p
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">reason_excluded</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"CRAWL_REASON_EXCLUDED"</span><span class="p">)</span>
 <a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">reason_gitignore</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"CRAWL_REASON_GITIGNORE"</span><span class="p">)</span>
 </code></pre></div>
-The function verifies that the target <code>directory</code> exists on the local filesystem and is a directory; otherwise, it raises a <code>ValueError</code>. It initializes the output dictionary <code>files_dict</code> alongside traversal counters for telemetry. The root <code>.gitignore</code> file (if present) is loaded into the <code>gitignore_specs</code> dictionary, keyed by the absolute path of the root directory. Localized reason strings are retrieved upfront from <a href="../output.py/">output.py</a> via <code>get()</code> to avoid repeated dictionary lookups during the traversal loop.</p>
-<h4 id="phase-2-traversal-setup-and-nested-gitignore-discovery">Phase 2: Traversal Setup and Nested Gitignore Discovery</h4>
+This phase enforces initial precondition checks by asserting that the target path resolves to an active directory via <code>os.path.isdir</code>. It instantiates the result payload map <code>files_dict</code> alongside metric counters for entries processed, excluded, bounded by file size, or flagged as non-text. The crawler initializes <code>gitignore_specs</code> as an empty dictionary and attempts to load an initial <code>.gitignore</code> at the root directory level via <code>_load_gitignore()</code>. If a valid root <code>.gitignore</code> is found, its compiled <code>pathspec.PathSpec</code> is bound to the directory's absolute path, and an informational event (<code>CRAWL_GITIGNORE_LOADED</code>) is broadcast. Localized exclusion reason tokens are queried from the output catalog once to optimize loop performance.</p>
+<h4 id="phase-2-dynamic-gitignore-specification-registry">Phase 2: Dynamic GitIgnore Specification Registry</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="c1"># --- Single-pass: walk, filter, and process inline ---</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="n">abs_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
@@ -1899,8 +1756,8 @@ The function verifies that the target <code>directory</code> exists on the local
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>                <span class="k">if</span> <span class="n">spec</span><span class="p">:</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>                    <span class="n">gitignore_specs</span><span class="p">[</span><span class="n">abs_root</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span>
 </code></pre></div>
-The crawler initiates an <code>os.walk()</code> traversal starting at the root <code>directory</code>. At each directory level (<code>root</code>), it resolves the absolute path <code>abs_root</code> and checks for a nested <code>.gitignore</code> file. If a nested ignore file is discovered outside the root directory, it is compiled into a <code>pathspec.PathSpec</code> via <code>_load_gitignore()</code> and appended to the <code>gitignore_specs</code> mapping, extending path matching rules to all subpaths under that specific directory tree.</p>
-<h4 id="phase-3-directory-pruning-and-pattern-exclusion">Phase 3: Directory Pruning and Pattern Exclusion</h4>
+The traversal initiates a single-pass iteration using <code>os.walk(directory)</code>. At each directory tier, the crawler converts <code>root</code> to an absolute path (<code>abs_root</code>) and inspects whether a nested <code>.gitignore</code> file exists within that subdirectory. To prevent redundant I/O, the root directory is bypassed since it was parsed in Phase 1. When a nested <code>.gitignore</code> is found, <code>_load_gitignore()</code> compiles its rules into a new <code>PathSpec</code> and registers it in <code>gitignore_specs</code> keyed by <code>abs_root</code>. This enables downward-cascading rule scoping that mirrors standard Git behavior.</p>
+<h4 id="phase-3-directory-traversal-and-in-place-pruning">Phase 3: Directory Traversal and In-Place Pruning</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>        <span class="c1"># --- Directory filtering ---</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>        <span class="n">excluded_dirs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
@@ -1930,8 +1787,8 @@ The crawler initiates an <code>os.walk()</code> traversal starting at the root <
 <a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="c1"># Sort remaining dirs for consistent traversal order</span>
 <a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="n">dirs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 </code></pre></div>
-Directory entries in <code>dirs</code> are sorted and evaluated against both the compiled <code>gitignore_specs</code> (with <code>is_dir=True</code>) and explicit <code>exclude_patterns</code>. For exclude patterns, trailing <code>/*</code> wildcards are stripped using <code>.removesuffix("/*")</code> to allow directory-level matches on both full relative paths (<code>dirpath_rel</code>) and local folder names (<code>d</code>). When a directory matches an exclusion rule, it is added to <code>excluded_dirs</code>, its exclusion is emitted to telemetry, and it is removed directly from <code>dirs</code> using <code>dirs.remove(d)</code>. Mutating <code>dirs</code> in place instructs <code>os.walk()</code> not to descend into those subtrees. Remaining valid directories are sorted to enforce deterministic traversal order.</p>
-<h4 id="phase-4-multi-stage-file-filtering-cascade">Phase 4: Multi-Stage File Filtering Cascade</h4>
+Directory pruning prevents unnecessary filesystem I/O into unneeded directory subtrees. Each subdirectory in <code>dirs</code> is sorted and checked against active <code>gitignore_specs</code> with <code>is_dir=True</code> and tested against caller-specified <code>exclude_patterns</code>. The crawler cleans wildcards using <code>removesuffix("/*")</code> to test against both relative directory paths and individual segment names using <code>fnmatch.fnmatch</code>. If excluded, an exclusion event is emitted, and the directory name is staged in <code>excluded_dirs</code>. Crucially, matching directories are removed directly from <code>dirs</code> in-place using <code>dirs.remove(d)</code>. This mutates the iterator list utilized by <code>os.walk</code>, preventing it from descending into excluded branches entirely. The remaining entries in <code>dirs</code> are sorted to guarantee deterministic alphabetical traversal order.</p>
+<h4 id="phase-4-per-file-pattern-filtering">Phase 4: Per-File Pattern Filtering</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>        <span class="c1"># --- File processing (inline, sorted) ---</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -1969,12 +1826,8 @@ Directory entries in <code>dirs</code> are sorted and evaluated against both the
 <a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>                    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_NOT_INCLUDED"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">)</span>
 <a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>                    <span class="k">continue</span>
 </code></pre></div>
-For each file in the current directory (sorted alphabetically), the crawler determines the relative path <code>relpath</code> and advances the global <code>entry_num</code>. The file is passed through a three-stage sequential filter gate:
-1. <strong>Gitignore Evaluation</strong>: Evaluated against all registered <code>.gitignore</code> specs via <code>_matches_any_gitignore()</code>.
-2. <strong>Exclude Patterns</strong>: Evaluated against <code>exclude_patterns</code> using <code>fnmatch.fnmatch()</code> against <code>relpath</code>.
-3. <strong>Include Patterns</strong>: If <code>include_patterns</code> is provided, <code>relpath</code> must match at least one pattern; otherwise, it is rejected.</p>
-<p>Rejection at any stage emits a corresponding telemetry event (<code>CRAWL_FILE_GITIGNORE</code>, <code>CRAWL_FILE_EXCLUDED</code>, or <code>CRAWL_FILE_NOT_INCLUDED</code>), increments <code>count_excluded</code>, and skips further processing for that file.</p>
-<h4 id="phase-5-file-size-check-and-safe-text-ingestion">Phase 5: File Size Check and Safe Text Ingestion</h4>
+In this phase, individual files within the current directory are sorted and evaluated sequentially against exclusion boundaries. A candidate file's absolute path is checked against all active <code>gitignore_specs</code> via <code>_matches_any_gitignore()</code>; if matched, <code>count_excluded</code> increments, a <code>CRAWL_FILE_GITIGNORE</code> event is emitted, and execution continues to the next candidate. Next, if <code>exclude_patterns</code> are provided, the file's normalized relative path is evaluated via <code>fnmatch</code>. Finally, if explicit <code>include_patterns</code> are provided, the path must match at least one inclusion rule; failure to match triggers a <code>CRAWL_FILE_NOT_INCLUDED</code> event and bypasses further reading.</p>
+<h4 id="phase-5-file-ingestion-and-unicode-decoding">Phase 5: File Ingestion and Unicode Decoding</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>            <span class="c1"># Check size limit</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>            <span class="k">if</span> <span class="n">max_file_size</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_file_size</span><span class="p">:</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>                <span class="n">count_size_limit</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -1999,8 +1852,8 @@ For each file in the current directory (sorted alphabetically), the crawler dete
 <a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>                <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
 <a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>                <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_ERROR"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
 </code></pre></div>
-Files passing pattern filters are checked against <code>max_file_size</code>. If the file size on disk exceeds this limit, <code>count_size_limit</code> is incremented, the relative path is added to <code>skipped_size_limit</code>, and <code>CRAWL_FILE_SIZE_LIMIT</code> is emitted. Otherwise, the crawler attempts to read the file using <code>utf-8-sig</code> encoding (which transparently strips UTF-8 Byte Order Marks). If successful, the content is stored in <code>files_dict[relpath]</code>, <code>count_processed</code> is incremented, and <code>CRAWL_FILE_PROCESSED</code> is emitted. Non-text binaries triggering <code>UnicodeDecodeError</code> or <code>ValueError</code>, as well as unexpected filesystem read errors, are caught defensively, tracked in <code>skipped_non_text</code>, and reported via telemetry.</p>
-<h4 id="phase-6-telemetry-reporting-and-result-packaging">Phase 6: Telemetry Reporting and Result Packaging</h4>
+Files passing pattern filtering are evaluated against <code>max_file_size</code>. If the byte size returned by <code>os.path.getsize</code> exceeds the threshold, the relative path is added to <code>skipped_size_limit</code> and skipped. For permitted files, the crawler reads the content using the <code>utf-8-sig</code> codec, which decodes UTF-8 while stripping BOM headers. If decoding raises <code>UnicodeDecodeError</code> or <code>ValueError</code>, the file is marked as non-text, added to <code>skipped_non_text</code>, and skipped. Any unexpected I/O or permission errors are trapped by the general <code>Exception</code> clause, which logs <code>CRAWL_FILE_ERROR</code> without terminating the crawl. Successfully ingested text files are stored in <code>files_dict</code> under <code>relpath</code>.</p>
+<h4 id="phase-6-telemetry-reporting-and-payload-assembly">Phase 6: Telemetry Reporting and Payload Assembly</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>    <span class="c1"># --- Summary ---</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">total_fetched</span> <span class="o">=</span> <span class="n">count_processed</span> <span class="o">+</span> <span class="n">count_excluded</span> <span class="o">+</span> <span class="n">count_size_limit</span> <span class="o">+</span> <span class="n">count_non_text</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_SUMMARY_HEADER"</span><span class="p">)</span>
@@ -2019,44 +1872,37 @@ Files passing pattern filters are checked against <code>max_file_size</code>. If
 <a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
 <a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="n">files_dict</span><span class="p">}</span>
 </code></pre></div>
-After completing directory traversal, the function computes <code>total_fetched</code> as the sum of all processed, excluded, size-limited, and non-text entries. It emits a formatted summary breakdown using <a href="../output.py/">output.py</a> messages, listing individual filenames for skipped oversized and binary files when applicable. Finally, it packages the processed file mapping into a dictionary conforming to the standard repository schema <code>{"files": files_dict}</code> and returns it to the caller.</p>
-<p><strong>Parameters</strong>:
-* <code>directory</code> (str): Absolute or relative filesystem path to the root target directory to crawl.
-* <code>include_patterns</code> (set | None): Optional set of glob patterns (e.g., <code>{"*.py", "*.ts"}</code>). If specified, only files matching at least one pattern are ingested.
-* <code>exclude_patterns</code> (set | None): Optional set of glob patterns to exclude (e.g., <code>{"tests/*", "*.lock"}</code>). Takes precedence over <code>include_patterns</code>.
-* <code>max_file_size</code> (int | None): Maximum allowable file size in bytes. Files exceeding this threshold are skipped.
-* <code>use_relative_paths</code> (bool): Whether dictionary keys should be formatted relative to <code>directory</code> (<code>True</code>, default) or preserved as full filesystem paths (<code>False</code>).</p>
-<p><strong>Returns</strong>:
-* <code>dict</code>: A dictionary containing the single key <code>"files"</code>, mapped to an inner dictionary <code>{filepath: content}</code> of relative filepaths to UTF-8 decoded text contents.</p>
-<p><strong>Raises</strong>:
-* <code>ValueError</code>: If <code>directory</code> does not exist or is not a valid directory on the local filesystem.</p>
+Following directory traversal completion, the module compiles summary metrics over all visited entries (<code>total_fetched = count_processed + count_excluded + count_size_limit + count_non_text</code>). It emits structured summary headers and totals, followed by itemized listings of files skipped due to size restrictions or non-text formatting. Finally, it packages the ingested file paths and their contents into the standard dictionary schema <code>{"files": files_dict}</code> and returns it to the caller.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Standalone usage example extracted from utils/crawl_local_files.py (__main__ block)</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"--- Crawling parent directory ('..') ---"</span><span class="p">)</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">files_data</span> <span class="o">=</span> <span class="n">crawl_local_files</span><span class="p">(</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="s2">".."</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="n">exclude_patterns</span><span class="o">=</span><span class="p">{</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>            <span class="s2">"*.pyc"</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="s2">"__pycache__/*"</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="s2">".venv/*"</span><span class="p">,</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>            <span class="s2">".git/*"</span><span class="p">,</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="s2">"docs/*"</span><span class="p">,</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="s2">"output/*"</span><span class="p">,</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="p">},</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="p">)</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files_data</span><span class="p">[</span><span class="s1">'files'</span><span class="p">])</span><span class="si">}</span><span class="s2"> files:"</span><span class="p">)</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">files_data</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]:</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Extracted directly from utils/crawl_local_files.py (__main__ execution block)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">files_data</span> <span class="o">=</span> <span class="n">crawl_local_files</span><span class="p">(</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="s2">".."</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">exclude_patterns</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="s2">"*.pyc"</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="s2">"__pycache__/*"</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="s2">".venv/*"</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="s2">".git/*"</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="s2">"docs/*"</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="s2">"output/*"</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="p">},</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">)</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files_data</span><span class="p">[</span><span class="s1">'files'</span><span class="p">])</span><span class="si">}</span><span class="s2"> files:"</span><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">files_data</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]:</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></p>
 <hr />
 <h2 id="internal-helpers">Internal Helpers</h2>
 <h3 id="_load_gitignore"><code>_load_gitignore()</code></h3>
-<p><strong>Visibility</strong>: Private<br />
-<strong>Signature</strong>: <code>def _load_gitignore(gitignore_path) -&gt; pathspec.PathSpec | None:</code></p>
-<p><strong>Description</strong>:<br />
-Attempts to open and parse a <code>.gitignore</code> file from disk using <code>utf-8-sig</code> encoding, compiling its lines into a <code>pathspec.PathSpec</code> object using the <code>"gitwildmatch"</code> pattern syntax. If the file cannot be opened, is unreadable, or contains invalid pattern syntax, the function traps all exceptions and safely returns <code>None</code>.</p>
-<p><strong>Implementation</strong>:
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _load_gitignore(gitignore_path: str) -&gt; Optional[pathspec.PathSpec]:</code></p>
+<p><strong>Description</strong>: Opens a specified <code>.gitignore</code> file from the host filesystem, reads its pattern lines, and compiles them into a <code>pathspec.PathSpec</code> object using the standard Git <code>"gitwildmatch"</code> syntax rules. If the file cannot be opened, read, or parsed, the exception is caught and <code>None</code> is returned.</p>
+<p><strong>Parameters</strong>:
+* <code>gitignore_path</code> (<code>str</code>): The filesystem path pointing to the <code>.gitignore</code> file.</p>
+<p><strong>Returns</strong>:
+* <code>Optional[pathspec.PathSpec]</code>: A compiled path matching specification object if parsed successfully, or <code>None</code> on any I/O or syntax failure.</p>
+<p><strong>Raises</strong>:
+* None. All exceptions raised during file reading or parsing are caught internally.</p>
+<p><strong>Core Implementation</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_load_gitignore</span><span class="p">(</span><span class="n">gitignore_path</span><span class="p">):</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="sd">"""Load a .gitignore file and return a PathSpec, or None on failure."""</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">try</span><span class="p">:</span>
@@ -2065,13 +1911,9 @@ Attempts to open and parse a <code>.gitignore</code> file from disk using <code>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div>
-This helper encapsulates <code>.gitignore</code> parsing with defensive error handling. By utilizing <code>utf-8-sig</code>, it handles files with or without UTF-8 BOM headers. The compiled <code>PathSpec</code> object adheres strictly to Git wildmatch rules (such as double-asterisk recursive globs and leading slash anchors). If an I/O error or syntax error occurs, the crawler logs no failure and continues traversal without applying the broken ignore specification.</p>
-<p><strong>Parameters</strong>:
-* <code>gitignore_path</code> (str): Filesystem path to the <code>.gitignore</code> file to read and compile.</p>
-<p><strong>Returns</strong>:
-* <code>pathspec.PathSpec | None</code>: A compiled <code>PathSpec</code> instance if parsing succeeded, or <code>None</code> if an exception occurred.</p>
+The helper wraps file operations in a defensive <code>try...except</code> block to prevent unreadable, locked, or corrupt <code>.gitignore</code> files from aborting the crawl. It opens the target path with <code>utf-8-sig</code> to strip any Byte Order Marks that may precede pattern definitions on Windows platforms. The collected lines are parsed by <code>pathspec.PathSpec.from_lines</code> using Git's wildmatch syntax. Any unexpected errors cause the function to return <code>None</code>, signaling to the caller that no rules could be loaded.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Internal call site within crawl_local_files()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Extracted from crawl_local_files() in utils/crawl_local_files.py</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">root_gi_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">".gitignore"</span><span class="p">)</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">root_gi_path</span><span class="p">):</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">spec</span> <span class="o">=</span> <span class="n">_load_gitignore</span><span class="p">(</span><span class="n">root_gi_path</span><span class="p">)</span>
@@ -2081,52 +1923,46 @@ This helper encapsulates <code>.gitignore</code> parsing with defensive error ha
 </code></pre></div></p>
 <hr />
 <h3 id="_matches_any_gitignore"><code>_matches_any_gitignore()</code></h3>
-<p><strong>Visibility</strong>: Private<br />
-<strong>Signature</strong>: <code>def _matches_any_gitignore(gitignore_specs, abs_path, is_dir=False) -&gt; bool:</code></p>
-<p><strong>Description</strong>:<br />
-Evaluates whether a given absolute filesystem path matches any loaded <code>.gitignore</code> specification in <code>gitignore_specs</code>. It computes the path relative to each <code>.gitignore</code>'s containing directory scope, normalizes backslashes to forward slashes for cross-platform compatibility, appends a trailing slash for directories, and checks the compiled <code>PathSpec</code> matcher.</p>
-<p><strong>Implementation</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_matches_any_gitignore</span><span class="p">(</span><span class="n">gitignore_specs</span><span class="p">,</span> <span class="n">abs_path</span><span class="p">,</span> <span class="n">is_dir</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="sd">"""Check if a path matches ANY loaded .gitignore spec.</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="sd">    Each spec is checked with the path relative to its own .gitignore directory.</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="sd">    For directories, a trailing '/' is appended for proper gitignore matching.</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="sd">    Args:</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="sd">        gitignore_specs: dict of {abs_dir_path: pathspec.PathSpec}</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="sd">        abs_path: absolute path of the file or directory to check</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="sd">        is_dir: True if checking a directory</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="sd">        True if the path matches any gitignore rule</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="sd">    """</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="k">for</span> <span class="n">gi_dir</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">gitignore_specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>        <span class="n">rel</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">abs_path</span><span class="p">,</span> <span class="n">gi_dir</span><span class="p">)</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="c1"># Skip if the path is not under this gitignore's scope</span>
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">".."</span><span class="p">):</span>
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>            <span class="k">continue</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>        <span class="n">match_path</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">)</span>
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>        <span class="k">if</span> <span class="n">is_dir</span><span class="p">:</span>
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>            <span class="n">match_path</span> <span class="o">=</span> <span class="n">match_path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"/"</span>
-<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">match_file</span><span class="p">(</span><span class="n">match_path</span><span class="p">):</span>
-<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>            <span class="k">return</span> <span class="kc">True</span>
-<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="k">return</span> <span class="kc">False</span>
-</code></pre></div>
-This function resolves path scoping for hierarchical <code>.gitignore</code> configurations. It iterates through all registered ignore specifications in <code>gitignore_specs</code>. If <code>os.path.relpath(abs_path, gi_dir)</code> starts with <code>..</code>, the path lies outside the directory scope of that particular <code>.gitignore</code> and is skipped. For paths within scope, Windows backslashes (<code>\</code>) are converted to standard Git forward slashes (<code>/</code>). If <code>is_dir=True</code>, a trailing slash is enforced so that directory-only ignore patterns (e.g., <code>build/</code>) match correctly. The first specification whose <code>match_file()</code> returns <code>True</code> short-circuits the evaluation and returns <code>True</code>.</p>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _matches_any_gitignore(gitignore_specs: dict[str, pathspec.PathSpec], abs_path: str, is_dir: bool = False) -&gt; bool:</code></p>
+<p><strong>Description</strong>: Determines if an absolute target path matches any compiled <code>.gitignore</code> specification in <code>gitignore_specs</code>. Because <code>.gitignore</code> rules apply only to files within their own directory subtree, this function calculates the relative path from each <code>.gitignore</code> root to the target path. It normalizes path separators to POSIX slashes and appends a trailing slash for directory checks.</p>
 <p><strong>Parameters</strong>:
-* <code>gitignore_specs</code> (dict[str, pathspec.PathSpec]): Dictionary mapping absolute directory paths to their compiled <code>pathspec.PathSpec</code> objects.
-* <code>abs_path</code> (str): The absolute filesystem path of the file or directory being evaluated.
-* <code>is_dir</code> (bool, optional): Flag indicating if the target path is a directory (<code>True</code>) or a file (<code>False</code>). Defaults to <code>False</code>.</p>
+* <code>gitignore_specs</code> (<code>dict[str, pathspec.PathSpec]</code>): Mapping of absolute directory paths to their compiled <code>pathspec.PathSpec</code> instances.
+* <code>abs_path</code> (<code>str</code>): Absolute filesystem path of the candidate file or directory to check.
+* <code>is_dir</code> (<code>bool</code>): Flag indicating whether <code>abs_path</code> represents a directory. Defaults to <code>False</code>.</p>
 <p><strong>Returns</strong>:
-* <code>bool</code>: <code>True</code> if <code>abs_path</code> matches any applicable in-scope <code>.gitignore</code> rule; otherwise <code>False</code>.</p>
+* <code>bool</code>: <code>True</code> if <code>abs_path</code> matches any active <code>.gitignore</code> specification within its scope; otherwise <code>False</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Core Implementation</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_matches_any_gitignore</span><span class="p">(</span><span class="n">gitignore_specs</span><span class="p">,</span> <span class="n">abs_path</span><span class="p">,</span> <span class="n">is_dir</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="k">for</span> <span class="n">gi_dir</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">gitignore_specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        <span class="n">rel</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">abs_path</span><span class="p">,</span> <span class="n">gi_dir</span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        <span class="c1"># Skip if the path is not under this gitignore's scope</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">".."</span><span class="p">):</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>            <span class="k">continue</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="n">match_path</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="k">if</span> <span class="n">is_dir</span><span class="p">:</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>            <span class="n">match_path</span> <span class="o">=</span> <span class="n">match_path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"/"</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">match_file</span><span class="p">(</span><span class="n">match_path</span><span class="p">):</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>            <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+This helper enforces directory-scoped <code>.gitignore</code> semantics. For every registered spec, it computes the relative path <code>rel = os.path.relpath(abs_path, gi_dir)</code>. If <code>rel</code> starts with <code>".."</code> (or Windows <code>"..\\"</code>), the candidate path resides outside that <code>.gitignore</code> file's subtree, and that spec is skipped. For paths within scope, Windows backslashes are replaced with POSIX forward slashes (<code>/</code>) to ensure cross-platform compatibility with <code>pathspec</code>. If <code>is_dir</code> is <code>True</code>, any trailing slash is stripped and re-appended (<code>match_path.rstrip("/") + "/"</code>) so directory-only rules (e.g., <code>build/</code>) match correctly. If any specification matches, <code>True</code> is returned immediately.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Internal call site within crawl_local_files() directory evaluation</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Extracted from crawl_local_files() in utils/crawl_local_files.py</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">if</span> <span class="n">_matches_any_gitignore</span><span class="p">(</span><span class="n">gitignore_specs</span><span class="p">,</span> <span class="n">abs_d</span><span class="p">,</span> <span class="n">is_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">reason</span> <span class="o">=</span> <span class="n">reason_gitignore</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># ...</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">if</span> <span class="n">_matches_any_gitignore</span><span class="p">(</span><span class="n">gitignore_specs</span><span class="p">,</span> <span class="n">abs_filepath</span><span class="p">):</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">count_excluded</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_GITIGNORE"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="k">continue</span>
 </code></pre></div></p>
 <hr />
 <h2 id="data-structures">Data Structures</h2>
-<h3 id="crawl-result-dictionary-schema">Crawl Result Dictionary Schema</h3>
-<p>The primary return payload returned by <code>crawl_local_files()</code> matches the schema produced by <a href="../crawl_github_files.py/">crawl_github_files.py</a>, allowing workflow nodes in <a href="../../nodes.py/">nodes.py</a> to ingest repositories agnostic of their source.</p>
+<h3 id="crawllocalresult"><code>CrawlLocalResult</code></h3>
+<p>The output schema returned by <code>crawl_local_files()</code>. This contract matches the return shape of <a href="../crawl_github_files.py/">crawl_github_files.py</a>.</p>
 <table>
 <thead>
 <tr>
@@ -2139,22 +1975,22 @@ This function resolves path scoping for hierarchical <code>.gitignore</code> con
 <tr>
 <td style="text-align: left;"><code>files</code></td>
 <td style="text-align: left;"><code>dict[str, str]</code></td>
-<td style="text-align: left;">Mapping where keys are relative filepaths (or absolute paths if <code>use_relative_paths=False</code>) and values are UTF-8 decoded file text contents.</td>
+<td style="text-align: left;">Key-value mapping of file paths (relative to root by default) to raw decoded file content strings.</td>
 </tr>
 </tbody>
 </table>
-<h4 id="structural-example">Structural Example:</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="s2">"files"</span><span class="p">:</span> <span class="p">{</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        <span class="s2">"utils/crawl_local_files.py"</span><span class="p">:</span> <span class="s2">"import fnmatch</span><span class="se">\n</span><span class="s2">import os</span><span class="se">\n</span><span class="s2">..."</span><span class="p">,</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        <span class="s2">"utils/call_llm.py"</span><span class="p">:</span> <span class="s2">"import json</span><span class="se">\n</span><span class="s2">import logging</span><span class="se">\n</span><span class="s2">..."</span><span class="p">,</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        <span class="s2">"main.py"</span><span class="p">:</span> <span class="s2">"import os</span><span class="se">\n</span><span class="s2">import sys</span><span class="se">\n</span><span class="s2">..."</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="p">}</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Conceptual Structure Example</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="s2">"files"</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        <span class="s2">"utils/call_llm.py"</span><span class="p">:</span> <span class="s2">"import os</span><span class="se">\n</span><span class="s2">import time</span><span class="se">\n</span><span class="s2">..."</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        <span class="s2">"utils/crawl_local_files.py"</span><span class="p">:</span> <span class="s2">"import fnmatch</span><span class="se">\n</span><span class="s2">import os</span><span class="se">\n</span><span class="s2">..."</span><span class="p">,</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="s2">"main.py"</span><span class="p">:</span> <span class="s2">"import sys</span><span class="se">\n</span><span class="s2">..."</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="p">}</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
-<h3 id="gitignore-specs-registry-gitignore_specs">Gitignore Specs Registry (<code>gitignore_specs</code>)</h3>
-<p>Internal mapping used during single-pass traversal to manage multi-level, nested <code>.gitignore</code> files across the filesystem hierarchy.</p>
+<h3 id="gitignorespecsmap"><code>GitIgnoreSpecsMap</code></h3>
+<p>Internal state dictionary mapping filesystem directory boundaries to their compiled pattern matchers.</p>
 <table>
 <thead>
 <tr>
@@ -2167,17 +2003,17 @@ This function resolves path scoping for hierarchical <code>.gitignore</code> con
 <tr>
 <td style="text-align: left;"><code>abs_dir_path</code> (<code>str</code>)</td>
 <td style="text-align: left;"><code>pathspec.PathSpec</code></td>
-<td style="text-align: left;">The absolute directory path containing the <code>.gitignore</code> file, serving as the relative root for pattern matching.</td>
+<td style="text-align: left;">Absolute path of the directory containing the <code>.gitignore</code> mapped to its compiled <code>gitwildmatch</code> rules.</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h3 id="ingestion-telemetry-state-counters">Ingestion Telemetry State Counters</h3>
-<p>Internal tracking state maintained within <code>crawl_local_files()</code> and pushed to <code>utils.output.emit()</code> throughout the crawl lifecycle:</p>
+<h3 id="crawlstatecounters"><code>CrawlStateCounters</code></h3>
+<p>Internal tracking state maintained within <code>crawl_local_files()</code> to compile traversal metrics and format telemetry logs.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Counter / Collection</th>
+<th style="text-align: left;">Field</th>
 <th style="text-align: left;">Type</th>
 <th style="text-align: left;">Description</th>
 </tr>
@@ -2186,84 +2022,87 @@ This function resolves path scoping for hierarchical <code>.gitignore</code> con
 <tr>
 <td style="text-align: left;"><code>entry_num</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Sequential index of all encountered filesystem items (files and directories).</td>
+<td style="text-align: left;">Monotonically increasing counter indexing every directory and file encountered.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>count_processed</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Total count of files successfully read and added to <code>files_dict</code>.</td>
+<td style="text-align: left;">Total number of files successfully read, decoded, and stored in <code>files_dict</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>count_excluded</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Total count of files and directories rejected via <code>.gitignore</code>, exclude patterns, or include mismatches.</td>
+<td style="text-align: left;">Total count of directories and files skipped via <code>.gitignore</code>, <code>exclude_patterns</code>, or missing <code>include_patterns</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>count_size_limit</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Total count of files rejected because their size exceeded <code>max_file_size</code>.</td>
+<td style="text-align: left;">Total count of files whose size exceeded <code>max_file_size</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>count_non_text</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Total count of files rejected due to binary encoding, decoding failures, or read exceptions.</td>
+<td style="text-align: left;">Total count of files skipped due to binary encoding, decoding errors, or filesystem read faults.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>skipped_size_limit</code></td>
 <td style="text-align: left;"><code>list[str]</code></td>
-<td style="text-align: left;">List of relative filepaths skipped due to the byte size ceiling.</td>
+<td style="text-align: left;">List of relative file paths that exceeded <code>max_file_size</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>skipped_non_text</code></td>
 <td style="text-align: left;"><code>list[str]</code></td>
-<td style="text-align: left;">List of relative filepaths skipped due to non-text content or read errors.</td>
+<td style="text-align: left;">List of relative file paths flagged as binary or unreadable.</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="error-handling">Error Handling</h2>
-<h3 id="directory-existence-validation">Directory Existence Validation</h3>
-<p><code>crawl_local_files()</code> performs explicit pre-validation on the target path:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+<p>The module employs defensive error-handling patterns to ensure that filesystem anomalies, binary payloads, and pattern syntax issues do not terminate ingestion prematurely:</p>
+<ol>
+<li>
+<p><strong>Precondition Directory Validation</strong>:
+   <code>crawl_local_files()</code> tests the input path via <code>os.path.isdir(directory)</code> before beginning traversal. If the path does not exist or points to a non-directory file, it raises a <code>ValueError</code>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Directory does not exist: </span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</code></pre></div>
-If the path does not exist, or points to a regular file rather than a directory, execution halts immediately with a <code>ValueError</code>.</p>
-<h3 id="robust-gitignore-loading">Robust Gitignore Loading</h3>
-<p>To prevent malformed <code>.gitignore</code> files from crashing the ingestion pipeline, <code>_load_gitignore()</code> catches all exceptions during file I/O and pattern compilation:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gitignore_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        <span class="k">return</span> <span class="n">pathspec</span><span class="o">.</span><span class="n">PathSpec</span><span class="o">.</span><span class="n">from_lines</span><span class="p">(</span><span class="s2">"gitwildmatch"</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="k">return</span> <span class="kc">None</span>
-</code></pre></div>
-Any read failure or syntax error results in <code>None</code>, allowing traversal to proceed with remaining active patterns.</p>
-<h3 id="binary-and-decoding-fault-isolation">Binary and Decoding Fault Isolation</h3>
-<p>When reading file contents, <code>crawl_local_files()</code> wraps the <code>open()</code> context in a dual-layer exception handler:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>        <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">files_dict</span><span class="p">[</span><span class="n">relpath</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">count_processed</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_PROCESSED"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">)</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_NOT_TEXT"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">)</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_ERROR"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
-</code></pre></div>
-- <strong><code>UnicodeDecodeError</code> and <code>ValueError</code></strong>: Raised when attempting to read compiled binaries, compressed archives, images, or files with incompatible character encodings. These are treated as non-text assets, recorded in <code>skipped_non_text</code>, and emitted as <code>CRAWL_FILE_NOT_TEXT</code>.
-- <strong><code>Exception</code></strong>: Traps permission errors, broken symlinks, or transient OS filesystem locks, reporting the specific error object via <code>CRAWL_FILE_ERROR</code> without terminating the crawl.</p>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Fault-Tolerant <code>.gitignore</code> Loading</strong>:
+   Inside <code>_load_gitignore()</code>, all filesystem access and parsing errors are intercepted via <code>except Exception: return None</code>. If a <code>.gitignore</code> cannot be read due to file permissions or invalid syntax, the crawler ignores that specific file and proceeds without aborting.</p>
+</li>
+<li>
+<p><strong>Binary and Non-Text Ingestion Handling</strong>:
+   Text decoding errors are caught explicitly when reading candidate files:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">files_dict</span><span class="p">[</span><span class="n">relpath</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">count_processed</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_PROCESSED"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_NOT_TEXT"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">count_non_text</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>    <span class="n">skipped_non_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relpath</span><span class="p">)</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CRAWL_FILE_ERROR"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">entry_num</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">relpath</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li><code>UnicodeDecodeError</code> and <code>ValueError</code>: These indicate non-text or binary files (e.g., compiled <code>.pyc</code>, images, zip archives). The crawler records the path in <code>skipped_non_text</code>, increments <code>count_non_text</code>, and emits <code>CRAWL_FILE_NOT_TEXT</code>.</li>
+<li>Generic <code>Exception</code>: Catches unexpected OS-level I/O issues (e.g., filesystem locks, permission denials, broken symlinks). It logs <code>CRAWL_FILE_ERROR</code> with the exception object and allows the traversal to continue.</li>
+</ol>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../crawl_github_files.py/">crawl_github_files.py</a> — Remote GitHub repository crawler providing the counterpart ingestion pipeline for remote git repositories.</li>
-<li><a href="../exclude_patterns.py/">exclude_patterns.py</a> — Default exclusion lists and path matching rules applied across both local and remote file ingestion.</li>
-<li><a href="../output.py/">output.py</a> — Messaging, localization, and formatted telemetry emission engine invoked via <code>emit()</code> and <code>get()</code>.</li>
-<li><a href="../../nodes.py/">nodes.py</a> — Workflow graph execution nodes (<code>crawl_repo_node</code>) that invoke <code>crawl_local_files()</code> when processing local repository targets.</li>
-<li><a href="../../main.py/">main.py</a> — Main application entry point resolving CLI arguments into local crawl operations.</li>
+<li><a href="../crawl_github_files.py/">crawl_github_files.py</a> — The remote GitHub crawling engine providing symmetric ingestion and payload contracts.</li>
+<li><a href="../exclude_patterns.py/">exclude_patterns.py</a> — Default exclusion lists for directories, binaries, and dependencies.</li>
+<li><a href="../output.py/">output.py</a> — Unified console output and event telemetry framework used for logging traversal events.</li>
+<li><a href="../token_utils.py/">token_utils.py</a> — Token quantification utilities applied to the ingested file dictionaries.</li>
+<li><a href="../../flow.py/">flow.py</a> — Workflow execution graph orchestrating file ingestion and documentation pipelines.</li>
+<li><a href="../../main.py/">main.py</a> — CLI entry point configuring paths, flags, and exclusion options.</li>
+<li><a href="../../nodes.py/">nodes.py</a> — Graph execution nodes that consume the extracted file dictionaries.</li>
 </ul>
 
 

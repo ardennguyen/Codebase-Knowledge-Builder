@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".d2", ".mermaid", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -1542,7 +1542,7 @@
   <span class="md-ellipsis">
     
   
-    Workflow & Execution
+    Pipeline Orchestration & Execution
   
 
     
@@ -1558,7 +1558,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Workflow & Execution
+    Pipeline Orchestration & Execution
   
 
           </label>
@@ -1685,7 +1685,7 @@
   <span class="md-ellipsis">
     
   
-    Source Code Ingestion
+    Repository Ingestion & Filtering
   
 
     
@@ -1701,7 +1701,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Source Code Ingestion
+    Repository Ingestion & Filtering
   
 
           </label>
@@ -1891,7 +1891,7 @@
   <span class="md-ellipsis">
     
   
-    LLM & Prompting
+    LLM Inference & Prompt Engineering
   
 
     
@@ -1907,7 +1907,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM & Prompting
+    LLM Inference & Prompt Engineering
   
 
           </label>
@@ -1921,8 +1921,6 @@
   
     
     
-      
-        
       
         
       
@@ -2024,34 +2022,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../api/utils/token_utils.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    token_utils.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -2097,7 +2067,7 @@
   <span class="md-ellipsis">
     
   
-    Output & Utilities
+    Telemetry & Observability
   
 
     
@@ -2113,7 +2083,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Output & Utilities
+    Telemetry & Observability
   
 
           </label>
@@ -2179,14 +2149,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/utils/output.py/" class="md-nav__link">
+      <a href="../api/utils/token_utils.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    output.py
+    token_utils.py
   
 
     
@@ -2207,14 +2177,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/utils/__init__.py/" class="md-nav__link">
+      <a href="../api/utils/output.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    __init__.py
+    output.py
   
 
     
@@ -3914,9 +3884,15 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <td>Clear flag, warn user</td>
 <td><code>WARN_INCREMENTAL_API_ONLY</code></td>
 </tr>
+<tr>
+<td><code>--exclude</code>/<code>--include</code> value contains embedded CLI flag</td>
+<td>ERROR</td>
+<td><code>sys.exit(1)</code></td>
+<td><code>ERROR_QUOTING</code></td>
+</tr>
 </tbody>
 </table>
-<p>Note: <code>--repo</code>/<code>--dir</code> exclusivity is handled by <code>argparse.add_mutually_exclusive_group()</code> (built-in argparse error).</p>
+<p>Note: <code>--repo</code>/<code>--dir</code> exclusivity is handled by <code>argparse.add_mutually_exclusive_group()</code> (built-in argparse error). The quoting error check in <code>_check_quoting_errors(parser, args)</code> dynamically extracts all registered flags (both <code>--long</code> and <code>-short</code>) from the argparse parser — no hardcoded flag list to maintain.</p>
 <h2 id="7-default-exclude-patterns">7. Default Exclude Patterns</h2>
 <blockquote>
 <p>Notes for AI: <code>DEFAULT_EXCLUDE_PATTERNS</code> is defined in <code>utils/exclude_patterns.py</code>, while <code>DEFAULT_INCLUDE_PATTERNS = {"*"}</code> is defined in <code>main.py</code>. <code>DEFAULT_EXCLUDE_PATTERNS</code> is imported into <code>main.py</code>. User-supplied <code>--exclude</code> patterns are MERGED with (not replacing) this set via <code>.union()</code>.</p>
