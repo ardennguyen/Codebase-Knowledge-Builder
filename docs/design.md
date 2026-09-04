@@ -341,8 +341,9 @@ These checks run in `main()` after `parse_args()`. All use `emit()` for bilingua
 | `--force-batch` with `--mode api-reference` | WARNING | Clear flag, warn user | `WARN_FORCE_BATCH_API_REF` |
 | `--max-abstractions` with `--mode api-reference` | WARNING | Warn user (flag ignored at runtime) | `WARN_MAX_ABS_API_REF` |
 | `--incremental` with `--mode` != `api-reference` | WARNING | Clear flag, warn user | `WARN_INCREMENTAL_API_ONLY` |
+| `--exclude`/`--include` value contains embedded CLI flag | ERROR | `sys.exit(1)` | `ERROR_QUOTING` |
 
-Note: `--repo`/`--dir` exclusivity is handled by `argparse.add_mutually_exclusive_group()` (built-in argparse error).
+Note: `--repo`/`--dir` exclusivity is handled by `argparse.add_mutually_exclusive_group()` (built-in argparse error). The quoting error check in `_check_quoting_errors(parser, args)` dynamically extracts all registered flags (both `--long` and `-short`) from the argparse parser — no hardcoded flag list to maintain.
 
 ## 7. Default Exclude Patterns
 

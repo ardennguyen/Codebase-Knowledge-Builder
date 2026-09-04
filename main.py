@@ -84,6 +84,37 @@ def parse_arguments():
     return parser, parser.parse_args()
 
 
+def _check_quoting_errors(parser, args):
+    """Detect shell quoting errors where --exclude/--include values accidentally swallowed other CLI flags.
+
+    When users misquote patterns (e.g., --exclude "autogen/* "SmartFO/*" --language Vietnamese),
+    the shell merges subsequent flags into the pattern value. This silently causes ALL following
+    arguments to be ignored. We detect this by checking if any pattern value contains a known
+    CLI flag string, which no legitimate file/directory pattern would ever contain.
+
+    Flags are extracted dynamically from the argparse parser — no hardcoded list to maintain.
+    """
+    # Extract all registered flags (both --long and -short) from the parser
+    known_flags = set()
+    for action in parser._actions:
+        for opt in action.option_strings:
+            known_flags.add(opt)
+
+    for pattern_list, flag_name in [(args.exclude, "--exclude"), (args.include, "--include")]:
+        if not pattern_list:
+            continue
+        for pattern in pattern_list:
+            for known_flag in known_flags:
+                if f" {known_flag} " in pattern or (f" {known_flag}" in pattern and pattern.endswith(known_flag)):
+                    emit(
+                        "ERROR_QUOTING",
+                        flag=flag_name,
+                        pattern=pattern[:120],
+                        embedded=known_flag,
+                    )
+                    sys.exit(1)
+
+
 # --- Mode & Project Name Resolution ---
 def resolve_mode_and_project(args):
     """Resolve documentation mode (handling --advanced legacy flag) and derive project name.
@@ -248,6 +279,7 @@ def main():
         use_cache=not args.no_cache,
         thinking_level=args.thinking_level,
     )
+    _check_quoting_errors(parser, args)
 
     # Handle standalone --cleanup (no --dir or --repo)
     if args.cleanup and not args.dir and not args.repo:
