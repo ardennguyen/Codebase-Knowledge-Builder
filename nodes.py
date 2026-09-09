@@ -1,4 +1,5 @@
 import os
+import traceback
 from collections import defaultdict
 
 import tiktoken
@@ -6,10 +7,9 @@ import yaml
 from pocketflow import BatchNode, Node
 
 from utils.call_llm import call_llm, get_model_context_length
-from utils.call_llm import logger as llm_logger
 from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
-from utils.output import emit, get
+from utils.output import emit, emit_raw, get
 from utils.prompts import (
     build_chapter_summary_prompt,
     build_code_file_filter_prompt,
@@ -125,7 +125,7 @@ class DeterministicFileMapper(Node):
             return [int(idx) for idx in valid_indices]
         except Exception as e:
             emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -267,8 +267,10 @@ class ContextRouter(Node):
 
     def exec(self, prep_res):
         route, files_data, effective_limit, batch_size, file_token_map, _count_tokens, directory_tree, debug = prep_res
-        llm_logger.info(
-            f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}"
+        emit_raw(
+            "DEBUG",
+            f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}",
+            dest="LOG",
         )
 
         if route == "direct":
@@ -303,7 +305,7 @@ class ContextRouter(Node):
 
         batch_word = "batch" if len(batches) == 1 else "batches"
         emit("CAPACITY_SPLIT", count=len(batches), word=batch_word)
-        llm_logger.info(f"NODE COMPLETE | node=ContextRouter | route={route} | batches={len(batches)}")
+        emit_raw("DEBUG", f"NODE COMPLETE | node=ContextRouter | route={route} | batches={len(batches)}", dest="LOG")
 
         # Debug: show detailed batch info
         if debug:
@@ -502,7 +504,7 @@ class FetchRepo(Node):
 
     def exec(self, prep_res):
         source = prep_res["repo_url"] or prep_res["local_dir"]
-        llm_logger.info(f"NODE EXEC | node=FetchRepo | action=crawl_files | source={source}")
+        emit_raw("DEBUG", f"NODE EXEC | node=FetchRepo | action=crawl_files | source={source}", dest="LOG")
 
         if prep_res["repo_url"]:
             emit("CRAWL_REPOSITORY", url=prep_res["repo_url"])
@@ -530,7 +532,7 @@ class FetchRepo(Node):
         if len(files_list) == 0:
             raise ValueError("No matching files found. Check your directory and include/exclude patterns.")
 
-        llm_logger.info(f"NODE COMPLETE | node=FetchRepo | files_found={len(files_list)}")
+        emit_raw("DEBUG", f"NODE COMPLETE | node=FetchRepo | files_found={len(files_list)}", dest="LOG")
         return files_list
 
     def post(self, shared, prep_res, exec_res):
@@ -693,7 +695,7 @@ class IdentifyAbstractions(Node):
             return validated_abstractions
         except Exception as e:
             emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -904,7 +906,7 @@ class AnalyzeRelationships(Node):
                     to_idx = int(to_nums[0])
                     if not (0 <= from_idx < num_abstractions and 0 <= to_idx < num_abstractions):
                         emit("WARN_INVALID_RELATIONSHIP", from_idx=from_idx, to_idx=to_idx, max_idx=num_abstractions - 1)
-                        llm_logger.warning(f"Invalid index in relationship: from={from_idx}, to={to_idx}")
+                        emit_raw("WARNING", f"Invalid index in relationship: from={from_idx}, to={to_idx}", dest="BOTH")
                         continue
                     validated_relationships.append(
                         {
@@ -924,7 +926,7 @@ class AnalyzeRelationships(Node):
             }
         except Exception as e:
             emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -1043,7 +1045,7 @@ class OrderChapters(Node):
             return ordered_indices  # Return the list of indices
         except Exception as e:
             emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
             raise e
 
     def post(self, shared, prep_res, exec_res):
@@ -1226,8 +1228,10 @@ class WriteChapters(BatchNode):
                                 if cached_summary:
                                     self.chapter_summaries.append(cached_summary)
                                     emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens="manifest")
-                                    llm_logger.info(
-                                        f"CHAPTER SUMMARY LOADED | chapter={chapter_num} | name={abstraction_name.strip()} | source=manifest"
+                                    emit_raw(
+                                        "DEBUG",
+                                        f"CHAPTER SUMMARY LOADED | chapter={chapter_num} | name={abstraction_name.strip()} | source=manifest",
+                                        dest="LOG",
                                     )
                                 else:
                                     # Fallback for old manifest format: regenerate summary via LLM
@@ -1242,8 +1246,10 @@ class WriteChapters(BatchNode):
                                     }
                                     emit("LLM_CALL_SUMMARIZE_CACHED", chapter_num=chapter_num)
                                     log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
-                                    llm_logger.info(
-                                        f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache"
+                                    emit_raw(
+                                        "DEBUG",
+                                        f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache",
+                                        dest="LOG",
                                     )
                                     chapter_summary = call_llm(
                                         summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
@@ -1253,8 +1259,10 @@ class WriteChapters(BatchNode):
                                         f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
                                     )
                                     emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
-                                    llm_logger.info(
-                                        f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache"
+                                    emit_raw(
+                                        "DEBUG",
+                                        f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache",
+                                        dest="LOG",
                                     )
 
                                 summary_entry = self.chapter_summaries[-1] if self.chapter_summaries else None
@@ -1359,7 +1367,11 @@ class WriteChapters(BatchNode):
             # Log response token count
             response_tokens = count_tokens(chapter_content)
             emit("DONE_WRITE_CHAPTER", chapter_num=chapter_num, tokens=f"{response_tokens:,}")
-            llm_logger.info(f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}")
+            emit_raw(
+                "DEBUG",
+                f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}",
+                dest="LOG",
+            )
 
             # Basic validation/cleanup
             chapter_word = get("UI_CHAPTER")
@@ -1387,18 +1399,26 @@ class WriteChapters(BatchNode):
             }
             emit("LLM_CALL_SUMMARIZE", chapter_num=chapter_num)
             log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
-            llm_logger.info(f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}")
+            emit_raw(
+                "DEBUG",
+                f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}",
+                dest="LOG",
+            )
             chapter_summary = call_llm(summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
             summary_response_tokens = count_tokens(chapter_summary)
             self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
             emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
-            llm_logger.info(f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,}")
+            emit_raw(
+                "DEBUG",
+                f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,}",
+                dest="LOG",
+            )
 
             summary_entry = f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
             return {"content": chapter_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
         except Exception as e:
             emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
             raise e
 
     def post(self, shared, prep_res, exec_res_list):
@@ -1668,8 +1688,10 @@ class CombineTutorial(Node):
             chapter_files = prep_res["chapter_files"]
             ui = prep_res["ui"]
 
-            llm_logger.info(
-                f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}"
+            emit_raw(
+                "DEBUG",
+                f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}",
+                dest="LOG",
             )
             emit("COMBINE_WRITING_OUTPUT", path=output_path)
             os.makedirs(output_path, exist_ok=True)
@@ -1692,7 +1714,7 @@ class CombineTutorial(Node):
 
                 # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
                 sections = None
-                llm_logger.info(f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6")
+                emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
                 if mode == "api-reference" and len(chapter_files) > 5:
                     try:
                         chapter_summaries = prep_res.get("chapter_summaries", [])
@@ -1746,14 +1768,18 @@ class CombineTutorial(Node):
 
                     except Exception as e:
                         emit("GROUP_ERROR_FALLBACK", error=e)
-                        llm_logger.warning(f"LLM grouping failed: {e}", exc_info=True)
+                        emit_raw("ERROR", f"LLM grouping failed: {e}\n{traceback.format_exc()}", dest="LOG")
                         nav_snippet = prep_res["nav_snippet"]
                         sections = None
                 else:
                     nav_snippet = prep_res["nav_snippet"]
 
-                llm_logger.info(f"NAV SNIPPET FINAL | grouped={sections is not None} | nav_snippet_lines={nav_snippet.count(chr(10)) + 1}")
-                llm_logger.debug(f"NAV SNIPPET CONTENT:\n{nav_snippet}")
+                emit_raw(
+                    "DEBUG",
+                    f"NAV SNIPPET FINAL | grouped={sections is not None} | nav_snippet_lines={nav_snippet.count(chr(10)) + 1}",
+                    dest="LOG",
+                )
+                emit_raw("DEBUG", f"NAV SNIPPET CONTENT:\n{nav_snippet}", dest="LOG")
                 if sections:
                     emit("COMBINE_NAV_GROUPED", count=len(sections))
                 else:
@@ -1894,11 +1920,15 @@ class CombineTutorial(Node):
                     f.write(full_content)
                 emit("FILE_WROTE", path=full_content_filepath)
 
-            llm_logger.info(f"NODE COMPLETE | node=CombineTutorial | output={output_path} | files_written={len(chapter_files) + 1}")
+            emit_raw(
+                "DEBUG",
+                f"NODE COMPLETE | node=CombineTutorial | output={output_path} | files_written={len(chapter_files) + 1}",
+                dest="LOG",
+            )
             return output_path  # Return the final path
         except Exception as e:
             emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
+            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
             raise e
 
     def post(self, shared, prep_res, exec_res):

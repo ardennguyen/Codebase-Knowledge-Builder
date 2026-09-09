@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 
 import requests
@@ -9,13 +8,6 @@ from google.genai import types
 
 # Load environment variables from .env file
 load_dotenv()
-
-# Configure logging - deferred until main.py calls configure_logging()
-# At import time, set up logger with NullHandler (no file output yet)
-logger = logging.getLogger("llm_logger")
-logger.setLevel(logging.INFO)
-logger.propagate = False  # Prevent propagation to root logger
-logger.addHandler(logging.NullHandler())  # Absorb logs until configured
 
 
 # In-memory cache singleton — loaded once on first access, avoids
@@ -31,9 +23,13 @@ def load_cache():
     try:
         with open(cache_file) as f:
             _cache = json.load(f)
-        logger.info(f"CACHE LOADED | entries={len(_cache):,} | file={cache_file}")
+        from utils.output import emit
+
+        emit("CACHE_LOADED", count=f"{len(_cache):,}", file=cache_file)
     except Exception:
-        logger.warning("Failed to load cache, starting empty.")
+        from utils.output import emit
+
+        emit("WARN_CACHE_LOAD_FAIL")
         _cache = {}
     return _cache
 
@@ -45,7 +41,9 @@ def save_cache(cache):
         with open(cache_file, "w") as f:
             json.dump(cache, f)
     except Exception:
-        logger.warning("Failed to save cache")
+        from utils.output import emit
+
+        emit("WARN_CACHE_SAVE_FAIL")
 
 
 def get_llm_provider():
@@ -95,7 +93,9 @@ def get_model_context_length(endpoint_url: str, model_name: str, api_key: str = 
                 if m.get("id") == model_name:
                     return m.get("context_length", default_limit)
     except Exception as e:
-        logger.warning(f"Failed to fetch context length for {model_name} at {endpoint_url}: {e}")
+        from utils.output import emit
+
+        emit("WARN_CONTEXT_LENGTH_FETCH", model=model_name, endpoint=endpoint_url, error=str(e))
 
     return default_limit
 
@@ -156,9 +156,13 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
                 payload["reasoning"] = {"effort": thinking_level.lower()}
                 payload["temperature"] = 1.0  # Required for many reasoning models
             else:
-                logger.warning(f"Invalid thinking level '{thinking_level}' for model {model}. Supported efforts: {supported_efforts}")
+                from utils.output import emit
+
+                emit("WARN_THINKING_LEVEL_INVALID", level=thinking_level, model=model, supported=str(supported_efforts))
         else:
-            logger.warning(f"Model {model} does not support reasoning via OpenRouter API.")
+            from utils.output import emit
+
+            emit("WARN_THINKING_NOT_SUPPORTED", model=model)
 
     elif provider == "OLLAMA" and thinking_level:
         # Some Ollama SDKs / API versions look for `think`, others look for standard `reasoning_effort`
@@ -178,14 +182,15 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
                 f"Warning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}",
                 dest="STDOUT",
             )
-            logger.warning(f"Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}")
             raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}") from None
         response.raise_for_status()
 
         # Defensive check: API may return 200 with error/rate-limit payload missing 'choices'
         if "choices" not in response_json or not response_json["choices"]:
             error_detail = response_json.get("error", response_json)
-            logger.warning(f"API returned 200 but no 'choices' in response: {error_detail}")
+            from utils.output import emit
+
+            emit("WARN_API_NO_CHOICES", detail=str(error_detail))
             raise ValueError(f"API response missing 'choices' key. Response: {error_detail}")
 
         return response_json["choices"][0]["message"]["content"]
@@ -211,31 +216,34 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -> str:
     import time
 
+    from utils.output import emit_raw
     from utils.token_utils import count_tokens
 
     provider = get_llm_provider()
     model = os.environ.get(f"{provider}_MODEL", os.environ.get("GEMINI_MODEL", "unknown"))
     prompt_tokens = count_tokens(prompt)
 
-    logger.info(f"{'=' * 80}")
-    logger.info(
-        f"LLM CALL START | provider={provider} | model={model} | thinking={thinking_level} | cache={'enabled' if use_cache else 'disabled'} | prompt_tokens={prompt_tokens:,}"
+    emit_raw("DEBUG", f"{'=' * 80}", dest="LOG")
+    emit_raw(
+        "DEBUG",
+        f"LLM CALL START | provider={provider} | model={model} | thinking={thinking_level} | cache={'enabled' if use_cache else 'disabled'} | prompt_tokens={prompt_tokens:,}",
+        dest="LOG",
     )
-    logger.info(f"PROMPT:\n{prompt}")
+    emit_raw("DEBUG", f"PROMPT:\n{prompt}", dest="LOG")
 
     # Check cache if enabled
     if use_cache:
         cache = load_cache()
         if prompt in cache:
             cached_response = cache[prompt]
-            logger.info(f"CACHE HIT | response_chars={len(cached_response):,}")
-            logger.info(f"RESPONSE (cached):\n{cached_response}")
-            logger.info("LLM CALL END | result=cache_hit")
+            emit_raw("DEBUG", f"CACHE HIT | response_chars={len(cached_response):,}", dest="LOG")
+            emit_raw("DEBUG", f"RESPONSE (cached):\n{cached_response}", dest="LOG")
+            emit_raw("DEBUG", "LLM CALL END | result=cache_hit", dest="LOG")
             return cached_response
 
     # Make the actual LLM call
     start_time = time.time()
-    logger.info(f"API CALL | sending request to {provider}...")
+    emit_raw("DEBUG", f"API CALL | sending request to {provider}...", dest="LOG")
 
     if provider == "GEMINI":
         response_text = _call_llm_gemini(prompt, thinking_level=thinking_level)
@@ -243,17 +251,17 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = N
         response_text = _call_llm_provider(prompt, thinking_level=thinking_level)
 
     elapsed = time.time() - start_time
-    logger.info(f"API CALL COMPLETE | elapsed={elapsed:.1f}s | response_chars={len(response_text):,}")
-    logger.info(f"RESPONSE:\n{response_text}")
+    emit_raw("DEBUG", f"API CALL COMPLETE | elapsed={elapsed:.1f}s | response_chars={len(response_text):,}", dest="LOG")
+    emit_raw("DEBUG", f"RESPONSE:\n{response_text}", dest="LOG")
 
     # Update cache if enabled
     if use_cache:
         cache = load_cache()
         cache[prompt] = response_text
         save_cache(cache)
-        logger.info("CACHE WRITE | saved response to cache")
+        emit_raw("DEBUG", "CACHE WRITE | saved response to cache", dest="LOG")
 
-    logger.info(f"LLM CALL END | result=success | elapsed={elapsed:.1f}s")
+    emit_raw("DEBUG", f"LLM CALL END | result=success | elapsed={elapsed:.1f}s", dest="LOG")
     return response_text
 
 
