@@ -906,7 +906,6 @@ class AnalyzeRelationships(Node):
                     to_idx = int(to_nums[0])
                     if not (0 <= from_idx < num_abstractions and 0 <= to_idx < num_abstractions):
                         emit("WARN_INVALID_RELATIONSHIP", from_idx=from_idx, to_idx=to_idx, max_idx=num_abstractions - 1)
-                        emit_raw("WARNING", f"Invalid index in relationship: from={from_idx}, to={to_idx}", dest="BOTH")
                         continue
                     validated_relationships.append(
                         {

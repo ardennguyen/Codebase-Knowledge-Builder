@@ -180,7 +180,7 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
             emit_raw(
                 "WARNING",
                 f"Warning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}",
-                dest="STDOUT",
+                dest="BOTH",
             )
             raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}") from None
         response.raise_for_status()
