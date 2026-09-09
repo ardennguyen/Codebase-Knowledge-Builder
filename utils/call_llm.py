@@ -18,20 +18,29 @@ logger.propagate = False  # Prevent propagation to root logger
 logger.addHandler(logging.NullHandler())  # Absorb logs until configured
 
 
-# Simple cache configuration
+# In-memory cache singleton — loaded once on first access, avoids
+# re-parsing the (potentially hundreds of MB) JSON file on every call_llm().
 cache_file = "llm_cache.json"
+_cache = None
 
 
 def load_cache():
+    global _cache
+    if _cache is not None:
+        return _cache
     try:
         with open(cache_file) as f:
-            return json.load(f)
+            _cache = json.load(f)
+        logger.info(f"CACHE LOADED | entries={len(_cache):,} | file={cache_file}")
     except Exception:
-        logger.warning("Failed to load cache.")
-    return {}
+        logger.warning("Failed to load cache, starting empty.")
+        _cache = {}
+    return _cache
 
 
 def save_cache(cache):
+    global _cache
+    _cache = cache
     try:
         with open(cache_file, "w") as f:
             json.dump(cache, f)

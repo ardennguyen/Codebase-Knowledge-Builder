@@ -822,15 +822,15 @@ def call_llm(prompt, use_cache=True, thinking_level=None) -> str:
 
 > Notes for AI: This function has multiple critical subsystems. Implement ALL of them.
 
-**Disk Caching:**
+**Disk Caching (in-memory singleton):**
 - Cache file: `llm_cache.json`, key = exact prompt string
-- Load cache before checking; if hit, return cached response
-- Before writing to cache, re-load from disk to prevent concurrent overwrites:
+- Loaded once into `_cache` module-level dict on first `load_cache()` call; subsequent reads are pure dict lookups (avoids re-parsing hundreds of MB of JSON on every call)
+- Writes update the in-memory dict and flush to disk immediately (safety: each new entry persisted right away)
 ```python
 if use_cache:
-    cache = load_cache()  # Re-load to avoid overwrites
+    cache = load_cache()  # Returns in-memory singleton
     cache[prompt] = response_text
-    save_cache(cache)
+    save_cache(cache)     # Updates singleton + writes to disk
 ```
 
 **Provider Routing:**
