@@ -1191,7 +1191,17 @@ class WriteChapters(BatchNode):
                     try:
                         with open(manifest_path, encoding="utf-8") as f:
                             manifest = json.load(f)
-                        if manifest.get(abstraction_name) == current_hash:
+                        # Support both old format (string hash) and new format (dict with hash+summary)
+                        cached_entry = manifest.get(abstraction_name)
+                        if isinstance(cached_entry, str):
+                            cached_hash, cached_summary = cached_entry, None
+                        elif isinstance(cached_entry, dict):
+                            cached_hash = cached_entry.get("hash")
+                            cached_summary = cached_entry.get("summary")
+                        else:
+                            cached_hash, cached_summary = None, None
+
+                        if cached_hash == current_hash:
                             # Cache hit! Read existing file
                             file_path = (
                                 os.path.join(output_dir, project_name, "docs", "api", filename)
@@ -1211,8 +1221,17 @@ class WriteChapters(BatchNode):
                                         clean_content = parts[2].strip()
 
                                 self.chapters_written_so_far.append(clean_content)
-                                # Generate summary for cached chapter too (needed for cross-chapter context)
-                                if mode != "api-reference":
+
+                                # Load persisted summary from manifest or regenerate via LLM
+                                if cached_summary:
+                                    self.chapter_summaries.append(cached_summary)
+                                    emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens="manifest")
+                                    llm_logger.info(
+                                        f"CHAPTER SUMMARY LOADED | chapter={chapter_num} | name={abstraction_name.strip()} | source=manifest"
+                                    )
+                                else:
+                                    # Fallback for old manifest format: regenerate summary via LLM
+                                    count_tokens = create_token_counter()
                                     summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, clean_content, language)
                                     cached_content_tokens = count_tokens(clean_content)
                                     summary_tokens = count_tokens(summary_prompt)
@@ -1226,21 +1245,59 @@ class WriteChapters(BatchNode):
                                     llm_logger.info(
                                         f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache"
                                     )
-                                    chapter_summary = call_llm(summary_prompt, use_cache=True, thinking_level=None)
+                                    chapter_summary = call_llm(
+                                        summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+                                    )
                                     summary_response_tokens = count_tokens(chapter_summary)
-                                    self.chapter_summaries.append(f"Chapter {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
+                                    self.chapter_summaries.append(
+                                        f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
+                                    )
                                     emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
                                     llm_logger.info(
                                         f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache"
                                     )
-                                return {"content": clean_content, "hash": current_hash, "name": abstraction_name}
+
+                                summary_entry = self.chapter_summaries[-1] if self.chapter_summaries else None
+                                return {"content": clean_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
                     except Exception as e:
                         emit("WARN_MANIFEST_CACHE_FAIL", error=e)
 
             # Get summary of chapters written *before* this one
             # Uses LLM-generated technical summaries (3-5 sentences each) instead of
-            # full chapter dumps (which caused O(n²) token explosion)
-            previous_chapters_summary = "\n---\n".join(self.chapter_summaries)
+            # full chapter dumps (which caused O(n²) token explosion).
+            # Capped at 50% of context window — drops oldest summaries first.
+            prev_chapters_budget = int(max_tokens * 0.50)
+
+            if self.chapter_summaries:
+                count_tokens = create_token_counter()
+                selected_summaries = []
+                running_tokens = 0
+
+                # Build from newest to oldest — most recent chapters are most relevant
+                for summary in reversed(self.chapter_summaries):
+                    summary_tokens = count_tokens(summary)
+                    if running_tokens + summary_tokens > prev_chapters_budget and selected_summaries:
+                        break
+                    selected_summaries.append(summary)
+                    running_tokens += summary_tokens
+
+                selected_summaries.reverse()  # Restore chronological order
+
+                if len(selected_summaries) < len(self.chapter_summaries):
+                    dropped = len(self.chapter_summaries) - len(selected_summaries)
+                    emit(
+                        "PREV_CHAPTERS_TRIMMED",
+                        dropped=dropped,
+                        total=len(self.chapter_summaries),
+                        budget=f"{prev_chapters_budget:,}",
+                        kept=len(selected_summaries),
+                    )
+                    window_note = f"[{dropped} earlier chapter summaries omitted — showing {len(selected_summaries)} most recent for context budget]"
+                    previous_chapters_summary = window_note + "\n---\n" + "\n---\n".join(selected_summaries)
+                else:
+                    previous_chapters_summary = "\n---\n".join(self.chapter_summaries)
+            else:
+                previous_chapters_summary = ""
 
             # Add language instruction and context notes only if not English
             language_instruction = ""
@@ -1331,13 +1388,14 @@ class WriteChapters(BatchNode):
             emit("LLM_CALL_SUMMARIZE", chapter_num=chapter_num)
             log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
             llm_logger.info(f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}")
-            chapter_summary = call_llm(summary_prompt, use_cache=use_cache, thinking_level=None)
+            chapter_summary = call_llm(summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
             summary_response_tokens = count_tokens(chapter_summary)
-            self.chapter_summaries.append(f"Chapter {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
+            self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
             emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
             llm_logger.info(f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,}")
 
-            return {"content": chapter_content, "hash": current_hash, "name": abstraction_name}
+            summary_entry = f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
+            return {"content": chapter_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
         except Exception as e:
             emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
             llm_logger.error(f"[Node {self.__class__.__name__}] Error: {e}", exc_info=True)
@@ -1366,7 +1424,10 @@ class WriteChapters(BatchNode):
 
             for res in exec_res_list:
                 if res.get("hash") and res.get("name"):
-                    manifest[res["name"]] = res["hash"]
+                    manifest[res["name"]] = {
+                        "hash": res["hash"],
+                        "summary": res.get("summary", ""),
+                    }
 
             with open(manifest_path, "w", encoding="utf-8") as f:
                 json.dump(manifest, f, indent=2)

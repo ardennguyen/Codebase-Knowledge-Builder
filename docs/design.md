@@ -1011,7 +1011,7 @@ This drives:
 - CLI progress: `emit("COMBINE_FORMAT_MKDOCS", mode=mode_label)`
 
 #### Content-Based Summary Extraction
-When `chapter_summaries` from shared store is empty (standard in `api-reference` mode since WriteChapters skips summary generation), the LLM grouping module list builder extracts the first paragraph from each chapter's generated content:
+When `chapter_summaries` from shared store is empty (e.g., if summary generation failed or was skipped), the LLM grouping module list builder falls back to extracting the first paragraph from each chapter's generated content:
 - Skips lines starting with `---`, `#`, `` ``` ``, or empty lines
 - Joins remaining lines and truncates to 300 characters
 - Falls back to `cf["description"]` if no paragraph found
@@ -1361,7 +1361,7 @@ Template: `prompts/{mode}/draft_chapters.md`
 | `current_doc_path` | Current page doc path for LLM relative link computation |
 | `directory_tree` | Full project directory structure (from shared store) |
 | `prev_summary_note` | Lang note or `""` |
-| `previous_chapters_summary` | `"\n---\n".join(self.chapter_summaries)` or `"This is the first chapter."` (empty for api-reference) |
+| `previous_chapters_summary` | Sliding window of `self.chapter_summaries` capped at 50% of context window. Drops oldest summaries first when budget exceeded. `"This is the first chapter."` for chapter 1. In `--incremental` mode, summaries are persisted in `.doc_cache_manifest.json` alongside content hashes. |
 | `file_context_str` | File contents from `get_content_for_indices()` |
 | `language` | `shared["language"]` |
 | `instruction_lang_note` | Lang note or `""` |
@@ -1395,10 +1395,10 @@ filename = f"{i+1:02d}_{safe_name}.md"
 1. `self.chapters_written_so_far` accumulates FULL chapter content for output files and incremental cache
 2. `self.chapter_summaries` accumulates LLM-generated technical briefs for cross-chapter context
 3. After each chapter is written, `build_chapter_summary_prompt()` generates a summary prompt
-4. A lightweight LLM call (`thinking_level=None, use_cache=True`) produces a structured brief (4 points × 3-5 sentences)
+4. An LLM call (follows run's `thinking_level` and `use_cache` settings) produces a structured brief (4 points × 3-5 sentences)
 5. Summary is stored as `"Chapter N — Name:\n{summary}"` in `self.chapter_summaries`
-6. Subsequent chapters receive `"\n---\n".join(self.chapter_summaries)` as `previous_chapters_summary`
-7. **api-reference mode** generates summaries on fresh runs (for LLM nav grouping) but skips summary regeneration on incremental cache hits
+6. Subsequent chapters receive a sliding window of `self.chapter_summaries` capped at 50% of context window as `previous_chapters_summary` (drops oldest summaries first when budget exceeded)
+7. **Incremental mode (`--incremental`)**: summaries are persisted in `.doc_cache_manifest.json` alongside content hashes. On cache hits, summaries are loaded from manifest (zero LLM calls). Old manifest format (hash-only strings) is auto-detected and migrated.
 8. CLI output: `\033[96m[Summarizing] Chapter N for cross-chapter context (X tokens)...\033[0m` → `\033[96m[Summary Done] Chapter N: X tokens\033[0m` (cyan)
 9. Log: `CHAPTER SUMMARY START | chapter=N | prompt_tokens=X` → `CHAPTER SUMMARY DONE | chapter=N | summary_tokens=X`
 
