@@ -87,7 +87,7 @@ flowchart TD
 codebase_kb/
 ├── main.py                          # CLI entry point: parse_arguments, build_shared_store, detect_llm_config, display_config, main orchestrator
 ├── flow.py                          # PocketFlow graph wiring
-├── nodes.py                         # All 10 node classes + helper functions
+├── nodes.py                         # All 10 node classes (helpers moved to utils/)
 ├── .env.sample                      # Environment variable template
 ├── requirements.txt                 # Python dependencies
 ├── pyproject.toml                   # Ruff linter/formatter configuration
@@ -110,10 +110,12 @@ codebase_kb/
 │   ├── crawl_github_files.py        # GitHub API crawler
 │   ├── crawl_local_files.py         # Local directory crawler
 │   ├── exclude_patterns.py          # Centralized definition of DEFAULT_EXCLUDE_PATTERNS
+│   ├── files.py                     # File and content helpers (build_directory_tree, get_content_for_indices)
+│   ├── mkdocs.py                    # MkDocs output generation (config, nav, index, links, chapter writing)
 │   ├── output.py                    # Centralized CLI output & logging utility (emit/get/emit_raw)
-│   ├── prompts.py                   # Reusable prompt builders for internal LLM calls
+│   ├── prompts.py                   # Prompt template loaders, YAML parsers, inline prompt builders
 │   ├── strings.csv                  # Externalized string table (STRING_KEY, LEVEL, DEST, 12 languages)
-│   └── token_utils.py               # Token counting & estimation utilities
+│   └── token_utils.py               # Token counting, estimation, and context window resolution
 ├── prompts/
 │   ├── tutorial/                    # Beginner-friendly prompt templates
 │   │   ├── identify_abstractions.md
@@ -915,9 +917,25 @@ def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
 - `token_usage` dict: optional per-component token counts. Each key is a label (e.g. `file_context`, `prev_chapters`), value is token count. Displayed as `| label=N (X%)` appended to both CLI and log output.
 - **Takes 3-4 arguments** — node_name for display, prompt for counting, max_tokens for percentage, optional token_usage for diagnostics
 
-### `utils/prompts.py` — Reusable Prompt Builders
+### `utils/prompts.py` — Prompt Template Loaders & Builders
 
-Internal prompt builders for LLM calls that don't use `prompts/{mode}/` template files.
+Prompt template loading, YAML response parsing, and inline prompt builders for LLM calls.
+
+#### `load_prompt_template`
+```python
+def load_prompt_template(template_name, advanced_mode=False, mode=None) -> str:
+```
+- Loads a prompt template from `prompts/{mode}/{template_name}.md`
+- When `mode` is provided, it directly selects the subdirectory; when `None`, falls back to legacy `advanced_mode` boolean
+- Used by: MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, WriteChapters (6 nodes)
+
+#### `parse_yaml_response`
+```python
+def parse_yaml_response(response) -> Any:
+```
+- Extracts and parses YAML from an LLM response fenced in ` ```yaml ` blocks
+- Uses split-based extraction, not regex
+- Used by: MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper, CombineTutorial (7 nodes)
 
 #### `build_code_file_filter_prompt`
 ```python
@@ -942,11 +960,33 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
 - Language-aware: prefixes with `"Write the entire summary in {language}."` for non-English
 - Summary output stored in `self.chapter_summaries[]` for cross-chapter context
 
+### `utils/files.py` — File & Content Helpers
+
+Helpers for building directory trees and extracting file content by index.
+
+#### `build_directory_tree`
+```python
+def build_directory_tree(files_data) -> str:
+```
+- Builds a hierarchical directory tree string with file indices from `list[tuple[str, str]]`
+- Used by: ContextRouter, IdentifyAbstractions, MapAbstractions, CombineTutorial (4 callers)
+
+#### `get_content_for_indices`
+```python
+def get_content_for_indices(files_data, indices) -> dict:
+```
+- Extracts file content dictionary `{relpath: content}` for given file indices
+- Used by: WriteChapters (1 caller)
+
+### `utils/mkdocs.py` — MkDocs Output Generation
+
+All MkDocs-related logic: config generation, nav building, index/homepage creation, link normalization, and chapter file writing.
+
 #### `build_mkdocs_config`
 ```python
-def build_mkdocs_config(site_name: str, nav_yaml: str) -> str:
+def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True, lang_code: str = "") -> str:
 ```
-- Used by `CombineTutorial` in `--mkdocs` mode to generate a ready-to-use `mkdocs.yml`
+- Used by `write_mkdocs_output` to generate a ready-to-use `mkdocs.yml`
 - Includes Material theme, code copy, syntax highlighting, and mermaid diagram support
 - Merges the generated `nav_snippet` into the config's nav section
 - Output file can be used directly with `mkdocs serve` or `mkdocs build`
@@ -960,7 +1000,7 @@ def build_mermaid_init_js() -> str:
 - Uses `securityLevel: 'loose'` and wraps `mermaid.run()` in try-catch with `.catch()` for resilient rendering
 - Uses `document.readyState` check instead of bare `DOMContentLoaded` listener for reliable initialization
 - Diagrams render with Mermaid's native default theme (yellow subgraph backgrounds, lavender nodes) matching GitHub rendering
-- Written to `docs/javascripts/mermaid-init.js` by `CombineTutorial`
+- Written to `docs/javascripts/mermaid-init.js` by `write_mkdocs_output`
 - **Must be kept in sync** with `.github/ci_mkdocs_config.py` `MERMAID_INIT_JS` constant
 
 #### `build_grouped_nav`
@@ -980,16 +1020,38 @@ def collect_all_modules(sections: list) -> set:
 - Recursively collects all module names from a sections tree
 - Used to validate LLM grouping covers all modules (ungrouped → "Other" section)
 
-#### `CombineTutorial._build_index_sections` (static method in `nodes.py`)
+#### `build_index_sections`
 ```python
-@staticmethod
-def _build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3):
+def build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3):
 ```
 - Recursively builds markdown sections with module tables for `api/index.md`
 - Each section gets a heading (`###`, `####`, etc.) and a `| Chapter | Description |` table
 - **Bare module names:** Chapter column displays bare `mod_name` (e.g., `[call_llm.py](...)`) — directory context is provided by the section heading, not the filename
 - **Smart description extraction:** When `description` starts with `"Internal API reference"` (the generic DeterministicFileMapper description), extracts the first meaningful paragraph from chapter content instead (skipping frontmatter, headings, code fences)
 - **Link paths:** Uses `match['filename']` directly (e.g., `utils/call_llm.py.md`) — NOT prefixed with `api/` since `index.md` is already at `docs/api/index.md`
+
+#### `normalize_chapter_links`
+```python
+def normalize_chapter_links(chapter_files):
+```
+- Deterministic post-processing: fixes all cross-chapter `[text](target.md)` links
+- Builds lookup from known filenames, rewrites each link to correct relative path via `os.path.relpath()`
+- Handles ambiguous basenames (same filename in different dirs) by excluding them from basename-only fallback
+
+#### `write_mkdocs_output`
+```python
+def write_mkdocs_output(output_path, prep_res, chapter_files):
+```
+- Orchestrates all MkDocs output: nav grouping, mkdocs.yml, homepage redirect, section index, nav_snippet.yml, link normalization, and chapter files
+- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`
+- Called by `CombineTutorial.exec` when `is_mkdocs=True`
+
+#### `write_standalone_output`
+```python
+def write_standalone_output(output_path, prep_res, chapter_files, ui):
+```
+- Writes non-MkDocs output: `index.md`, individual chapter files, and `full_content.md` with TOC
+- Called by `CombineTutorial.exec` when `is_mkdocs=False`
 
 #### Dynamic Nav Section Labels
 
@@ -1016,18 +1078,6 @@ When `chapter_summaries` from shared store is empty (e.g., if summary generation
 - Joins remaining lines and truncates to 300 characters
 - Falls back to `cf["description"]` if no paragraph found
 
-### `get_content_for_indices` (helper in `nodes.py`)
-```python
-def get_content_for_indices(files_data, indices):
-    # files_data: list of (path, content) tuples
-    # Returns: {"i # path": content} for valid indices
-    content_map = {}
-    for i in indices:
-        if 0 <= i < len(files_data):
-            path, content = files_data[i]
-            content_map[f"{i} # {path}"] = content
-    return content_map
-```
 
 ### `utils/output.py`
 
@@ -1797,13 +1847,13 @@ def create_tutorial_flow():
 
 ### Mindset
 
-As you implement nodes, you will notice recurring operations: loading prompts, parsing YAML, counting tokens, resolving provider config. **Do NOT copy-paste these inline.** Extract them as module-level helpers in `nodes.py` and reuse them. This keeps the codebase maintainable and reduces the surface area for bugs.
+As you implement nodes, you will notice recurring operations: loading prompts, parsing YAML, counting tokens, resolving provider config. **Do NOT copy-paste these inline.** These are extracted into purpose-specific utility modules in `utils/`. This keeps the codebase maintainable and reduces the surface area for bugs.
 
 ### Required Helper Functions
 
-These helpers MUST be defined at the top of `nodes.py`, after imports and before any class definitions:
+These helpers are organized by function across utility modules:
 
-#### `load_prompt_template(template_name, advanced_mode=False, mode=None)` → `str`
+#### `load_prompt_template` — `utils/prompts.py`
 Loads a prompt template from `prompts/{mode}/{template_name}.md`. When `mode` is provided, it directly selects the subdirectory. When `mode` is `None`, falls back to legacy `advanced_mode` boolean.
 ```python
 def load_prompt_template(template_name, advanced_mode=False, mode=None):
@@ -1819,7 +1869,7 @@ def load_prompt_template(template_name, advanced_mode=False, mode=None):
 ```
 **Used by:** MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, WriteChapters (6 nodes)
 
-#### `parse_yaml_response(response)` → `Any`
+#### `parse_yaml_response` — `utils/prompts.py`
 Extracts and parses YAML from an LLM response fenced in ` ```yaml ` blocks.
 ```python
 def parse_yaml_response(response):
@@ -1832,7 +1882,7 @@ def parse_yaml_response(response):
 ```
 **Used by:** MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper, CombineTutorial (7 nodes)
 
-#### `create_token_counter()` → `Callable[[str], int]`
+#### `create_token_counter` — `utils/token_utils.py`
 Creates a token counting function using tiktoken with char-count fallback.
 ```python
 def create_token_counter():
@@ -1845,7 +1895,7 @@ def create_token_counter():
 ```
 **Used by:** ContextRouter, IdentifyAbstractions, AnalyzeRelationships (3 nodes)
 
-#### `resolve_max_tokens(shared)` → `int`
+#### `resolve_max_tokens` — `utils/token_utils.py`
 Resolves max_tokens from shared store or auto-detects from provider environment variables.
 ```python
 def resolve_max_tokens(shared):
@@ -1866,19 +1916,34 @@ def resolve_max_tokens(shared):
 ```
 **Used by:** ContextRouter, IdentifyAbstractions (2 nodes)
 
-#### `build_directory_tree`
-Used by: ContextRouter.prep, ContextRouter.post, IdentifyAbstractions (3 callers)
+#### `build_directory_tree` — `utils/files.py`
+Used by: ContextRouter, IdentifyAbstractions, MapAbstractions, CombineTutorial (4 callers)
 ```python
 def build_directory_tree(files_data):
 ```
 Builds a hierarchical directory tree string with file indices. `files_data` is `list[tuple[str, str]]` (the `shared["files"]` format: `[(relpath, content), ...]`).
 
-#### `get_content_for_indices`
+#### `get_content_for_indices` — `utils/files.py`
 Used by: WriteChapters (1 caller)
 ```python
 def get_content_for_indices(files_data, indices):
 ```
 Extracts file content dictionary `{relpath: content}` for the given list of file indices. `files_data` is `list[tuple[str, str]]`.
+
+#### `normalize_chapter_links` — `utils/mkdocs.py`
+Used by: write_mkdocs_output (1 caller)
+```python
+def normalize_chapter_links(chapter_files):
+```
+Deterministic post-processing that fixes all cross-chapter markdown link targets using `os.path.relpath()`.
+
+#### `write_mkdocs_output` / `write_standalone_output` — `utils/mkdocs.py`
+Used by: CombineTutorial.exec (1 caller each)
+```python
+def write_mkdocs_output(output_path, prep_res, chapter_files):
+def write_standalone_output(output_path, prep_res, chapter_files, ui):
+```
+Orchestrate all output writing: MkDocs mode (nav, config, index, chapters) or standalone mode (index, chapters, full_content.md).
 
 ### Anti-Patterns to Avoid
 

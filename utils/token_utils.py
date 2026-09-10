@@ -1,11 +1,40 @@
 import logging
+import os
 
 import tiktoken
 
+from utils.call_llm import get_model_context_length
 from utils.output import emit
 
 # Get the shared logger from call_llm module
 logger = logging.getLogger("llm_logger")
+
+
+def create_token_counter():
+    """Create a token counting function using tiktoken with char-count fallback."""
+    try:
+        enc = tiktoken.get_encoding("cl100k_base")
+        return lambda text: len(enc.encode(text, disallowed_special=()))
+    except Exception:
+        return lambda text: len(text) // 4
+
+
+def resolve_max_tokens(shared):
+    """Resolve max_tokens from shared store or auto-detect from provider env vars."""
+    max_tokens = shared.get("max_tokens")
+    if max_tokens is not None:
+        return max_tokens
+    provider = os.environ.get("LLM_PROVIDER")
+    if provider == "GEMINI" or not provider:
+        endpoint = "https://generativelanguage.googleapis.com"
+        model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
+        api_key = os.getenv("GEMINI_API_KEY", "")
+    else:
+        endpoint = os.environ.get(f"{provider}_BASE_URL", "")
+        model_name = os.environ.get(f"{provider}_MODEL", "")
+        api_key = os.environ.get(f"{provider}_API_KEY", "")
+    return get_model_context_length(endpoint, model_name, api_key)
+
 
 # Lazy-loaded tiktoken encoding (singleton)
 _encoding = None

@@ -1,11 +1,36 @@
 """
-Reusable prompt builders for internal LLM calls (not template-driven).
+Reusable prompt and response helpers.
 
-These are inline prompts used by nodes that don't load from prompts/{mode}/ templates.
-Organized here for maintainability and future improvement.
+Contains:
+- Prompt template loaders (load_prompt_template)
+- LLM response parsers (parse_yaml_response)
+- Inline prompt builders for nodes that don't load from prompts/{mode}/ templates
 """
 
 import os
+
+import yaml
+
+
+def load_prompt_template(template_name, advanced_mode=False, mode=None):
+    """Load a prompt template file from the prompts/ directory."""
+    if mode is None:
+        prompt_dir = "advanced" if advanced_mode else "tutorial"
+    else:
+        prompt_dir = mode
+
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "prompts", prompt_dir, f"{template_name}.md")
+    with open(path, encoding="utf-8-sig") as f:
+        return f.read()
+
+
+def parse_yaml_response(response):
+    """Extract and parse YAML from an LLM response fenced in ```yaml blocks."""
+    try:
+        yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
+        return yaml.safe_load(yaml_str)
+    except Exception as e:
+        raise ValueError(f"Failed to parse YAML: {e}") from e
 
 
 def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
@@ -59,179 +84,3 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapte
         f"Chapter {chapter_num}: {abstraction_name}\n"
         f"{chapter_content}"
     )
-
-
-def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True, lang_code: str = "") -> str:
-    """Build a complete mkdocs.yml for local --mkdocs output.
-
-    Generates a ready-to-use MkDocs Material config with:
-    - Material theme with code copy buttons
-    - Syntax highlighting (pymdownx.highlight + inlinehilite)
-    - Mermaid diagram rendering via custom 'mermaid-raw' class (bypasses
-      Material's Mermaid color overrides so diagrams use Mermaid's default theme)
-    - Panzoom plugin for interactive Mermaid diagram zoom/pan
-    - Navigation from the generated nav_snippet
-    - Optional theme language for UI localization (Search, Table of Contents, etc.)
-
-    Users can run `mkdocs serve` or `mkdocs build` directly in the output dir.
-    """
-    # Extract nav items from nav_snippet (strip the "nav:" header line)
-    nav_lines = nav_yaml.split("\n")
-    nav_body = "\n".join(nav_lines[1:]) if nav_lines else ""
-
-    # Conditional Home nav entry (CI has root index.md, local mkdocs doesn't)
-    home_line = "  - Home: index.md\n" if include_home else ""
-
-    # Optional Material theme language (e.g. "vi", "zh", "ja", "ko")
-    lang_line = f"  language: {lang_code}\n" if lang_code else ""
-
-    return (
-        f"site_name: '{site_name}'\n"
-        f"theme:\n"
-        f"  name: material\n"
-        f"{lang_line}"
-        f"  features:\n"
-        f"    - content.code.copy\n"
-        f"    - navigation.indexes\n"
-        f"  palette:\n"
-        f"    - scheme: default\n"
-        f"      toggle:\n"
-        f"        icon: material/brightness-7\n"
-        f"        name: Switch to dark mode\n"
-        f"    - scheme: slate\n"
-        f"      toggle:\n"
-        f"        icon: material/brightness-4\n"
-        f"        name: Switch to light mode\n"
-        f"plugins:\n"
-        f"  - search\n"
-        f"  - panzoom:\n"
-        f"      include_selectors:\n"
-        f"        - '.mermaid-raw'\n"
-        f"markdown_extensions:\n"
-        f"  - pymdownx.highlight:\n"
-        f"      anchor_linenums: true\n"
-        f"      use_pygments: true\n"
-        f"  - pymdownx.superfences:\n"
-        f"      custom_fences:\n"
-        f"        - name: mermaid\n"
-        f"          class: mermaid-raw\n"
-        f"          format: !!python/name:pymdownx.superfences.fence_code_format\n"
-        f"  - pymdownx.inlinehilite\n"
-        f"extra_javascript:\n"
-        f"  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js\n"
-        f"  - javascripts/mermaid-init.js\n"
-        f"nav:\n"
-        f"{home_line}"
-        f"{nav_body}\n"
-    )
-
-
-def build_mermaid_init_js() -> str:
-    """Build JS to initialize Mermaid on .mermaid-raw elements.
-
-    Material for MkDocs applies its own color overrides to elements with
-    class 'mermaid'. By using class 'mermaid-raw' in superfences config
-    and initializing Mermaid manually, diagrams render with Mermaid's
-    built-in default theme: yellow subgraph backgrounds, lavender nodes,
-    clean rectangles — matching how GitHub renders Mermaid natively.
-    """
-    return """\
-// Initialize Mermaid on .mermaid-raw elements (bypasses Material theme override)
-// Material for MkDocs targets .mermaid class for its own color overrides.
-// By using .mermaid-raw, diagrams render with Mermaid's default theme:
-// yellow subgraph backgrounds, lavender nodes, clean rectangles.
-//
-// pymdownx.superfences fence_code_format wraps content as:
-//   <pre class="mermaid-raw"><code>flowchart TD ...</code></pre>
-// Mermaid expects the diagram text directly in the target element,
-// so we unwrap the <code> child before calling mermaid.run().
-(function() {
-  function initMermaid() {
-    if (typeof mermaid === 'undefined') return;
-    try {
-      // Unwrap: move <code> text content up to <pre> and remove <code>
-      document.querySelectorAll('pre.mermaid-raw > code').forEach(function(code) {
-        var pre = code.parentElement;
-        pre.textContent = code.textContent;
-      });
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'default',
-        securityLevel: 'loose'
-      });
-      mermaid.run({ querySelector: '.mermaid-raw' }).catch(function(err) {
-        console.warn('Mermaid render error:', err);
-      });
-    } catch (e) {
-      console.warn('Mermaid init error:', e);
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMermaid);
-  } else {
-    initMermaid();
-  }
-})();
-"""
-
-
-def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
-    """Recursively build MkDocs nav YAML lines from LLM section grouping.
-
-    Handles arbitrary nesting depth via the ``children`` key.
-    Each leaf module is matched against *chapter_files* by ``module_name``.
-    Files in subdirectories are always auto-sub-grouped by their full
-    directory path (deterministic, no extra LLM call). Root-level files
-    remain flat. Module names inside dir sub-layers are bare (no prefix).
-    """
-    lines = []
-    pad = " " * indent
-    for section in sections:
-        lines.append(f"{pad}- {section['name']}:")
-        if "children" in section:
-            lines.extend(build_grouped_nav(section["children"], chapter_files, indent + 2))
-
-        # Collect matched modules with directory info
-        matched = []
-        for mod_name in section.get("modules", []):
-            match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
-            if match:
-                dir_path = os.path.dirname(match.get("original_path", "")) or ""
-                matched.append((dir_path, mod_name, match))
-
-        # Group by directory
-        from collections import defaultdict
-
-        dir_groups = defaultdict(list)
-        for dir_path, mod_name, match in matched:
-            dir_groups[dir_path].append((mod_name, match))
-
-        # Emit dir sub-layers for non-root dirs, flat for root files
-        has_non_root = any(d for d in dir_groups)
-        if has_non_root:
-            for dir_path in sorted(dir_groups.keys()):
-                if dir_path:
-                    # Non-root: add directory sub-layer with bare module names
-                    lines.append(f"{pad}  - {dir_path}:")
-                    for mod_name, match in dir_groups[dir_path]:
-                        lines.append(f"{pad}    - '{mod_name}': 'api/{match['filename']}'")
-                else:
-                    # Root files: flat (no sub-layer)
-                    for mod_name, match in dir_groups[dir_path]:
-                        lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
-        else:
-            # All root files → flat list
-            for _dir_path, mod_name, match in matched:
-                lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
-
-    return lines
-
-
-def collect_all_modules(sections: list) -> set:
-    """Recursively collect all module names referenced in a sections tree."""
-    result = set()
-    for section in sections:
-        result.update(section.get("modules", []))
-        if "children" in section:
-            result.update(collect_all_modules(section["children"]))
-    return result

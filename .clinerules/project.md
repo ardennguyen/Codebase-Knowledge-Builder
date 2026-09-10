@@ -80,7 +80,7 @@ Read all 26 prompt files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `p
 7. **NEVER use `print()` directly** — use `emit()` from `utils/output.py` for all CLI output. Use `get()` for UI strings in generated markdown.
 8. **NEVER define ANSI color constants** in any file — all styling is handled by `utils/output.py` based on the LEVEL column in `utils/strings.csv`.
 9. **NEVER hardcode user-facing strings** — add them to `utils/strings.csv` and reference by STRING_KEY.
-10. **Extract common prompt-building patterns to `utils/prompts.py`** — MkDocs config builders, chapter summary prompt builders, and code file filter prompts all belong here.
+10. **Extract common patterns to the right `utils/` module** — prompt loaders and YAML parsers go in `utils/prompts.py`, MkDocs output logic in `utils/mkdocs.py`, file/content helpers in `utils/files.py`, token utilities in `utils/token_utils.py`.
 11. **Keep `main.py` modular** — argument parsing (`parse_arguments`), mode/project resolution (`resolve_mode_and_project`), shared store construction (`build_shared_store`), LLM config detection (`detect_llm_config`), and config display (`display_config`) are separate functions. `main()` is a short orchestrator (~40 lines).
 12. **Script execution on Windows** — Do NOT use `python -c "..."` for multi-line scripts. Write a `.py` file to `.agents/scratch/` and run `python .agents/scratch/script_name.py`.
 13. **File encoding** — Always pass `encoding='utf-8'` to `open()` in any helper script. Windows defaults to CP1252.
@@ -233,6 +233,28 @@ If a new feature or bug fix changes any of these, update `docs/design.md`:
 - Branch creation or switching
 - Merging or rebasing
 
+### Agent Rules Sync Policy
+
+`.agents/rules/AGENTS.md` is the **single source of truth** for project rules. The following files are **exact copies** and MUST be updated whenever AGENTS.md changes:
+
+| IDE / Agent | Rule file (copy of AGENTS.md) |
+|---|---|
+| Claude Code | `CLAUDE.md` |
+| Cline | `.clinerules/project.md` |
+| Cursor | `.cursor/rules/project.mdc` |
+| Windsurf | `.windsurf/rules/project.md` |
+
+**After editing AGENTS.md**, run:
+```powershell
+$src = '.agents/rules/AGENTS.md'
+Copy-Item $src 'CLAUDE.md' -Force
+Copy-Item $src '.clinerules/project.md' -Force
+Copy-Item $src '.cursor/rules/project.mdc' -Force
+Copy-Item $src '.windsurf/rules/project.md' -Force
+```
+
+Do NOT manually edit any of the copy files — always edit AGENTS.md and copy.
+
 ---
 
 ## 8. Quick Reference
@@ -251,8 +273,9 @@ If a new feature or bug fix changes any of these, update `docs/design.md`:
 | How does the output utility work? | `design.md` Section 9 (`utils/output.py`) |
 | Where are externalized strings? | `utils/strings.csv` + `design.md` Section 12 |
 | Where are default exclude patterns? | `utils/exclude_patterns.py` |
-| Where are node helper functions? | `design.md` Section 16 |
-| Where are prompt builders? | `design.md` Section 9 (`utils/prompts.py`) |
+| Where are node helper functions? | `utils/files.py`, `utils/prompts.py`, `utils/token_utils.py` (see `design.md` Section 16) |
+| Where are prompt builders? | `utils/prompts.py` (loaders + inline builders), `design.md` Section 9 |
+| Where is MkDocs output logic? | `utils/mkdocs.py` (config, nav, index, links, writers) |
 | What are the prompt page skeletons? | `design.md` Section 14 |
 | How does CI deploy docs? | `design.md` Section 14 + `.github/workflows/deploy-docs.yml` |
 | What mode labels exist? | `main.py` → `mode_labels` dict |
