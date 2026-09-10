@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import requests
 from dotenv import load_dotenv
@@ -26,10 +27,11 @@ def load_cache():
         from utils.output import emit
 
         emit("CACHE_LOADED", count=f"{len(_cache):,}", file=cache_file)
-    except Exception:
-        from utils.output import emit
+    except (FileNotFoundError, json.JSONDecodeError, OSError) as e:
+        from utils.output import emit, emit_raw
 
         emit("WARN_CACHE_LOAD_FAIL")
+        emit_raw("WARNING", f"Cache load error: {e}", dest="LOG")
         _cache = {}
     return _cache
 
@@ -40,67 +42,14 @@ def save_cache(cache):
     try:
         with open(cache_file, "w") as f:
             json.dump(cache, f)
-    except Exception:
-        from utils.output import emit
+    except (OSError, TypeError) as e:
+        from utils.output import emit, emit_raw
 
         emit("WARN_CACHE_SAVE_FAIL")
+        emit_raw("WARNING", f"Cache save error: {e}", dest="LOG")
 
 
-def get_llm_provider():
-    provider = os.getenv("LLM_PROVIDER")
-    if not provider and (os.getenv("GEMINI_PROJECT_ID") or os.getenv("GEMINI_API_KEY")):
-        provider = "GEMINI"
-    # if necessary, add ANTHROPIC/OPENAI
-    return provider
-
-
-# Cache for model capabilities to avoid repeated API calls
-_openrouter_models_cache = None
-
-
-def _get_openrouter_model_info(model_id: str) -> dict:
-    global _openrouter_models_cache
-    if _openrouter_models_cache is None:
-        try:
-            resp = requests.get("https://openrouter.ai/api/v1/models", timeout=5)
-            _openrouter_models_cache = resp.json().get("data", [])
-        except Exception as e:
-            from utils.output import emit_raw
-
-            emit_raw("WARNING", f"Failed to fetch OpenRouter model info: {e}", dest="LOG")
-            _openrouter_models_cache = []
-
-    return next((m for m in _openrouter_models_cache if m.get("id") == model_id), None)
-
-
-def get_model_context_length(endpoint_url: str, model_name: str, api_key: str = "") -> int:
-    """
-    Fetch the maximum context length of a model based on the endpoint.
-    If endpoint is Gemini API, safely default to 1,000,000 tokens.
-    If endpoint is openrouter.ai, make GET to /api/v1/models and extract.
-    Default to 100,000.
-    """
-    default_limit = 100000
-    try:
-        if not endpoint_url:
-            return default_limit
-
-        if "generativelanguage.googleapis.com" in endpoint_url or "gemini" in model_name.lower():
-            # Safely default to 1M tokens for Gemini models
-            return 1000000
-
-        if "openrouter.ai" in endpoint_url:
-            resp = requests.get("https://openrouter.ai/api/v1/models", timeout=5)
-            data = resp.json().get("data", [])
-            for m in data:
-                if m.get("id") == model_name:
-                    return m.get("context_length", default_limit)
-    except Exception as e:
-        from utils.output import emit
-
-        emit("WARN_CONTEXT_LENGTH_FETCH", model=model_name, endpoint=endpoint_url, error=str(e))
-
-    return default_limit
+from utils.llm_config import _get_openrouter_model_info, get_llm_provider, get_model_context_length  # noqa: F401
 
 
 def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
@@ -217,8 +166,6 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
 
 # By default, we use Google Gemini 3.7 flash, as it shows great performance for code understanding
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -> str:
-    import time
-
     from utils.output import emit, emit_raw
     from utils.token_utils import count_tokens
 

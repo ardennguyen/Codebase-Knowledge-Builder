@@ -1,11 +1,5 @@
 Given the following SDK modules and their dependencies for the project `{project_name}`:
 
-Modules (Index # Name){list_lang_note}:
-{abstraction_listing}
-
-Context about relationships and project summary:
-{context}
-
 What is the best order to present these modules in the SDK documentation?
 The reader is a developer integrating this SDK into their application. Order for maximum "I can start building immediately" progression.
 
@@ -23,11 +17,24 @@ ORDERING CONSTRAINTS:
 
 Output the ordered list of module indices, including the name in a comment for clarity. Use the format `idx # ModuleName`.
 
+Format your response as a YAML list of integers:
+
 ```yaml
 - 2 # ClientSetup
 - 0 # Authentication
 - 1 # CoreOperations (depends on Authentication)
 # ...
 ```
+
+Modules (Index # Name){list_lang_note}:
+{abstraction_listing}
+
+═══════════════════════════════════════════════════════
+RELATIONSHIPS AND PROJECT SUMMARY — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+RELATIONSHIPS AND PROJECT SUMMARY — END
+═══════════════════════════════════════════════════════
 
 Now, provide the YAML output:

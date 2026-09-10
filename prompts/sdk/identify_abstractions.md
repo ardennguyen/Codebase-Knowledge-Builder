@@ -1,11 +1,5 @@
 For the project `{project_name}`, your task is to identify the core logical SDK modules or namespaces from the codebase context provided below to generate a cohesive Public SDK documentation reference.
 
-Codebase Context:
-{context}
-
-Full Project Directory Structure:
-{directory_tree}
-
 {language_instruction}You must identify and group the files into logically distinct SDK Modules (e.g., `Authentication`, `Database Models`, `UI Event Handlers`). Do NOT do a 1:1 file mapping. Group related files into cohesive modules that a developer would naturally look for when integrating this SDK.
 
 COVERAGE RULE: Every file index listed below MUST belong to at least one SDK module.
@@ -30,7 +24,8 @@ For each module, provide:
    (c) how it relates to other modules in the SDK.
 3. A list of relevant `file_indices` (integers) corresponding to the files that make up this module. Use the format `idx # path/comment`.
 
-Output the result STRICTLY as a YAML list of dictionaries, like this:
+Format your response as a YAML list of dictionaries:
+
 ```yaml
 - name: |
     Core Engine{name_lang_hint}
@@ -41,3 +36,16 @@ Output the result STRICTLY as a YAML list of dictionaries, like this:
     - 5 # src/engine.py
 # ... up to {max_abstraction_num} modules
 ```
+
+Full Project Directory Structure:
+{directory_tree}
+
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

@@ -11,11 +11,13 @@ import requests
 
 from utils.output import emit, emit_raw, get
 
+DEFAULT_MAX_FILE_SIZE = 1_048_576  # 1 MB
+
 
 def crawl_github_files(
     repo_url,
     token=None,
-    max_file_size: int = 1 * 1024 * 1024,  # 1 MB
+    max_file_size: int = DEFAULT_MAX_FILE_SIZE,
     use_relative_paths: bool = False,
     include_patterns: str | set[str] | None = None,
     exclude_patterns: str | set[str] | None = None,

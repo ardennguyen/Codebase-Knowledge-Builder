@@ -1,13 +1,6 @@
 You are organizing a documentation sidebar for the project "{project_name}".
 
-Below are all {module_count} documented modules with their technical summaries:
-
-{module_list}
-
-Directory structure of the project:
-{directory_tree}
-
-Group these modules into a LOGICAL HIERARCHY for a documentation sidebar.
+Group the modules listed below into a LOGICAL HIERARCHY for a documentation sidebar.
 
 Rules:
 - Create as many sections and sub-sections as the project needs
@@ -31,3 +24,16 @@ sections:
       - name: "Child Section"
         modules: ["module_name_3"]
 ```
+
+Directory structure of the project:
+{directory_tree}
+
+═══════════════════════════════════════════════════════
+MODULE LIST ({module_count} modules) — START
+═══════════════════════════════════════════════════════
+{module_list}
+═══════════════════════════════════════════════════════
+MODULE LIST — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

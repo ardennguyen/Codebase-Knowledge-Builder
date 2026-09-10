@@ -1,24 +1,5 @@
 {language_instruction}Write a very beginner-friendly tutorial chapter (in Markdown format) for the project `{project_name}` about the concept: "{abstraction_name}". This is Chapter {chapter_num}.
 
-Concept Details{concept_details_note}:
-- Name: {abstraction_name}
-- Description:
-{abstraction_description}
-
-Full Project Directory Structure:
-{directory_tree}
-
-Complete Tutorial Structure{structure_note}:
-{full_chapter_listing}
-
-Your documentation page location: {current_doc_path}
-
-Context from previous chapters{prev_summary_note}:
-{previous_chapters_summary}
-
-Relevant Code Snippets (Code itself remains unchanged):
-{file_context_str}
-
 Instructions for the chapter (Generate content in {language} unless specified otherwise):
 - Start with a clear heading (e.g., `# Chapter {chapter_num}: {abstraction_name}`). Use the provided concept name.
 
@@ -94,5 +75,29 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 - Ensure the tone is welcoming and easy for a newcomer to understand{tone_note}.
 
 - Output *only* the Markdown content for this chapter.
+
+Concept Details{concept_details_note}:
+- Name: {abstraction_name}
+- Description:
+{abstraction_description}
+
+Full Project Directory Structure:
+{directory_tree}
+
+Complete Tutorial Structure{structure_note}:
+{full_chapter_listing}
+
+Your documentation page location: {current_doc_path}
+
+Context from previous chapters{prev_summary_note}:
+{previous_chapters_summary}
+
+═══════════════════════════════════════════════════════
+SOURCE CODE CONTEXT — START
+═══════════════════════════════════════════════════════
+{file_context_str}
+═══════════════════════════════════════════════════════
+SOURCE CODE CONTEXT — END
+═══════════════════════════════════════════════════════
 
 Now, directly provide a super beginner-friendly Markdown output (DON'T need ```markdown``` tags):

@@ -1,11 +1,5 @@
 For the project `{project_name}`:
 
-Codebase Context (Batch):
-{context}
-
-Full Project Directory Structure:
-{directory_tree}
-
 {language_instruction}Analyze this batch of the codebase. Your task is to identify the logical SDK modules, public classes, and developer-facing functions in this batch.
 Focus on grouping by developer-facing functionality and integration patterns.
 
@@ -13,7 +7,7 @@ You MUST preserve core logic, architectural patterns, class structures, and func
 You MUST identify at least 3 modules per batch, even if files seem closely related.
 Distinguish between: service/logic files vs. data model/schema files vs. configuration/infrastructure files.
 
-This batch is one slice of a larger codebase. The full directory structure is provided above for context.
+This batch is one slice of a larger codebase. The full directory structure is provided below for context.
 If you see references to external types, namespaces, or services not present in this batch,
 mention them as "external dependencies" in the description but do NOT create modules for code you cannot see.
 
@@ -25,7 +19,7 @@ For each SDK module, provide:
    (c) its dependencies on other components (including external ones from other batches).
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
 
-Format the output as a YAML list of dictionaries:
+Format your response as a YAML list of dictionaries:
 
 ```yaml
 - name: |
@@ -37,3 +31,16 @@ Format the output as a YAML list of dictionaries:
     - 6 # src/query/cost_estimator.py
 # ... as many as found in this batch
 ```
+
+Full Project Directory Structure:
+{directory_tree}
+
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT (BATCH) — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT (BATCH) — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

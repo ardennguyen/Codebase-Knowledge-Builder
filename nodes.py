@@ -1,6 +1,10 @@
+import hashlib
+import json
 import os
+import re
 import traceback
-from collections import defaultdict
+from collections import Counter, defaultdict
+from functools import wraps
 
 from pocketflow import BatchNode, Node
 
@@ -10,10 +14,32 @@ from utils.crawl_local_files import crawl_local_files
 from utils.files import build_directory_tree, get_content_for_indices
 from utils.mkdocs import write_mkdocs_output, write_standalone_output
 from utils.output import emit, emit_raw, get
+
+
+def safe_exec(func):
+    """Decorator that wraps Node.exec() with standardized error handling.
+
+    On exception: emits NODE_RETRY_ERROR, logs traceback, and re-raises.
+    Eliminates the identical try/except pattern duplicated across all nodes.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except Exception as e:
+            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
+            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
+            raise
+
+    return wrapper
+
+
 from utils.prompts import (
     build_chapter_summary_prompt,
     build_code_file_filter_prompt,
     load_prompt_template,
+    parse_file_index,
     parse_yaml_response,
 )
 from utils.token_utils import count_tokens, log_token_estimation, resolve_max_tokens
@@ -30,23 +56,18 @@ class DeterministicFileMapper(Node):
         emit_raw("DEBUG", f"DeterministicFileMapper prep | {len(files_data)} candidate files for filtering", dest="LOG")
         return prompt, shared.get("use_cache", True), shared.get("thinking_level", None), shared.get("max_tokens", 100000)
 
+    @safe_exec
     def exec(self, prep_res):
-        try:
-            prompt, use_cache, thinking_level, max_tokens = prep_res
-            emit("LLM_CALL_FILTER_FILES")
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
-            response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
-            valid_indices = parse_yaml_response(response)
-            if not isinstance(valid_indices, list):
-                valid_indices = []
-            return [int(idx) for idx in valid_indices]
-        except Exception as e:
-            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
-            raise e
+        prompt, use_cache, thinking_level, max_tokens = prep_res
+        emit("LLM_CALL_FILTER_FILES")
+        log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+        response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        valid_indices = parse_yaml_response(response)
+        if not isinstance(valid_indices, list):
+            valid_indices = []
+        return [int(idx) for idx in valid_indices]
 
     def post(self, shared, prep_res, exec_res):
-        import os
 
         files = shared.get("files", [])
         valid_indices = set(exec_res)
@@ -303,13 +324,11 @@ class MapAbstractions(BatchNode):
         if isinstance(abstractions, list):
             for obj in abstractions:
                 if isinstance(obj, dict) and "name" in obj and "description" in obj and "file_indices" in obj:
-                    import re
-
                     validated_indices = []
                     for idx_entry in obj["file_indices"]:
-                        nums = re.findall(r"\d+", str(idx_entry))
-                        if nums:
-                            validated_indices.append(int(nums[0]))
+                        idx = parse_file_index(idx_entry)
+                        if idx is not None:
+                            validated_indices.append(idx)
                     if validated_indices:
                         validated_abstractions.append(
                             {"name": obj["name"], "description": obj["description"], "files": sorted(set(validated_indices))}
@@ -370,13 +389,11 @@ class ReduceAbstractions(Node):
         if isinstance(abstractions, list):
             for obj in abstractions:
                 if isinstance(obj, dict) and "name" in obj and "description" in obj and "files" in obj:
-                    import re
-
                     validated_indices = []
                     for idx_entry in obj["files"]:
-                        nums = re.findall(r"\d+", str(idx_entry))
-                        if nums:
-                            validated_indices.append(int(nums[0]))
+                        idx = parse_file_index(idx_entry)
+                        if idx is not None:
+                            validated_indices.append(idx)
                     if validated_indices:
                         validated_abstractions.append(
                             {"name": obj["name"], "description": obj["description"], "files": sorted(set(validated_indices))}
@@ -508,113 +525,107 @@ class IdentifyAbstractions(Node):
             shared.get("mode", "tutorial"),
         )  # Return all parameters (11-element tuple)
 
+    @safe_exec
     def exec(self, prep_res):
-        try:
-            (
-                context,
-                directory_tree,
-                total_files_count,
-                project_name,
-                language,
-                use_cache,
-                max_abstraction_num,
-                thinking_level,
-                _advanced_mode,
-                max_tokens,
-                mode,
-            ) = prep_res  # Unpack all parameters
+        (
+            context,
+            directory_tree,
+            total_files_count,
+            project_name,
+            language,
+            use_cache,
+            max_abstraction_num,
+            thinking_level,
+            _advanced_mode,
+            max_tokens,
+            mode,
+        ) = prep_res  # Unpack all parameters
 
-            # Add language instruction and hints only if not English
-            language_instruction = ""
-            name_lang_hint = ""
-            desc_lang_hint = ""
-            if language.lower() != "english":
-                language_instruction = f"IMPORTANT: Generate the `name` and `description` for each abstraction in **{language.capitalize()}** language. Do NOT use English for these fields.\n\n"
-                # Keep specific hints here as name/description are primary targets
-                name_lang_hint = f" (value in {language.capitalize()})"
-                desc_lang_hint = f" (value in {language.capitalize()})"
+        # Add language instruction and hints only if not English
+        language_instruction = ""
+        name_lang_hint = ""
+        desc_lang_hint = ""
+        if language.lower() != "english":
+            language_instruction = f"IMPORTANT: Generate the `name` and `description` for each abstraction in **{language.capitalize()}** language. Do NOT use English for these fields.\n\n"
+            # Keep specific hints here as name/description are primary targets
+            name_lang_hint = f" (value in {language.capitalize()})"
+            desc_lang_hint = f" (value in {language.capitalize()})"
 
-            prompt_template = load_prompt_template("identify_abstractions", mode=mode)
+        prompt_template = load_prompt_template("identify_abstractions", mode=mode)
 
-            prompt = prompt_template.format(
-                project_name=project_name,
-                context=context,
-                language_instruction=language_instruction,
-                max_abstraction_num=max_abstraction_num,
-                name_lang_hint=name_lang_hint,
-                desc_lang_hint=desc_lang_hint,
-                directory_tree=directory_tree,
+        prompt = prompt_template.format(
+            project_name=project_name,
+            context=context,
+            language_instruction=language_instruction,
+            max_abstraction_num=max_abstraction_num,
+            name_lang_hint=name_lang_hint,
+            desc_lang_hint=desc_lang_hint,
+            directory_tree=directory_tree,
+        )
+
+        token_usage = {
+            "file_content": count_tokens(context),
+            "directory_tree": count_tokens(directory_tree),
+        }
+        token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
+        emit("LLM_CALL_IDENTIFY_ABSTRACTIONS")
+        log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
+        response = call_llm(
+            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+        )  # Use cache only if enabled and not retrying
+
+        # --- Validation ---
+        abstractions = parse_yaml_response(response)
+
+        if not isinstance(abstractions, list):
+            raise ValueError("LLM Output is not a list")
+
+        validated_abstractions = []
+        for item in abstractions:
+            if not isinstance(item, dict) or not all(k in item for k in ["name", "description", "file_indices"]):
+                raise ValueError(f"Missing keys in abstraction item: {item}")
+            if not isinstance(item["name"], str):
+                raise ValueError(f"Name is not a string in item: {item}")
+            if not isinstance(item["description"], str):
+                raise ValueError(f"Description is not a string in item: {item}")
+            if not isinstance(item["file_indices"], list):
+                raise ValueError(f"file_indices is not a list in item: {item}")
+
+            # Validate indices
+
+            validated_indices = []
+            for idx_entry in item["file_indices"]:
+                try:
+                    idx_str = str(idx_entry).split("#")[0].strip()
+                    # Split by '-' to handle ranges
+                    if "-" in idx_str:
+                        parts = idx_str.split("-")
+                        if len(parts) == 2:
+                            start_idx = parse_file_index(parts[0])
+                            end_idx = parse_file_index(parts[1])
+                            if start_idx is not None and end_idx is not None:
+                                validated_indices.extend(idx for idx in range(start_idx, end_idx + 1) if 0 <= idx < total_files_count)
+                            continue
+                    # Find integer in the string
+                    idx = parse_file_index(idx_str)
+                    if idx is not None and 0 <= idx < total_files_count:
+                        validated_indices.append(idx)
+                except (ValueError, TypeError, IndexError):
+                    emit("WARN_PARSE_INDEX", entry=idx_entry, name=item["name"])
+                    continue
+
+            item["files"] = sorted(set(validated_indices))
+            # Store only the required fields
+            validated_abstractions.append(
+                {
+                    "name": item["name"],  # Potentially translated name
+                    "description": item["description"],  # Potentially translated description
+                    "files": item["files"],
+                }
             )
 
-            token_usage = {
-                "file_content": count_tokens(context),
-                "directory_tree": count_tokens(directory_tree),
-            }
-            token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
-            emit("LLM_CALL_IDENTIFY_ABSTRACTIONS")
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            response = call_llm(
-                prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
-            )  # Use cache only if enabled and not retrying
-
-            # --- Validation ---
-            abstractions = parse_yaml_response(response)
-
-            if not isinstance(abstractions, list):
-                raise ValueError("LLM Output is not a list")
-
-            validated_abstractions = []
-            for item in abstractions:
-                if not isinstance(item, dict) or not all(k in item for k in ["name", "description", "file_indices"]):
-                    raise ValueError(f"Missing keys in abstraction item: {item}")
-                if not isinstance(item["name"], str):
-                    raise ValueError(f"Name is not a string in item: {item}")
-                if not isinstance(item["description"], str):
-                    raise ValueError(f"Description is not a string in item: {item}")
-                if not isinstance(item["file_indices"], list):
-                    raise ValueError(f"file_indices is not a list in item: {item}")
-
-                # Validate indices
-                import re
-
-                validated_indices = []
-                for idx_entry in item["file_indices"]:
-                    try:
-                        idx_str = str(idx_entry).split("#")[0].strip()
-                        # Split by '-' to handle ranges
-                        if "-" in idx_str:
-                            parts = idx_str.split("-")
-                            if len(parts) == 2:
-                                start_idx = int(re.findall(r"\d+", parts[0])[0])
-                                end_idx = int(re.findall(r"\d+", parts[1])[0])
-                                validated_indices.extend(idx for idx in range(start_idx, end_idx + 1) if 0 <= idx < total_files_count)
-                                continue
-                        # Find integers in the string
-                        nums = re.findall(r"\d+", idx_str)
-                        if nums:
-                            idx = int(nums[0])
-                            if 0 <= idx < total_files_count:
-                                validated_indices.append(idx)
-                    except (ValueError, TypeError, IndexError):
-                        emit("WARN_PARSE_INDEX", entry=idx_entry, name=item["name"])
-                        continue
-
-                item["files"] = sorted(set(validated_indices))
-                # Store only the required fields
-                validated_abstractions.append(
-                    {
-                        "name": item["name"],  # Potentially translated name
-                        "description": item["description"],  # Potentially translated description
-                        "files": item["files"],
-                    }
-                )
-
-            emit("DONE_IDENTIFIED_ABSTRACTIONS", count=len(validated_abstractions))
-            return validated_abstractions
-        except Exception as e:
-            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
-            raise e
+        emit("DONE_IDENTIFIED_ABSTRACTIONS", count=len(validated_abstractions))
+        return validated_abstractions
 
     def post(self, shared, prep_res, exec_res):
         shared["abstractions"] = exec_res  # List of {"name": str, "description": str, "files": [int]}
@@ -746,109 +757,104 @@ class AnalyzeRelationships(Node):
             shared.get("mode", "tutorial"),
         )  # Return use_cache
 
+    @safe_exec
     def exec(self, prep_res):
-        try:
-            (
-                context,
-                abstraction_listing,
-                num_abstractions,  # Receive the actual count
-                project_name,
-                language,
-                use_cache,
-                thinking_level,
-                _advanced_mode,
-                max_tokens,
-                mode,
-            ) = prep_res  # Unpack use_cache
+        (
+            context,
+            abstraction_listing,
+            num_abstractions,  # Receive the actual count
+            project_name,
+            language,
+            use_cache,
+            thinking_level,
+            _advanced_mode,
+            max_tokens,
+            mode,
+        ) = prep_res  # Unpack use_cache
 
-            # Add language instruction and hints only if not English
-            language_instruction = ""
-            lang_hint = ""
-            list_lang_note = ""
-            if language.lower() != "english":
-                language_instruction = f"IMPORTANT: Generate the `summary` and relationship `label` fields in **{language.capitalize()}** language. Do NOT use English for these fields.\n\n"
-                lang_hint = f" (in {language.capitalize()})"
-                list_lang_note = f" (Names might be in {language.capitalize()})"  # Note for the input list
+        # Add language instruction and hints only if not English
+        language_instruction = ""
+        lang_hint = ""
+        list_lang_note = ""
+        if language.lower() != "english":
+            language_instruction = f"IMPORTANT: Generate the `summary` and relationship `label` fields in **{language.capitalize()}** language. Do NOT use English for these fields.\n\n"
+            lang_hint = f" (in {language.capitalize()})"
+            list_lang_note = f" (Names might be in {language.capitalize()})"  # Note for the input list
 
-            prompt_template = load_prompt_template("identify_relationships", mode=mode)
+        prompt_template = load_prompt_template("identify_relationships", mode=mode)
 
-            prompt = prompt_template.format(
-                project_name=project_name,
-                list_lang_note=list_lang_note,
-                abstraction_listing=abstraction_listing,
-                context=context,
-                language_instruction=language_instruction,
-                lang_hint=lang_hint,
-            )
-            token_usage = {
-                "context": count_tokens(context),
-                "abstraction_listing": count_tokens(abstraction_listing),
-            }
-            token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
-            emit("LLM_CALL_ANALYZE_RELATIONSHIPS")
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            response = call_llm(
-                prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
-            )  # Use cache only if enabled and not retrying
+        prompt = prompt_template.format(
+            project_name=project_name,
+            list_lang_note=list_lang_note,
+            abstraction_listing=abstraction_listing,
+            context=context,
+            language_instruction=language_instruction,
+            lang_hint=lang_hint,
+        )
+        token_usage = {
+            "context": count_tokens(context),
+            "abstraction_listing": count_tokens(abstraction_listing),
+        }
+        token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
+        emit("LLM_CALL_ANALYZE_RELATIONSHIPS")
+        log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
+        response = call_llm(
+            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+        )  # Use cache only if enabled and not retrying
 
-            # --- Validation ---
-            relationships_data = parse_yaml_response(response)
+        # --- Validation ---
+        relationships_data = parse_yaml_response(response)
 
-            if not isinstance(relationships_data, dict) or not all(k in relationships_data for k in ["summary", "relationships"]):
-                raise ValueError("LLM output is not a dict or missing keys ('summary', 'relationships')")
-            if not isinstance(relationships_data["summary"], str):
-                raise ValueError("summary is not a string")
-            if not isinstance(relationships_data["relationships"], list):
-                raise ValueError("relationships is not a list")
+        if not isinstance(relationships_data, dict) or not all(k in relationships_data for k in ["summary", "relationships"]):
+            raise ValueError("LLM output is not a dict or missing keys ('summary', 'relationships')")
+        if not isinstance(relationships_data["summary"], str):
+            raise ValueError("summary is not a string")
+        if not isinstance(relationships_data["relationships"], list):
+            raise ValueError("relationships is not a list")
 
-            # Validate relationships structure
-            import re
+        # Validate relationships structure
 
-            validated_relationships = []
-            for rel in relationships_data["relationships"]:
-                # Check for 'label' key
-                if not isinstance(rel, dict) or not all(k in rel for k in ["from_abstraction", "to_abstraction", "label"]):
-                    raise ValueError(f"Missing keys (expected from_abstraction, to_abstraction, label) in relationship item: {rel}")
-                # Validate 'label' is a string
-                if not isinstance(rel["label"], str):
-                    raise ValueError(f"Relationship label is not a string: {rel}")
+        validated_relationships = []
+        for rel in relationships_data["relationships"]:
+            # Check for 'label' key
+            if not isinstance(rel, dict) or not all(k in rel for k in ["from_abstraction", "to_abstraction", "label"]):
+                raise ValueError(f"Missing keys (expected from_abstraction, to_abstraction, label) in relationship item: {rel}")
+            # Validate 'label' is a string
+            if not isinstance(rel["label"], str):
+                raise ValueError(f"Relationship label is not a string: {rel}")
 
-                # Validate indices
-                try:
-                    from_idx_str = str(rel["from_abstraction"]).split("#")[0].strip()
-                    to_idx_str = str(rel["to_abstraction"]).split("#")[0].strip()
+            # Validate indices
+            try:
+                from_idx_str = str(rel["from_abstraction"]).split("#")[0].strip()
+                to_idx_str = str(rel["to_abstraction"]).split("#")[0].strip()
 
-                    from_nums = re.findall(r"\d+", from_idx_str)
-                    to_nums = re.findall(r"\d+", to_idx_str)
+                from_nums = re.findall(r"\d+", from_idx_str)
+                to_nums = re.findall(r"\d+", to_idx_str)
 
-                    if not from_nums or not to_nums:
-                        raise ValueError("Missing valid integer for from_abstraction or to_abstraction.")
+                if not from_nums or not to_nums:
+                    raise ValueError("Missing valid integer for from_abstraction or to_abstraction.")
 
-                    from_idx = int(from_nums[0])
-                    to_idx = int(to_nums[0])
-                    if not (0 <= from_idx < num_abstractions and 0 <= to_idx < num_abstractions):
-                        emit("WARN_INVALID_RELATIONSHIP", from_idx=from_idx, to_idx=to_idx, max_idx=num_abstractions - 1)
-                        continue
-                    validated_relationships.append(
-                        {
-                            "from": from_idx,
-                            "to": to_idx,
-                            "label": rel["label"],  # Potentially translated label
-                        }
-                    )
-                except (ValueError, TypeError, IndexError) as e:
-                    emit("WARN_PARSE_RELATIONSHIP", rel=rel, error=e)
+                from_idx = int(from_nums[0])
+                to_idx = int(to_nums[0])
+                if not (0 <= from_idx < num_abstractions and 0 <= to_idx < num_abstractions):
+                    emit("WARN_INVALID_RELATIONSHIP", from_idx=from_idx, to_idx=to_idx, max_idx=num_abstractions - 1)
                     continue
+                validated_relationships.append(
+                    {
+                        "from": from_idx,
+                        "to": to_idx,
+                        "label": rel["label"],  # Potentially translated label
+                    }
+                )
+            except (ValueError, TypeError, IndexError) as e:
+                emit("WARN_PARSE_RELATIONSHIP", rel=rel, error=e)
+                continue
 
-            emit("DONE_RELATIONSHIPS")
-            return {
-                "summary": relationships_data["summary"],  # Potentially translated summary
-                "details": validated_relationships,  # Store validated, index-based relationships with potentially translated labels
-            }
-        except Exception as e:
-            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
-            raise e
+        emit("DONE_RELATIONSHIPS")
+        return {
+            "summary": relationships_data["summary"],  # Potentially translated summary
+            "details": validated_relationships,  # Store validated, index-based relationships with potentially translated labels
+        }
 
     def post(self, shared, prep_res, exec_res):
         # Structure is now {"summary": str, "details": [{"from": int, "to": int, "label": str}]}
@@ -904,73 +910,69 @@ class OrderChapters(Node):
             shared.get("mode", "tutorial"),
         )  # Return use_cache
 
+    @safe_exec
     def exec(self, prep_res):
-        try:
-            (
-                abstraction_listing,
-                context,
-                num_abstractions,
-                project_name,
-                list_lang_note,
-                use_cache,
-                thinking_level,
-                _advanced_mode,
-                max_tokens,
-                mode,
-            ) = prep_res  # Unpack use_cache
-            # No language variation needed here in prompt instructions, just ordering based on structure
-            # The input names might be translated, hence the note.
+        (
+            abstraction_listing,
+            context,
+            num_abstractions,
+            project_name,
+            list_lang_note,
+            use_cache,
+            thinking_level,
+            _advanced_mode,
+            max_tokens,
+            mode,
+        ) = prep_res  # Unpack use_cache
+        # No language variation needed here in prompt instructions, just ordering based on structure
+        # The input names might be translated, hence the note.
 
-            prompt_template = load_prompt_template("order_chapters", mode=mode)
+        prompt_template = load_prompt_template("order_chapters", mode=mode)
 
-            prompt = prompt_template.format(
-                project_name=project_name, list_lang_note=list_lang_note, abstraction_listing=abstraction_listing, context=context
+        prompt = prompt_template.format(
+            project_name=project_name, list_lang_note=list_lang_note, abstraction_listing=abstraction_listing, context=context
+        )
+        emit("LLM_CALL_ORDER_CHAPTERS")
+        log_token_estimation(self.__class__.__name__, prompt, max_tokens)
+        response = call_llm(
+            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+        )  # Use cache only if enabled and not retrying
+
+        # --- Validation ---
+        ordered_indices_raw = parse_yaml_response(response)
+
+        if not isinstance(ordered_indices_raw, list):
+            raise ValueError("LLM output is not a list")
+
+        ordered_indices = []
+        seen_indices = set()
+        for entry in ordered_indices_raw:
+            try:
+                if isinstance(entry, int):
+                    idx = entry
+                elif isinstance(entry, str) and "#" in entry:
+                    idx = int(entry.split("#")[0].strip())
+                else:
+                    idx = int(str(entry).strip())
+
+                if not (0 <= idx < num_abstractions):
+                    raise ValueError(f"Invalid index {idx} in ordered list. Max index is {num_abstractions - 1}.")
+                if idx in seen_indices:
+                    raise ValueError(f"Duplicate index {idx} found in ordered list.")
+                ordered_indices.append(idx)
+                seen_indices.add(idx)
+
+            except (ValueError, TypeError) as e:
+                raise ValueError(f"Could not parse index from ordered list entry: {entry}") from e
+
+        # Check if all abstractions are included
+        if len(ordered_indices) != num_abstractions:
+            raise ValueError(
+                f"Ordered list length ({len(ordered_indices)}) does not match number of abstractions ({num_abstractions}). Missing indices: {set(range(num_abstractions)) - seen_indices}"
             )
-            emit("LLM_CALL_ORDER_CHAPTERS")
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens)
-            response = call_llm(
-                prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
-            )  # Use cache only if enabled and not retrying
 
-            # --- Validation ---
-            ordered_indices_raw = parse_yaml_response(response)
-
-            if not isinstance(ordered_indices_raw, list):
-                raise ValueError("LLM output is not a list")
-
-            ordered_indices = []
-            seen_indices = set()
-            for entry in ordered_indices_raw:
-                try:
-                    if isinstance(entry, int):
-                        idx = entry
-                    elif isinstance(entry, str) and "#" in entry:
-                        idx = int(entry.split("#")[0].strip())
-                    else:
-                        idx = int(str(entry).strip())
-
-                    if not (0 <= idx < num_abstractions):
-                        raise ValueError(f"Invalid index {idx} in ordered list. Max index is {num_abstractions - 1}.")
-                    if idx in seen_indices:
-                        raise ValueError(f"Duplicate index {idx} found in ordered list.")
-                    ordered_indices.append(idx)
-                    seen_indices.add(idx)
-
-                except (ValueError, TypeError) as e:
-                    raise ValueError(f"Could not parse index from ordered list entry: {entry}") from e
-
-            # Check if all abstractions are included
-            if len(ordered_indices) != num_abstractions:
-                raise ValueError(
-                    f"Ordered list length ({len(ordered_indices)}) does not match number of abstractions ({num_abstractions}). Missing indices: {set(range(num_abstractions)) - seen_indices}"
-                )
-
-            emit("DONE_CHAPTER_ORDER", indices=ordered_indices)
-            return ordered_indices  # Return the list of indices
-        except Exception as e:
-            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
-            raise e
+        emit("DONE_CHAPTER_ORDER", indices=ordered_indices)
+        return ordered_indices  # Return the list of indices
 
     def post(self, shared, prep_res, exec_res):
         # exec_res is already the list of ordered indices
@@ -982,7 +984,6 @@ class WriteChapters(BatchNode):
         chapter_order = shared["chapter_order"]  # List of indices
         abstractions = shared["abstractions"]  # List of {"name": str, "description": str, "files": [int]}
         files_data = shared["files"]  # List of (path, content) tuples
-        shared["project_name"]
         language = shared.get("language", "english")
         use_cache = shared.get("use_cache", True)  # Get use_cache flag, default to True
         thinking_level = shared.get("thinking_level", None)
@@ -990,6 +991,8 @@ class WriteChapters(BatchNode):
         # Get already written chapters to provide context
         # We store them temporarily during the batch run, not in shared memory yet
         # The 'previous_chapters_summary' will be built progressively in the exec context
+        # NOTE: Using instance state is safe because PocketFlow's BatchNode.exec() runs
+        # sequentially (not concurrently). If concurrency is ever added, move these to shared.
         self.chapters_written_so_far = []  # Full chapter content for output files + incremental cache
         self.chapter_summaries = []  # LLM-generated summaries for cross-chapter context
 
@@ -1078,274 +1081,265 @@ class WriteChapters(BatchNode):
         emit("PREPARING_WRITE_CHAPTERS", count=len(items_to_process))
         return items_to_process  # Iterable for BatchNode
 
+    @safe_exec
     def exec(self, item):
-        try:
-            # This runs for each item prepared above
-            abstraction_name = item["abstraction_details"]["name"]  # Potentially translated name
-            abstraction_description = item["abstraction_details"]["description"]  # Potentially translated description
-            chapter_num = item["chapter_num"]
-            project_name = item.get("project_name")
-            language = item.get("language", "english")
-            use_cache = item.get("use_cache", True)  # Read use_cache from item
-            thinking_level = item.get("thinking_level", None)
-            item.get("advanced_mode", False)
-            mode = item.get("mode", "tutorial")
-            is_mkdocs = item.get("mkdocs", False)
-            incremental = item.get("incremental", False)
-            output_dir = item.get("output_dir", "output")
-            filename = item.get("filename")
-            max_tokens = item.get("max_tokens", 100000)
+        # This runs for each item prepared above
+        abstraction_name = item["abstraction_details"]["name"]  # Potentially translated name
+        abstraction_description = item["abstraction_details"]["description"]  # Potentially translated description
+        chapter_num = item["chapter_num"]
+        project_name = item.get("project_name")
+        language = item.get("language", "english")
+        use_cache = item.get("use_cache", True)  # Read use_cache from item
+        thinking_level = item.get("thinking_level", None)
+        item.get("advanced_mode", False)
+        mode = item.get("mode", "tutorial")
+        is_mkdocs = item.get("mkdocs", False)
+        incremental = item.get("incremental", False)
+        output_dir = item.get("output_dir", "output")
+        filename = item.get("filename")
+        max_tokens = item.get("max_tokens", 100000)
 
-            # Prepare file context string from the map
-            file_context_str = "\n\n".join(
-                f"--- File: {idx_path.split('# ')[1] if '# ' in idx_path else idx_path} ---\n{content}"
-                for idx_path, content in item["related_files_content_map"].items()
-            )
+        # Prepare file context string from the map
+        file_context_str = "\n\n".join(
+            f"--- File: {idx_path.split('# ')[1] if '# ' in idx_path else idx_path} ---\n{content}"
+            for idx_path, content in item["related_files_content_map"].items()
+        )
 
-            # --- Incremental Caching Logic ---
-            current_hash = None
-            if incremental and output_dir:
-                import hashlib
-                import json
+        # --- Incremental Caching Logic ---
+        current_hash = None
+        if incremental and output_dir:
+            hasher = hashlib.md5()
+            hasher.update(file_context_str.encode("utf-8"))
+            current_hash = hasher.hexdigest()
 
-                hasher = hashlib.md5()
-                hasher.update(file_context_str.encode("utf-8"))
-                current_hash = hasher.hexdigest()
+            manifest_path = os.path.join(output_dir, project_name, ".doc_cache_manifest.json")
+            if os.path.exists(manifest_path):
+                try:
+                    with open(manifest_path, encoding="utf-8") as f:
+                        manifest = json.load(f)
+                    # Support both old format (string hash) and new format (dict with hash+summary)
+                    cached_entry = manifest.get(abstraction_name)
+                    if isinstance(cached_entry, str):
+                        cached_hash, cached_summary = cached_entry, None
+                    elif isinstance(cached_entry, dict):
+                        cached_hash = cached_entry.get("hash")
+                        cached_summary = cached_entry.get("summary")
+                    else:
+                        cached_hash, cached_summary = None, None
 
-                manifest_path = os.path.join(output_dir, project_name, ".doc_cache_manifest.json")
-                if os.path.exists(manifest_path):
-                    try:
-                        with open(manifest_path, encoding="utf-8") as f:
-                            manifest = json.load(f)
-                        # Support both old format (string hash) and new format (dict with hash+summary)
-                        cached_entry = manifest.get(abstraction_name)
-                        if isinstance(cached_entry, str):
-                            cached_hash, cached_summary = cached_entry, None
-                        elif isinstance(cached_entry, dict):
-                            cached_hash = cached_entry.get("hash")
-                            cached_summary = cached_entry.get("summary")
-                        else:
-                            cached_hash, cached_summary = None, None
+                    if cached_hash == current_hash:
+                        # Cache hit! Read existing file
+                        file_path = (
+                            os.path.join(output_dir, project_name, "docs", "api", filename)
+                            if is_mkdocs
+                            else os.path.join(output_dir, project_name, filename)
+                        )
+                        if os.path.exists(file_path):
+                            emit("CACHE_HIT_SKIP", name=abstraction_name)
+                            with open(file_path, encoding="utf-8") as f:
+                                cached_content = f.read()
 
-                        if cached_hash == current_hash:
-                            # Cache hit! Read existing file
-                            file_path = (
-                                os.path.join(output_dir, project_name, "docs", "api", filename)
-                                if is_mkdocs
-                                else os.path.join(output_dir, project_name, filename)
-                            )
-                            if os.path.exists(file_path):
-                                emit("CACHE_HIT_SKIP", name=abstraction_name)
-                                with open(file_path, encoding="utf-8") as f:
-                                    cached_content = f.read()
+                            # If it's mkdocs, strip the frontmatter before adding to chapters_written_so_far
+                            clean_content = cached_content
+                            if is_mkdocs and clean_content.startswith("---"):
+                                parts = clean_content.split("---", 2)
+                                if len(parts) >= 3:
+                                    clean_content = parts[2].strip()
 
-                                # If it's mkdocs, strip the frontmatter before adding to chapters_written_so_far
-                                clean_content = cached_content
-                                if is_mkdocs and clean_content.startswith("---"):
-                                    parts = clean_content.split("---", 2)
-                                    if len(parts) >= 3:
-                                        clean_content = parts[2].strip()
+                            self.chapters_written_so_far.append(clean_content)
 
-                                self.chapters_written_so_far.append(clean_content)
+                            # Load persisted summary from manifest or regenerate via LLM
+                            if cached_summary:
+                                self.chapter_summaries.append(cached_summary)
+                                emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens="manifest")
+                                emit_raw(
+                                    "DEBUG",
+                                    f"CHAPTER SUMMARY LOADED | chapter={chapter_num} | name={abstraction_name.strip()} | source=manifest",
+                                    dest="LOG",
+                                )
+                            else:
+                                # Fallback for old manifest format: regenerate summary via LLM
+                                summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, clean_content, language)
+                                cached_content_tokens = count_tokens(clean_content)
+                                summary_tokens = count_tokens(summary_prompt)
+                                summary_overhead = summary_tokens - cached_content_tokens
+                                token_usage_summary = {
+                                    "chapter_content": cached_content_tokens,
+                                    "overhead": summary_overhead,
+                                }
+                                emit("LLM_CALL_SUMMARIZE_CACHED", chapter_num=chapter_num)
+                                log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
+                                emit_raw(
+                                    "DEBUG",
+                                    f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache",
+                                    dest="LOG",
+                                )
+                                chapter_summary = call_llm(
+                                    summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+                                )
+                                summary_response_tokens = count_tokens(chapter_summary)
+                                self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
+                                emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
+                                emit_raw(
+                                    "DEBUG",
+                                    f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache",
+                                    dest="LOG",
+                                )
 
-                                # Load persisted summary from manifest or regenerate via LLM
-                                if cached_summary:
-                                    self.chapter_summaries.append(cached_summary)
-                                    emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens="manifest")
-                                    emit_raw(
-                                        "DEBUG",
-                                        f"CHAPTER SUMMARY LOADED | chapter={chapter_num} | name={abstraction_name.strip()} | source=manifest",
-                                        dest="LOG",
-                                    )
-                                else:
-                                    # Fallback for old manifest format: regenerate summary via LLM
-                                    summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, clean_content, language)
-                                    cached_content_tokens = count_tokens(clean_content)
-                                    summary_tokens = count_tokens(summary_prompt)
-                                    summary_overhead = summary_tokens - cached_content_tokens
-                                    token_usage_summary = {
-                                        "chapter_content": cached_content_tokens,
-                                        "overhead": summary_overhead,
-                                    }
-                                    emit("LLM_CALL_SUMMARIZE_CACHED", chapter_num=chapter_num)
-                                    log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
-                                    emit_raw(
-                                        "DEBUG",
-                                        f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,} | source=cache",
-                                        dest="LOG",
-                                    )
-                                    chapter_summary = call_llm(
-                                        summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
-                                    )
-                                    summary_response_tokens = count_tokens(chapter_summary)
-                                    self.chapter_summaries.append(
-                                        f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
-                                    )
-                                    emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
-                                    emit_raw(
-                                        "DEBUG",
-                                        f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache",
-                                        dest="LOG",
-                                    )
+                            summary_entry = self.chapter_summaries[-1] if self.chapter_summaries else None
+                            return {"content": clean_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
+                except Exception as e:
+                    emit("WARN_MANIFEST_CACHE_FAIL", error=e)
 
-                                summary_entry = self.chapter_summaries[-1] if self.chapter_summaries else None
-                                return {"content": clean_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
-                    except Exception as e:
-                        emit("WARN_MANIFEST_CACHE_FAIL", error=e)
+        # Get summary of chapters written *before* this one
+        # Uses LLM-generated technical summaries (3-5 sentences each) instead of
+        # full chapter dumps (which caused O(n²) token explosion).
+        # Capped at 50% of context window — drops oldest summaries first.
+        prev_chapters_budget = int(max_tokens * 0.50)
 
-            # Get summary of chapters written *before* this one
-            # Uses LLM-generated technical summaries (3-5 sentences each) instead of
-            # full chapter dumps (which caused O(n²) token explosion).
-            # Capped at 50% of context window — drops oldest summaries first.
-            prev_chapters_budget = int(max_tokens * 0.50)
+        if self.chapter_summaries:
+            selected_summaries = []
+            running_tokens = 0
 
-            if self.chapter_summaries:
-                selected_summaries = []
-                running_tokens = 0
+            # Build from newest to oldest — most recent chapters are most relevant
+            for summary in reversed(self.chapter_summaries):
+                summary_tokens = count_tokens(summary)
+                if running_tokens + summary_tokens > prev_chapters_budget and selected_summaries:
+                    break
+                selected_summaries.append(summary)
+                running_tokens += summary_tokens
 
-                # Build from newest to oldest — most recent chapters are most relevant
-                for summary in reversed(self.chapter_summaries):
-                    summary_tokens = count_tokens(summary)
-                    if running_tokens + summary_tokens > prev_chapters_budget and selected_summaries:
-                        break
-                    selected_summaries.append(summary)
-                    running_tokens += summary_tokens
+            selected_summaries.reverse()  # Restore chronological order
 
-                selected_summaries.reverse()  # Restore chronological order
-
-                if len(selected_summaries) < len(self.chapter_summaries):
-                    dropped = len(self.chapter_summaries) - len(selected_summaries)
-                    emit(
-                        "PREV_CHAPTERS_TRIMMED",
-                        dropped=dropped,
-                        total=len(self.chapter_summaries),
-                        budget=f"{prev_chapters_budget:,}",
-                        kept=len(selected_summaries),
-                    )
-                    window_note = f"[{dropped} earlier chapter summaries omitted — showing {len(selected_summaries)} most recent for context budget]"
-                    previous_chapters_summary = window_note + "\n---\n" + "\n---\n".join(selected_summaries)
-                else:
-                    previous_chapters_summary = "\n---\n".join(self.chapter_summaries)
+            if len(selected_summaries) < len(self.chapter_summaries):
+                dropped = len(self.chapter_summaries) - len(selected_summaries)
+                emit(
+                    "PREV_CHAPTERS_TRIMMED",
+                    dropped=dropped,
+                    total=len(self.chapter_summaries),
+                    budget=f"{prev_chapters_budget:,}",
+                    kept=len(selected_summaries),
+                )
+                window_note = f"[{dropped} earlier chapter summaries omitted — showing {len(selected_summaries)} most recent for context budget]"
+                previous_chapters_summary = window_note + "\n---\n" + "\n---\n".join(selected_summaries)
             else:
-                previous_chapters_summary = ""
+                previous_chapters_summary = "\n---\n".join(self.chapter_summaries)
+        else:
+            previous_chapters_summary = ""
 
-            # Add language instruction and context notes only if not English
-            language_instruction = ""
-            concept_details_note = ""
-            structure_note = ""
-            prev_summary_note = ""
-            instruction_lang_note = ""
-            mermaid_lang_note = ""
-            code_comment_note = ""
-            link_lang_note = ""
-            tone_note = ""
-            if language.lower() != "english":
-                lang_cap = language.capitalize()
-                language_instruction = f"IMPORTANT: Write this ENTIRE tutorial chapter in **{lang_cap}**. Some input context (like concept name, description, chapter list, previous summary) might already be in {lang_cap}, but you MUST translate ALL other generated content including explanations, examples, technical terms, and potentially code comments into {lang_cap}. DO NOT use English anywhere except in code syntax, required proper nouns, or when specified. The entire output MUST be in {lang_cap}.\n\n"
-                concept_details_note = f" (Note: Provided in {lang_cap})"
-                structure_note = f" (Note: Chapter names might be in {lang_cap})"
-                prev_summary_note = f" (Note: This summary might be in {lang_cap})"
-                instruction_lang_note = f" (in {lang_cap})"
-                mermaid_lang_note = f" (All diagram labels, edge text, and subgraph titles MUST use {lang_cap} with proper diacritics/tones — NEVER use unaccented/romanized text)"
-                code_comment_note = f" (PRESERVE original code comments exactly as-is. Add your explanatory notes OUTSIDE code blocks in {lang_cap}, not inside them.)"
-                link_lang_note = f" (Link text: use the {lang_cap} chapter title. Link target: copy the path EXACTLY from the (doc: path.md) annotation — do NOT re-derive or modify it)"
-                tone_note = f" (appropriate for {lang_cap} readers)"
-
-            prompt_template = load_prompt_template("draft_chapters", mode=mode)
-
-            prompt = prompt_template.format(
-                language_instruction=language_instruction,
-                project_name=project_name,
-                abstraction_name=abstraction_name,
-                chapter_num=chapter_num,
-                concept_details_note=concept_details_note,
-                abstraction_description=abstraction_description,
-                structure_note=structure_note,
-                full_chapter_listing=item["full_chapter_listing"],
-                current_doc_path=item.get("current_doc_path", ""),
-                directory_tree=item.get("directory_tree", ""),
-                prev_summary_note=prev_summary_note,
-                previous_chapters_summary=previous_chapters_summary or "This is the first chapter.",
-                file_context_str=file_context_str or "No specific code snippets provided for this abstraction.",
-                language=language.capitalize(),
-                instruction_lang_note=instruction_lang_note,
-                link_lang_note=link_lang_note,
-                code_comment_note=code_comment_note,
-                mermaid_lang_note=mermaid_lang_note,
-                tone_note=tone_note,
+        # Add language instruction and context notes only if not English
+        language_instruction = ""
+        concept_details_note = ""
+        structure_note = ""
+        prev_summary_note = ""
+        instruction_lang_note = ""
+        mermaid_lang_note = ""
+        code_comment_note = ""
+        link_lang_note = ""
+        tone_note = ""
+        if language.lower() != "english":
+            lang_cap = language.capitalize()
+            language_instruction = f"IMPORTANT: Write this ENTIRE tutorial chapter in **{lang_cap}**. Some input context (like concept name, description, chapter list, previous summary) might already be in {lang_cap}, but you MUST translate ALL other generated content including explanations, examples, technical terms, and potentially code comments into {lang_cap}. DO NOT use English anywhere except in code syntax, required proper nouns, or when specified. The entire output MUST be in {lang_cap}.\n\n"
+            concept_details_note = f" (Note: Provided in {lang_cap})"
+            structure_note = f" (Note: Chapter names might be in {lang_cap})"
+            prev_summary_note = f" (Note: This summary might be in {lang_cap})"
+            instruction_lang_note = f" (in {lang_cap})"
+            mermaid_lang_note = f" (All diagram labels, edge text, and subgraph titles MUST use {lang_cap} with proper diacritics/tones — NEVER use unaccented/romanized text)"
+            code_comment_note = (
+                f" (PRESERVE original code comments exactly as-is. Add your explanatory notes OUTSIDE code blocks in {lang_cap}, not inside them.)"
             )
+            link_lang_note = f" (Link text: use the {lang_cap} chapter title. Link target: copy the path EXACTLY from the (doc: path.md) annotation — do NOT re-derive or modify it)"
+            tone_note = f" (appropriate for {lang_cap} readers)"
 
-            # Compute token usage for diagnostics
-            token_usage = {
-                "file_context": count_tokens(file_context_str),
-                "prev_chapters": count_tokens(previous_chapters_summary),
-                "chapter_listing": count_tokens(item["full_chapter_listing"]),
-            }
-            token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
-            emit("LLM_CALL_WRITE_CHAPTER", chapter_num=chapter_num, name=abstraction_name.strip())
-            log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-            chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        prompt_template = load_prompt_template("draft_chapters", mode=mode)
 
-            # Log response token count
-            response_tokens = count_tokens(chapter_content)
-            emit("DONE_WRITE_CHAPTER", chapter_num=chapter_num, tokens=f"{response_tokens:,}")
-            emit_raw(
-                "DEBUG",
-                f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}",
-                dest="LOG",
-            )
+        prompt = prompt_template.format(
+            language_instruction=language_instruction,
+            project_name=project_name,
+            abstraction_name=abstraction_name,
+            chapter_num=chapter_num,
+            concept_details_note=concept_details_note,
+            abstraction_description=abstraction_description,
+            structure_note=structure_note,
+            full_chapter_listing=item["full_chapter_listing"],
+            current_doc_path=item.get("current_doc_path", ""),
+            directory_tree=item.get("directory_tree", ""),
+            prev_summary_note=prev_summary_note,
+            previous_chapters_summary=previous_chapters_summary or "This is the first chapter.",
+            file_context_str=file_context_str or "No specific code snippets provided for this abstraction.",
+            language=language.capitalize(),
+            instruction_lang_note=instruction_lang_note,
+            link_lang_note=link_lang_note,
+            code_comment_note=code_comment_note,
+            mermaid_lang_note=mermaid_lang_note,
+            tone_note=tone_note,
+        )
 
-            # Basic validation/cleanup
-            chapter_word = get("UI_CHAPTER")
-            actual_heading = f"# {chapter_word} {chapter_num}: {abstraction_name}"  # Use potentially translated name
-            if not chapter_content.strip().startswith(f"# {chapter_word} {chapter_num}") and mode != "api-reference":
-                # Add heading if missing or incorrect, trying to preserve content
-                lines = chapter_content.strip().split("\n")
-                if lines and lines[0].strip().startswith("#"):  # If there's some heading, replace it
-                    lines[0] = actual_heading
-                    chapter_content = "\n".join(lines)
-                else:  # Otherwise, prepend it
-                    chapter_content = f"{actual_heading}\n\n{chapter_content}"
+        # Compute token usage for diagnostics
+        token_usage = {
+            "file_context": count_tokens(file_context_str),
+            "prev_chapters": count_tokens(previous_chapters_summary),
+            "chapter_listing": count_tokens(item["full_chapter_listing"]),
+        }
+        token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
+        emit("LLM_CALL_WRITE_CHAPTER", chapter_num=chapter_num, name=abstraction_name.strip())
+        log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
+        chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
 
-            # Add the generated content to our temporary list for the next iteration's context
-            self.chapters_written_so_far.append(chapter_content)
+        # Log response token count
+        response_tokens = count_tokens(chapter_content)
+        emit("DONE_WRITE_CHAPTER", chapter_num=chapter_num, tokens=f"{response_tokens:,}")
+        emit_raw(
+            "DEBUG",
+            f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}",
+            dest="LOG",
+        )
 
-            # Generate LLM summary (used for cross-chapter context AND nav grouping)
-            summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, chapter_content, language)
-            chapter_content_tokens = count_tokens(chapter_content)
-            summary_tokens = count_tokens(summary_prompt)
-            summary_overhead = summary_tokens - chapter_content_tokens
-            token_usage_summary = {
-                "chapter_content": chapter_content_tokens,
-                "overhead": summary_overhead,
-            }
-            emit("LLM_CALL_SUMMARIZE", chapter_num=chapter_num)
-            log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
-            emit_raw(
-                "DEBUG",
-                f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}",
-                dest="LOG",
-            )
-            chapter_summary = call_llm(summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
-            summary_response_tokens = count_tokens(chapter_summary)
-            self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
-            emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
-            emit_raw(
-                "DEBUG",
-                f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,}",
-                dest="LOG",
-            )
+        # Basic validation/cleanup
+        chapter_word = get("UI_CHAPTER")
+        actual_heading = f"# {chapter_word} {chapter_num}: {abstraction_name}"  # Use potentially translated name
+        if not chapter_content.strip().startswith(f"# {chapter_word} {chapter_num}") and mode != "api-reference":
+            # Add heading if missing or incorrect, trying to preserve content
+            lines = chapter_content.strip().split("\n")
+            if lines and lines[0].strip().startswith("#"):  # If there's some heading, replace it
+                lines[0] = actual_heading
+                chapter_content = "\n".join(lines)
+            else:  # Otherwise, prepend it
+                chapter_content = f"{actual_heading}\n\n{chapter_content}"
 
-            summary_entry = f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
-            return {"content": chapter_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
-        except Exception as e:
-            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
-            raise e
+        # Add the generated content to our temporary list for the next iteration's context
+        self.chapters_written_so_far.append(chapter_content)
+
+        # Generate LLM summary (used for cross-chapter context AND nav grouping)
+        summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, chapter_content, language)
+        chapter_content_tokens = count_tokens(chapter_content)
+        summary_tokens = count_tokens(summary_prompt)
+        summary_overhead = summary_tokens - chapter_content_tokens
+        token_usage_summary = {
+            "chapter_content": chapter_content_tokens,
+            "overhead": summary_overhead,
+        }
+        emit("LLM_CALL_SUMMARIZE", chapter_num=chapter_num)
+        log_token_estimation("ChapterSummary", summary_prompt, max_tokens, token_usage=token_usage_summary)
+        emit_raw(
+            "DEBUG",
+            f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}",
+            dest="LOG",
+        )
+        chapter_summary = call_llm(summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        summary_response_tokens = count_tokens(chapter_summary)
+        self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
+        emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
+        emit_raw(
+            "DEBUG",
+            f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,}",
+            dest="LOG",
+        )
+
+        summary_entry = f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
+        return {"content": chapter_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
 
     def post(self, shared, prep_res, exec_res_list):
-        import json
-        import os
 
         # exec_res_list contains dicts with content and hashes
         shared["chapters"] = [res["content"] for res in exec_res_list]
@@ -1484,8 +1478,6 @@ class CombineTutorial(Node):
                     )
 
             # Disambiguate duplicate module_names (e.g. same filename in different dirs)
-            from collections import Counter
-
             name_counts = Counter(cf["module_name"] for cf in chapter_files)
             for cf in chapter_files:
                 if name_counts[cf["module_name"]] > 1 and cf.get("original_path"):
@@ -1495,8 +1487,6 @@ class CombineTutorial(Node):
 
             # Build flat nav with directory sub-grouping
             # (will be replaced by LLM grouping in exec for api-reference)
-            from collections import defaultdict
-
             dir_groups = defaultdict(list)
             for dir_prefix, nav_label, filename in nav_items:
                 dir_groups[dir_prefix].append((nav_label, filename))
@@ -1586,36 +1576,32 @@ class CombineTutorial(Node):
             "ui": ui,
         }
 
+    @safe_exec
     def exec(self, prep_res):
-        try:
-            output_path = prep_res["output_path"]
-            is_mkdocs = prep_res["is_mkdocs"]
-            chapter_files = prep_res["chapter_files"]
-            ui = prep_res["ui"]
+        output_path = prep_res["output_path"]
+        is_mkdocs = prep_res["is_mkdocs"]
+        chapter_files = prep_res["chapter_files"]
+        ui = prep_res["ui"]
 
-            emit_raw(
-                "DEBUG",
-                f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}",
-                dest="LOG",
-            )
-            emit("COMBINE_WRITING_OUTPUT", path=output_path)
-            os.makedirs(output_path, exist_ok=True)
+        emit_raw(
+            "DEBUG",
+            f"NODE EXEC | node=CombineTutorial | action=write_output | output={output_path} | chapters={len(chapter_files)} | mkdocs={is_mkdocs}",
+            dest="LOG",
+        )
+        emit("COMBINE_WRITING_OUTPUT", path=output_path)
+        os.makedirs(output_path, exist_ok=True)
 
-            if is_mkdocs:
-                write_mkdocs_output(output_path, prep_res, chapter_files)
-            else:
-                write_standalone_output(output_path, prep_res, chapter_files, ui)
+        if is_mkdocs:
+            write_mkdocs_output(output_path, prep_res, chapter_files)
+        else:
+            write_standalone_output(output_path, prep_res, chapter_files, ui)
 
-            emit_raw(
-                "DEBUG",
-                f"NODE COMPLETE | node=CombineTutorial | output={output_path} | files_written={len(chapter_files) + 1}",
-                dest="LOG",
-            )
-            return output_path  # Return the final path
-        except Exception as e:
-            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
-            emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
-            raise e
+        emit_raw(
+            "DEBUG",
+            f"NODE COMPLETE | node=CombineTutorial | output={output_path} | files_written={len(chapter_files) + 1}",
+            dest="LOG",
+        )
+        return output_path  # Return the final path
 
     def post(self, shared, prep_res, exec_res):
         shared["final_output_dir"] = exec_res  # Store the output path

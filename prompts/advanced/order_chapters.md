@@ -1,11 +1,5 @@
 Given the following project abstractions and their relationships for the project ```` {project_name} ````:
 
-Abstractions (Index # Name){list_lang_note}:
-{abstraction_listing}
-
-Context about relationships and project summary:
-{context}
-
 The reader is a senior engineer or PM onboarding mid-project. Order for maximum "aha, now I get the system" progression:
 
 ORDERING STRATEGY:
@@ -19,11 +13,24 @@ The goal: after reading chapters 1-3, the reader can understand any code review.
 
 Output the ordered list of abstraction indices, including the name in a comment for clarity. Use the format `idx # AbstractionName`.
 
+Format your response as a YAML list of integers:
+
 ```yaml
 - 2 # CoreDataModel
 - 0 # StorageEngine
 - 1 # APILayer (depends on StorageEngine)
 - ...
 ```
+
+Abstractions (Index # Name){list_lang_note}:
+{abstraction_listing}
+
+═══════════════════════════════════════════════════════
+RELATIONSHIPS AND PROJECT SUMMARY — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+RELATIONSHIPS AND PROJECT SUMMARY — END
+═══════════════════════════════════════════════════════
 
 Now, provide the YAML output:

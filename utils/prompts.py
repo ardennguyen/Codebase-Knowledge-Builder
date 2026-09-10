@@ -8,8 +8,24 @@ Contains:
 """
 
 import os
+import re
 
 import yaml
+
+
+def parse_file_index(idx_value):
+    """Extract the first integer from an LLM-returned file index value.
+
+    Handles multiple formats the LLM may produce:
+    - Plain int: 3
+    - Annotated string: "3 # path/to/file.py"
+    - Range notation: "0-3" → returns first number only (caller handles ranges)
+
+    Returns:
+        int or None if no digits found.
+    """
+    nums = re.findall(r"\d+", str(idx_value))
+    return int(nums[0]) if nums else None
 
 
 def load_prompt_template(template_name, advanced_mode=False, mode=None):

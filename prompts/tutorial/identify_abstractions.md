@@ -1,11 +1,5 @@
 For the project `{project_name}`:
 
-Codebase Context:
-{context}
-
-Full Project Directory Structure:
-{directory_tree}
-
 {language_instruction}Analyze the codebase context.
 Identify the top 5-{max_abstraction_num} core most important abstractions to help those new to the codebase.
 
@@ -28,7 +22,7 @@ For each abstraction, provide:
    Include: (a) the core problem it solves, (b) which 2-3 classes or files are most central, (c) a one-sentence note on how it connects to other parts of the system.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
 
-Format the output as a YAML list of dictionaries:
+Format your response as a YAML list of dictionaries:
 
 ```yaml
 - name: |
@@ -47,3 +41,16 @@ Format the output as a YAML list of dictionaries:
     - 5 # path/to/another.js
 # ... up to {max_abstraction_num} abstractions
 ```
+
+Full Project Directory Structure:
+{directory_tree}
+
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

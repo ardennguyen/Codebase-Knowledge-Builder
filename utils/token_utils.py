@@ -3,7 +3,7 @@ import os
 
 import tiktoken
 
-from utils.call_llm import get_model_context_length
+from utils.llm_config import get_model_context_length
 from utils.output import emit
 
 # Get the shared logger from call_llm module

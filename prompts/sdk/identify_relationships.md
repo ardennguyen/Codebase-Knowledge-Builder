@@ -1,11 +1,5 @@
 Based on the following SDK modules and relevant code snippets from the project `{project_name}`:
 
-List of Module Indices and Names{list_lang_note}:
-{abstraction_listing}
-
-Context (Modules, Descriptions, Code):
-{context}
-
 {language_instruction}Please provide:
 1. A high-level technical `summary` of the project's SDK architecture in a few sentences{lang_hint}. Use markdown formatting with **bold** and *italic* text to highlight key components and integration patterns.
 2. A list (`relationships`) describing the key technical interactions, dependencies, or data flows between these modules. For each relationship, specify:
@@ -20,7 +14,7 @@ Context (Modules, Descriptions, Code):
 
 IMPORTANT: Make sure EVERY module is involved in at least ONE relationship (either as source or target). Each module index must appear at least once across all relationships.
 
-Format the output as YAML:
+Format your response as YAML:
 
 ```yaml
 summary: |
@@ -35,5 +29,16 @@ relationships:
     label: "injects as dependency"{lang_hint}
   # ... other relationships
 ```
+
+List of Module Indices and Names{list_lang_note}:
+{abstraction_listing}
+
+═══════════════════════════════════════════════════════
+MODULES AND SOURCE CODE CONTEXT — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+MODULES AND SOURCE CODE CONTEXT — END
+═══════════════════════════════════════════════════════
 
 Now, provide the YAML output:

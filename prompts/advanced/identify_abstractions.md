@@ -1,11 +1,5 @@
 For the project `{project_name}`:
 
-Codebase Context:
-{context}
-
-Full Project Directory Structure:
-{directory_tree}
-
 {language_instruction}Analyze the codebase context.
 Identify the top 5-{max_abstraction_num} core architectural abstractions and components for an advanced system onboarding reference.
 
@@ -31,7 +25,7 @@ For each abstraction, provide:
    Use professional terminology but prioritize "understanding the system" over cataloging APIs.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
 
-Format the output as a YAML list of dictionaries:
+Format your response as a YAML list of dictionaries:
 
 ```yaml
 - name: |
@@ -49,3 +43,16 @@ Format the output as a YAML list of dictionaries:
     - 5 # path/to/another.js
 # ... up to {max_abstraction_num} abstractions
 ```
+
+Full Project Directory Structure:
+{directory_tree}
+
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

@@ -1,11 +1,5 @@
 Based on the following abstractions and relevant code snippets from the project `{project_name}`:
 
-List of Abstraction Indices and Names{list_lang_note}:
-{abstraction_listing}
-
-Context (Abstractions, Descriptions, Code):
-{context}
-
 {language_instruction}Please provide:
 1. A high-level `summary` of the project's main purpose and functionality in a few beginner-friendly sentences{lang_hint}. Use markdown formatting with **bold** and *italic* text to highlight important concepts.
 2. A list (`relationships`) describing the key interactions between these abstractions. For each relationship, specify:
@@ -20,7 +14,7 @@ Context (Abstractions, Descriptions, Code):
 
 IMPORTANT: Make sure EVERY abstraction is involved in at least ONE relationship (either as source or target). Each abstraction index must appear at least once across all relationships.
 
-Format the output as YAML:
+Format your response as YAML:
 
 ```yaml
 summary: |
@@ -35,5 +29,16 @@ relationships:
     label: "sends requests to"{lang_hint}
   # ... other relationships
 ```
+
+List of Abstraction Indices and Names{list_lang_note}:
+{abstraction_listing}
+
+═══════════════════════════════════════════════════════
+ABSTRACTIONS AND SOURCE CODE CONTEXT — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+ABSTRACTIONS AND SOURCE CODE CONTEXT — END
+═══════════════════════════════════════════════════════
 
 Now, provide the YAML output:

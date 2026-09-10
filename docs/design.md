@@ -111,6 +111,8 @@ codebase_kb/
 │   ├── crawl_local_files.py         # Local directory crawler
 │   ├── exclude_patterns.py          # Centralized definition of DEFAULT_EXCLUDE_PATTERNS
 │   ├── files.py                     # File and content helpers (build_directory_tree, get_content_for_indices)
+│   ├── i18n.py                      # Auto-translation of missing UI strings via LLM
+│   ├── llm_config.py                # LLM provider detection and model context length resolution
 │   ├── mkdocs.py                    # MkDocs output generation (config, nav, index, links, chapter writing)
 │   ├── output.py                    # Centralized CLI output & logging utility (emit/get/emit_raw)
 │   ├── prompts.py                   # Prompt template loaders, YAML parsers, inline prompt builders
@@ -1537,11 +1539,13 @@ def parse_yaml_response(response):
 
 | Node | Top-level | Per-item fields | Notes |
 |---|---|---|---|
+| DeterministicFileMapper | list | Top-level int list | File indices to keep; uses `build_code_file_filter_prompt` |
 | IdentifyAbstractions | list | `name`, `description`, `file_indices` | Indices: int or `"3 # path"` |
 | MapAbstractions | list | `name`, `description`, `file_indices` | Same |
 | ReduceAbstractions | list | `name`, `description`, `files` | ⚠ `files` not `file_indices` |
 | AnalyzeRelationships | dict | `summary`, `relationships[].from_abstraction`, `.to_abstraction`, `.label` | |
 | OrderChapters | list | Top-level int list | `[0, 3, 1, ...]` |
+| CombineTutorial | dict | `sections[].name`, `.modules[]`, `.children[]` | Nested nav grouping via `group_modules.md` |
 
 ### Index Validation
 ```python
@@ -1684,7 +1688,7 @@ if args.cleanup:
 2. The `{variable}` placeholders are a CONTRACT — nodes MUST pass exactly matching kwargs to `.format()`
 3. To verify correctness: grep each template for `{word}` patterns. Every match must appear as a kwarg in the corresponding node's `.format()` call
 4. Templates use Python `.format()` syntax — any literal `{` or `}` in template text MUST be escaped as `{{` or `}}`
-5. All 4 directories (`tutorial/`, `advanced/`, `api-reference/`, `sdk/`) have the SAME 6 template files. The `tutorial/` and `advanced/` directories share identical placeholder names. The `api-reference/` and `sdk/` templates may have different placeholder sets (e.g., `api-reference/draft_chapters.md` omits `{tone_note}`, `{chapter_num}`, `{instruction_lang_note}`, `{code_comment_note}`, `{mermaid_lang_note}`).
+5. All 4 directories (`tutorial/`, `advanced/`, `api-reference/`, `sdk/`) have the SAME 6 template files. The `tutorial/` and `advanced/` directories share identical placeholder names. The `api-reference/` and `sdk/` templates may have different placeholder sets (e.g., `api-reference/draft_chapters.md` omits `{tone_note}`, `{chapter_num}`, `{instruction_lang_note}`, `{code_comment_note}`).
 
 ### Prompt Loading Pattern
 ```python

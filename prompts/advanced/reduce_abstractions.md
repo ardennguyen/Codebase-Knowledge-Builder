@@ -2,9 +2,6 @@ For the project `{project_name}`:
 
 We have identified several partial, overlapping abstractions from different batches of the codebase.
 
-Partial Abstractions:
-{partial_abstractions}
-
 {language_instruction}Your task is to merge these overlapping partial abstractions into a cohesive, global list of maximum {max_abstraction_num} core abstractions.
 
 MERGE RULES:
@@ -29,7 +26,7 @@ For each merged abstraction, provide:
    Include key classes/interfaces, design patterns, and critical dependencies.
 3. A merged list of `files` combining all file indices and paths from the input abstractions.
 
-Format the output as a YAML list of dictionaries:
+Format your response as a YAML list of dictionaries:
 
 ```yaml
 - name: |
@@ -42,3 +39,13 @@ Format the output as a YAML list of dictionaries:
     - 15 # path/to/other_batch_file.js
 # ... up to {max_abstraction_num} abstractions
 ```
+
+═══════════════════════════════════════════════════════
+PARTIAL ABSTRACTIONS — START
+═══════════════════════════════════════════════════════
+{partial_abstractions}
+═══════════════════════════════════════════════════════
+PARTIAL ABSTRACTIONS — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

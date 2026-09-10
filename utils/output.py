@@ -14,9 +14,8 @@ Usage:
 """
 
 import csv
-import json
 import os
-import re
+from datetime import datetime
 
 # ---------------------------------------------------------------------------
 # ANSI color map: LEVEL → color code
@@ -145,7 +144,6 @@ def configure_logging(project_name="project", mode="tutorial"):
     Must be called from main() after parsing CLI arguments.
     """
     global _log_file
-    from datetime import datetime
 
     log_directory = os.getenv("LOG_DIR", "logs")
     os.makedirs(log_directory, exist_ok=True)
@@ -170,11 +168,22 @@ def configure_logging(project_name="project", mode="tutorial"):
     return log_path
 
 
+def shutdown():
+    """Close the log file handle and release resources.
+
+    Should be called at the end of main() in a finally block to ensure
+    the log file is properly flushed and closed.
+    """
+    global _log_file
+    if _log_file is not None:
+        _log_file.close()
+        _log_file = None
+
+
 def _write_log(level, text):
     """Write a timestamped line to the log file (no-op if logging not configured)."""
     if _log_file is None:
         return
-    from datetime import datetime
 
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
     _log_file.write(f"{ts} - {level} - {text}\n")
@@ -231,101 +240,8 @@ def _load_strings():
 
 def _auto_translate():
     """Auto-translate missing strings via LLM and write back into strings.csv."""
-    if _lang_col == "english":
-        return
+    from utils.i18n import auto_translate
 
-    if not _csv_path or not os.path.exists(_csv_path):
-        return
-
-    # Collect strings that have no translation in the target language column
-    missing = {}
-    is_new_column = False
-    with open(_csv_path, encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        fieldnames = list(reader.fieldnames)
-        is_new_column = _lang_col not in fieldnames
-        for row in reader:
-            key = row.get("STRING_KEY", "").strip()
-            if not key or key.startswith("#"):
-                continue
-            # Check if the language column exists and has a value
-            lang_text = row.get(_lang_col, "").strip() if _lang_col in fieldnames else ""
-            if lang_text:
-                continue  # Already translated
-
-            english_text = row.get("english", "").strip()
-            if english_text:
-                missing[key] = english_text
-
-    if not missing:
-        return
-
-    # Report what we found
-    if is_new_column:
-        emit_raw("PROGRESS", f"[i18n] New language '{_language}' — adding column to strings.csv")
-    emit_raw("PROGRESS", f"[i18n] {len(missing)} strings need translation to {_language}")
-
-    # Batch translate via LLM
-    try:
-        from utils.call_llm import call_llm
-
-        entries_json = json.dumps(missing, ensure_ascii=False, indent=2)
-
-        # Load prompt template from prompts/common/translate_strings.md
-        prompt_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "prompts",
-            "common",
-            "translate_strings.md",
-        )
-        with open(prompt_path, encoding="utf-8") as pf:
-            prompt_template = pf.read()
-        prompt = prompt_template.format(language=_language, entries=entries_json)
-
-        emit_raw("PROGRESS", f"[i18n] Calling LLM to translate {len(missing)} strings...")
-        response = call_llm(prompt, use_cache=_use_cache, thinking_level=_thinking_level)
-
-        # Extract JSON from response
-        json_match = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", response, re.DOTALL)
-        if json_match:
-            translations = json.loads(json_match.group())
-            translated_count = len(translations)
-
-            # Write translations back into strings.csv
-            _write_translations_to_csv(translations)
-            emit_raw("SUCCESS", f"[i18n] Translated {translated_count}/{len(missing)} strings — saved to strings.csv")
-
-            # Reload strings from the updated CSV so all translations are active
-            _load_strings()
-        else:
-            emit_raw("WARNING", "[i18n] LLM response did not contain valid JSON — falling back to English")
-
-    except Exception as e:
-        emit_raw("WARNING", f"[i18n] Translation failed: {e} — falling back to English")
-
-
-def _write_translations_to_csv(translations):
-    """Write LLM translations back into strings.csv, persisting them for future runs.
-
-    If the target language column doesn't exist, it is added to the CSV.
-    """
-    rows = []
-    fieldnames = None
-
-    with open(_csv_path, encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        fieldnames = list(reader.fieldnames)
-        # Add language column if it doesn't exist
-        if _lang_col not in fieldnames:
-            fieldnames.append(_lang_col)
-        for row in reader:
-            key = row.get("STRING_KEY", "").strip()
-            if key in translations:
-                row[_lang_col] = translations[key]
-            rows.append(row)
-
-    # Write with BOM so Excel opens as UTF-8 without extra import steps
-    with open(_csv_path, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+    if auto_translate(_lang_col, _language, _csv_path, _use_cache, _thinking_level):
+        # Reload strings from the updated CSV so all translations are active
+        _load_strings()

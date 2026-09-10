@@ -1,24 +1,5 @@
 {language_instruction}Write a complete formal SDK documentation reference page (in Markdown format) for the module `{abstraction_name}` in the project `{project_name}`.
 
-Module Details{concept_details_note}:
-- Name: {abstraction_name}
-- Description:
-{abstraction_description}
-
-Full Project Directory Structure:
-{directory_tree}
-
-Complete SDK Index{structure_note}:
-{full_chapter_listing}
-
-Your documentation page location: {current_doc_path}
-
-Context from previous modules{prev_summary_note}:
-{previous_chapters_summary}
-
-Source Code Context:
-{file_context_str}
-
 Instructions for the SDK reference page (Generate content in {language} unless specified otherwise):
 
 PAGE SKELETON (MANDATORY): Every page MUST follow this exact section ordering. You may SKIP a section if the module has no relevant content for it, but you MUST NOT invent new `##` headings or rename these. ALL other content belongs inside these sections as `###`/`####` sub-sections or prose paragraphs.
@@ -115,5 +96,29 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 - End the page with the `## See Also` section listing related modules with Markdown links{link_lang_note}. Link targets MUST be copied EXACTLY from the `(doc: ...)` annotations in the Index.
 
 - Return ONLY valid Markdown content. Do not include conversational filler.
+
+Module Details{concept_details_note}:
+- Name: {abstraction_name}
+- Description:
+{abstraction_description}
+
+Full Project Directory Structure:
+{directory_tree}
+
+Complete SDK Index{structure_note}:
+{full_chapter_listing}
+
+Your documentation page location: {current_doc_path}
+
+Context from previous modules{prev_summary_note}:
+{previous_chapters_summary}
+
+═══════════════════════════════════════════════════════
+SOURCE CODE CONTEXT — START
+═══════════════════════════════════════════════════════
+{file_context_str}
+═══════════════════════════════════════════════════════
+SOURCE CODE CONTEXT — END
+═══════════════════════════════════════════════════════
 
 Now, directly provide the SDK reference Markdown output:

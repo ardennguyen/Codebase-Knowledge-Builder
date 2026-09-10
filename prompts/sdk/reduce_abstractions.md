@@ -2,9 +2,6 @@ For the project `{project_name}`:
 
 We have identified several partial, overlapping SDK modules from different batches of the codebase.
 
-Partial Modules:
-{partial_abstractions}
-
 {language_instruction}Your task is to merge these overlapping partial modules into a cohesive, global list of maximum {max_abstraction_num} core SDK modules.
 
 MERGE RULES:
@@ -28,7 +25,7 @@ For each merged module, provide:
    Include key public classes/methods, their purpose for consumers, and how they relate to other modules.
 3. A merged list of `files` combining all file indices and paths from the input modules.
 
-Format the output as a YAML list of dictionaries:
+Format your response as a YAML list of dictionaries:
 
 ```yaml
 - name: |
@@ -41,3 +38,13 @@ Format the output as a YAML list of dictionaries:
     - 15 # path/to/other_batch_file.js
 # ... up to {max_abstraction_num} modules
 ```
+
+═══════════════════════════════════════════════════════
+PARTIAL MODULES — START
+═══════════════════════════════════════════════════════
+{partial_abstractions}
+═══════════════════════════════════════════════════════
+PARTIAL MODULES — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

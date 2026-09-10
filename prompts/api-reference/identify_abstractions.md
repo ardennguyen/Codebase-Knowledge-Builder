@@ -5,12 +5,6 @@
 
 For the project `{project_name}`:
 
-Codebase Context:
-{context}
-
-Full Project Directory Structure:
-{directory_tree}
-
 {language_instruction}Your task is to identify ALL logical API modules, core classes, exported functions, and internal mechanics present in this context to produce an exhaustive API reference.
 Focus strictly on technical interfaces and architecture grouping. Do not use beginner analogies.
 
@@ -34,7 +28,7 @@ For each API module, provide:
    (c) its critical dependencies on other modules.
 3. A list of relevant `file_indices` (integers) using the format `idx # path/comment`.
 
-Format the output as a YAML list of dictionaries:
+Format your response as a YAML list of dictionaries:
 
 ```yaml
 - name: |
@@ -46,3 +40,16 @@ Format the output as a YAML list of dictionaries:
     - 7 # src/auth_middleware.py
 # ... up to {max_abstraction_num} modules
 ```
+
+Full Project Directory Structure:
+{directory_tree}
+
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — START
+═══════════════════════════════════════════════════════
+{context}
+═══════════════════════════════════════════════════════
+CODEBASE CONTEXT — END
+═══════════════════════════════════════════════════════
+
+Now, provide the YAML output:

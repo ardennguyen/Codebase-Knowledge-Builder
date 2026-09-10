@@ -277,5 +277,5 @@ Do NOT manually edit any of the copy files — always edit AGENTS.md and copy.
 | Where are prompt builders? | `utils/prompts.py` (loaders + inline builders), `design.md` Section 9 |
 | Where is MkDocs output logic? | `utils/mkdocs.py` (config, nav, index, links, writers) |
 | What are the prompt page skeletons? | `design.md` Section 14 |
-| How does CI deploy docs? | `design.md` Section 14 + `.github/workflows/deploy-docs.yml` |
+| How does CI deploy docs? | `AGENTS.md` Section 5 + `.github/workflows/deploy-docs.yml` |
 | What mode labels exist? | `main.py` → `mode_labels` dict |

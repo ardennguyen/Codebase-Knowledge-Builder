@@ -1,21 +1,20 @@
 import argparse
 import os
+import shutil
 import sys
 
 import dotenv
 
 # Import the function that creates the flow
 from flow import create_tutorial_flow
-
-dotenv.load_dotenv()
-
+from utils.exclude_patterns import DEFAULT_EXCLUDE_PATTERNS
 from utils.output import configure_logging, emit, get
 from utils.output import init as init_output
 
+dotenv.load_dotenv()
+
 # Default file patterns
 DEFAULT_INCLUDE_PATTERNS = {"*"}
-
-from utils.exclude_patterns import DEFAULT_EXCLUDE_PATTERNS
 
 
 # --- Argument Parsing ---
@@ -193,7 +192,7 @@ def detect_llm_config(args):
     Returns:
         tuple: (provider, model_name, endpoint_url, api_key, context_length)
     """
-    from utils.call_llm import get_model_context_length
+    from utils.llm_config import get_model_context_length
 
     provider = os.environ.get("LLM_PROVIDER")
     if provider:
@@ -250,8 +249,6 @@ def display_config(args, mode, provider, model_name, endpoint_url, context_lengt
 # --- Cleanup ---
 def _run_cleanup():
     """Clean up cache files and log directory."""
-    import shutil
-
     emit("CLEANUP_START")
 
     for cache_path in ["llm_cache.json"]:
@@ -334,11 +331,16 @@ def main():
 
     # Create and run the flow
     tutorial_flow = create_tutorial_flow()
-    tutorial_flow.run(shared)
+    try:
+        tutorial_flow.run(shared)
 
-    # Cleanup after run if requested
-    if args.cleanup:
-        _run_cleanup()
+        # Cleanup after run if requested
+        if args.cleanup:
+            _run_cleanup()
+    finally:
+        from utils.output import shutdown
+
+        shutdown()
 
 
 if __name__ == "__main__":
