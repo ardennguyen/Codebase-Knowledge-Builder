@@ -11,10 +11,10 @@
         <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/exclude_patterns.py/">
       
       
-        <link rel="prev" href="../crawl_github_files.py/">
+        <link rel="prev" href="../../nodes.py/">
       
       
-        <link rel="next" href="../call_llm.py/">
+        <link rel="next" href="../crawl_local_files.py/">
       
       
         
@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -534,7 +534,7 @@
   <span class="md-ellipsis">
     
   
-    Repository Ingestion & Filtering
+    Repository Ingestion & File Processing
   
 
     
@@ -550,7 +550,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Repository Ingestion & Filtering
+    Repository Ingestion & File Processing
   
 
           </label>
@@ -566,6 +566,8 @@
   
     
     
+      
+        
       
         
       
@@ -612,62 +614,6 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../crawl_local_files.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    crawl_local_files.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../crawl_github_files.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    crawl_github_files.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -771,10 +717,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-media-data-and-static-assets" class="md-nav__link">
+  <a href="#category-1-media-data-and-static-assets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Media, Data, and Static Assets
+        Category 1: Media, Data, and Static Assets
       
     </span>
   </a>
@@ -782,10 +728,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-build-distribution-and-framework-caches" class="md-nav__link">
+  <a href="#category-2-build-distribution-and-framework-caches" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Build, Distribution, and Framework Caches
+        Category 2: Build, Distribution, and Framework Caches
       
     </span>
   </a>
@@ -793,10 +739,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-environments-dependencies-lockfiles" class="md-nav__link">
+  <a href="#category-3-environments-dependencies-and-lockfiles" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Environments, Dependencies &amp; Lockfiles
+        Category 3: Environments, Dependencies, and Lockfiles
       
     </span>
   </a>
@@ -804,10 +750,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-4-language-specific-exclusions" class="md-nav__link">
+  <a href="#category-4-language-specific-exclusions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 4: Language-Specific Exclusions
+        Category 4: Language-Specific Exclusions
       
     </span>
   </a>
@@ -815,10 +761,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-5-6-and-7-os-version-control-classic-ides-and-ai-agents" class="md-nav__link">
+  <a href="#category-5-os-and-version-control-metadata" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 5, 6, and 7: OS, Version Control, Classic IDEs, and AI Agents
+        Category 5: OS and Version Control Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#category-6-classic-ide-configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 6: Classic IDE Configuration Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#category-7-ai-agents-and-modern-ai-ide-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 7: AI Agents and Modern AI IDE Metadata
       
     </span>
   </a>
@@ -848,10 +816,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#structural-specification" class="md-nav__link">
+  <a href="#default_exclude_patterns-registry-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structural Specification
+        DEFAULT_EXCLUDE_PATTERNS Registry Schema
       
     </span>
   </a>
@@ -859,96 +827,13 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pattern-registry-by-category" class="md-nav__link">
+  <a href="#structural-pattern-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pattern Registry by Category
+        Structural Pattern Conventions
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Pattern Registry by Category">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-media-data-and-static-assets" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Media, Data, and Static Assets
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-build-distribution-and-framework-caches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Build, Distribution, and Framework Caches
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-environments-dependencies-lockfiles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Environments, Dependencies &amp; Lockfiles
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-language-specific-exclusions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Language-Specific Exclusions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-os-version-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. OS &amp; Version Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6-classic-ides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Classic IDEs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#7-ai-agents-modern-ai-ides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. AI Agents &amp; Modern AI IDEs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -983,6 +868,90 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_local_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_local_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_github_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_github_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1033,7 +1002,7 @@
   <span class="md-ellipsis">
     
   
-    LLM Inference & Prompt Engineering
+    LLM Integration & Prompt Management
   
 
     
@@ -1049,7 +1018,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM Inference & Prompt Engineering
+    LLM Integration & Prompt Management
   
 
           </label>
@@ -1063,6 +1032,8 @@
   
     
     
+      
+        
       
         
       
@@ -1123,6 +1094,34 @@
     
   
     call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
   
 
     
@@ -1209,7 +1208,7 @@
   <span class="md-ellipsis">
     
   
-    Telemetry & Observability
+    Documentation Rendering & Observability
   
 
     
@@ -1225,7 +1224,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Telemetry & Observability
+    Documentation Rendering & Observability
   
 
           </label>
@@ -1291,14 +1290,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../token_utils.py/" class="md-nav__link">
+      <a href="../mkdocs.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    token_utils.py
+    mkdocs.py
   
 
     
@@ -1425,10 +1424,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-media-data-and-static-assets" class="md-nav__link">
+  <a href="#category-1-media-data-and-static-assets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Media, Data, and Static Assets
+        Category 1: Media, Data, and Static Assets
       
     </span>
   </a>
@@ -1436,10 +1435,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-build-distribution-and-framework-caches" class="md-nav__link">
+  <a href="#category-2-build-distribution-and-framework-caches" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Build, Distribution, and Framework Caches
+        Category 2: Build, Distribution, and Framework Caches
       
     </span>
   </a>
@@ -1447,10 +1446,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-environments-dependencies-lockfiles" class="md-nav__link">
+  <a href="#category-3-environments-dependencies-and-lockfiles" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Environments, Dependencies &amp; Lockfiles
+        Category 3: Environments, Dependencies, and Lockfiles
       
     </span>
   </a>
@@ -1458,10 +1457,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-4-language-specific-exclusions" class="md-nav__link">
+  <a href="#category-4-language-specific-exclusions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 4: Language-Specific Exclusions
+        Category 4: Language-Specific Exclusions
       
     </span>
   </a>
@@ -1469,10 +1468,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-5-6-and-7-os-version-control-classic-ides-and-ai-agents" class="md-nav__link">
+  <a href="#category-5-os-and-version-control-metadata" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 5, 6, and 7: OS, Version Control, Classic IDEs, and AI Agents
+        Category 5: OS and Version Control Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#category-6-classic-ide-configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 6: Classic IDE Configuration Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#category-7-ai-agents-and-modern-ai-ide-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 7: AI Agents and Modern AI IDE Metadata
       
     </span>
   </a>
@@ -1502,10 +1523,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#structural-specification" class="md-nav__link">
+  <a href="#default_exclude_patterns-registry-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structural Specification
+        DEFAULT_EXCLUDE_PATTERNS Registry Schema
       
     </span>
   </a>
@@ -1513,96 +1534,13 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pattern-registry-by-category" class="md-nav__link">
+  <a href="#structural-pattern-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pattern Registry by Category
+        Structural Pattern Conventions
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Pattern Registry by Category">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-media-data-and-static-assets" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Media, Data, and Static Assets
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-build-distribution-and-framework-caches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Build, Distribution, and Framework Caches
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-environments-dependencies-lockfiles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Environments, Dependencies &amp; Lockfiles
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-language-specific-exclusions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Language-Specific Exclusions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-os-version-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. OS &amp; Version Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6-classic-ides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Classic IDEs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#7-ai-agents-modern-ai-ides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. AI Agents &amp; Modern AI IDEs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1655,9 +1593,8 @@
 <p><strong>Source:</strong> <code>utils/exclude_patterns.py</code></p>
 </blockquote>
 <h2 id="technical-overview">Technical Overview</h2>
-<p>Following the filesystem traversal mechanics detailed in <a href="../crawl_local_files.py/">crawl_local_files.py</a>, the <code>utils/exclude_patterns.py</code> module defines the centralized filtering baseline for the codebase crawler infrastructure. Ingesting an entire repository into a Large Language Model (LLM) context window requires strict structural hygiene; raw source repositories consistently contain non-code assets, compiled binaries, vendored packages, lockfiles, temporary caches, and virtual environments. Left unfiltered, these non-textual or machine-generated files cause memory bloat, trigger decoding exceptions, exhaust token budgets, and dilute prompt attention with noise. <code>utils/exclude_patterns.py</code> resolves these issues by supplying an exhaustive, category-indexed set of glob patterns configured to intercept unneeded files and directories before disk read or remote API payload transfer occurs.</p>
-<p>The module operates as a declarative configuration layer centered on the <code>DEFAULT_EXCLUDE_PATTERNS</code> constant. The patterns follow POSIX globbing conventions via the Python <code>fnmatch</code> specification, distinguishing directory subtrees from leaf files through trailing <code>/*</code> wildcards. When directory crawling is executed by <a href="../crawl_local_files.py/">crawl_local_files.py</a> using <code>os.walk()</code> or by <a href="../crawl_github_files.py/">crawl_github_files.py</a> via the GitHub REST and Git tree APIs, traversal engines evaluate candidate paths against this pattern set. Trailing slash patterns empower directory crawlers to prune branches in-place at the root level—mutating directory lists to prevent recursing into massive hierarchies such as <code>node_modules</code> or <code>.git</code>—while extension and exact-match patterns filter individual artifacts.</p>
-<p>Beyond optimizing I/O throughput and preventing context saturation, <code>utils/exclude_patterns.py</code> enforces data sanitization and security boundaries. By default, it blocks environment configuration files (<code>.env</code>, <code>.env.*</code>), version control metadata (<code>.git/*</code>, <code>.svn/*</code>), and local developer settings (<code>.vscode/*</code>, <code>.idea/*</code>), preventing the accidental exposure of secrets, API credentials, or machine-specific paths to the inference pipeline. Furthermore, modern development tools and agent rules (<code>.cursor/*</code>, <code>.cursorrules</code>, <code>.windsurf/*</code>, <code>.cline/*</code>) are excluded to avoid prompt injection or recursive context pollution from other AI coding assistants.</p>
+<p><code>utils/exclude_patterns.py</code> serves as the centralized pattern registry and exclusion filter baseline for all ingestion mechanisms across the codebase documentation pipeline. Following the directory traversal and file-system extraction capabilities established in <a href="../crawl_local_files.py/"><code>crawl_local_files.py</code></a>, this module externalizes file and directory skip rules, decoupling discovery logic from crawling policies. By consolidating common build outputs, virtual environments, version control metadata, multimedia binaries, package dependencies, and vendor artifacts into a unified data structure, it ensures that only human-authored, documentation-relevant source files reach downstream AST parsing, token counting, and LLM summarization.</p>
+<p>The module exports a static configuration set, <code>DEFAULT_EXCLUDE_PATTERNS</code>, formatted according to Unix glob syntax compatible with the standard library <code>fnmatch</code> module. Directory exclusions explicitly use trailing wildcards (for example, <code>dist/*</code>, <code>node_modules/*</code>, <code>.git/*</code>) to enable in-place subtree pruning during directory walking algorithms (<code>os.walk</code>), while individual file exclusions target binary, compressed, lockfile, and generated formats using extension patterns (such as <code>*.png</code>, <code>*.zip</code>, <code>*.lock</code>) or fixed basenames (such as <code>.DS_Store</code>, <code>Thumbs.db</code>, <code>package-lock.json</code>). In addition to traditional software engineering artifacts, the registry features comprehensive exclusions for modern AI agent configuration directories and scratchpads (such as <code>.cursor/*</code>, <code>.windsurf/*</code>, <code>.cline/*</code>, <code>.roo/*</code>, and <code>.copilot/*</code>), preventing transient tool states and model prompt dumps from leaking into synthesized repository architectures.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -1685,37 +1622,53 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    subgraph IngestionScope ["Repository Ingestion Dispatch"]
-        startIngest["Initiate Directory Traversal"]
-        readEntry["Inspect Filesystem or Tree Entry"]
+    subgraph IngestionEngines["Ingestion Pipelines"]
+        crawlLocal["crawl_local_files()"]
+        crawlRemote["crawl_github_files()"]
     end
 
-    subgraph PatternMatchScope ["Pattern Evaluation Engine"]
-        evalGlob["Evaluate Path against DEFAULT EXCLUDE PATTERNS"]
-        checkType{"Is Directory Pattern With Wildcard?"}
-        dirPrune["Prune Directory Subtree from os.walk"]
-        fileFilter["Skip File from In-Memory Content Map"]
+    subgraph PatternRegistry["Pattern Registry: exclude_patterns.py"]
+        defaultSet["DEFAULT_EXCLUDE_PATTERNS"]
+        categoryAssets["1. Media, Data, and Static Assets"]
+        categoryBuild["2. Build, Distribution, and Framework Caches"]
+        categoryEnvs["3. Environments, Dependencies, and Lockfiles"]
+        categoryLang["4. Language-Specific Exclusions"]
+        categoryOS["5. OS and Version Control"]
+        categoryIDEs["6. Classic IDEs"]
+        categoryAI["7. AI Agents and Modern AI IDEs"]
     end
 
-    subgraph OutputScope ["Downstream Pipeline Generation"]
-        acceptEntry["Decode UTF-8 Text Content"]
-        tokenCalc["Calculate Ingestion Tokens"]
-        nodeCtx["Forward Clean File Map to Pipeline Nodes"]
+    subgraph MatchingPhase["Matching and Pruning Logic"]
+        evalDir{"Directory Match fnmatch dir_name, pattern?"}
+        pruneDir["Prune Directory: dirs.remove dir"]
+        evalFile{"File Match fnmatch file_name, pattern?"}
+        skipFile["Skip File from Crawl Stats"]
+        acceptFile["Include File in Extraction Payload"]
     end
 
-    startIngest --&gt; readEntry
-    readEntry --&gt; evalGlob
-    evalGlob --&gt; checkType
-    checkType -- "Yes" --&gt; dirPrune
-    checkType -- "No" --&gt; fileFilter
-    evalGlob -- "No Match" --&gt; acceptEntry
-    acceptEntry --&gt; tokenCalc
-    tokenCalc --&gt; nodeCtx
+    defaultSet --&gt; categoryAssets
+    defaultSet --&gt; categoryBuild
+    defaultSet --&gt; categoryEnvs
+    defaultSet --&gt; categoryLang
+    defaultSet --&gt; categoryOS
+    defaultSet --&gt; categoryIDEs
+    defaultSet --&gt; categoryAI
+
+    crawlLocal --&gt; defaultSet
+    crawlRemote --&gt; defaultSet
+
+    defaultSet --&gt; evalDir
+    evalDir -- Yes --&gt; pruneDir
+    evalDir -- No --&gt; evalFile
+
+    defaultSet --&gt; evalFile
+    evalFile -- Yes --&gt; skipFile
+    evalFile -- No --&gt; acceptFile
 
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-    class startIngest entryNode;
-    class evalGlob entryNode;
-    class acceptEntry entryNode;</code></pre> 
+    class crawlLocal entryNode;
+    class defaultSet entryNode;
+    class evalDir entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -1725,14 +1678,13 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
 <h2 id="public-api">Public API</h2>
-<p>The module exposes a single public configuration constant, <code>DEFAULT_EXCLUDE_PATTERNS</code>, which represents the canonical exclusion set consumed across the codebase analysis architecture.</p>
 <h3 id="default_exclude_patterns"><code>DEFAULT_EXCLUDE_PATTERNS</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>DEFAULT_EXCLUDE_PATTERNS: set[str]</code></p>
-<p><strong>Description</strong>: A comprehensive Python <code>set</code> of glob pattern strings designed for <code>fnmatch</code> wildcard evaluation. Patterns targeting directory subtrees terminate with <code>/*</code> (e.g., <code>node_modules/*</code>, <code>dist/*</code>), instructing the crawler to truncate recursive directory descent. Patterns targeting specific file types utilize standard wildcard extensions (e.g., <code>*.png</code>, <code>*.pyc</code>), and security-critical rules leverage exact matching (e.g., <code>.env</code>, <code>.DS_Store</code>).</p>
-<p>The definitions within <code>DEFAULT_EXCLUDE_PATTERNS</code> are categorized into seven structural domains:</p>
-<h4 id="phase-1-media-data-and-static-assets">Phase 1: Media, Data, and Static Assets</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DEFAULT_EXCLUDE_PATTERNS</span> <span class="o">=</span> <span class="p">{</span>
+<p><strong>Description</strong>:<br />
+<code>DEFAULT_EXCLUDE_PATTERNS</code> is a module-level constant containing an unmodifiable-by-convention <code>set</code> of glob pattern strings. It defines standard ignore rules for repository scanning across both local and remote filesystems. The patterns are organized into seven logical categories covering binary assets, build targets, dependency directories, language-specific compiled artifacts, OS metadata, IDE configurations, and AI agent workdirs. Each pattern follows standard <code>fnmatch</code> glob syntax. Trailing slashes followed by asterisks (<code>/*</code>) denote directory trees that should be skipped entirely, allowing crawler engines to prune traversal branches before descending into subdirectories.</p>
+<h4 id="category-1-media-data-and-static-assets">Category 1: Media, Data, and Static Assets</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DEFAULT_EXCLUDE_PATTERNS</span> <span class="o">=</span> <span class="p">{</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="c1"># 1. Media, Data, and Static Assets</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">"assets/*"</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="s2">"data/*"</span><span class="p">,</span>
@@ -1768,9 +1720,9 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>    <span class="s2">"*.7z"</span><span class="p">,</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="c1"># ...</span>
 </code></pre></div>
-This section blocks static binary media, raw datasets, document formats, and archive files. Because LLM inference pipelines operate exclusively on textual semantics, ingesting raster graphics (<code>.png</code>, <code>.jpg</code>), vector files (<code>.svg</code>), video/audio containers (<code>.mp4</code>, <code>.wav</code>), or binary office documents (<code>.pdf</code>, <code>.docx</code>) produces either decoding errors or meaningless token sequences. Additionally, archive formats (<code>.zip</code>, <code>.tar.gz</code>) and designated asset directories (<code>assets/*</code>, <code>static/*</code>, <code>data/*</code>) are excluded to avoid processing large payloads that provide no architectural insight.</p>
-<h4 id="phase-2-build-distribution-and-framework-caches">Phase 2: Build, Distribution, and Framework Caches</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="c1"># ...</span>
+<p>This section filters out high-overhead binary assets, pre-rendered media, temporary runtime scratchpads, and office documents that cannot be interpreted as source code or AST components. File extensions such as <code>.jpg</code>, <code>.png</code>, <code>.webp</code>, <code>.mp4</code>, and <code>.wav</code> represent raw multimedia files that would otherwise cause <code>UnicodeDecodeError</code> exceptions or waste LLM context budgets if ingested as raw bytes. Archive formats (<code>*.zip</code>, <code>*.tar</code>, <code>*.gz</code>, <code>*.rar</code>, <code>*.7z</code>) and office suite formats (<code>*.docx</code>, <code>*.xlsx</code>, <code>*.pptx</code>, <code>*.pdf</code>) are similarly omitted because their compressed and proprietary binary encodings cannot be processed by text summarization models without specialized document-parsing pipelines.</p>
+<h4 id="category-2-build-distribution-and-framework-caches">Category 2: Build, Distribution, and Framework Caches</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="c1"># ...</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="c1"># 2. Build, Distribution, and Framework Caches</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s2">"dist/*"</span><span class="p">,</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="s2">"build/*"</span><span class="p">,</span>
@@ -1799,9 +1751,9 @@ This section blocks static binary media, raw datasets, document formats, and arc
 <a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="s2">"*.swp"</span><span class="p">,</span>
 <a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>    <span class="c1"># ...</span>
 </code></pre></div>
-This grouping targets intermediate compilation targets, distribution directories, framework-specific build caches, and ephemeral operational logs. Modern frameworks generate complex synthetic files—such as Next.js (<code>.next/*</code>), Nuxt (<code>.nuxt/*</code>), SvelteKit (<code>.svelte-kit/*</code>), and Expo (<code>.expo/*</code>) artifacts—that duplicate underlying source logic in minified or bundled formats. Eliminating directories like <code>dist/*</code>, <code>target/*</code>, and <code>build/*</code>, alongside non-essential contexts like <code>test/*</code>, <code>docs/*</code>, and <code>deprecated/*</code>, ensures that downstream document generators synthesize knowledge only from active, production-grade source code.</p>
-<h4 id="phase-3-environments-dependencies-lockfiles">Phase 3: Environments, Dependencies &amp; Lockfiles</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="c1"># ...</span>
+<p>This section targets transient build outputs, bundled web framework runtimes, test suites, and auxiliary repository directories. Framework-specific compilation caches such as Next.js (<code>.next/*</code>), Nuxt (<code>.nuxt/*</code>), SvelteKit (<code>.svelte-kit/*</code>), and Expo (<code>.expo/*</code>) contain heavily bundled, minified JavaScript and source maps that distort codebase understanding and exhaust token budgets. Directory patterns for <code>dist/*</code>, <code>build/*</code>, <code>target/*</code>, <code>bin/*</code>, and <code>obj/*</code> prevent compiled intermediate representation files from polluting the symbol index. Additionally, test suites (<code>test/*</code>, <code>tests/*</code>), documentation (<code>docs/*</code>), and auxiliary development folders (<code>examples/*</code>, <code>legacy/*</code>, <code>deprecated/*</code>) are skipped to keep the generated documentation strictly focused on active, production-grade source architecture.</p>
+<h4 id="category-3-environments-dependencies-and-lockfiles">Category 3: Environments, Dependencies, and Lockfiles</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="c1"># ...</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="c1"># 3. Environments, Dependencies &amp; Lockfiles</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="s2">"venv/*"</span><span class="p">,</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">".venv/*"</span><span class="p">,</span>
@@ -1824,9 +1776,9 @@ This grouping targets intermediate compilation targets, distribution directories
 <a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    <span class="s2">"Pipfile.lock"</span><span class="p">,</span>
 <a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    <span class="c1"># ...</span>
 </code></pre></div>
-This category excludes package manager resolution trees and environment configuration targets. Ingesting dependency directories such as <code>node_modules/*</code> or <code>vendor/*</code> can introduce millions of lines of third-party code, immediately exhausting model context windows. Furthermore, dependency lockfiles (such as <code>package-lock.json</code>, <code>pnpm-lock.yaml</code>, and <code>Cargo.lock</code>) consist of repetitive, machine-generated integrity hashes that consume tens of thousands of tokens without providing high-level architectural value. Security isolation is simultaneously established by matching <code>.env</code> and <code>.env.*</code> files, preventing sensitive API tokens and credentials from leaking into prompt payloads.</p>
-<h4 id="phase-4-language-specific-exclusions">Phase 4: Language-Specific Exclusions</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="c1"># ...</span>
+<p>This segment prevents crawlers from scanning external dependencies and configuration secrets. Virtual environments (<code>venv/*</code>, <code>.venv/*</code>, <code>env/*</code>) and third-party dependency trees (<code>node_modules/*</code>, <code>vendor/*</code>, <code>packages/*</code>) represent external library code rather than the repository's native implementation logic; scanning them would cause massive memory allocation spikes and introduce millions of irrelevant tokens. Environment files (<code>.env</code>, <code>.env.*</code>) are excluded to avoid accidentally leaking API keys, database credentials, or secret tokens into prompts dispatched to remote LLM providers. Lockfiles (<code>*.lock</code>, <code>package-lock.json</code>, <code>yarn.lock</code>, <code>Cargo.lock</code>, <code>poetry.lock</code>) are also excluded because their massive dependency graphs contain high-frequency hash listings that degrade prompt context quality.</p>
+<h4 id="category-4-language-specific-exclusions">Category 4: Language-Specific Exclusions</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="c1"># ...</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="c1"># 4. Language-Specific Exclusions</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="s2">"__pycache__/*"</span><span class="p">,</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="s2">"*.pyc"</span><span class="p">,</span>
@@ -1856,9 +1808,9 @@ This category excludes package manager resolution trees and environment configur
 <a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>    <span class="s2">"android/app/build/*"</span><span class="p">,</span>  <span class="c1"># Mobile</span>
 <a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>    <span class="c1"># ...</span>
 </code></pre></div>
-This partition provides language-level filtering across Python, Java/JVM, C/C++, and mobile application ecosystems. It skips Python bytecode caches (<code>__pycache__/*</code>, <code>*.pyc</code>), test coverage artifacts (<code>.coverage</code>, <code>htmlcov/*</code>), Java compiled classes and archives (<code>*.class</code>, <code>*.jar</code>, <code>*.war</code>), and compiled native binaries and dynamic libraries (<code>*.o</code>, <code>*.so</code>, <code>*.dylib</code>, <code>*.dll</code>, <code>*.exe</code>). Mobile framework compilation trees such as CocoaPods (<code>ios/Pods/*</code>) and Android Gradle builds (<code>android/app/build/*</code>) are likewise intercepted, preventing binary decoding faults in the crawler.</p>
-<h4 id="phase-5-6-and-7-os-version-control-classic-ides-and-ai-agents">Phase 5, 6, and 7: OS, Version Control, Classic IDEs, and AI Agents</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="c1"># ...</span>
+<p>This segment isolates runtime-compiled bytecode, testing tool caches, and native platform binaries across Python, Java/JVM, C/C++, and mobile environments. For Python projects, it intercepts bytecode caches (<code>__pycache__/*</code>, <code>*.pyc</code>, <code>*.pyo</code>, <code>*.pyd</code>) and analysis metadata (<code>.pytest_cache/*</code>, <code>.ruff_cache/*</code>, <code>.tox/*</code>, <code>.coverage</code>, <code>htmlcov/*</code>). For Java and JVM runtimes, it eliminates compiler caches (<code>.gradle/*</code>) and compiled Java packages (<code>*.class</code>, <code>*.jar</code>, <code>*.war</code>). For native ecosystems (C, C++, Rust, Go), it blocks compiled object files and libraries (<code>*.o</code>, <code>*.obj</code>, <code>*.so</code>, <code>*.dylib</code>, <code>*.dll</code>, <code>*.lib</code>, <code>*.a</code>, <code>*.exe</code>). For mobile stacks, CocoaPods installations (<code>ios/Pods/*</code>) and Gradle Android build artifacts (<code>android/.gradle/*</code>, <code>android/app/build/*</code>) are skipped directly at the root level.</p>
+<h4 id="category-5-os-and-version-control-metadata">Category 5: OS and Version Control Metadata</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="c1"># ...</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="c1"># 5. OS &amp; Version Control</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="s2">".git/*"</span><span class="p">,</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">".github/*"</span><span class="p">,</span>
@@ -1867,735 +1819,155 @@ This partition provides language-level filtering across Python, Java/JVM, C/C++,
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="s2">".DS_Store"</span><span class="p">,</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="s2">"Thumbs.db"</span><span class="p">,</span>
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="s2">"desktop.ini"</span><span class="p">,</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="c1"># 6. Classic IDEs</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="s2">".vscode/*"</span><span class="p">,</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="s2">".idea/*"</span><span class="p">,</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="s2">"*.iml"</span><span class="p">,</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="s2">".eclipse/*"</span><span class="p">,</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="s2">".settings/*"</span><span class="p">,</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="s2">".classpath"</span><span class="p">,</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="s2">".project"</span><span class="p">,</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="s2">".vs/*"</span><span class="p">,</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="c1"># 7. AI Agents &amp; Modern AI IDEs</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    <span class="s2">".cursor/*"</span><span class="p">,</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    <span class="s2">".cursorrules"</span><span class="p">,</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    <span class="s2">".windsurf/*"</span><span class="p">,</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>    <span class="s2">".windsurfrules"</span><span class="p">,</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    <span class="s2">".cline/*"</span><span class="p">,</span>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    <span class="s2">".clinerules"</span><span class="p">,</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>    <span class="s2">".roo/*"</span><span class="p">,</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>    <span class="s2">".roorules"</span><span class="p">,</span>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>    <span class="s2">".agent/*"</span><span class="p">,</span>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>    <span class="s2">".agents/*"</span><span class="p">,</span>
-<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>    <span class="s2">".continue/*"</span><span class="p">,</span>
-<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>    <span class="s2">".aide/*"</span><span class="p">,</span>
-<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>    <span class="s2">".gemini/*"</span><span class="p">,</span>
-<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>    <span class="s2">".antigravity/*"</span><span class="p">,</span>
-<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>    <span class="s2">".claude/*"</span><span class="p">,</span>
-<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>    <span class="s2">".copilot/*"</span><span class="p">,</span>
-<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="p">}</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="c1"># ...</span>
 </code></pre></div>
-The final segments eliminate operating system noise, version control internals, developer IDE workspaces, and AI agent configuration files. Standard version control trees (<code>.git/*</code>, <code>.svn/*</code>) contain packed object repositories and commit graphs that must not be ingested as code text. Operating system metadata files (<code>.DS_Store</code>, <code>Thumbs.db</code>) and IDE folders (<code>.vscode/*</code>, <code>.idea/*</code>, <code>.vs/*</code>) reflect personal workstation preferences rather than project architecture. Finally, modern AI workspace configurations (<code>.cursor/*</code>, <code>.windsurf/*</code>, <code>.cline/*</code>, <code>.claude/*</code>) and prompt rules (<code>.cursorrules</code>, <code>.windsurfrules</code>) are omitted to prevent the host LLM from encountering conflicting system instructions or assistant meta-prompts.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Consumption pattern inside utils/crawl_local_files.py</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">utils.exclude_patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_EXCLUDE_PATTERNS</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Pruning directory traversal in os.walk</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_exclude</span><span class="p">(</span><span class="n">rel_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exclude_patterns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">exclude_patterns</span><span class="p">:</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>            <span class="k">return</span> <span class="kc">True</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"/*"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]):</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>            <span class="k">return</span> <span class="kc">True</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="k">return</span> <span class="kc">False</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1"># Invocation within os.walk loop</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="n">active_excludes</span> <span class="o">=</span> <span class="n">DEFAULT_EXCLUDE_PATTERNS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="c1"># dirs[:] = [d for d in dirs if not should_exclude(os.path.join(root, d), active_excludes)]</span>
+<p>This section blocks version control internals and operating system desktop metadata. VCS trees such as Git internals (<code>.git/*</code>), SVN repositories (<code>.svn/*</code>), and Mercurial trees (<code>.hg/*</code>) contain object databases, index packfiles, and internal hooks that do not represent application source code. While <code>.github/*</code> contains CI/CD workflow YAML definitions, it is filtered out from source architecture synthesis to keep the generated documentation strictly oriented around application source mechanics. OS-generated desktop database files (<code>.DS_Store</code> on macOS, <code>Thumbs.db</code> and <code>desktop.ini</code> on Windows) are excluded to prevent cross-platform file conflicts and non-text reading errors during crawling.</p>
+<h4 id="category-6-classic-ide-configuration-files">Category 6: Classic IDE Configuration Files</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>    <span class="c1"># ...</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="c1"># 6. Classic IDEs</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="s2">".vscode/*"</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="s2">".idea/*"</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="s2">"*.iml"</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="s2">".eclipse/*"</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="s2">".settings/*"</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="s2">".classpath"</span><span class="p">,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="s2">".project"</span><span class="p">,</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="s2">".vs/*"</span><span class="p">,</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="c1"># ...</span>
+</code></pre></div>
+<p>This group targets developer environment metadata generated by traditional Integrated Development Environments (IDEs). Directories and files from Visual Studio Code (<code>.vscode/*</code>), JetBrains IntelliJ / PyCharm (<code>.idea/*</code>, <code>*.iml</code>), Eclipse (<code>.eclipse/*</code>, <code>.settings/*</code>, <code>.classpath</code>, <code>.project</code>), and Visual Studio (<code>.vs/*</code>) represent user-specific workspace configurations, local launch targets, editor preferences, and cached project models. Excluding these prevents developer-specific settings from altering repository architectures or cluttering pipeline context.</p>
+<h4 id="category-7-ai-agents-and-modern-ai-ide-metadata">Category 7: AI Agents and Modern AI IDE Metadata</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>    <span class="c1"># ...</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="c1"># 7. AI Agents &amp; Modern AI IDEs</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="s2">".cursor/*"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="s2">".cursorrules"</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="s2">".windsurf/*"</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="s2">".windsurfrules"</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="s2">".cline/*"</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="s2">".clinerules"</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="s2">".roo/*"</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="s2">".roorules"</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="s2">".agent/*"</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="s2">".agents/*"</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="s2">".continue/*"</span><span class="p">,</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="s2">".aide/*"</span><span class="p">,</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="s2">".gemini/*"</span><span class="p">,</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="s2">".antigravity/*"</span><span class="p">,</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    <span class="s2">".claude/*"</span><span class="p">,</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    <span class="s2">".copilot/*"</span><span class="p">,</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="p">}</span>
+</code></pre></div>
+<p>This section excludes configuration directories, operational logs, instructions, and scratchpad storage generated by modern AI development environments and autonomous code generation agents. Toolchains such as Cursor (<code>.cursor/*</code>, <code>.cursorrules</code>), Windsurf (<code>.windsurf/*</code>, <code>.windsurfrules</code>), Cline (<code>.cline/*</code>, <code>.clinerules</code>), Roo Code (<code>.roo/*</code>, <code>.roorules</code>), Continue (<code>.continue/*</code>), GitHub Copilot (<code>.copilot/*</code>), Claude Code (<code>.claude/*</code>), and related AI agents (<code>.agent/*</code>, <code>.agents/*</code>, <code>.gemini/*</code>, <code>.antigravity/*</code>, <code>.aide/*</code>) often write execution traces, prompt scratchpads, and context dumps directly to the repository tree. If crawled, these agent logs could create feedback loops in downstream LLM prompts or expose private agent orchestration steps in the final architecture documents.</p>
+<p><strong>Example Usage</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Extracted from crawler implementation in utils/crawl_local_files.py</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">utils.exclude_patterns</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_EXCLUDE_PATTERNS</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># Evaluating directory branch pruning in os.walk</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="c1"># In-place mutation of dirs list stops os.walk from descending</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">dirs</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>            <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pat</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"/*"</span><span class="p">))</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span> <span class="n">pat</span><span class="p">)</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>            <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">DEFAULT_EXCLUDE_PATTERNS</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="p">)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    <span class="p">]</span>
 </code></pre></div></p>
 <h2 id="data-structures">Data Structures</h2>
-<p>The <code>DEFAULT_EXCLUDE_PATTERNS</code> object is an unordered Python <code>set</code> containing 96 unique string patterns. The table below details the data layout, scope of matching, target systems, and technical rationale for each category.</p>
-<h3 id="structural-specification">Structural Specification</h3>
+<h3 id="default_exclude_patterns-registry-schema"><code>DEFAULT_EXCLUDE_PATTERNS</code> Registry Schema</h3>
+<p><code>DEFAULT_EXCLUDE_PATTERNS</code> is instantiated as a Python <code>set</code> of strings. The data structure does not implement custom methods or subclasses; it serves as a configuration set. The table below details its structural contract and operational pattern groups:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Container Type</th>
-<th style="text-align: left;">Element Type</th>
-<th style="text-align: left;">Total Patterns</th>
-<th style="text-align: left;">Matching Engine</th>
-<th style="text-align: left;">Directory Truncation Indicator</th>
+<th style="text-align: left;">Pattern Category</th>
+<th style="text-align: left;">Target Scope</th>
+<th style="text-align: left;">Syntax Convention</th>
+<th style="text-align: left;">Example Patterns</th>
+<th style="text-align: left;">Pipeline Impact</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>set</code></td>
-<td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">96</td>
-<td style="text-align: left;"><code>fnmatch</code> (POSIX glob)</td>
-<td style="text-align: left;">Suffix <code>/*</code></td>
+<td style="text-align: left;"><strong>1. Media and Static Assets</strong></td>
+<td style="text-align: left;">Binary files, static images, archives, docs</td>
+<td style="text-align: left;"><code>prefix/*</code>, <code>*.ext</code></td>
+<td style="text-align: left;"><code>images/*</code>, <code>*.png</code>, <code>*.zip</code>, <code>*.pdf</code></td>
+<td style="text-align: left;">Prevents UTF-8 decoding crashes and skips binary token waste.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2. Build and Caches</strong></td>
+<td style="text-align: left;">Transformed outputs, build directories</td>
+<td style="text-align: left;"><code>dirname/*</code>, <code>*.log</code></td>
+<td style="text-align: left;"><code>dist/*</code>, <code>build/*</code>, <code>.next/*</code>, <code>*.log</code></td>
+<td style="text-align: left;">Skips minified artifacts, sourcemaps, logs, and compiled code.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3. Environments and Lockfiles</strong></td>
+<td style="text-align: left;">Dependencies, secrets, lockfiles</td>
+<td style="text-align: left;"><code>dirname/*</code>, <code>basename</code></td>
+<td style="text-align: left;"><code>node_modules/*</code>, <code>.venv/*</code>, <code>.env</code>, <code>*.lock</code></td>
+<td style="text-align: left;">Eliminates external libraries and guards against secret leakage.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>4. Language-Specific</strong></td>
+<td style="text-align: left;">Compiled bytecode, runtime caches</td>
+<td style="text-align: left;"><code>dirname/*</code>, <code>*.ext</code></td>
+<td style="text-align: left;"><code>__pycache__/*</code>, <code>*.class</code>, <code>*.so</code>, <code>*.dll</code></td>
+<td style="text-align: left;">Prevents ingestion of machine-specific binary formats.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>5. OS and VCS</strong></td>
+<td style="text-align: left;">Version control, OS desktop databases</td>
+<td style="text-align: left;"><code>dirname/*</code>, <code>basename</code></td>
+<td style="text-align: left;"><code>.git/*</code>, <code>.DS_Store</code>, <code>Thumbs.db</code></td>
+<td style="text-align: left;">Stops crawlers from traversing VCS object graphs and OS cache files.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>6. Classic IDEs</strong></td>
+<td style="text-align: left;">Workspace configuration directories</td>
+<td style="text-align: left;"><code>dirname/*</code>, <code>*.ext</code></td>
+<td style="text-align: left;"><code>.vscode/*</code>, <code>.idea/*</code>, <code>*.iml</code>, <code>.vs/*</code></td>
+<td style="text-align: left;">Prevents local developer IDE state from influencing repo docs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>7. AI Agents and IDEs</strong></td>
+<td style="text-align: left;">Agent scratchpads, rules, state dirs</td>
+<td style="text-align: left;"><code>dirname/*</code>, <code>basename</code></td>
+<td style="text-align: left;"><code>.cursor/*</code>, <code>.windsurf/*</code>, <code>.claude/*</code></td>
+<td style="text-align: left;">Avoids recursive agent ingestion loops and prompt transcript leakage.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="pattern-registry-by-category">Pattern Registry by Category</h3>
-<h4 id="1-media-data-and-static-assets">1. Media, Data, and Static Assets</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Match Scope</th>
-<th style="text-align: left;">Target Technology / Format</th>
-<th style="text-align: left;">Rationale &amp; Token Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>assets/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Static web and UI assets</td>
-<td style="text-align: left;">Contains binary graphics, fonts, and stylesheets outside logic flow.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>data/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Data storage and local databases</td>
-<td style="text-align: left;">Prevents ingesting massive CSV, JSON, Parquet, or SQLite dumps.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>images/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Image repositories</td>
-<td style="text-align: left;">Traverses only non-text media files.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>public/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Public frontend static builds</td>
-<td style="text-align: left;">Avoids duplicate bundled static files in web frameworks.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>static/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Framework static assets</td>
-<td style="text-align: left;">Common in Django, Flask, Express; contains non-logic assets.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>temp/*</code>, <code>tmp/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Ephemeral runtime scratchpads</td>
-<td style="text-align: left;">Skips uncommitted transient files and process buffers.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>media/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">User uploads and media storage</td>
-<td style="text-align: left;">Prevents processing runtime user uploads.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.jpg</code>, <code>*.jpeg</code>, <code>*.png</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Raster image files</td>
-<td style="text-align: left;">Non-text binary formats that cause decode errors or token waste.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.gif</code>, <code>*.ico</code>, <code>*.webp</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Web graphics and animations</td>
-<td style="text-align: left;">Eliminates UI assets from architectural analysis.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.svg</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Vector graphics XML</td>
-<td style="text-align: left;">Although text/XML, SVG coordinates waste thousands of tokens without semantic value.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.mp4</code>, <code>*.webm</code>, <code>*.mov</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Video multimedia containers</td>
-<td style="text-align: left;">Raw binary video media.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.mp3</code>, <code>*.wav</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Audio media containers</td>
-<td style="text-align: left;">Raw binary audio streams.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.pdf</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Adobe Portable Document Format</td>
-<td style="text-align: left;">Binary-encoded document structure requiring specialized extractors.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.doc</code>, <code>*.docx</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Microsoft Word documents</td>
-<td style="text-align: left;">Proprietary zipped XML/binary formats.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.xls</code>, <code>*.xlsx</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Microsoft Excel spreadsheets</td>
-<td style="text-align: left;">Tabular data dumps inappropriate for direct prompt synthesis.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.ppt</code>, <code>*.pptx</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Microsoft PowerPoint presentations</td>
-<td style="text-align: left;">Binary presentation assets.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.zip</code>, <code>*.tar</code>, <code>*.gz</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Compressed archives</td>
-<td style="text-align: left;">Compressed byte streams that cannot be decoded as UTF-8 text.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.rar</code>, <code>*.7z</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Proprietary compressed archives</td>
-<td style="text-align: left;">High-density compressed binaries.</td>
-</tr>
-</tbody>
-</table>
-<h4 id="2-build-distribution-and-framework-caches">2. Build, Distribution, and Framework Caches</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Match Scope</th>
-<th style="text-align: left;">Target Technology / Format</th>
-<th style="text-align: left;">Rationale &amp; Token Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>dist/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Build distribution artifacts</td>
-<td style="text-align: left;">Minified, bundled production builds (Webpack, Rollup, Vite).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>build/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Generic build output directory</td>
-<td style="text-align: left;">Compiler outputs and intermediate object structures.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>out/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Next.js and Go build outputs</td>
-<td style="text-align: left;">Compiled output bundles.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>output/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Pipeline run artifacts</td>
-<td style="text-align: left;">Prevents ingestion of artifacts generated by earlier pipeline runs.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>output-test*/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Test harness output trees</td>
-<td style="text-align: left;">Prevents circular ingestion of pipeline test outputs.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>target/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Rust (Cargo) and Java (Maven) output</td>
-<td style="text-align: left;">Contains binaries, symbol files, and decompiled code.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>bin/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Compiled binary executables</td>
-<td style="text-align: left;">Native or script binaries.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>obj/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">.NET / C# compilation objects</td>
-<td style="text-align: left;">Intermediate compile-time symbol and object trees.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.next/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Next.js compilation cache</td>
-<td style="text-align: left;">Hydration manifests and serverless bundle caches.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.nuxt/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Nuxt.js compilation cache</td>
-<td style="text-align: left;">Vue.js framework runtime caches.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.svelte-kit/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">SvelteKit output directory</td>
-<td style="text-align: left;">Generated router configurations and build intermediate files.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.expo/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">React Native Expo cache</td>
-<td style="text-align: left;">Metro bundler caches and mobile bundle outputs.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>docs/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Standalone documentation</td>
-<td style="text-align: left;">Skips ancillary long-form prose to prioritize source code context.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>test/*</code>, <code>tests/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Test suites and fixtures</td>
-<td style="text-align: left;">Reduces context size by focusing on core implementation logic.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>examples/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Example programs and demos</td>
-<td style="text-align: left;">Skips non-critical tutorial code to protect token budget.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>v1/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Deprecated API iterations</td>
-<td style="text-align: left;">Eliminates obsolete API version trees.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>experimental/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Unstable or prototype code</td>
-<td style="text-align: left;">Omits non-production architectural components.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>deprecated/*</code>, <code>legacy/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Stale or unmaintained source trees</td>
-<td style="text-align: left;">Prevents training or synthesizing docs on obsolete architecture.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>misc/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Miscellaneous unstructured files</td>
-<td style="text-align: left;">Uncategorized auxiliary scripts and data.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.log</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">System and application execution logs</td>
-<td style="text-align: left;">Unbounded length, volatile, and context-saturating.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.bak</code>, <code>*.tmp</code>, <code>*.swp</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Editor backup files and swap buffers</td>
-<td style="text-align: left;">Transient artifacts created by Vim, Emacs, or text editors.</td>
-</tr>
-</tbody>
-</table>
-<h4 id="3-environments-dependencies-lockfiles">3. Environments, Dependencies &amp; Lockfiles</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Match Scope</th>
-<th style="text-align: left;">Target Technology / Format</th>
-<th style="text-align: left;">Rationale &amp; Token Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>venv/*</code>, <code>.venv/*</code>, <code>env/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Python Virtual Environments</td>
-<td style="text-align: left;">Prunes external third-party site-packages and Python binaries.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.env</code>, <code>.env.*</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Environment configuration secrets</td>
-<td style="text-align: left;">Crucial security rule: prevents leaking API keys and DB credentials.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>node_modules/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Node.js NPM / Yarn dependencies</td>
-<td style="text-align: left;">Massive directory tree; easily exhausts memory and token limits.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>bower_components/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Legacy web frontend dependencies</td>
-<td style="text-align: left;">Deprecated client-side library tree.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>jspm_packages/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">SystemJS / JSPM packages</td>
-<td style="text-align: left;">External package dependency tree.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>vendor/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">PHP (Composer) / Go vendored packages</td>
-<td style="text-align: left;">Contains third-party dependencies.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>packages/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Monorepo / internal package mirrors</td>
-<td style="text-align: left;">Avoids duplicate crawling when managed in sub-packages.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.lock</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Generic dependency lockfiles</td>
-<td style="text-align: left;">Prevents ingestion of large, machine-generated dependency mappings.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>package-lock.json</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">NPM dependency tree lockfile</td>
-<td style="text-align: left;">Often exceeds 20,000 lines (200k+ tokens) of dependency metadata.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>yarn.lock</code>, <code>pnpm-lock.yaml</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Yarn and PNPM resolution lockfiles</td>
-<td style="text-align: left;">High-volume package resolution graphs with low architectural value.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>Cargo.lock</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Rust package dependency lockfile</td>
-<td style="text-align: left;">Cryptographic hashes and dependency trees for Cargo.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>Gemfile.lock</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Ruby Bundler package lockfile</td>
-<td style="text-align: left;">Ruby dependency resolution manifest.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>poetry.lock</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Python Poetry lockfile</td>
-<td style="text-align: left;">Full package tree and wheel hashes for Python projects.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>mix.lock</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Elixir Hex package manager lockfile</td>
-<td style="text-align: left;">Elixir dependency version resolution list.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>Pipfile.lock</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Pipenv dependency lockfile</td>
-<td style="text-align: left;">Hashes and specifications for Python Pipenv dependencies.</td>
-</tr>
-</tbody>
-</table>
-<h4 id="4-language-specific-exclusions">4. Language-Specific Exclusions</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Match Scope</th>
-<th style="text-align: left;">Language / Subsystem</th>
-<th style="text-align: left;">Rationale &amp; Token Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>__pycache__/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Python</td>
-<td style="text-align: left;">Bytecode cache directories.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.pyc</code>, <code>*.pyo</code>, <code>*.pyd</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Python</td>
-<td style="text-align: left;">Compiled bytecode files and C-extension shared libraries.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.pytest_cache/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Python (pytest)</td>
-<td style="text-align: left;">Test run execution state and step caching.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.ruff_cache/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Python (Ruff)</td>
-<td style="text-align: left;">Linter AST and indexing caches.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.tox/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Python (Tox)</td>
-<td style="text-align: left;">Multiple virtual environment test runners.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.coverage</code>, <code>htmlcov/*</code></td>
-<td style="text-align: left;">File / Directory</td>
-<td style="text-align: left;">Python (Coverage.py)</td>
-<td style="text-align: left;">Raw sqlite coverage files and rendered HTML reports.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.gradle/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Gradle / JVM</td>
-<td style="text-align: left;">Build tool dependency caching and execution daemons.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.class</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Java / JVM</td>
-<td style="text-align: left;">Compiled Java bytecode.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.jar</code>, <code>*.war</code>, <code>*.ear</code>, <code>*.nar</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Java / JVM</td>
-<td style="text-align: left;">Java archive packages containing bytecode and manifests.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.o</code>, <code>*.obj</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">C / C++ / Native</td>
-<td style="text-align: left;">Intermediate machine-code object files.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.dll</code>, <code>*.so</code>, <code>*.dylib</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">C / C++ / Native</td>
-<td style="text-align: left;">Dynamic shared libraries (Windows, Linux, macOS).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.exe</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Windows / Native</td>
-<td style="text-align: left;">Compiled PE executable binaries.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>*.lib</code>, <code>*.a</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">C / C++ / Native</td>
-<td style="text-align: left;">Static link libraries.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>ios/Pods/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">iOS / CocoaPods</td>
-<td style="text-align: left;">Vendored third-party iOS source and framework builds.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>android/.gradle/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Android / Gradle</td>
-<td style="text-align: left;">Android build system workspace cache.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>android/app/build/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Android Native</td>
-<td style="text-align: left;">Android APK intermediate builds and DEX outputs.</td>
-</tr>
-</tbody>
-</table>
-<h4 id="5-os-version-control">5. OS &amp; Version Control</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Match Scope</th>
-<th style="text-align: left;">Target Subsystem</th>
-<th style="text-align: left;">Rationale &amp; Token Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>.git/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Git Version Control</td>
-<td style="text-align: left;">Git internal object stores, packfiles, refs, and hook scripts.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.github/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">GitHub Workflows &amp; Actions</td>
-<td style="text-align: left;">CI/CD automation manifests, issue templates, and actions.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.svn/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Subversion</td>
-<td style="text-align: left;">SVN working copy metadata and administrative databases.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.hg/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Mercurial</td>
-<td style="text-align: left;">Mercurial repository store and transaction history.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.DS_Store</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Apple macOS Finder</td>
-<td style="text-align: left;">Desktop Services Store containing folder view configurations.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>Thumbs.db</code>, <code>desktop.ini</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Microsoft Windows Explorer</td>
-<td style="text-align: left;">Thumbnail caches and folder appearance customizations.</td>
-</tr>
-</tbody>
-</table>
-<h4 id="6-classic-ides">6. Classic IDEs</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Match Scope</th>
-<th style="text-align: left;">Target IDE</th>
-<th style="text-align: left;">Rationale &amp; Token Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>.vscode/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Visual Studio Code</td>
-<td style="text-align: left;">Local launch configurations, extension recommendations, and tasks.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.idea/*</code>, <code>*.iml</code></td>
-<td style="text-align: left;">Directory / File</td>
-<td style="text-align: left;">JetBrains IDEs (IntelliJ, PyCharm)</td>
-<td style="text-align: left;">Project module metadata, inspections, and indexing state.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.eclipse/*</code>, <code>.settings/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Eclipse IDE</td>
-<td style="text-align: left;">Workspace settings and project-specific compiler preferences.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.classpath</code>, <code>.project</code></td>
-<td style="text-align: left;">Leaf File</td>
-<td style="text-align: left;">Eclipse IDE</td>
-<td style="text-align: left;">Project descriptor files.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.vs/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Visual Studio</td>
-<td style="text-align: left;">Solution browsing databases and debugger cache outputs.</td>
-</tr>
-</tbody>
-</table>
-<h4 id="7-ai-agents-modern-ai-ides">7. AI Agents &amp; Modern AI IDEs</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Pattern</th>
-<th style="text-align: left;">Match Scope</th>
-<th style="text-align: left;">Target Tooling</th>
-<th style="text-align: left;">Rationale &amp; Token Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>.cursor/*</code>, <code>.cursorrules</code></td>
-<td style="text-align: left;">Directory / File</td>
-<td style="text-align: left;">Cursor IDE</td>
-<td style="text-align: left;">Context index databases and agent system prompt rules.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.windsurf/*</code>, <code>.windsurfrules</code></td>
-<td style="text-align: left;">Directory / File</td>
-<td style="text-align: left;">Windsurf (Codeium)</td>
-<td style="text-align: left;">Cascade assistant configuration and rule sets.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.cline/*</code>, <code>.clinerules</code></td>
-<td style="text-align: left;">Directory / File</td>
-<td style="text-align: left;">Cline Autonomous Agent</td>
-<td style="text-align: left;">Task execution state and custom agent instructions.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.roo/*</code>, <code>.roorules</code></td>
-<td style="text-align: left;">Directory / File</td>
-<td style="text-align: left;">Roo Code (Roo Clinic)</td>
-<td style="text-align: left;">Custom persona prompts and tool authorization modes.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.agent/*</code>, <code>.agents/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Generic Agent Frameworks</td>
-<td style="text-align: left;">Ephemeral agent trajectories, logs, and scratchpads.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.continue/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Continue.dev</td>
-<td style="text-align: left;">Local configuration, slash commands, and model hub cache.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.aide/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Aide IDE</td>
-<td style="text-align: left;">Workspace configurations and chat memory stores.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.gemini/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Google Gemini CLI / IDE</td>
-<td style="text-align: left;">Workspace-level Gemini settings and instruction profiles.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.antigravity/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Antigravity AI</td>
-<td style="text-align: left;">Agent state snapshots and prompt definitions.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.claude/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">Anthropic Claude Code / Tools</td>
-<td style="text-align: left;">Local conversation contexts and tool configurations.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>.copilot/*</code></td>
-<td style="text-align: left;">Directory Subtree</td>
-<td style="text-align: left;">GitHub Copilot CLI</td>
-<td style="text-align: left;">Copilot cache, indexing, and chat history.</td>
-</tr>
-</tbody>
-</table>
+<h3 id="structural-pattern-conventions">Structural Pattern Conventions</h3>
+<p>The patterns defined in <code>DEFAULT_EXCLUDE_PATTERNS</code> rely on two distinct syntactic conventions evaluated via Python's <code>fnmatch</code> module:</p>
+<ol>
+<li><strong>Directory Branch Pruning Patterns (<code>&lt;directory_name&gt;/*</code>)</strong>:</li>
+<li>Any pattern terminating with <code>/*</code> indicates an entire directory hierarchy.</li>
+<li>When processing local directories via <code>os.walk</code>, consuming modules strip the trailing <code>/*</code> via <code>.rstrip("/*")</code> or match against <code>d + "/"</code> to prune subdirectories in-place (<code>dirs[:] = [...]</code>), avoiding unnecessary filesystem traversal.</li>
+<li>
+<p>When processing remote GitHub tree entries in <a href="../crawl_github_files.py/"><code>crawl_github_files.py</code></a>, path segments are evaluated against these patterns to avoid fetching entire Git tree hierarchies via REST.</p>
+</li>
+<li>
+<p><strong>File Extension and Basename Patterns (<code>*.ext</code>, <code>.filename</code>)</strong>:</p>
+</li>
+<li>Extension-based patterns (<code>*.pyc</code>, <code>*.lock</code>, <code>*.png</code>) evaluate against the file's basename via <code>fnmatch.fnmatch(filename, pattern)</code>.</li>
+<li>Fixed-name patterns (<code>.DS_Store</code>, <code>package-lock.json</code>, <code>.env</code>) require an exact match against the basename.</li>
+</ol>
 <h2 id="error-handling">Error Handling</h2>
-<p>Because <code>utils/exclude_patterns.py</code> provides only static constant definitions without runtime function invocations, it raises no exceptions directly. However, runtime issues can emerge in consuming modules during pattern evaluation:</p>
+<p>Because <code>utils/exclude_patterns.py</code> is a declarative, constant-only module, it does not define custom exceptions or execute dynamic logic that could raise runtime errors during initialization. However, its usage across the system involves specific defensive error-handling patterns:</p>
 <ul>
-<li><strong>Path Separator Normalization</strong>: Standard <code>fnmatch</code> rules assume POSIX directory separators (<code>/</code>). On Windows platforms, paths returned by <code>os.walk()</code> or <code>os.path.join()</code> utilize backslashes (<code>\</code>). Consuming crawlers must normalize paths (e.g., via <code>path.replace("\\", "/")</code>) prior to evaluating them against <code>DEFAULT_EXCLUDE_PATTERNS</code>. Failure to normalize causes patterns containing <code>/</code> to fail silently, resulting in inadvertent ingestion of directories like <code>node_modules</code>.</li>
-<li><strong>Directory Wildcard Pruning</strong>: Patterns targeting directory subtrees use the <code>/*</code> suffix (such as <code>venv/*</code>). A direct match between a raw directory name (e.g., <code>"venv"</code>) and <code>"venv/*"</code> evaluates to <code>False</code> in standard <code>fnmatch.fnmatch()</code> calls. Consuming crawlers must therefore evaluate both the directory name and its trailing slash variant (<code>f"{dirname}/*"</code>), or strip the <code>/*</code> suffix, to ensure directories are pruned before recursing into them.</li>
-<li><strong>Pattern Extension Safety</strong>: When users supply custom exclusion rules via CLI arguments (e.g., <code>--exclude</code>), consuming modules should merge user inputs with <code>DEFAULT_EXCLUDE_PATTERNS</code> into a new <code>set</code> instance. The default set remains immutable at the module level, preventing side effects across isolated crawler runs.</li>
+<li><strong>Mutable State Isolation</strong>: <code>DEFAULT_EXCLUDE_PATTERNS</code> is defined as a standard mutable Python <code>set</code>. If a consuming module were to mutate <code>DEFAULT_EXCLUDE_PATTERNS</code> directly (for example, by calling <code>.add()</code> or <code>.clear()</code>), those changes would alter exclusion behavior across the entire runtime process. Consuming crawlers in <a href="../crawl_local_files.py/"><code>crawl_local_files.py</code></a> and <a href="../crawl_github_files.py/"><code>crawl_github_files.py</code></a> treat this set as read-only by copying it (e.g., <code>set(DEFAULT_EXCLUDE_PATTERNS)</code>) or merging it with caller-specified patterns into a separate collection before traversing files.</li>
+<li><strong>Glob Evaluation Divergence</strong>: Standard Python <code>fnmatch</code> translates globs into regular expressions using <code>re.escape</code> internally. If a malformed pattern containing non-standard glob expressions is introduced, <code>fnmatch.translate()</code> can raise <code>re.error</code>. The current patterns rely strictly on standard wildcards (<code>*</code>, <code>?</code>, <code>[]</code>), ensuring valid regex compilation across all supported Python runtimes.</li>
+<li><strong>Path Separator Normalization</strong>: Standard <code>fnmatch</code> behavior on Windows can diverge when paths contain backslashes (<code>\</code>) instead of POSIX forward slashes (<code>/</code>). Consuming crawler modules defensively normalize paths to POSIX format using <code>path.replace("\\", "/")</code> prior to evaluating entries against <code>DEFAULT_EXCLUDE_PATTERNS</code>.</li>
 </ul>
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../crawl_local_files.py/">crawl_local_files.py</a> — Local filesystem ingestion engine that uses <code>DEFAULT_EXCLUDE_PATTERNS</code> to prune directory trees during <code>os.walk()</code>.</li>
-<li><a href="../crawl_github_files.py/">crawl_github_files.py</a> — Remote GitHub ingestion engine that applies these exclusion patterns to filter remote repository trees and blobs.</li>
-<li><a href="../token_utils.py/">token_utils.py</a> — Token quantification utilities that calculate context consumption for files passing the exclusion filter.</li>
-<li><a href="../../main.py/">main.py</a> — CLI entrypoint where user-specified <code>--exclude</code> flags are parsed and combined with <code>DEFAULT_EXCLUDE_PATTERNS</code>.</li>
-<li><a href="../../nodes.py/">nodes.py</a> — Knowledge generation pipeline nodes that process filtered file trees.</li>
-<li><a href="../../flow.py/">flow.py</a> — Core execution graph coordinating crawler execution and downstream document generation.</li>
+<li><a href="../crawl_local_files.py/"><code>crawl_local_files.py</code></a> — Consumes <code>DEFAULT_EXCLUDE_PATTERNS</code> during local filesystem walks to prune directory branches in-place and skip unneeded files.</li>
+<li><a href="../crawl_github_files.py/"><code>crawl_github_files.py</code></a> — Applies these exclusion patterns against remote GitHub API tree entries and cloned Git repositories.</li>
+<li><a href="../files.py/"><code>files.py</code></a> — Manages downstream file collection, text decoding, and chunking for content that passes these exclusion checks.</li>
+<li><a href="../call_llm.py/"><code>call_llm.py</code></a> — Consumes the filtered source code corpus to generate architecture summaries without token budget waste.</li>
 </ul>
 
 

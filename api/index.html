@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".d2", ".mermaid"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -532,7 +532,7 @@
   <span class="md-ellipsis">
     
   
-    Repository Ingestion & Filtering
+    Repository Ingestion & File Processing
   
 
     
@@ -548,7 +548,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Repository Ingestion & Filtering
+    Repository Ingestion & File Processing
   
 
           </label>
@@ -562,6 +562,8 @@
   
     
     
+      
+        
       
         
       
@@ -608,6 +610,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="utils/exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -672,14 +702,14 @@
   
   
     <li class="md-nav__item">
-      <a href="utils/exclude_patterns.py/" class="md-nav__link">
+      <a href="utils/files.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    exclude_patterns.py
+    files.py
   
 
     
@@ -738,7 +768,7 @@
   <span class="md-ellipsis">
     
   
-    LLM Inference & Prompt Engineering
+    LLM Integration & Prompt Management
   
 
     
@@ -754,7 +784,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM Inference & Prompt Engineering
+    LLM Integration & Prompt Management
   
 
           </label>
@@ -768,6 +798,8 @@
   
     
     
+      
+        
       
         
       
@@ -828,6 +860,34 @@
     
   
     call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="utils/token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
   
 
     
@@ -914,7 +974,7 @@
   <span class="md-ellipsis">
     
   
-    Telemetry & Observability
+    Documentation Rendering & Observability
   
 
     
@@ -930,7 +990,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Telemetry & Observability
+    Documentation Rendering & Observability
   
 
           </label>
@@ -996,14 +1056,14 @@
   
   
     <li class="md-nav__item">
-      <a href="utils/token_utils.py/" class="md-nav__link">
+      <a href="utils/mkdocs.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    token_utils.py
+    mkdocs.py
   
 
     
@@ -1118,10 +1178,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#repository-ingestion-filtering" class="md-nav__link">
+  <a href="#repository-ingestion-file-processing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Repository Ingestion &amp; Filtering
+        Repository Ingestion &amp; File Processing
       
     </span>
   </a>
@@ -1129,10 +1189,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#llm-inference-prompt-engineering" class="md-nav__link">
+  <a href="#llm-integration-prompt-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LLM Inference &amp; Prompt Engineering
+        LLM Integration &amp; Prompt Management
       
     </span>
   </a>
@@ -1140,10 +1200,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#telemetry-observability" class="md-nav__link">
+  <a href="#documentation-rendering-observability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Telemetry &amp; Observability
+        Documentation Rendering &amp; Observability
       
     </span>
   </a>
@@ -1173,7 +1233,7 @@
 
 
 <h1 id="codebase-knowledge-builder-api-reference">Codebase-Knowledge-Builder — API Reference</h1>
-<p>API Reference — <strong>Codebase-Knowledge-Builder</strong> — <strong>10</strong> Chapters.</p>
+<p>API Reference — <strong>Codebase-Knowledge-Builder</strong> — <strong>12</strong> Chapters.</p>
 <h2 id="chapter-index">Chapter Index</h2>
 <h3 id="pipeline-orchestration-execution">Pipeline Orchestration &amp; Execution</h3>
 <table>
@@ -1198,7 +1258,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="repository-ingestion-filtering">Repository Ingestion &amp; Filtering</h3>
+<h3 id="repository-ingestion-file-processing">Repository Ingestion &amp; File Processing</h3>
 <table>
 <thead>
 <tr>
@@ -1208,6 +1268,10 @@
 </thead>
 <tbody>
 <tr>
+<td><a href="utils/exclude_patterns.py/">exclude_patterns.py</a></td>
+<td>&gt; <strong>Source:</strong> <code>utils/exclude_patterns.py</code></td>
+</tr>
+<tr>
 <td><a href="utils/crawl_local_files.py/">crawl_local_files.py</a></td>
 <td>&gt; <strong>Source:</strong> <code>utils/crawl_local_files.py</code></td>
 </tr>
@@ -1216,12 +1280,12 @@
 <td>&gt; <strong>Source:</strong> <code>utils/crawl_github_files.py</code></td>
 </tr>
 <tr>
-<td><a href="utils/exclude_patterns.py/">exclude_patterns.py</a></td>
-<td>&gt; <strong>Source:</strong> <code>utils/exclude_patterns.py</code></td>
+<td><a href="utils/files.py/">files.py</a></td>
+<td>&gt; <strong>Source:</strong> <code>utils/files.py</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="llm-inference-prompt-engineering">LLM Inference &amp; Prompt Engineering</h3>
+<h3 id="llm-integration-prompt-management">LLM Integration &amp; Prompt Management</h3>
 <table>
 <thead>
 <tr>
@@ -1235,12 +1299,16 @@
 <td>&gt; <strong>Source:</strong> <code>utils/call_llm.py</code></td>
 </tr>
 <tr>
+<td><a href="utils/token_utils.py/">token_utils.py</a></td>
+<td>&gt; <strong>Source:</strong> <code>utils/token_utils.py</code></td>
+</tr>
+<tr>
 <td><a href="utils/prompts.py/">prompts.py</a></td>
 <td>&gt; <strong>Source:</strong> <code>utils/prompts.py</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="telemetry-observability">Telemetry &amp; Observability</h3>
+<h3 id="documentation-rendering-observability">Documentation Rendering &amp; Observability</h3>
 <table>
 <thead>
 <tr>
@@ -1250,8 +1318,8 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="utils/token_utils.py/">token_utils.py</a></td>
-<td>&gt; <strong>Source:</strong> <code>utils/token_utils.py</code></td>
+<td><a href="utils/mkdocs.py/">mkdocs.py</a></td>
+<td>&gt; <strong>Source:</strong> <code>utils/mkdocs.py</code></td>
 </tr>
 <tr>
 <td><a href="utils/output.py/">output.py</a></td>
