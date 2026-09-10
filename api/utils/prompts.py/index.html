@@ -11,10 +11,10 @@
         <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/prompts.py/">
       
       
-        <link rel="prev" href="../call_llm.py/">
+        <link rel="prev" href="../token_utils.py/">
       
       
-        <link rel="next" href="../token_utils.py/">
+        <link rel="next" href="../mkdocs.py/">
       
       
         
@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".mermaid-raw", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -389,7 +389,7 @@
   <span class="md-ellipsis">
     
   
-    Workflow Orchestration & Core Execution
+    Workflow & Orchestration
   
 
     
@@ -405,7 +405,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Workflow Orchestration & Core Execution
+    Workflow & Orchestration
   
 
           </label>
@@ -532,7 +532,7 @@
   <span class="md-ellipsis">
     
   
-    Repository Ingestion & File Processing
+    Codebase Ingestion & Processing
   
 
     
@@ -548,7 +548,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Repository Ingestion & File Processing
+    Codebase Ingestion & Processing
   
 
           </label>
@@ -770,7 +770,7 @@
   <span class="md-ellipsis">
     
   
-    LLM Gateway & Context Management
+    LLM & Prompt Management
   
 
     
@@ -786,7 +786,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM Gateway & Context Management
+    LLM & Prompt Management
   
 
           </label>
@@ -802,6 +802,8 @@
   
     
     
+      
+        
       
         
       
@@ -864,6 +866,62 @@
     
   
     call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_config.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_config.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
   
 
     
@@ -967,6 +1025,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#parse_file_index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        parse_file_index()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#load_prompt_template" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -974,56 +1043,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="load_prompt_template()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#logical-phases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logical Phases
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-1-directory-scope-resolution" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 1: Directory Scope Resolution
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-2-filesystem-resolution-and-ingestion" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 2: Filesystem Resolution and Ingestion
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-3-telemetry-dispatch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 3: Telemetry Dispatch
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1036,45 +1055,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="parse_yaml_response()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#logical-phases_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logical Phases
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-1-boundary-isolation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 1: Boundary Isolation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-2-deserialization-and-error-normalization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 2: Deserialization and Error Normalization
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -1086,23 +1066,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="build_code_file_filter_prompt()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prompt-assembly-phase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prompt Assembly Phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -1113,23 +1076,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="build_chapter_summary_prompt()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prompt-assembly-phase_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prompt Assembly Phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1151,22 +1097,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parsed-yaml-extraction-schemas" class="md-nav__link">
+  <a href="#file-index-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Parsed YAML Extraction Schemas
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Parsed YAML Extraction Schemas">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-integer-index-list-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Integer Index List Schema
+        File Index Values
       
     </span>
   </a>
@@ -1174,26 +1108,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-navigation-grouping-hierarchy-schema" class="md-nav__link">
+  <a href="#code-file-filter-output-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Navigation / Grouping Hierarchy Schema
+        Code File Filter Output Schema
       
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#technical-summary-schema" class="md-nav__link">
+  <a href="#chapter-summary-four-dimension-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Technical Summary Schema
+        Chapter Summary Four-Dimension Schema
       
     </span>
   </a>
@@ -1214,34 +1143,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Error Handling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-code-fence-partitioning-and-yaml-syntax-trapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Code Fence Partitioning and YAML Syntax Trapping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-filesystem-encoding-and-path-anomalies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Filesystem Encoding and Path Anomalies
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1259,34 +1160,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../token_utils.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    token_utils.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1337,7 +1210,7 @@
   <span class="md-ellipsis">
     
   
-    Documentation Generation & System Telemetry
+    Documentation & Telemetry
   
 
     
@@ -1353,7 +1226,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Documentation Generation & System Telemetry
+    Documentation & Telemetry
   
 
           </label>
@@ -1367,6 +1240,8 @@
   
     
     
+      
+        
       
         
       
@@ -1468,6 +1343,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    i18n.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1541,6 +1444,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#parse_file_index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        parse_file_index()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#load_prompt_template" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1548,56 +1462,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="load_prompt_template()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#logical-phases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logical Phases
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-1-directory-scope-resolution" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 1: Directory Scope Resolution
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-2-filesystem-resolution-and-ingestion" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 2: Filesystem Resolution and Ingestion
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-3-telemetry-dispatch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 3: Telemetry Dispatch
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1610,45 +1474,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="parse_yaml_response()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#logical-phases_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logical Phases
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-1-boundary-isolation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 1: Boundary Isolation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-2-deserialization-and-error-normalization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 2: Deserialization and Error Normalization
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -1660,23 +1485,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="build_code_file_filter_prompt()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prompt-assembly-phase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prompt Assembly Phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
         
           <li class="md-nav__item">
@@ -1687,23 +1495,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="build_chapter_summary_prompt()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prompt-assembly-phase_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prompt Assembly Phase
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1725,22 +1516,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parsed-yaml-extraction-schemas" class="md-nav__link">
+  <a href="#file-index-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Parsed YAML Extraction Schemas
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Parsed YAML Extraction Schemas">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-integer-index-list-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Integer Index List Schema
+        File Index Values
       
     </span>
   </a>
@@ -1748,26 +1527,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-navigation-grouping-hierarchy-schema" class="md-nav__link">
+  <a href="#code-file-filter-output-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Navigation / Grouping Hierarchy Schema
+        Code File Filter Output Schema
       
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#technical-summary-schema" class="md-nav__link">
+  <a href="#chapter-summary-four-dimension-schema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Technical Summary Schema
+        Chapter Summary Four-Dimension Schema
       
     </span>
   </a>
@@ -1787,34 +1561,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Error Handling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-code-fence-partitioning-and-yaml-syntax-trapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Code Fence Partitioning and YAML Syntax Trapping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-filesystem-encoding-and-path-anomalies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Filesystem Encoding and Path Anomalies
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1850,12 +1596,9 @@
 <blockquote>
 <p><strong>Source:</strong> <code>utils/prompts.py</code></p>
 </blockquote>
-<p>Following the observability and localization mechanics established in <a href="../output.py/">output.py</a>, the <code>utils/prompts.py</code> module defines the prompt loading, synthesis, and response parsing infrastructure for the documentation generation pipeline. It coordinates the creation of targeted system instructions for Large Language Models (LLMs) and isolates the deserialization logic required to process structured outputs returned by inference gateways.</p>
 <h2 id="technical-overview">Technical Overview</h2>
-<p><code>utils/prompts.py</code> acts as the prompt engineering and structured-output decoding layer of the <code>Codebase-Knowledge-Builder</code> architecture. In an automated documentation pipeline, execution nodes frequently require specialized instructions conditioned on project metadata, file paths, and target output languages. Simultaneously, intermediate pipeline states depend on structured data (such as lists of code file indices or navigation hierarchies) extracted reliably from non-deterministic LLM text responses. This module bridges prompt assembly and response processing, decoupling orchestration nodes in <code>nodes.py</code> from raw string templating and Markdown extraction logic.</p>
-<p>The module operates across two functional domains:
-1. <strong>Prompt Ingestion and Construction</strong>: File-based prompt templates residing in the filesystem tree under <code>prompts/</code> are located and ingested via <code>load_prompt_template()</code>. The module supports mode-driven directory scoping (<code>tutorial</code>, <code>advanced</code>, or arbitrary mode identifiers). For specialized pipeline stages where disk-based templates are inappropriate, the module provides dynamic string synthesis functions—namely <code>build_code_file_filter_prompt()</code> for identifying executable code modules, and <code>build_chapter_summary_prompt()</code> for compiling multi-dimensional technical chapter abstracts used for cross-chapter context injection.
-2. <strong>Structured Response Extraction</strong>: Because LLMs return freeform conversational strings interspersed with Markdown formatting, <code>parse_yaml_response()</code> extracts text contained within <code>```yaml</code> code fences and deserializes it into native Python dictionaries or lists via PyYAML.</p>
+<p>Following the centralized logging and telemetry mechanisms established in <a href="../output.py/">output.py</a>, the <code>prompts.py</code> module serves as the prompt management and response deserialization engine for the <code>Codebase-Knowledge-Builder</code> architecture. It encapsulates the structural boundary between workflow execution nodes and large language models by standardizing how instructions are compiled, dispatched, and interpreted. The module isolates prompt generation logic from node orchestration, preventing repetitive string interpolation and template loading boilerplate across processing stages.</p>
+<p>The module provides two complementary prompt assembly mechanisms alongside robust parsing utilities. For complex, multi-stage reasoning tasks such as abstraction mapping and relationship synthesis, it reads Markdown templates from structured subdirectories within the <code>prompts/</code> repository root, supporting dynamic execution modes (<code>tutorial</code>, <code>advanced</code>, or arbitrary custom directory overrides). For targeted tasks that do not require external templates, it provides programmatic inline prompt builders for filtering source code modules and generating structured four-dimensional chapter summaries. To resolve responses, the module provides defensive deserialization functions that extract YAML blocks from markdown code fences and sanitize integer file indices from noisy model outputs.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -1883,51 +1626,49 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    subgraph PromptLoading["Template Resolution and Construction"]
-        initLoad["load_prompt_template()"]
-        dirBranch{"Mode Explicitly Defined?"}
-        customDir["Use mode directory"]
-        modeBranch{"advanced_mode is True?"}
-        advDir["Use 'advanced' directory"]
-        tutDir["Use 'tutorial' directory"]
-        readFS["Read file from disk via utf-8-sig"]
-        emitLog["emit_raw(DEBUG) to LOG destination"]
+    subgraph SubgraphTemplateResolution["Prompt Template Loading"]
+        stepLoadTemplate["load_prompt_template(template_name, mode)"]
+        stepCheckMode{"Is mode specified?"}
+        stepResolveDefault["Select advanced or tutorial folder"]
+        stepResolveCustom["Use custom mode folder"]
+        stepReadTemplate["Read Markdown file with utf-8-sig encoding"]
+        stepLogDebug["Emit debug telemetry to LOG"]
     end
 
-    subgraph PromptBuilders["Dynamic Prompt Synthesis"]
-        filterPrompt["build_code_file_filter_prompt()"]
-        summaryPrompt["build_chapter_summary_prompt()"]
+    subgraph SubgraphInlineGeneration["Inline Prompt Construction"]
+        stepBuildFilterPrompt["build_code_file_filter_prompt(project_name, file_listing)"]
+        stepBuildSummaryPrompt["build_chapter_summary_prompt(chapter_num, abstraction_name, content, language)"]
+        stepInjectLang["Prepend language instruction if non-English"]
     end
 
-    subgraph ResponseParsing["Structured Output Parsing"]
-        parseYaml["parse_yaml_response()"]
-        splitFence["Isolate content between ```yaml and ```"]
-        yamlSafe["yaml.safe_load()"]
-        errCatch{"Parsing or Extraction Failed?"}
-        raiseErr["Raise ValueError"]
-        returnObj["Return Parsed Python Object"]
+    subgraph SubgraphResponseParsing["Response Deserialization"]
+        stepRawResponse["Raw LLM String Output"]
+        stepParseYaml["parse_yaml_response(response)"]
+        stepExtractFence["Extract fenced YAML block between markers"]
+        stepSafeLoad["Execute yaml.safe_load()"]
+        stepParseIndex["parse_file_index(idx_value)"]
+        stepRegexExtract["Regex match first integer sequence"]
     end
 
-    initLoad --&gt; dirBranch
-    dirBranch -- Yes --&gt; customDir
-    dirBranch -- No --&gt; modeBranch
-    modeBranch -- Yes --&gt; advDir
-    modeBranch -- No --&gt; tutDir
-    customDir --&gt; readFS
-    advDir --&gt; readFS
-    tutDir --&gt; readFS
-    readFS --&gt; emitLog
+    stepLoadTemplate --&gt; stepCheckMode
+    stepCheckMode --&gt;|Yes| stepResolveCustom
+    stepCheckMode --&gt;|No| stepResolveDefault
+    stepResolveCustom --&gt; stepReadTemplate
+    stepResolveDefault --&gt; stepReadTemplate
+    stepReadTemplate --&gt; stepLogDebug
 
-    parseYaml --&gt; splitFence
-    splitFence --&gt; yamlSafe
-    yamlSafe --&gt; errCatch
-    errCatch -- Yes --&gt; raiseErr
-    errCatch -- No --&gt; returnObj
+    stepBuildSummaryPrompt --&gt; stepInjectLang
+
+    stepRawResponse --&gt; stepParseYaml
+    stepRawResponse --&gt; stepParseIndex
+    stepParseYaml --&gt; stepExtractFence
+    stepExtractFence --&gt; stepSafeLoad
+    stepParseIndex --&gt; stepRegexExtract
 
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-    class initLoad entryNode
-    class filterPrompt entryNode
-    class parseYaml entryNode</code></pre> 
+    class stepLoadTemplate entryNode;
+    class stepBuildFilterPrompt entryNode;
+    class stepRawResponse entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -1936,279 +1677,285 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
-<p>The architecture addresses several operational considerations:
-* <strong>Path Resolution Autonomy</strong>: Template loading calculates root paths relative to <code>__file__</code>, allowing portable execution across development environments, container images, or working directories.
-* <strong>Encoding Resiliency</strong>: Disk reads enforce <code>utf-8-sig</code> encoding, stripping Byte Order Marks (BOM) transparently to prevent parsing syntax errors in downstream Jinja or Python formatting operations.
-* <strong>Decoupled Telemetry</strong>: The module uses late imports (<code>from utils.output import emit_raw</code>) inside <code>load_prompt_template()</code> to log template access directly to internal debug logs without triggering circular dependency loops during interpreter startup.</p>
-<hr />
 <h2 id="public-api">Public API</h2>
+<h3 id="parse_file_index"><code>parse_file_index()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def parse_file_index(idx_value) -&gt; int | None:</code></p>
+<p><strong>Description</strong>: Extracts the first integer identifier from an LLM-returned file index token or string representation. Model outputs often deviate from raw integers by returning annotated strings (such as <code>"3 # path/to/file.py"</code>), range formats (such as <code>"0-3"</code>), or integer types. This function normalizes the input into a standard Python integer using regular expression matching, returning <code>None</code> if no digit sequence can be discovered.</p>
+<p><strong>Parameters</strong>:
+* <code>idx_value</code> (<code>Any</code>): The raw value returned by an LLM response or parser, typically an <code>int</code>, <code>str</code>, or numeric token.</p>
+<p><strong>Returns</strong>:
+* <code>int | None</code>: The extracted integer value representing the zero-based file index, or <code>None</code> if the input contains no numeric digits.</p>
+<p><strong>Raises</strong>:
+* No exceptions are explicitly raised; non-string inputs are converted via <code>str()</code> before pattern matching.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_file_index</span><span class="p">(</span><span class="n">idx_value</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Extract the first integer from an LLM-returned file index value.</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="sd">    Handles multiple formats the LLM may produce:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">    - Plain int: 3</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="sd">    - Annotated string: "3 # path/to/file.py"</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="sd">    - Range notation: "0-3" → returns first number only (caller handles ranges)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sd">        int or None if no digits found.</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="sd">    """</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">nums</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\d+"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx_value</span><span class="p">))</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">nums</span> <span class="k">else</span> <span class="kc">None</span>
+</code></pre></div></p>
+<p>The implementation relies on <code>re.findall(r"\d+", str(idx_value))</code> to find all continuous sequences of decimal digits within the stringified input. If one or more digit sequences are identified, the first match (<code>nums[0]</code>) is converted to an <code>int</code> and returned. In scenarios where a range like <code>"0-3"</code> is provided, the function intentionally extracts the lower bound (<code>0</code>), leaving range expansion to higher-level orchestrators. If the input contains no digits (such as empty strings or non-numeric tokens), the ternary check evaluates to <code>None</code>, safeguarding downstream array index operations from runtime conversion crashes.</p>
+<hr />
 <h3 id="load_prompt_template"><code>load_prompt_template()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>def load_prompt_template(template_name, advanced_mode=False, mode=None) -&gt; str</code></p>
-<p><strong>Description</strong>:<br />
-Locates and loads the UTF-8 encoded text of a Markdown prompt template from the repository's <code>prompts/</code> filesystem hierarchy. The target directory is dynamically resolved according to a three-tier precedence model: if <code>mode</code> is explicitly provided, it selects <code>prompts/{mode}/</code>; otherwise, if <code>advanced_mode</code> is <code>True</code>, it selects <code>prompts/advanced/</code>; defaulting finally to <code>prompts/tutorial/</code>. </p>
-<p>Once the canonical path is computed relative to the project root, the file is read using <code>utf-8-sig</code> encoding. The method then issues a debug diagnostic to the operational log via a late import of <code>emit_raw()</code>, ensuring template access is recorded without polluting stdout.</p>
-<h4 id="logical-phases">Logical Phases</h4>
-<h4 id="phase-1-directory-scope-resolution">Phase 1: Directory Scope Resolution</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        <span class="n">prompt_dir</span> <span class="o">=</span> <span class="s2">"advanced"</span> <span class="k">if</span> <span class="n">advanced_mode</span> <span class="k">else</span> <span class="s2">"tutorial"</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="n">prompt_dir</span> <span class="o">=</span> <span class="n">mode</span>
-</code></pre></div>
-This phase determines which subdirectory under <code>prompts/</code> holds the requested template. By checking <code>mode is None</code> first, callers can pass arbitrary mode strings (such as <code>"api-reference"</code> or specialized testing profiles) directly. If <code>mode</code> is unspecified, the binary <code>advanced_mode</code> flag routes between <code>"advanced"</code> and <code>"tutorial"</code>.</p>
-<h4 id="phase-2-filesystem-resolution-and-ingestion">Phase 2: Filesystem Resolution and Ingestion</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))),</span> <span class="s2">"prompts"</span><span class="p">,</span> <span class="n">prompt_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md"</span><span class="p">)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-</code></pre></div>
-The absolute path is determined by stepping up two directory levels from <code>utils/prompts.py</code> to reach the repository root, then descending into <code>prompts/{prompt_dir}/{template_name}.md</code>. File opening explicitly mandates <code>utf-8-sig</code> to gracefully strip Windows UTF-8 BOM headers that may be introduced during manual template editing.</p>
-<h4 id="phase-3-telemetry-dispatch">Phase 3: Telemetry Dispatch</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"load_prompt_template | loaded '</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md' from prompts/</span><span class="si">{</span><span class="n">prompt_dir</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">return</span> <span class="n">content</span>
-</code></pre></div>
-The final phase lazily imports <code>emit_raw</code> from <code>utils.output</code>. This prevents module-level circular imports between output telemetry and prompt initialization. It logs the resolution event at severity level <code>"DEBUG"</code> explicitly directed to the <code>"LOG"</code> destination (bypassing standard output). The raw template string is then returned to the caller.</p>
+<strong>Signature</strong>: <code>def load_prompt_template(template_name, advanced_mode=False, mode=None) -&gt; str:</code></p>
+<p><strong>Description</strong>: Resolves and reads a Markdown prompt template from the project's <code>prompts/</code> directory tree. It determines the appropriate target directory based on runtime operational parameters, reads the file using <code>utf-8-sig</code> encoding to strip potential Byte Order Marks (BOM), and logs a debug event through <code>utils.output.emit_raw</code>.</p>
 <p><strong>Parameters</strong>:
-* <code>template_name</code> (<code>str</code>): Base name of the prompt Markdown file (excluding the <code>.md</code> extension).
-* <code>advanced_mode</code> (<code>bool</code>, optional): Legacy boolean flag used when <code>mode</code> is <code>None</code>. Selects <code>"advanced"</code> if <code>True</code>, or <code>"tutorial"</code> if <code>False</code>. Defaults to <code>False</code>.
-* <code>mode</code> (<code>str | None</code>, optional): Explicit subdirectory name under <code>prompts/</code> to load templates from. Overrides <code>advanced_mode</code> when provided. Defaults to <code>None</code>.</p>
+* <code>template_name</code> (<code>str</code>): The basename of the prompt file excluding the <code>.md</code> extension (e.g., <code>"identify_abstractions"</code>).
+* <code>advanced_mode</code> (<code>bool</code>, optional): Legacy flag indicating whether to pull from the <code>prompts/advanced/</code> folder when <code>mode</code> is <code>None</code>. Defaults to <code>False</code>.
+* <code>mode</code> (<code>str | None</code>, optional): Explicit folder name under <code>prompts/</code> from which to load the template (e.g., <code>"api-reference"</code>, <code>"tutorial"</code>, <code>"advanced"</code>). If omitted, falls back to <code>advanced_mode</code>. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The complete raw string content of the resolved template file.</p>
+* <code>str</code>: The decoded content of the prompt template file.</p>
 <p><strong>Raises</strong>:
-* <code>FileNotFoundError</code>: If the constructed path does not exist on disk.
-* <code>IOError</code>: If the file cannot be accessed due to OS permissions.</p>
+* <code>FileNotFoundError</code>: If the resolved template file path does not exist on disk.
+* <code>OSError</code>: If reading the file encounters filesystem permissions or I/O errors.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Sourced from utils/prompts.py implementation:</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))),</span> <span class="s2">"prompts"</span><span class="p">,</span> <span class="n">prompt_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md"</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"load_prompt_template | loaded '</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md' from prompts/</span><span class="si">{</span><span class="n">prompt_dir</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_prompt_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">advanced_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Load a prompt template file from the prompts/ directory."""</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="n">prompt_dir</span> <span class="o">=</span> <span class="s2">"advanced"</span> <span class="k">if</span> <span class="n">advanced_mode</span> <span class="k">else</span> <span class="s2">"tutorial"</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">prompt_dir</span> <span class="o">=</span> <span class="n">mode</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))),</span> <span class="s2">"prompts"</span><span class="p">,</span> <span class="n">prompt_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md"</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"load_prompt_template | loaded '</span><span class="si">{</span><span class="n">template_name</span><span class="si">}</span><span class="s2">.md' from prompts/</span><span class="si">{</span><span class="n">prompt_dir</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="k">return</span> <span class="n">content</span>
 </code></pre></div></p>
+<p>The function computes the absolute path to the template by resolving two levels up from <code>utils/prompts.py</code> to identify the repository root, then navigating into <code>prompts/&lt;prompt_dir&gt;/&lt;template_name&gt;.md</code>. Reading with <code>utf-8-sig</code> guarantees compatibility across diverse platforms, automatically stripping leading zero-width non-breaking spaces if templates are saved with Windows BOM markers. To avoid cyclical import chains between prompt loading and logging utilities during system initialization, <code>emit_raw</code> is lazily imported inside the function scope and dispatches a debug trace exclusively to the persistent session log (<code>dest="LOG"</code>).</p>
 <hr />
 <h3 id="parse_yaml_response"><code>parse_yaml_response()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>def parse_yaml_response(response: str) -&gt; Any</code></p>
-<p><strong>Description</strong>:<br />
-Isolates, sanitizes, and parses YAML data structures embedded within an LLM completion string. Standard generative language models frequently envelope structured responses in Markdown code blocks. <code>parse_yaml_response()</code> extracts text specifically bounded by <code>```yaml</code> and closing <code>```</code> tokens, ignoring preamble explanations, thinking traces, or postscript commentary. </p>
-<p>The extracted substring is then parsed via <code>yaml.safe_load()</code>. If the delimiters are missing or if the payload contains invalid YAML syntax, the routine intercepts the resulting standard exception and raises a formatted <code>ValueError</code> preserving the underlying cause.</p>
-<h4 id="logical-phases_1">Logical Phases</h4>
-<h4 id="phase-1-boundary-isolation">Phase 1: Boundary Isolation</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>        <span class="n">yaml_str</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"```yaml"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"```"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</code></pre></div>
-The input string is stripped of leading and trailing whitespace, then partitioned using <code>"```yaml"</code> as the opening delimiter. Index <code>1</code> isolates the text immediately following the fence header. A subsequent partition on <code>"```"</code> selects index <code>0</code>, extracting only the payload between the fences. A final <code>.strip()</code> removes boundary whitespace and carriage returns.</p>
-<h4 id="phase-2-deserialization-and-error-normalization">Phase 2: Deserialization and Error Normalization</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yaml_str</span><span class="p">)</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse YAML: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-</code></pre></div>
-The isolated YAML string is passed to <code>yaml.safe_load()</code>, which converts the text into corresponding native Python collections (e.g., <code>list</code>, <code>dict</code>, <code>int</code>, <code>str</code>). If an <code>IndexError</code> occurs during splitting (indicating missing code fences) or a <code>yaml.YAMLError</code> occurs during parsing, the exception is caught and re-raised as a standard <code>ValueError</code> with chained context (<code>from e</code>).</p>
+<strong>Signature</strong>: <code>def parse_yaml_response(response) -&gt; Any:</code></p>
+<p><strong>Description</strong>: Isolates, extracts, and parses a YAML document embedded within Markdown code fences in an LLM completion string. Language models frequently surround structured YAML data with conversational preamble or trailing commentary; this function isolates the code fence marked by <code>```yaml</code> and deserializes it via PyYAML's safe loader.</p>
 <p><strong>Parameters</strong>:
-* <code>response</code> (<code>str</code>): The raw text response received from an LLM call.</p>
+* <code>response</code> (<code>str</code>): The raw text response produced by an LLM inference call.</p>
 <p><strong>Returns</strong>:
-* <code>Any</code>: The deserialized Python data structure (typically a <code>dict</code> or <code>list</code>).</p>
+* <code>Any</code>: The parsed Python data structure (typically a <code>dict</code> or <code>list</code>) corresponding to the deserialized YAML payload.</p>
 <p><strong>Raises</strong>:
-* <code>ValueError</code>: If <code>"```yaml"</code> or <code>"```"</code> fences are missing, or if the extracted payload violates YAML syntax rules.</p>
+* <code>ValueError</code>: Raised if the response lacks the opening <code>```yaml</code> or closing <code>```</code> code fences, or if <code>yaml.safe_load</code> fails to parse the extracted substring due to invalid YAML syntax.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Sourced from utils/prompts.py implementation:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">yaml_str</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"```yaml"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"```"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yaml_str</span><span class="p">)</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse YAML: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_yaml_response</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Extract and parse YAML from an LLM response fenced in ```yaml blocks."""</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">yaml_str</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"```yaml"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"```"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yaml_str</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse YAML: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 </code></pre></div></p>
+<p>The method cleans extraneous whitespace with <code>.strip()</code> before executing a two-stage <code>.split()</code> operation: the first split isolates text following the initial <code>```yaml</code> fence tag, and the second split captures everything before the next closing <code>```</code> delimiter. The resulting substring is stripped and passed to <code>yaml.safe_load()</code> to prevent arbitrary code execution vulnerabilities during deserialization. Any exception thrown during string splitting (such as an <code>IndexError</code> when fences are missing) or parsing (<code>yaml.YAMLError</code>) is caught and re-raised as a standardized <code>ValueError</code> with the underlying exception chained via <code>from e</code>.</p>
 <hr />
 <h3 id="build_code_file_filter_prompt"><code>build_code_file_filter_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>def build_code_file_filter_prompt(project_name: str, file_listing: str) -&gt; str</code></p>
-<p><strong>Description</strong>:<br />
-Synthesizes the prompt payload utilized by file mapper stages (such as <code>DeterministicFileMapper</code> in API-reference documentation mode). This prompt directs an LLM to evaluate an enumerated listing of repository files and filter out non-code assets, configurations, UI layouts, and build artifacts. </p>
-<p>The generated prompt injects the target <code>project_name</code> and the pre-formatted <code>file_listing</code> string. It articulates explicit negative filtering constraints (specifying extensions like <code>.xaml</code>, <code>.storyboard</code>, <code>.html</code>, <code>.xml</code>, <code>.json</code>, <code>.manifest</code>, <code>.ini</code>, <code>.csproj</code>, and <code>.sln</code>) and mandates that the model output <em>only</em> a YAML list containing integer indices of genuine code modules.</p>
-<h4 id="prompt-assembly-phase">Prompt Assembly Phase</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>        <span class="sa">f</span><span class="s2">"For the project `</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2">`, here is the list of all files in the codebase:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file_listing</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="sa">f</span><span class="s2">"Your task is to identify WHICH of these files are ACTUAL CODE files that contain "</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="sa">f</span><span class="s2">"APIs, functions, classes, or core business logic.</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="sa">f</span><span class="s2">"EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files "</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="sa">f</span><span class="s2">"(like .xml, .json, .manifest, .ini), static assets, build scripts "</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="sa">f</span><span class="s2">"(like .csproj, .sln), and documentation.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="sa">f</span><span class="s2">"Return ONLY a YAML list of the file indices that should be documented as code modules.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="p">)</span>
-</code></pre></div>
-The prompt combines the contextual inputs into a single multiline string. By terminating the prompt with a concrete Markdown fence example (<code>```yaml\n- 0\n- 1\n- 3\n```</code>), the instruction anchors the expected few-shot schema pattern for zero-shot inference, ensuring compatibility with <code>parse_yaml_response()</code>.</p>
+<strong>Signature</strong>: <code>def build_code_file_filter_prompt(project_name: str, file_listing: str) -&gt; str:</code></p>
+<p><strong>Description</strong>: Constructs an inline prompt used by workflow mappers (such as <code>DeterministicFileMapper</code> in API reference mode) to identify functional source code files while excluding configuration, UI layout, static assets, and documentation files. It instructs the language model to return only a fenced YAML sequence of numeric file indices.</p>
 <p><strong>Parameters</strong>:
-* <code>project_name</code> (<code>str</code>): Name or identifier of the repository being processed.
-* <code>file_listing</code> (<code>str</code>): Enumerated list of repository files (typically formatted with index identifiers such as <code>(idx:0) path/to/file.py</code> via <a href="../files.py/">files.py</a>).</p>
+* <code>project_name</code> (<code>str</code>): The name of the project or repository being analyzed.
+* <code>file_listing</code> (<code>str</code>): A formatted directory listing or index-tagged list of file paths generated from the ingestion pipeline.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The fully interpolated prompt string ready for LLM consumption.</p>
+* <code>str</code>: The fully interpolated prompt string ready for submission to <code>call_llm()</code>.</p>
+<p><strong>Raises</strong>:
+* No exceptions are explicitly raised; string formatting errors occur only if arguments cannot be coerced to strings.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Direct implementation extracted from utils/prompts.py:</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">prompt</span> <span class="o">=</span> <span class="n">build_code_file_filter_prompt</span><span class="p">(</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">"Codebase-Knowledge-Builder"</span><span class="p">,</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">file_listing</span><span class="o">=</span><span class="s2">"(idx:0) utils/prompts.py</span><span class="se">\n</span><span class="s2">(idx:1) config.json</span><span class="se">\n</span><span class="s2">(idx:2) main.py"</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_code_file_filter_prompt</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_listing</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for DeterministicFileMapper to filter non-code files.</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="sd">    Used in api-reference mode to identify which files are actual code modules</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="sd">    (APIs, functions, classes, business logic) vs. UI layouts, configs, assets.</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="sd">    """</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="sa">f</span><span class="s2">"For the project `</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2">`, here is the list of all files in the codebase:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file_listing</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="sa">f</span><span class="s2">"Your task is to identify WHICH of these files are ACTUAL CODE files that contain "</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="sa">f</span><span class="s2">"APIs, functions, classes, or core business logic.</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="sa">f</span><span class="s2">"EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files "</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        <span class="sa">f</span><span class="s2">"(like .xml, .json, .manifest, .ini), static assets, build scripts "</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="sa">f</span><span class="s2">"(like .csproj, .sln), and documentation.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="sa">f</span><span class="s2">"Return ONLY a YAML list of the file indices that should be documented as code modules.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        <span class="sa">f</span><span class="s2">"```yaml</span><span class="se">\n</span><span class="s2">- 0</span><span class="se">\n</span><span class="s2">- 1</span><span class="se">\n</span><span class="s2">- 3</span><span class="se">\n</span><span class="s2">```"</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="p">)</span>
 </code></pre></div></p>
+<p>The function generates a deterministic, zero-shot classification prompt enforcing strict negative and positive constraints. By providing an explicit few-shot YAML schema example (<code>```yaml\n- 0\n- 1\n- 3\n```</code>) and listing non-code file extensions to exclude (such as <code>.xaml</code>, <code>.xml</code>, <code>.json</code>, <code>.csproj</code>), it steers the model away from conversational chatter. The resulting output conforms directly to the contract expected downstream by <code>parse_yaml_response()</code> and <code>parse_file_index()</code>.</p>
 <hr />
 <h3 id="build_chapter_summary_prompt"><code>build_chapter_summary_prompt()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = "english") -&gt; str</code></p>
-<p><strong>Description</strong>:<br />
-Assembles the prompt required to synthesize a standardized, 4-dimension technical brief of a completed documentation chapter. This summary is injected into subsequent chapter synthesis prompts to maintain architectural coherence and cross-chapter referencing across large documentation jobs.</p>
-<p>The prompt enforces a strict structure requiring 3 to 5 concise technical sentences across four architectural dimensions:
-1. <strong>Component Scope &amp; Responsibility</strong>: Core domain, problem space, and system role.
-2. <strong>Key Technical Elements</strong>: Explicit naming and characterization of classes, services, functions, and protocols.
-3. <strong>Implementation Patterns &amp; Architecture</strong>: Design patterns, communication channels, error strategies, and threading models.
-4. <strong>System Integration &amp; Dependencies</strong>: External consumption, interface contracts, and boundary touchpoints.</p>
-<p>If the requested <code>language</code> parameter is set to any value other than <code>"english"</code> (case-insensitive), an explicit language constraint prefix is dynamically prepended to ensure localized generation.</p>
-<h4 id="prompt-assembly-phase_1">Prompt Assembly Phase</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="k">return</span> <span class="p">(</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="p">)</span>
-</code></pre></div>
-The function evaluates the target language and conditionally builds the <code>lang_instruction</code> string. It then formats the four technical questions, appending the chapter index, title, and body text separated by a Markdown thematic break (<code>---</code>).</p>
+<strong>Signature</strong>: <code>def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = "english") -&gt; str:</code></p>
+<p><strong>Description</strong>: Constructs the prompt used to synthesize a four-dimensional technical brief from an already-generated documentation chapter. This summary is injected into subsequent pipeline stages as cumulative context, ensuring architectural continuity and cross-chapter coherence across large documentation builds.</p>
 <p><strong>Parameters</strong>:
-* <code>chapter_num</code> (<code>int</code>): Sequential index of the chapter being summarized.
-* <code>abstraction_name</code> (<code>str</code>): Title or high-level abstraction name representing the chapter.
-* <code>chapter_content</code> (<code>str</code>): Markdown text of the fully generated chapter.
-* <code>language</code> (<code>str</code>, optional): Target natural language for the summary output. Defaults to <code>"english"</code>.</p>
+* <code>chapter_num</code> (<code>int</code>): The numeric sequence index of the chapter.
+* <code>abstraction_name</code> (<code>str</code>): The title or conceptual abstraction covered by the chapter (e.g., <code>"Authentication &amp; Session Management"</code>).
+* <code>chapter_content</code> (<code>str</code>): The full Markdown text of the generated chapter.
+* <code>language</code> (<code>str</code>, optional): The target output language for the summary. If set to anything other than <code>"english"</code> (case-insensitive), a localization instruction is prepended. Defaults to <code>"english"</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The fully constructed technical summary prompt string.</p>
+* <code>str</code>: The complete summary generation prompt string.</p>
+<p><strong>Raises</strong>:
+* No exceptions are explicitly raised.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Direct implementation extracted from utils/prompts.py:</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">prompt</span> <span class="o">=</span> <span class="n">build_chapter_summary_prompt</span><span class="p">(</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">chapter_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">abstraction_name</span><span class="o">=</span><span class="s2">"LLM Execution Gateway"</span><span class="p">,</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">chapter_content</span><span class="o">=</span><span class="s2">"## Technical Overview</span><span class="se">\n</span><span class="s2">This module manages LLM routing..."</span><span class="p">,</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">language</span><span class="o">=</span><span class="s2">"english"</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_chapter_summary_prompt</span><span class="p">(</span><span class="n">chapter_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">abstraction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"english"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="sd">"""Build the prompt for generating a technical summary of a written chapter.</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="sd">    Used after each chapter is generated to create a concise technical summary</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="sd">    for cross-chapter context. The summary is fed into subsequent chapters'</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="sd">    prompts so the LLM maintains coherence across the full document.</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="sd">    The summary captures 4 technical dimensions with 3-5 sentences each:</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="sd">    1. Component scope &amp; responsibility</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="sd">    2. Key classes/services/functions and their roles</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="sd">    3. Implementation patterns &amp; architectural decisions</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="sd">    4. Inter-component interfaces &amp; dependencies</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="sd">    """</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="n">lang_instruction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Write the entire summary in </span><span class="si">{</span><span class="n">language</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">language</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"english"</span> <span class="k">else</span> <span class="s2">""</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lang_instruction</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="sa">f</span><span class="s2">"Summarize the following documentation chapter as a structured technical brief. "</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>        <span class="sa">f</span><span class="s2">"For EACH of the 4 points below, write 3-5 concise technical sentences:</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>        <span class="sa">f</span><span class="s2">"(1) **Component Scope &amp; Responsibility**: What is the main technical domain this "</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>        <span class="sa">f</span><span class="s2">"chapter covers? What problems does it solve and what role does it play in the system?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>        <span class="sa">f</span><span class="s2">"(2) **Key Technical Elements**: What are the specific classes, services, functions, "</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>        <span class="sa">f</span><span class="s2">"data models, or protocols discussed? Name them and describe their concrete roles.</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>        <span class="sa">f</span><span class="s2">"(3) **Implementation Patterns &amp; Architecture**: What design patterns, communication "</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>        <span class="sa">f</span><span class="s2">"protocols, data flow strategies, error handling mechanisms, or security measures "</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>        <span class="sa">f</span><span class="s2">"are covered? How are they implemented?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>        <span class="sa">f</span><span class="s2">"(4) **System Integration &amp; Dependencies**: How does this component interface with "</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>        <span class="sa">f</span><span class="s2">"other parts of the system? What does it consume from or provide to other components? "</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>        <span class="sa">f</span><span class="s2">"What are the key integration points?</span><span class="se">\n\n</span><span class="s2">"</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>        <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>        <span class="sa">f</span><span class="s2">"Chapter </span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">abstraction_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">chapter_content</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>    <span class="p">)</span>
 </code></pre></div></p>
-<hr />
+<p>The prompt divides technical evaluation into four distinct analytical pillars: scope, concrete technical elements, internal patterns, and external system integrations. To enforce detail without context bloat, it constrains each section to exactly 3-5 sentences. When <code>language</code> differs from <code>"english"</code>, the function prepends a directive (<code>"Write the entire summary in &lt;Language&gt;. "</code>), ensuring multi-lingual consistency across generated documentation suites.</p>
 <h2 id="data-structures">Data Structures</h2>
-<p>The module does not declare custom object classes; instead, it relies on structured string contracts and parsed deserialization schemas.</p>
-<h3 id="parsed-yaml-extraction-schemas">Parsed YAML Extraction Schemas</h3>
-<p><code>parse_yaml_response()</code> transforms YAML fenced blocks into native Python data structures. The expected shapes depend on the consuming pipeline node:</p>
-<h4 id="1-integer-index-list-schema">1. Integer Index List Schema</h4>
-<p>Emitted by LLM responses answering <code>build_code_file_filter_prompt()</code>:</p>
+<p>The module operates primarily on string payloads and scalar primitives, but enforces specific structural schemas for LLM prompts and parsed YAML outputs.</p>
+<h3 id="file-index-values">File Index Values</h3>
+<p>Extracted file indices are represented as integers or <code>None</code>, accommodating multiple LLM string variations:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Field Element</th>
-<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Representation Type</th>
+<th style="text-align: left;">Raw Format Example</th>
+<th style="text-align: left;">Resolved Return Value</th>
 <th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>[item]</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Zero-based index of a valid code file corresponding to the indexed input listing.</td>
+<td style="text-align: left;"><code>3</code></td>
+<td style="text-align: left;"><code>3</code></td>
+<td style="text-align: left;">Pure numeric integer returned by structured JSON/YAML.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>str</code> (Annotated)</td>
+<td style="text-align: left;"><code>"3 # utils/prompts.py"</code></td>
+<td style="text-align: left;"><code>3</code></td>
+<td style="text-align: left;">Index followed by comment annotations or file paths.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>str</code> (Range)</td>
+<td style="text-align: left;"><code>"0-3"</code></td>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;">Range sequence; lower bound is returned for caller expansion.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>str</code> (Non-numeric)</td>
+<td style="text-align: left;"><code>"none"</code>, <code>""</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Unparseable or empty token indicating no matching index.</td>
 </tr>
 </tbody>
 </table>
-<p><em>Example Payload</em>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
-</code></pre></div></p>
-<h4 id="2-navigation-grouping-hierarchy-schema">2. Navigation / Grouping Hierarchy Schema</h4>
-<p>Emitted by LLM clustering tasks (e.g., when structuring MkDocs navigation in <a href="../mkdocs.py/">mkdocs.py</a>):</p>
+<h3 id="code-file-filter-output-schema">Code File Filter Output Schema</h3>
+<p>The expected output format extracted by <code>parse_yaml_response</code> after executing the prompt generated by <code>build_code_file_filter_prompt</code>:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Field Name</th>
+<th style="text-align: left;">Field / Element</th>
 <th style="text-align: left;">Type</th>
 <th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>title</code></td>
-<td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">Display title of the documentation grouping or category.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>items</code></td>
-<td style="text-align: left;"><code>list[str]</code></td>
-<td style="text-align: left;">List of file paths, module names, or sub-group mappings.</td>
+<td style="text-align: left;"><code>[index]</code></td>
+<td style="text-align: left;"><code>list[int]</code></td>
+<td style="text-align: left;">A sequential list of zero-based integer indices corresponding to code files.</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h3 id="technical-summary-schema">Technical Summary Schema</h3>
-<p><code>build_chapter_summary_prompt()</code> enforces a standardized output contract across four discrete technical dimensions:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Example Expected YAML Payload:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="err">```</span><span class="l l-Scalar l-Scalar-Plain">yaml</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="l l-Scalar l-Scalar-Plain">- 0</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="l l-Scalar l-Scalar-Plain">- 1</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="l l-Scalar l-Scalar-Plain">- 4</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="l l-Scalar l-Scalar-Plain">- 12</span>
+</code></pre></div>
+```</p>
+<h3 id="chapter-summary-four-dimension-schema">Chapter Summary Four-Dimension Schema</h3>
+<p>The textual structure produced when executing prompts generated by <code>build_chapter_summary_prompt</code>:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Dimension Header</th>
-<th style="text-align: left;">Expected Content Format</th>
-<th style="text-align: left;">Functional Role in Pipeline</th>
+<th style="text-align: left;">Dimension</th>
+<th style="text-align: left;">Heading</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Length Constraint</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td style="text-align: left;">1</td>
 <td style="text-align: left;"><code>(1) **Component Scope &amp; Responsibility**</code></td>
-<td style="text-align: left;">3–5 concise technical sentences</td>
-<td style="text-align: left;">Defines boundary scope and domain problems resolved.</td>
+<td style="text-align: left;">High-level technical domain, resolved problems, and system role.</td>
+<td style="text-align: left;">3-5 sentences</td>
 </tr>
 <tr>
+<td style="text-align: left;">2</td>
 <td style="text-align: left;"><code>(2) **Key Technical Elements**</code></td>
-<td style="text-align: left;">3–5 concise technical sentences</td>
-<td style="text-align: left;">Enumerates concrete functions, classes, and protocol entities.</td>
+<td style="text-align: left;">Specific classes, functions, services, models, and protocols.</td>
+<td style="text-align: left;">3-5 sentences</td>
 </tr>
 <tr>
+<td style="text-align: left;">3</td>
 <td style="text-align: left;"><code>(3) **Implementation Patterns &amp; Architecture**</code></td>
-<td style="text-align: left;">3–5 concise technical sentences</td>
-<td style="text-align: left;">Summarizes algorithms, design patterns, and failure paths.</td>
+<td style="text-align: left;">Design patterns, protocols, data flows, and security measures.</td>
+<td style="text-align: left;">3-5 sentences</td>
 </tr>
 <tr>
+<td style="text-align: left;">4</td>
 <td style="text-align: left;"><code>(4) **System Integration &amp; Dependencies**</code></td>
-<td style="text-align: left;">3–5 concise technical sentences</td>
-<td style="text-align: left;">Details inbound/outbound calls, data shapes, and contracts.</td>
+<td style="text-align: left;">Inter-component interfaces, consumed resources, and export points.</td>
+<td style="text-align: left;">3-5 sentences</td>
 </tr>
 </tbody>
 </table>
-<hr />
 <h2 id="error-handling">Error Handling</h2>
-<p><code>utils/prompts.py</code> applies targeted defensive error management for file I/O and non-deterministic LLM output parsing:</p>
-<h3 id="1-code-fence-partitioning-and-yaml-syntax-trapping">1. Code Fence Partitioning and YAML Syntax Trapping</h3>
-<p>Language models frequently generate conversational commentary alongside structured outputs. <code>parse_yaml_response()</code> isolates the block using <code>.split("```yaml")[1].split("```")[0]</code>. 
-* If the opening token <code>"```yaml"</code> or closing token <code>"```"</code> is missing, a Python <code>IndexError</code> is triggered during list indexing.
-* If the enclosed payload contains unescaped characters, inconsistent tab indentations, or invalid scalar mappings, <code>yaml.safe_load()</code> raises <code>yaml.YAMLError</code> (or one of its subclasses such as <code>yaml.scanner.ScannerError</code> or <code>yaml.parser.ParserError</code>).
-* All exceptions are caught uniformly by an <code>except Exception as e:</code> block and re-raised as a standard <code>ValueError(f"Failed to parse YAML: {e}") from e</code>. This consolidates diverse downstream parsing failures into a single predictable exception type that orchestration nodes in <code>nodes.py</code> can catch and handle (e.g., by triggering a retry prompt).</p>
-<h3 id="2-filesystem-encoding-and-path-anomalies">2. Filesystem Encoding and Path Anomalies</h3>
-<p>In <code>load_prompt_template()</code>:
-* <strong>UTF-8 Byte Order Marks (BOM)</strong>: Opening files with <code>utf-8-sig</code> prevents <code>\ufeff</code> prefix characters from remaining in the template string, avoiding subtle formatting errors during subsequent string interpolation.
-* <strong>Missing Templates</strong>: If a referenced <code>template_name</code> does not exist within <code>prompts/{prompt_dir}/</code>, the native <code>FileNotFoundError</code> propagates directly to the calling node, signaling a misconfigured pipeline stage.</p>
-<hr />
+<p>The module employs localized defensive parsing and explicit exception wrapping to prevent corrupted LLM responses from causing silent pipeline failures:</p>
+<ul>
+<li><strong>Fenced Block Extraction Failures</strong>: In <code>parse_yaml_response()</code>, responses that do not contain the opening <code>```yaml</code> or trailing <code>```</code> delimiters trigger an <code>IndexError</code> during string splitting. This is captured by the blanket <code>except Exception as e:</code> block and re-raised as <code>ValueError(f"Failed to parse YAML: {e}") from e</code>.</li>
+<li><strong>Corrupt YAML Payloads</strong>: If the content between code fences is not valid YAML syntax, <code>yaml.safe_load()</code> raises <code>yaml.YAMLError</code>. The method intercepts this exception and wraps it in a descriptive <code>ValueError</code>, providing context to the calling pipeline node.</li>
+<li><strong>Non-Numeric Token Fallbacks</strong>: In <code>parse_file_index()</code>, if regex matching yields an empty match list (<code>nums == []</code>), the function returns <code>None</code> rather than attempting an out-of-bounds list access on <code>nums[0]</code>.</li>
+<li><strong>BOM Preservation and Decoding</strong>: <code>load_prompt_template()</code> opens files with <code>encoding="utf-8-sig"</code>. This transparently absorbs byte order marks present on certain operating systems or editors without raising <code>UnicodeDecodeError</code>.</li>
+</ul>
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../call_llm.py/">call_llm.py</a> — The centralized inference execution gateway that receives strings constructed by prompt builders and passes completions to <code>parse_yaml_response()</code>.</li>
-<li><a href="../files.py/">files.py</a> — Provides the directory indexing logic and <code>(idx:N)</code> file listings fed into <code>build_code_file_filter_prompt()</code>.</li>
-<li><a href="../output.py/">output.py</a> — Supplies the <code>emit_raw()</code> diagnostic function lazily imported by <code>load_prompt_template()</code>.</li>
-<li><a href="../mkdocs.py/">mkdocs.py</a> — Consumes <code>parse_yaml_response()</code> to unpack LLM-generated chapter clustering and navigation layouts.</li>
-<li><a href="../../nodes.py/">nodes.py</a> — Implements pipeline nodes (such as <code>ContextRouter</code>, <code>IdentifyAbstractions</code>, and <code>DeterministicFileMapper</code>) that orchestrate template loading and response parsing.</li>
+<li><a href="../call_llm.py/">call_llm.py</a> — The centralized inference gateway that executes the prompt strings constructed by this module.</li>
+<li><a href="../output.py/">output.py</a> — Provides <code>emit_raw()</code> for logging prompt template loading events.</li>
+<li><a href="../../nodes.py/">nodes.py</a> — Implements pipeline nodes (such as <code>ContextRouter</code>, <code>MapAbstractions</code>, and <code>CombineTutorial</code>) that consume prompt templates and parse model completions.</li>
+<li><a href="../mkdocs.py/">mkdocs.py</a> — Uses <code>load_prompt_template</code> and <code>parse_yaml_response</code> for dynamic LLM-driven navigation clustering.</li>
+<li><a href="../files.py/">files.py</a> — Assembles integer-tagged file listings that feed into <code>build_code_file_filter_prompt</code>.</li>
 </ul>
 
 

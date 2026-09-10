@@ -11,10 +11,10 @@
         <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/token_utils.py/">
       
       
-        <link rel="prev" href="../prompts.py/">
+        <link rel="prev" href="../llm_config.py/">
       
       
-        <link rel="next" href="../mkdocs.py/">
+        <link rel="next" href="../prompts.py/">
       
       
         
@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".mermaid-raw", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -389,7 +389,7 @@
   <span class="md-ellipsis">
     
   
-    Workflow Orchestration & Core Execution
+    Workflow & Orchestration
   
 
     
@@ -405,7 +405,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Workflow Orchestration & Core Execution
+    Workflow & Orchestration
   
 
           </label>
@@ -532,7 +532,7 @@
   <span class="md-ellipsis">
     
   
-    Repository Ingestion & File Processing
+    Codebase Ingestion & Processing
   
 
     
@@ -548,7 +548,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Repository Ingestion & File Processing
+    Codebase Ingestion & Processing
   
 
           </label>
@@ -770,7 +770,7 @@
   <span class="md-ellipsis">
     
   
-    LLM Gateway & Context Management
+    LLM & Prompt Management
   
 
     
@@ -786,7 +786,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM Gateway & Context Management
+    LLM & Prompt Management
   
 
           </label>
@@ -802,6 +802,8 @@
   
     
     
+      
+        
       
         
       
@@ -884,14 +886,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../prompts.py/" class="md-nav__link">
+      <a href="../llm_config.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    prompts.py
+    llm_config.py
   
 
     
@@ -995,17 +997,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#count_tokens" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        count_tokens()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#create_token_counter" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1029,10 +1020,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-shared-store-query" class="md-nav__link">
+  <a href="#phase-1-shared-store-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Shared Store Query
+        Phase 1: Shared Store Inspection
       
     </span>
   </a>
@@ -1051,10 +1042,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-remote-context-ingestion-and-telemetry-logging" class="md-nav__link">
+  <a href="#phase-3-dynamic-model-context-lookup-and-diagnostic-telemetry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Remote Context Ingestion and Telemetry Logging
+        Phase 3: Dynamic Model Context Lookup and Diagnostic Telemetry
       
     </span>
   </a>
@@ -1063,6 +1054,17 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        count_tokens()
+      
+    </span>
+  </a>
   
 </li>
         
@@ -1079,10 +1081,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-token-measurement-and-percentage-calculation" class="md-nav__link">
+  <a href="#phase-1-token-profiling-and-capacity-calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Token Measurement and Percentage Calculation
+        Phase 1: Token Profiling and Capacity Calculation
       
     </span>
   </a>
@@ -1090,10 +1092,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-component-breakdown-formatting" class="md-nav__link">
+  <a href="#phase-2-granular-usage-breakdown-formatting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Component Breakdown Formatting
+        Phase 2: Granular Usage Breakdown Formatting
       
     </span>
   </a>
@@ -1101,10 +1103,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-dual-telemetry-emission" class="md-nav__link">
+  <a href="#phase-3-dual-channel-telemetry-dispatch" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Dual Telemetry Emission
+        Phase 3: Dual-Channel Telemetry Dispatch
       
     </span>
   </a>
@@ -1162,10 +1164,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#shared-pipeline-state-shared" class="md-nav__link">
+  <a href="#sharedstorecontext" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shared Pipeline State (shared)
+        SharedStoreContext
       
     </span>
   </a>
@@ -1173,21 +1175,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#component-token-usage-breakdown-token_usage" class="md-nav__link">
+  <a href="#tokenusagebreakdown" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Component Token Usage Breakdown (token_usage)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#module-level-singletons" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module-Level Singletons
+        TokenUsageBreakdown
       
     </span>
   </a>
@@ -1225,6 +1216,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1275,7 +1294,7 @@
   <span class="md-ellipsis">
     
   
-    Documentation Generation & System Telemetry
+    Documentation & Telemetry
   
 
     
@@ -1291,7 +1310,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Documentation Generation & System Telemetry
+    Documentation & Telemetry
   
 
           </label>
@@ -1305,6 +1324,8 @@
   
     
     
+      
+        
       
         
       
@@ -1406,6 +1427,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    i18n.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1479,17 +1528,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#count_tokens" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        count_tokens()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#create_token_counter" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1513,10 +1551,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-shared-store-query" class="md-nav__link">
+  <a href="#phase-1-shared-store-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Shared Store Query
+        Phase 1: Shared Store Inspection
       
     </span>
   </a>
@@ -1535,10 +1573,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-remote-context-ingestion-and-telemetry-logging" class="md-nav__link">
+  <a href="#phase-3-dynamic-model-context-lookup-and-diagnostic-telemetry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Remote Context Ingestion and Telemetry Logging
+        Phase 3: Dynamic Model Context Lookup and Diagnostic Telemetry
       
     </span>
   </a>
@@ -1547,6 +1585,17 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        count_tokens()
+      
+    </span>
+  </a>
   
 </li>
         
@@ -1563,10 +1612,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-token-measurement-and-percentage-calculation" class="md-nav__link">
+  <a href="#phase-1-token-profiling-and-capacity-calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Token Measurement and Percentage Calculation
+        Phase 1: Token Profiling and Capacity Calculation
       
     </span>
   </a>
@@ -1574,10 +1623,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-component-breakdown-formatting" class="md-nav__link">
+  <a href="#phase-2-granular-usage-breakdown-formatting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Component Breakdown Formatting
+        Phase 2: Granular Usage Breakdown Formatting
       
     </span>
   </a>
@@ -1585,10 +1634,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-dual-telemetry-emission" class="md-nav__link">
+  <a href="#phase-3-dual-channel-telemetry-dispatch" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: Dual Telemetry Emission
+        Phase 3: Dual-Channel Telemetry Dispatch
       
     </span>
   </a>
@@ -1646,10 +1695,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#shared-pipeline-state-shared" class="md-nav__link">
+  <a href="#sharedstorecontext" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shared Pipeline State (shared)
+        SharedStoreContext
       
     </span>
   </a>
@@ -1657,21 +1706,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#component-token-usage-breakdown-token_usage" class="md-nav__link">
+  <a href="#tokenusagebreakdown" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Component Token Usage Breakdown (token_usage)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#module-level-singletons" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module-Level Singletons
+        TokenUsageBreakdown
       
     </span>
   </a>
@@ -1726,10 +1764,11 @@
 <blockquote>
 <p><strong>Source:</strong> <code>utils/token_utils.py</code></p>
 </blockquote>
+<p>Following the prompt construction and template deserialization workflows established in <a href="../prompts.py/">prompts.py</a>, <code>token_utils.py</code> governs the volumetric profiling and context limit enforcement layer of the <code>Codebase-Knowledge-Builder</code> architecture. Once prompts are synthesized, the system must verify that total prompt and context token counts respect upstream Large Language Model (LLM) window limits prior to dispatching HTTP or SDK inference requests in <a href="../call_llm.py/">call_llm.py</a>.</p>
 <h2 id="technical-overview">Technical Overview</h2>
-<p>Following the prompt management and structured decoding mechanics documented in <a href="../prompts.py/">utils/prompts.py</a>, the <code>utils/token_utils.py</code> module provides token budgeting, context window resolution, and execution telemetry for the pipeline. In Large Language Model (LLM) documentation pipelines, unbounded prompt assembly risks exceeding provider context windows, resulting in costly HTTP 400 errors, silent payload truncation, or mid-generation failures. This module establishes a unified metering and budgeting layer that operates upstream of the execution gateway documented in <a href="../call_llm.py/">utils/call_llm.py</a>.</p>
-<p>The component operates as a standalone utility service designed around three core functions: lazy-loaded Byte Pair Encoding (BPE) tokenization, dynamic context capacity resolution, and structured multi-channel telemetry emission. It wraps OpenAI's <code>cl100k_base</code> BPE tokenizer through the <code>tiktoken</code> library, providing a fallback mechanism that approximates token counts using character-length heuristics (<code>len(text) // 4</code>) when binary wheels or encoding assets fail to load. In addition to measuring strings, the module determines active model context boundaries by inspecting execution runtimes or querying external provider metadata endpoints.</p>
-<p>Telemetry tracking is integrated through a dual-channel reporting mechanism. When execution nodes in <a href="../../nodes.py/">nodes.py</a> construct prompts, <code>token_utils.py</code> measures prompt size against model thresholds and breaks down composite prompts (such as system instructions, file contents, and dependency graphs) into per-component allocations. It routes human-readable summaries to the terminal using localized string emission in <a href="../output.py/">utils/output.py</a>, while appending structured single-line execution records to the shared persistent log file.</p>
+<p>The <code>token_utils.py</code> module provides unified token estimation, provider context resolution, and real-time capacity telemetry. Large-scale codebase analysis tasks—such as AST ingestion, hierarchical directory mapping, and multi-file synthesis—frequently risk overflowing model context limits or exhausting API tier budgets. This module mitigates context exhaustion by calculating prompt sizes using the standard Byte Pair Encoding (BPE) algorithm, determining runtime context limits dynamically, and emitting execution telemetry before inference calls are initiated.</p>
+<p>Architecturally, the module employs a singleton-backed BPE tokenizer initialized with the <code>cl100k_base</code> vocabulary via the <code>tiktoken</code> library. To guard against execution halts in resource-constrained, offline, or embedded environments where C-extensions or network-loaded BPE dictionaries fail to initialize, <code>token_utils.py</code> implements a graceful heuristic fallback calculating $\lfloor \text{characters} / 4 \rfloor$. For context ceiling detection, the module queries the execution pipeline's shared state or delegator logic in <a href="../llm_config.py/">llm_config.py</a> to inspect model identifiers and base endpoints.</p>
+<p>The module interfaces directly with <a href="../output.py/">output.py</a> to log structured execution telemetry. When nodes throughout <a href="../../flow.py/">flow.py</a> and <a href="../../nodes.py/">nodes.py</a> evaluate candidate prompts, <code>token_utils.py</code> provides formatted diagnostic breakdowns across stdout and persistent file logs. These breakdowns track individual components—such as system instructions, file contents, and reasoning traces—against total token ceilings, allowing developers to inspect context saturation across pipeline runs.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -1757,51 +1796,64 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    subgraph ContextResolution["Context Window Resolution"]
-        sharedStoreCheck{"Shared Store Has max_tokens?"}
-        readShared["Read shared['max_tokens']"]
-        inspectEnv["Inspect LLM_PROVIDER and Provider Env Vars"]
-        queryEndpoint["Call get_model_context_length(endpoint, model, key)"]
-        returnContext["Return Resolved Context Length"]
-
-        sharedStoreCheck --&gt;|"Yes"| readShared
-        sharedStoreCheck --&gt;|"No"| inspectEnv
-        readShared --&gt; returnContext
-        inspectEnv --&gt; queryEndpoint
-        queryEndpoint --&gt; returnContext
-    end
-
-    subgraph TokenEstimationPipeline["Token Estimation Pipeline"]
-        inputPrompt["Input Prompt Content"]
-        checkEncoding{"Encoding Cached?"}
-        loadEncoding["Initialize tiktoken cl100k_base Singleton"]
-        runBPE["Execute enc.encode(text, disallowed_special=())"]
-        heuristicFallback["Fallback to len(text) // 4"]
-        calcPercentage["Calculate Capacity Percentage vs max_tokens"]
-
-        inputPrompt --&gt; checkEncoding
-        checkEncoding --&gt;|"Cached"| runBPE
-        checkEncoding --&gt;|"Not Cached"| loadEncoding
-        loadEncoding --&gt;|"Success"| runBPE
-        loadEncoding --&gt;|"Failure"| heuristicFallback
-        runBPE --&gt; calcPercentage
-        heuristicFallback --&gt; calcPercentage
-    end
-
-    subgraph ReportingMechanism["Reporting and Telemetry Dispatch"]
-        formatBreakdown["Format Component Usage Breakdown"]
-        emitStdout["emit('TOKEN_ANALYTICS', ...) to Console"]
-        logFile["logger.info('NODE EXEC | ...') to Disk Handler"]
-
-        calcPercentage --&gt; formatBreakdown
-        formatBreakdown --&gt; emitStdout
-        formatBreakdown --&gt; logFile
-    end
-
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-    class sharedStoreCheck entryNode;
-    class inputPrompt entryNode;
-    class formatBreakdown entryNode;</code></pre> 
+
+    subgraph TokenResolution["Context Limit Resolution"]
+        startRes["Input: shared state dict"]
+        checkShared{"shared contains max_tokens?"}
+        returnShared["Return cached max_tokens"]
+        checkProvider{"Evaluate LLM_PROVIDER env"}
+        configGemini["Target Google Gemini API"]
+        configGeneric["Target Provider Base URL and Model"]
+        fetchLimit["Invoke get_model_context_length"]
+        logLimit["Emit DEBUG telemetry"]
+    end
+
+    subgraph TokenCounting["Token Counting Strategy"]
+        startCount["Input: prompt text"]
+        checkText{"Is text empty?"}
+        returnZero["Return 0 tokens"]
+        getEnc["Call _get_encoding singleton"]
+        checkEnc{"Is tiktoken cl100k_base available?"}
+        encodeBpe["Encode text via tiktoken with disallowed_special empty"]
+        fallbackDiv["Fallback: compute character length divided by 4"]
+        returnCount["Return calculated token count"]
+    end
+
+    subgraph TelemetryDispatch["Telemetry and Logging"]
+        startTelemetry["Input: node_name, prompt_content, max_tokens, token_usage"]
+        computePct["Calculate token capacity percentage"]
+        formatBreakdown["Format token_usage breakdown table and log parts"]
+        emitConsole["Call emit for TOKEN_ANALYTICS console display"]
+        emitLogger["Call logger.info with structured execution string"]
+    end
+
+    startRes --&gt; checkShared
+    checkShared -- "Yes" --&gt; returnShared
+    checkShared -- "No" --&gt; checkProvider
+    checkProvider -- "GEMINI or None" --&gt; configGemini
+    checkProvider -- "Custom Provider" --&gt; configGeneric
+    configGemini --&gt; fetchLimit
+    configGeneric --&gt; fetchLimit
+    fetchLimit --&gt; logLimit
+
+    startCount --&gt; checkText
+    checkText -- "Yes" --&gt; returnZero
+    checkText -- "No" --&gt; getEnc
+    getEnc --&gt; checkEnc
+    checkEnc -- "Yes" --&gt; encodeBpe
+    checkEnc -- "No" --&gt; fallbackDiv
+    encodeBpe --&gt; returnCount
+    fallbackDiv --&gt; returnCount
+
+    startTelemetry --&gt; computePct
+    computePct --&gt; formatBreakdown
+    formatBreakdown --&gt; emitConsole
+    emitConsole --&gt; emitLogger
+
+    class startRes entryNode;
+    class startCount entryNode;
+    class startTelemetry entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -1811,109 +1863,116 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
 <h2 id="public-api">Public API</h2>
-<h3 id="count_tokens"><code>count_tokens()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>def count_tokens(text: str) -&gt; int:</code></p>
-<p><strong>Description</strong>:<br />
-Measures the token count of a given string using the <code>cl100k_base</code> BPE tokenizer. If the input text is falsy (empty string or <code>None</code>), it immediately returns <code>0</code> without attempting tokenization. The function resolves the encoding instance by querying the internal lazy singleton <code>_get_encoding()</code>. If the tokenizer is unavailable due to missing dependencies, environment constraints, or initialization failures, the function falls back to a deterministic heuristic calculation: the total string length divided by 4 using integer division (<code>len(text) // 4</code>). When encoding through <code>tiktoken</code>, it explicitly disables special token constraints (<code>disallowed_special=()</code>), preventing runtime crashes when source code snippets contain literal token strings such as <code>&lt;|endoftext|&gt;</code>.</p>
-<p><strong>Parameters</strong>:
-* <code>text</code> (<code>str</code>): The raw text or prompt content to measure.</p>
-<p><strong>Returns</strong>:
-* <code>int</code>: The computed or estimated token count.</p>
-<p><strong>Raises</strong>:
-* This function does not raise exceptions. Any internal failures during encoding retrieval degrade to character-count heuristics.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Implementation extraction from utils/token_utils.py</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_tokens</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="sd">"""Count tokens using tiktoken, with fallback to chars/4."""</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="k">return</span> <span class="mi">0</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">enc</span> <span class="o">=</span> <span class="n">_get_encoding</span><span class="p">()</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">if</span> <span class="n">enc</span><span class="p">:</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">disallowed_special</span><span class="o">=</span><span class="p">()))</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
-</code></pre></div></p>
-<p>The underlying tokenization relies on <code>_get_encoding()</code>, which guarantees that the BPE byte-pair encoding table is compiled once per process lifecycle. The use of <code>disallowed_special=()</code> is essential for source code ingestion pipelines: codebases frequently contain strings that match OpenAI special token structures, and omitting this argument causes <code>tiktoken</code> to raise a <code>ValueError</code>. The fallback <code>len(text) // 4</code> provides an approximation based on the standard English heuristic of roughly 4 characters per token, maintaining pipeline continuity even in restricted runtime environments where native C extensions cannot be executed.</p>
-<hr />
 <h3 id="create_token_counter"><code>create_token_counter()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def create_token_counter() -&gt; Callable[[str], int]:</code></p>
-<p><strong>Description</strong>:<br />
-A factory function that constructs and returns an isolated token counting callable. It attempts to load the <code>cl100k_base</code> encoding from <code>tiktoken</code>. If initialization succeeds, it returns a closure that executes <code>len(enc.encode(text, disallowed_special=()))</code>. If an exception occurs during instantiation (such as an environment missing network access for downloading tokenizer data or unsupported system architectures), it captures the exception, logs a warning message to the execution log via <code>emit_raw()</code>, and returns a fallback lambda calculating <code>len(text) // 4</code>.</p>
+<p><strong>Description</strong>:
+Constructs and returns a standalone, reusable token-counting closure. The closure attempts to initialize the <code>tiktoken</code> encoder using the <code>"cl100k_base"</code> encoding schema. If initialization succeeds, it returns an anonymous function that accepts a string and returns the integer count of BPE tokens, disabling special token parsing to prevent delimiter injection exceptions. If initialization raises an exception (e.g., missing dependencies, uncompiled C-extensions, or filesystem permissions issues accessing local token caches), it issues a diagnostic warning through <code>emit_raw()</code> and returns an alternative lambda expression that calculates token volume using the standard character-to-token heuristic (<code>len(text) // 4</code>).</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
-* <code>Callable[[str], int]</code>: A self-contained function accepting a string and returning its integer token count.</p>
+* <code>Callable[[str], int]</code>: A unary function mapping an arbitrary input string to an estimated or exact token count integer.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions. All initialization errors are caught and trigger the heuristic fallback callable.</p>
+* No exceptions are propagated. Any exception encountered during <code>tiktoken.get_encoding()</code> is intercepted internally.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Implementation extraction from utils/token_utils.py</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_token_counter</span><span class="p">():</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="sd">"""Create a token counting function using tiktoken with char-count fallback."""</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="n">enc</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">"cl100k_base"</span><span class="p">)</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="k">return</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">disallowed_special</span><span class="o">=</span><span class="p">()))</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="s2">"Tiktoken initialization failed, falling back to char count / 4"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="k">return</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Extracted from utils/token_utils.py</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_token_counter</span><span class="p">():</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="sd">"""Create a token counting function using tiktoken with char-count fallback."""</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="n">enc</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">"cl100k_base"</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="k">return</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">disallowed_special</span><span class="o">=</span><span class="p">()))</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="s2">"Tiktoken initialization failed, falling back to char count / 4"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="k">return</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
 </code></pre></div></p>
-<p><code>create_token_counter</code> acts as a factory pattern for components that require an independent counter instance rather than relying on the module-level singleton <code>count_tokens()</code>. By isolating <code>tiktoken.get_encoding()</code> inside an explicit <code>try-except</code> block, it guarantees that any filesystem, network, or binary incompatibility error encountered during tokenizer setup is intercepted before pipeline execution begins. Notice that <code>from utils.output import emit_raw</code> is imported lazily inside the exception handler to prevent circular import chains during early interpreter bootstrapping.</p>
+<p>The factory pattern implemented by <code>create_token_counter()</code> allows callers to obtain an isolated token counter instance without maintaining direct coupling to the module-level encoding singleton. When the <code>tiktoken</code> engine fails, it routes warning output directly to the logging channel (<code>dest="LOG"</code>) using a scoped lazy import of <code>emit_raw</code>, preventing circular dependency initialization issues with <code>utils.output</code>. The resulting closure safely neutralizes special token syntax by passing <code>disallowed_special=()</code>, ensuring that untrusted codebase inputs containing strings like <code>&lt;|endoftext|&gt;</code> do not trigger tokenizer exceptions.</p>
 <hr />
 <h3 id="resolve_max_tokens"><code>resolve_max_tokens()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def resolve_max_tokens(shared: dict) -&gt; int:</code></p>
-<p><strong>Description</strong>:<br />
-Resolves the maximum context token limit for the currently configured LLM provider and model. The resolution operates via a cascading fallback strategy: it first inspects the pipeline's shared state dictionary for an existing <code>max_tokens</code> configuration. If missing, it inspects environment variables to determine the active provider (<code>LLM_PROVIDER</code>), normalizes API endpoint addresses, model identifiers, and credentials, and delegates to <code>get_model_context_length()</code> from <a href="../call_llm.py/">utils/call_llm.py</a>. Finally, it records the resolved context boundary to the system log via <code>emit_raw()</code>.</p>
-<h4 id="phase-1-shared-store-query">Phase 1: Shared Store Query</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="n">max_tokens</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_tokens"</span><span class="p">)</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">if</span> <span class="n">max_tokens</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="k">return</span> <span class="n">max_tokens</span>
+<p><strong>Description</strong>:
+Determines the operational token capacity limit for downstream LLM prompts by inspecting the shared state store or resolving provider context limits from environment configurations.</p>
+<h4 id="phase-1-shared-store-inspection">Phase 1: Shared Store Inspection</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">resolve_max_tokens</span><span class="p">(</span><span class="n">shared</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Resolve max_tokens from shared store or auto-detect from provider env vars."""</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">max_tokens</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_tokens"</span><span class="p">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">if</span> <span class="n">max_tokens</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">return</span> <span class="n">max_tokens</span>
 </code></pre></div>
-The function queries the pipeline's mutable state dictionary <code>shared</code>. If a prior stage (such as command-line argument parsing in <code>main.py</code> or workflow setup in <code>flow.py</code>) has explicitly configured a token ceiling, this value takes precedence and is returned immediately, bypassing external queries or environment variable lookups.</p>
+The function queries the provided <code>shared</code> dictionary for a pre-configured <code>"max_tokens"</code> entry. If a caller or upstream node has explicitly set this value, the function bypasses environment checks and immediately returns the cached integer.</p>
 <h4 id="phase-2-provider-environment-resolution">Phase 2: Provider Environment Resolution</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="n">provider</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"LLM_PROVIDER"</span><span class="p">)</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"GEMINI"</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">provider</span><span class="p">:</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="n">endpoint</span> <span class="o">=</span> <span class="s2">"https://generativelanguage.googleapis.com"</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="n">model_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_MODEL"</span><span class="p">,</span> <span class="s2">"gemini-3.7-flash"</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_API_KEY"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_BASE_URL"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">model_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_MODEL"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_API_KEY"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="n">provider</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"LLM_PROVIDER"</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"GEMINI"</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">provider</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="n">endpoint</span> <span class="o">=</span> <span class="s2">"https://generativelanguage.googleapis.com"</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">model_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_MODEL"</span><span class="p">,</span> <span class="s2">"gemini-3.7-flash"</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_API_KEY"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_BASE_URL"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="n">model_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_MODEL"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">_API_KEY"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 </code></pre></div>
-If the token limit is not defined in <code>shared</code>, the function inspects <code>os.environ</code> to construct provider configuration tuples. When <code>LLM_PROVIDER</code> is set to <code>"GEMINI"</code> or left unset, it defaults to the official Google Generative Language endpoint, using the default model <code>gemini-3.7-flash</code> and reading <code>GEMINI_API_KEY</code>. For custom or OpenAI-compatible backends (such as OpenRouter, DeepSeek, or Ollama), it dynamically interpolates the provider prefix into environment keys: <code>{provider}_BASE_URL</code>, <code>{provider}_MODEL</code>, and <code>{provider}_API_KEY</code>.</p>
-<h4 id="phase-3-remote-context-ingestion-and-telemetry-logging">Phase 3: Remote Context Ingestion and Telemetry Logging</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="n">max_tokens_val</span> <span class="o">=</span> <span class="n">get_model_context_length</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"resolve_max_tokens | resolved max_tokens=</span><span class="si">{</span><span class="n">max_tokens_val</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">return</span> <span class="n">max_tokens_val</span>
+If no limit is present in the <code>shared</code> dictionary, the function determines the active provider via <code>LLM_PROVIDER</code>. When configured for Google Gemini (or if the variable is unset), it defaults to Google AI Studio endpoints and the standard <code>gemini-3.7-flash</code> model. For alternative providers (e.g., OpenRouter, Ollama, custom OpenAI-compatible endpoints), it dynamically queries namespaced environment variables (<code>{PROVIDER}_BASE_URL</code>, <code>{PROVIDER}_MODEL</code>, and <code>{PROVIDER}_API_KEY</code>).</p>
+<h4 id="phase-3-dynamic-model-context-lookup-and-diagnostic-telemetry">Phase 3: Dynamic Model Context Lookup and Diagnostic Telemetry</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="n">max_tokens_val</span> <span class="o">=</span> <span class="n">get_model_context_length</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"resolve_max_tokens | resolved max_tokens=</span><span class="si">{</span><span class="n">max_tokens_val</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">return</span> <span class="n">max_tokens_val</span>
 </code></pre></div>
-Once provider credentials and endpoints are resolved, the function calls <code>get_model_context_length()</code>, which determines the token window limit using hardcoded provider mappings or by querying remote model metadata endpoints (e.g., OpenRouter <code>/api/v1/models</code>). The resolved integer boundary is then written directly to the logging channel with <code>DEBUG</code> severity using a lazy-imported <code>emit_raw()</code> dispatcher, leaving standard output uncluttered while preserving diagnostic traces on disk.</p>
+The extracted connection parameters are dispatched to <code>get_model_context_length()</code> from <a href="../llm_config.py/">llm_config.py</a>, which returns the token context limit via static tables, dynamic OpenRouter catalog lookups, or fallback defaults. The resolved capacity integer is logged to the debug sink via <code>emit_raw()</code>, and the final value is returned to the caller.</p>
 <p><strong>Parameters</strong>:
-* <code>shared</code> (<code>dict</code>): The global workflow execution store shared across graph nodes.</p>
+* <code>shared</code> (<code>dict</code>): The global workflow execution context dictionary that may contain a pre-computed <code>"max_tokens"</code> integer.</p>
 <p><strong>Returns</strong>:
-* <code>int</code>: The maximum token context limit available for prompt assembly.</p>
+* <code>int</code>: The maximum token ceiling allocated for the active model context window.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions directly; any network errors encountered during remote capability inspection in <code>get_model_context_length()</code> are caught within <code>utils/call_llm.py</code> and fall back to safe context defaults.</p>
+* No exceptions are raised directly. Potential I/O or network failures within <code>get_model_context_length</code> are handled gracefully upstream in <code>utils.llm_config</code>.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Calling pattern from pipeline orchestrators</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">context_window</span> <span class="o">=</span> <span class="n">resolve_max_tokens</span><span class="p">(</span><span class="n">shared_state</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Implementation call site within utils/token_utils.py</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">max_tokens_val</span> <span class="o">=</span> <span class="n">get_model_context_length</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit_raw</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"resolve_max_tokens | resolved max_tokens=</span><span class="si">{</span><span class="n">max_tokens_val</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">return</span> <span class="n">max_tokens_val</span>
 </code></pre></div></p>
+<hr />
+<h3 id="count_tokens"><code>count_tokens()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def count_tokens(text: str) -&gt; int:</code></p>
+<p><strong>Description</strong>:
+Calculates the total token count of a given text string using the cached <code>_encoding</code> singleton. If the input string is empty or evaluates to a falsy value, the function immediately returns <code>0</code>. When the <code>tiktoken</code> encoding singleton is initialized, it executes BPE tokenization with <code>disallowed_special=()</code>, allowing literal evaluation of control strings without raising <code>ValueError</code>. If the tokenizer singleton cannot be loaded, it falls back to estimating the token count as one-fourth of the total character length (<code>len(text) // 4</code>).</p>
+<p><strong>Parameters</strong>:
+* <code>text</code> (<code>str</code>): The raw text payload (e.g., prompt instruction, formatted directory tree, or source code chunk) to evaluate.</p>
+<p><strong>Returns</strong>:
+* <code>int</code>: The estimated or exact token count.</p>
+<p><strong>Raises</strong>:
+* No exceptions are propagated out of this function.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Extracted from utils/token_utils.py</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_tokens</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="sd">"""Count tokens using tiktoken, with fallback to chars/4."""</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="k">return</span> <span class="mi">0</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">enc</span> <span class="o">=</span> <span class="n">_get_encoding</span><span class="p">()</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">if</span> <span class="n">enc</span><span class="p">:</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">disallowed_special</span><span class="o">=</span><span class="p">()))</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>
+</code></pre></div></p>
+<p>This function serves as the primary counting utility across the entire documentation framework, invoked repeatedly by <code>log_token_estimation()</code>, chunking pipelines, and inference gateways. By centralizing the empty-string boundary check, it short-circuits empty prompt buffers before invoking underlying C-extensions. Setting <code>disallowed_special=()</code> ensures raw source code containing internal LLM instruction markers (such as <code>&lt;|fim_prefix|&gt;</code>) does not trigger parsing exceptions during tokenization.</p>
 <hr />
 <h3 id="log_token_estimation"><code>log_token_estimation()</code></h3>
 <p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, token_usage: dict | None = None) -&gt; None:</code></p>
-<p><strong>Description</strong>:<br />
-Generates and broadcasts token analytics for an LLM prompt prior to dispatch. It measures the aggregate token count of the prompt string, computes the percentage of the model's total context window consumed, formats an optional itemized breakdown of prompt sub-components, and broadcasts the resulting diagnostics through both the user-facing console and the persistent system log.</p>
-<h4 id="phase-1-token-measurement-and-percentage-calculation">Phase 1: Token Measurement and Percentage Calculation</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>    <span class="n">token_count</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt_content</span><span class="p">)</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_count</span> <span class="o">/</span> <span class="n">max_tokens</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">max_tokens</span> <span class="k">else</span> <span class="mi">0</span>
+<p><strong>Description</strong>:
+Profiles the token volume of a prompt string against a node's capacity ceiling, formats granular breakdown statistics if provided, and emits telemetry to both the interactive console and persistent log files.</p>
+<h4 id="phase-1-token-profiling-and-capacity-calculation">Phase 1: Token Profiling and Capacity Calculation</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">log_token_estimation</span><span class="p">(</span><span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">token_usage</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">token_count</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt_content</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_count</span> <span class="o">/</span> <span class="n">max_tokens</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">max_tokens</span> <span class="k">else</span> <span class="mi">0</span>
 </code></pre></div>
-The routine passes the complete prompt content to <code>count_tokens()</code>. It then calculates capacity consumption against <code>max_tokens</code>. To avoid runtime <code>ZeroDivisionError</code> exceptions when operating against uninitialized context limits, the division is guarded by a conditional ternary check (<code>if max_tokens else 0</code>).</p>
-<h4 id="phase-2-component-breakdown-formatting">Phase 2: Component Breakdown Formatting</h4>
+The function evaluates <code>prompt_content</code> using <code>count_tokens()</code>. It guards against zero-division errors when evaluating <code>percentage</code> by validating that <code>max_tokens</code> is greater than zero, expressing consumption as a percentage of overall window capacity.</p>
+<h4 id="phase-2-granular-usage-breakdown-formatting">Phase 2: Granular Usage Breakdown Formatting</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>    <span class="c1"># Build token usage breakdown suffix for stdout display</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">suffix</span> <span class="o">=</span> <span class="s2">""</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">usage_log_str</span> <span class="o">=</span> <span class="s2">""</span>
@@ -1929,10 +1988,11 @@ The routine passes the complete prompt content to <code>count_tokens()</code>. I
 <a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="n">suffix</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 <a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="n">usage_log_str</span> <span class="o">=</span> <span class="s2">" | "</span> <span class="o">+</span> <span class="s2">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_parts</span><span class="p">)</span>
 </code></pre></div>
-When callers provide the optional <code>token_usage</code> dictionary mapping semantic sub-sections (e.g., <code>"system_prompt"</code>, <code>"repo_tree"</code>, <code>"source_files"</code>) to their respective token counts, the function formats two separate breakdown representations:
-1. <code>suffix</code>: A multiline, tab-indented, column-padded block designed for clean terminal alignment.
-2. <code>usage_log_str</code>: A compact, single-line, pipe-delimited string designed for structured ingestion by log aggregators.</p>
-<h4 id="phase-3-dual-telemetry-emission">Phase 3: Dual Telemetry Emission</h4>
+When callers provide a <code>token_usage</code> dictionary, the function formats the data into two representations:
+1. An aligned, tab-indented multi-line breakdown string (<code>suffix</code>) for interactive terminal display.
+2. A compact, pipe-delimited single-line summary (<code>usage_log_str</code>) for persistent log files.</p>
+<p>Labels are dynamically padded using <code>ljust()</code> based on the longest key, and percentage calculations guard against division by zero if <code>token_count</code> is zero.</p>
+<h4 id="phase-3-dual-channel-telemetry-dispatch">Phase 3: Dual-Channel Telemetry Dispatch</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>    <span class="c1"># Console output via emit (styled by CSV LEVEL=WARNING → yellow)</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">emit</span><span class="p">(</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        <span class="s2">"TOKEN_ANALYTICS"</span><span class="p">,</span>
@@ -1946,63 +2006,64 @@ When callers provide the optional <code>token_usage</code> dictionary mapping se
 <a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="c1"># File log stays single-line for parseability (structured, not translatable)</span>
 <a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NODE EXEC | node=</span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_log_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
-Output dispatch uses two distinct pathways. For terminal users, <code>emit()</code> formats the <code>TOKEN_ANALYTICS</code> template registered in <code>utils/strings.csv</code>, applying ANSI yellow styling (<code>LEVEL=WARNING</code>) to highlight token overhead and rendering the padded breakdown suffix. Simultaneously, it uses <code>logger.info()</code> via the shared <code>"llm_logger"</code> instance to append a parseable, single-line record containing the node name, token counts, capacity percentage, and itemized component parts to disk.</p>
+Telemetry is dispatched across two distinct channels:
+1. Terminal output via <code>emit()</code> with key <code>"TOKEN_ANALYTICS"</code>, routing formatted counts, total capacity, and percentage values through <a href="../output.py/">output.py</a>.
+2. Structured output via the shared <code>logger</code> (<code>llm_logger</code>), recording execution metrics in a single line to ensure log files remain easy to parse.</p>
 <p><strong>Parameters</strong>:
-* <code>node_name</code> (<code>str</code>): The identifier of the calling pipeline execution node (e.g., <code>"ContextRouter"</code>, <code>"GenerateChapter"</code>).
-* <code>prompt_content</code> (<code>str</code>): The complete serialized prompt string passed to the LLM.
-* <code>max_tokens</code> (<code>int</code>): The maximum context window capacity of the target model.
-* <code>token_usage</code> (<code>dict | None</code>, optional): A key-value mapping of sub-component labels (<code>str</code>) to individual token measurements (<code>int</code>). Defaults to <code>None</code>.</p>
+* <code>node_name</code> (<code>str</code>): The identifier of the executing pipeline stage (e.g., <code>"ContextRouter"</code>, <code>"MapAbstractions"</code>).
+* <code>prompt_content</code> (<code>str</code>): The serialized prompt string dispatched to the LLM.
+* <code>max_tokens</code> (<code>int</code>): The maximum context window ceiling resolved for the current model.
+* <code>token_usage</code> (<code>dict | None</code>, optional): A mapping of sub-component names to token count integers, enabling granular prompt usage breakdowns. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>None</code></p>
+* <code>None</code>.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions. Formatting calculations defensively guard against division by zero and handle missing dictionaries gracefully.</p>
+* No exceptions are raised directly.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Calling pattern from execution nodes in nodes.py</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">log_token_estimation</span><span class="p">(</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">node_name</span><span class="o">=</span><span class="s2">"ContextRouter"</span><span class="p">,</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">prompt_content</span><span class="o">=</span><span class="n">composed_prompt</span><span class="p">,</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1048576</span><span class="p">,</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">token_usage</span><span class="o">=</span><span class="p">{</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="s2">"system_instruction"</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="s2">"directory_tree"</span><span class="p">:</span> <span class="mi">12800</span><span class="p">,</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="s2">"target_task"</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="p">}</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Real usage from log_token_estimation in utils/token_utils.py</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">emit</span><span class="p">(</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">"TOKEN_ANALYTICS"</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">node_name</span><span class="o">=</span><span class="n">node_name</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">token_count</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="n">percentage</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">)</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1"># File log stays single-line for parseability (structured, not translatable)</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NODE EXEC | node=</span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">token_count</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% capacity)</span><span class="si">{</span><span class="n">usage_log_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></p>
 <hr />
 <h2 id="internal-helpers">Internal Helpers</h2>
 <h3 id="_get_encoding"><code>_get_encoding()</code></h3>
 <p><strong>Visibility</strong>: Private / Internal<br />
 <strong>Signature</strong>: <code>def _get_encoding() -&gt; tiktoken.Encoding | None:</code></p>
-<p><strong>Description</strong>:<br />
-Manages lazy initialization and caching for the module-level singleton <code>_encoding</code>. The first time tokenization is requested, the function intercepts control, checks if <code>_encoding</code> is uninitialized (<code>None</code>), and attempts to load the <code>cl100k_base</code> model dictionary via <code>tiktoken.get_encoding("cl100k_base")</code>. If loading fails for any reason (e.g., missing tokenizer data files or environment issues), it traps the exception, leaves <code>_encoding</code> set to <code>None</code>, and returns. Subsequent calls bypass initialization and return the cached state immediately.</p>
+<p><strong>Description</strong>:
+Manages the lazy instantiation of the module-level <code>_encoding</code> singleton. Upon its initial invocation, the function attempts to retrieve the <code>"cl100k_base"</code> encoding specification from the <code>tiktoken</code> library. If retrieval fails due to environment or missing dependency constraints, it caches <code>None</code> into <code>_encoding</code>. Subsequent calls return the cached state directly, eliminating the overhead of repeated dictionary initialization or repeated exception handling.</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
-* <code>tiktoken.Encoding | None</code>: The initialized Tiktoken BPE encoding instance if successful, or <code>None</code> if initialization failed.</p>
+* <code>tiktoken.Encoding | None</code>: The loaded <code>tiktoken</code> BPE encoding object, or <code>None</code> if initialization failed.</p>
 <p><strong>Raises</strong>:
-* This function does not raise exceptions; all exceptions during tokenizer initialization are caught internally.</p>
+* Intercepts all standard <code>Exception</code> instances during initialization, preventing failures from bubbling up to callers.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Implementation extraction from utils/token_utils.py</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># Lazy-loaded tiktoken encoding (singleton)</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">_encoding</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Extracted from utils/token_utils.py</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">_encoding</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">_get_encoding</span><span class="p">():</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="k">global</span> <span class="n">_encoding</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="k">if</span> <span class="n">_encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>        <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>            <span class="n">_encoding</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">"cl100k_base"</span><span class="p">)</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>            <span class="n">_encoding</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    <span class="k">return</span> <span class="n">_encoding</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">_get_encoding</span><span class="p">():</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="k">global</span> <span class="n">_encoding</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="k">if</span> <span class="n">_encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>            <span class="n">_encoding</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">"cl100k_base"</span><span class="p">)</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>            <span class="n">_encoding</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="k">return</span> <span class="n">_encoding</span>
 </code></pre></div></p>
-<p><code>_get_encoding()</code> implements a lazy-loaded singleton pattern. Compiling BPE vocabulary maps and regex splits is an expensive operation that incurs noticeable memory and CPU initialization overhead. By deferring this until <code>count_tokens()</code> is first invoked, module import remains lightweight. If the runtime environment lacks internet connectivity to download vocabulary files or cannot load native compiled extensions, setting <code>_encoding = None</code> guarantees that subsequent calls to <code>count_tokens()</code> fall back to character division without repeated failed initialization attempts.</p>
+<p>The singleton caching mechanism in <code>_get_encoding()</code> optimizes performance across the documentation workflow. Codebase ingestion frequently evaluates thousands of individual code snippets, AST chunks, and prompt templates. By memoizing the BPE encoding instance in the module-level <code>_encoding</code> variable, the application avoids the CPU overhead of re-instantiating the tokenizer vocabulary on every call.</p>
 <hr />
 <h2 id="data-structures">Data Structures</h2>
-<p>The module does not define custom classes or data models. Instead, it operates over standard Python primitives, closures, and structural dictionaries:</p>
-<h3 id="shared-pipeline-state-shared">Shared Pipeline State (<code>shared</code>)</h3>
-<p>Consumed by <code>resolve_max_tokens()</code> to extract workflow configuration parameters established during startup.</p>
+<h3 id="sharedstorecontext"><code>SharedStoreContext</code></h3>
+<p>Represents the structural contract expected by <code>resolve_max_tokens()</code> when accessing the shared execution context dictionary.</p>
 <table>
 <thead>
 <tr>
@@ -2014,22 +2075,17 @@ Manages lazy initialization and caching for the module-level singleton <code>_en
 <tbody>
 <tr>
 <td style="text-align: left;"><code>max_tokens</code></td>
-<td style="text-align: left;"><code>int \| None</code></td>
-<td style="text-align: left;">Optional explicit context window ceiling. If present, overrides dynamic provider detection.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>...</code></td>
-<td style="text-align: left;"><code>Any</code></td>
-<td style="text-align: left;">Additional arbitrary pipeline context stored in the shared workflow dictionary.</td>
+<td style="text-align: left;"><code>int | None</code></td>
+<td style="text-align: left;">Optional explicit token context limit. If present, overrides automated model context length detection.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="component-token-usage-breakdown-token_usage">Component Token Usage Breakdown (<code>token_usage</code>)</h3>
-<p>Consumed by <code>log_token_estimation()</code> to format granular allocation telemetry for multi-part prompts.</p>
+<h3 id="tokenusagebreakdown"><code>TokenUsageBreakdown</code></h3>
+<p>Represents the optional structural contract passed to <code>log_token_estimation()</code> to visualize token allocations across prompt components.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Field</th>
 <th style="text-align: left;">Type</th>
 <th style="text-align: left;">Description</th>
 </tr>
@@ -2037,70 +2093,50 @@ Manages lazy initialization and caching for the module-level singleton <code>_en
 <tbody>
 <tr>
 <td style="text-align: left;"><code>[component_label]</code></td>
-<td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">Name of the prompt sub-component (e.g., <code>"system"</code>, <code>"directory_tree"</code>, <code>"source_code"</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>[value]</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Measured token count for the associated prompt sub-component.</td>
+<td style="text-align: left;">Key-value pairs where the string key identifies a prompt section (e.g., <code>"system_prompt"</code>, <code>"repo_tree"</code>, <code>"files"</code>) and the integer represents its token count.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="module-level-singletons">Module-Level Singletons</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Variable</th>
-<th style="text-align: left;">Type</th>
-<th style="text-align: left;">Visibility</th>
-<th style="text-align: left;">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>logger</code></td>
-<td style="text-align: left;"><code>logging.Logger</code></td>
-<td style="text-align: left;">Internal</td>
-<td style="text-align: left;">Reference to the shared <code>"llm_logger"</code> instance configured by <code>utils/call_llm.py</code>.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>_encoding</code></td>
-<td style="text-align: left;"><code>tiktoken.Encoding \| None</code></td>
-<td style="text-align: left;">Private</td>
-<td style="text-align: left;">Singleton cache holding the initialized <code>cl100k_base</code> BPE tokenizer.</td>
-</tr>
-</tbody>
-</table>
+<p><strong>Example Mapping</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">token_usage</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="s2">"system_instruction"</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="s2">"directory_tree"</span><span class="p">:</span> <span class="mi">1280</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="s2">"source_files"</span><span class="p">:</span> <span class="mi">18450</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="p">}</span>
+</code></pre></div></p>
 <hr />
 <h2 id="error-handling">Error Handling</h2>
-<p>The module implements defensive error handling to prevent token counting errors from interrupting documentation generation:</p>
+<p>The <code>token_utils.py</code> module applies defensive programming practices to ensure token quantification and diagnostic logging never halt workflow execution:</p>
 <ol>
 <li>
-<p><strong>Tokenizer Initialization Interception</strong>:<br />
-   Native BPE libraries can encounter environment-specific failures (such as missing pre-compiled wheels, incompatible architectures, or restricted environments without access to vocabulary files). Both <code>create_token_counter()</code> and <code>_get_encoding()</code> enclose <code>tiktoken.get_encoding("cl100k_base")</code> in <code>try-except Exception</code> blocks. Failures are caught and logged as warnings via <code>emit_raw()</code>, and the module switches to a heuristic character-count fallback (<code>len(text) // 4</code>).</p>
+<p><strong>Graceful Tokenizer Fallback</strong>:
+   In constrained runtime environments (such as Docker containers without network access or pre-built wheels for <code>tiktoken</code>), the module intercepts exceptions during encoding initialization. In both <code>create_token_counter()</code> and <code>_get_encoding()</code>, failures revert to a character-based heuristic:
+   $$\text{Estimated Tokens} = \left\lfloor \frac{\text{len}(\text{text})}{4} \right\rfloor$$
+   This fallback ensures prompt chunking and scheduling continue uninterrupted, even if tokenizer dependencies are missing.</p>
 </li>
 <li>
-<p><strong>Special Token Sanitization</strong>:<br />
-   LLM tokenizers often treat strings like <code>&lt;|endoftext|&gt;</code> or <code>&lt;|fim_prefix|&gt;</code> as reserved control tokens, raising a <code>ValueError</code> if they appear in raw input text. Because this pipeline ingests arbitrary third-party source code, <code>count_tokens()</code> and <code>create_token_counter()</code> explicitly configure <code>disallowed_special=()</code>. This instructs <code>tiktoken</code> to treat all input strings as literal text, preventing crashes on source files that contain these sequences.</p>
+<p><strong>Special Token Sanitization</strong>:
+   The BPE encoder is called with <code>disallowed_special=()</code>. By default, <code>tiktoken.encode()</code> raises a <code>ValueError</code> when encountering special control sequences like <code>&lt;|endoftext|&gt;</code>. Ingested codebases frequently contain these literal strings in comments, tests, or documentation. Disabling special token restrictions ensures raw source files are tokenized without exceptions.</p>
 </li>
 <li>
-<p><strong>Division by Zero Protection</strong>:<br />
-   In <code>log_token_estimation()</code>, capacity percentage calculations evaluate <code>(token_count / max_tokens) * 100</code> and component breakdowns evaluate <code>(value / token_count * 100)</code>. Both operations include explicit ternary guards (<code>if max_tokens else 0</code> and <code>if token_count else 0</code>), preventing <code>ZeroDivisionError</code> when measuring empty strings or operating against uninitialized context ceilings.</p>
-</li>
-<li>
-<p><strong>Circular Import Mitigation</strong>:<br />
-   To prevent circular import issues when loaded alongside <a href="../output.py/">utils/output.py</a> and <a href="../call_llm.py/">utils/call_llm.py</a>, the module defers the import of <code>emit_raw</code> inside <code>create_token_counter()</code> and <code>resolve_max_tokens()</code>. It imports <code>emit_raw</code> locally within the function body only when warning or debug paths are executed.</p>
+<p><strong>Arithmetic Zero-Division Defense</strong>:
+   In <code>log_token_estimation()</code>, relative percentage computations are protected against zero denominators:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_count</span> <span class="o">/</span> <span class="n">max_tokens</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">max_tokens</span> <span class="k">else</span> <span class="mi">0</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">pct</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">token_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">token_count</span> <span class="k">else</span> <span class="mi">0</span>
+</code></pre></div>
+   This prevents crashes when evaluating empty files (<code>token_count = 0</code>) or models with uninitialized context limits (<code>max_tokens = 0</code>).</p>
 </li>
 </ol>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../call_llm.py/">utils/call_llm.py</a> — The centralized LLM execution gateway that provides <code>get_model_context_length()</code> and manages the shared <code>"llm_logger"</code>.</li>
-<li><a href="../output.py/">utils/output.py</a> — The operational telemetry gateway that supplies <code>emit()</code> for UI terminal formatting and <code>emit_raw()</code> for diagnostic logging.</li>
-<li><a href="../prompts.py/">utils/prompts.py</a> — The prompt template management layer whose synthesized instruction payloads are measured by this module.</li>
-<li><a href="../../nodes.py/">nodes.py</a> — Pipeline execution nodes that call <code>log_token_estimation()</code> and <code>resolve_max_tokens()</code> during documentation workflow phases.</li>
-<li><a href="../../flow.py/">flow.py</a> — The workflow orchestration graph that initializes the <code>shared</code> state dictionary and schedules node execution.</li>
+<li><a href="../call_llm.py/">utils/call_llm.py</a> — The centralized inference gateway that consumes token estimations to manage cache records and provider payloads.</li>
+<li><a href="../llm_config.py/">utils/llm_config.py</a> — Supplies the context length detection logic (<code>get_model_context_length</code>) consumed by <code>resolve_max_tokens</code>.</li>
+<li><a href="../output.py/">utils/output.py</a> — The centralized telemetry engine that formats and outputs token consumption analytics across console and disk streams.</li>
+<li><a href="../prompts.py/">utils/prompts.py</a> — Generates prompt payloads whose token counts are measured and logged by this module.</li>
+<li><a href="../../flow.py/">flow.py</a> — Orchestrates the core pipeline, tracking context limits across workflow transitions.</li>
+<li><a href="../../nodes.py/">nodes.py</a> — Executes pipeline nodes, using <code>log_token_estimation</code> to audit prompt sizes before LLM dispatch.</li>
 </ul>
 
 
