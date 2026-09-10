@@ -21,7 +21,11 @@ def load_prompt_template(template_name, advanced_mode=False, mode=None):
 
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "prompts", prompt_dir, f"{template_name}.md")
     with open(path, encoding="utf-8-sig") as f:
-        return f.read()
+        content = f.read()
+    from utils.output import emit_raw
+
+    emit_raw("DEBUG", f"load_prompt_template | loaded '{template_name}.md' from prompts/{prompt_dir}/", dest="LOG")
+    return content
 
 
 def parse_yaml_response(response):

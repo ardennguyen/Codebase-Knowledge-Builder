@@ -278,6 +278,7 @@ def main():
         language=args.language,
         use_cache=not args.no_cache,
         thinking_level=args.thinking_level,
+        debug=args.debug,
     )
     _check_quoting_errors(parser, args)
 
@@ -322,12 +323,9 @@ def main():
             emit("FORCE_REBUILD_NO_MANIFEST", path=manifest_path)
 
     # Warn about args ignored in api-reference mode
-    if mode == "api-reference":
-        if args.force_batch:
-            emit("WARN_FORCE_BATCH_API_REF")
-            args.force_batch = False
-        if args.max_abstractions != 10:
-            emit("WARN_MAX_ABS_API_REF")
+    if mode == "api-reference" and args.force_batch:
+        emit("WARN_FORCE_BATCH_API_REF")
+        args.force_batch = False
 
     shared = build_shared_store(args, github_token, mode)
     provider, model_name, endpoint_url, _, context_length = detect_llm_config(args)

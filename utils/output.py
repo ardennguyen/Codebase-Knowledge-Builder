@@ -15,7 +15,6 @@ Usage:
 
 import csv
 import json
-import logging
 import os
 import re
 
@@ -34,30 +33,20 @@ COLORS = {
 }
 RESET = "\033[0m"
 
-# Logging level map: output LEVEL → Python logging level
-LOG_LEVELS = {
-    "PROGRESS": logging.INFO,
-    "SUCCESS": logging.INFO,
-    "WARNING": logging.WARNING,
-    "ERROR": logging.ERROR,
-    "INFO": logging.INFO,
-    "DEBUG": logging.DEBUG,
-    "FILE_WRITE": logging.DEBUG,
-}
-
 # ---------------------------------------------------------------------------
 # Module state
 # ---------------------------------------------------------------------------
 _strings = {}  # {key: {"text": str, "level": str, "dest": str}}
 _language = "English"  # Capitalized for display (e.g., "Vietnamese")
 _lang_col = "english"  # Lowercase for CSV column lookup
-_logger = logging.getLogger("llm_logger")
+_log_file = None  # File handle for log output (set by configure_logging)
 _csv_path = None
 _use_cache = True
 _thinking_level = None
+_debug = False
 
 
-def init(language="english", use_cache=True, thinking_level=None):
+def init(language="english", use_cache=True, thinking_level=None, debug=False):
     """Initialize the output system: load strings.csv, set language, auto-translate missing.
 
     Must be called from main() after parsing CLI arguments but before any emit() calls.
@@ -67,12 +56,13 @@ def init(language="english", use_cache=True, thinking_level=None):
         use_cache: Whether LLM caching is enabled (passed to translation calls).
         thinking_level: LLM thinking level (passed to translation calls).
     """
-    global _language, _lang_col, _csv_path, _use_cache, _thinking_level
+    global _language, _lang_col, _csv_path, _use_cache, _thinking_level, _debug
     _language = language.capitalize()
     _lang_col = language.lower()
     _csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "strings.csv")
     _use_cache = use_cache
     _thinking_level = thinking_level
+    _debug = debug
     _load_strings()
     _auto_translate()
 
@@ -97,13 +87,22 @@ def emit(key, suffix="", **kwargs):
 
     level = entry["level"]
     dest = entry["dest"]
+
+    # D-prefixed destinations (DBOTH, DSTDOUT): debug-gated console output.
+    # Without --debug, suppress console but always log. Preserves original color from LEVEL.
+    if dest.startswith("D"):
+        if _debug:
+            dest = dest[1:]  # DBOTH → BOTH, DSTDOUT → STDOUT
+        else:
+            dest = "LOG"
+
     color = COLORS.get(level, "")
     reset = RESET if color else ""
 
     if dest in ("BOTH", "STDOUT"):
         print(f"{color}{text}{reset}")
     if dest in ("BOTH", "LOG"):
-        _logger.log(LOG_LEVELS.get(level, logging.INFO), text)
+        _write_log(level, text)
 
 
 def emit_raw(level, text, dest="BOTH"):
@@ -112,13 +111,17 @@ def emit_raw(level, text, dest="BOTH"):
     Use for dynamic/structural output that doesn't come from strings.csv
     (e.g., numbered file lists, batch details, crawl summary tables).
     """
+    # DEBUG-level: suppress console unless --debug is active
+    if level == "DEBUG" and not _debug:
+        dest = "LOG"
+
     color = COLORS.get(level, "")
     reset = RESET if color else ""
 
     if dest in ("BOTH", "STDOUT"):
         print(f"{color}{text}{reset}")
     if dest in ("BOTH", "LOG"):
-        _logger.log(LOG_LEVELS.get(level, logging.INFO), text)
+        _write_log(level, text)
 
 
 def get(key, **kwargs):
@@ -141,6 +144,7 @@ def configure_logging(project_name="project", mode="tutorial"):
 
     Must be called from main() after parsing CLI arguments.
     """
+    global _log_file
     from datetime import datetime
 
     log_directory = os.getenv("LOG_DIR", "logs")
@@ -149,21 +153,32 @@ def configure_logging(project_name="project", mode="tutorial"):
     safe_project = "".join(c if c.isalnum() or c in "-_." else "_" for c in project_name)
     safe_mode = mode.replace("-", "_")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = os.path.join(log_directory, f"{safe_project}_{safe_mode}_{timestamp}.log")
+    log_path = os.path.join(log_directory, f"{safe_project}_{safe_mode}_{timestamp}.log")
 
-    # Remove any existing handlers (e.g., NullHandler) and add the file handler
-    _logger.handlers.clear()
-    file_handler = logging.FileHandler(log_file, encoding="utf-8")
-    file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-    _logger.addHandler(file_handler)
+    # Close any existing log file
+    if _log_file is not None:
+        _log_file.close()
+
+    _log_file = open(log_path, "a", encoding="utf-8")  # noqa: SIM115
 
     # Log run metadata at the start of every log file
-    _logger.info(f"{'=' * 80}")
-    _logger.info(f"RUN STARTED | project={project_name} | mode={mode} | timestamp={timestamp}")
-    _logger.info(f"Log file: {log_file}")
-    _logger.info(f"{'=' * 80}")
+    sep = "=" * 80
+    emit_raw("INFO", sep, dest="LOG")
+    emit_raw("INFO", f"RUN STARTED | project={project_name} | mode={mode} | timestamp={timestamp}", dest="LOG")
+    emit_raw("INFO", f"Log file: {log_path}", dest="LOG")
 
-    return log_file
+    return log_path
+
+
+def _write_log(level, text):
+    """Write a timestamped line to the log file (no-op if logging not configured)."""
+    if _log_file is None:
+        return
+    from datetime import datetime
+
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
+    _log_file.write(f"{ts} - {level} - {text}\n")
+    _log_file.flush()
 
 
 # ---------------------------------------------------------------------------

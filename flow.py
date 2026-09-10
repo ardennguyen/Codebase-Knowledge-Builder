@@ -12,6 +12,7 @@ from nodes import (
     ReduceAbstractions,
     WriteChapters,
 )
+from utils.output import emit_raw
 
 
 def create_tutorial_flow():
@@ -44,4 +45,5 @@ def create_tutorial_flow():
 
     write_chapters >> combine_tutorial
 
+    emit_raw("DEBUG", "create_tutorial_flow | constructed PocketFlow execution graph", dest="LOG")
     return Flow(start=fetch_repo)

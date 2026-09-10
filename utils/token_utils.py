@@ -16,6 +16,9 @@ def create_token_counter():
         enc = tiktoken.get_encoding("cl100k_base")
         return lambda text: len(enc.encode(text, disallowed_special=()))
     except Exception:
+        from utils.output import emit_raw
+
+        emit_raw("WARNING", "Tiktoken initialization failed, falling back to char count / 4", dest="LOG")
         return lambda text: len(text) // 4
 
 
@@ -33,7 +36,11 @@ def resolve_max_tokens(shared):
         endpoint = os.environ.get(f"{provider}_BASE_URL", "")
         model_name = os.environ.get(f"{provider}_MODEL", "")
         api_key = os.environ.get(f"{provider}_API_KEY", "")
-    return get_model_context_length(endpoint, model_name, api_key)
+    max_tokens_val = get_model_context_length(endpoint, model_name, api_key)
+    from utils.output import emit_raw
+
+    emit_raw("DEBUG", f"resolve_max_tokens | resolved max_tokens={max_tokens_val:,}", dest="LOG")
+    return max_tokens_val
 
 
 # Lazy-loaded tiktoken encoding (singleton)

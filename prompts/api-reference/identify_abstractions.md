@@ -27,7 +27,7 @@ GRANULARITY GUIDANCE:
 - If a single directory contains 20+ files, it likely spans multiple API modules — don't force them into one.
 
 For each API module, provide:
-1. A concise `name` for the module (e.g., `AuthenticationClient`, `QueryOptimizer`){name_lang_hint}.
+1. A concise `name` for the module (e.g., `Authentication Client`, `Query Optimizer`){name_lang_hint}.
 2. A technical `description` of 100-250 words detailing its role in the system{desc_lang_hint}.
    Include: (a) its functional responsibility and WHY it exists as a separate module,
    (b) key public classes/interfaces and their purpose,
@@ -38,7 +38,7 @@ Format the output as a YAML list of dictionaries:
 
 ```yaml
 - name: |
-    AuthenticationClient{name_lang_hint}
+    Authentication Client{name_lang_hint}
   description: |
     Handles OAuth2 token lifecycle and API request signing. Provides the TokenManager class for automatic token refresh and the AuthMiddleware for request interception. Depends on the NetworkTransport module for HTTP calls.{desc_lang_hint}
   file_indices:

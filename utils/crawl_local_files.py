@@ -3,7 +3,7 @@ import os
 
 import pathspec
 
-from utils.output import emit, get
+from utils.output import emit, emit_raw, get
 
 
 def _load_gitignore(gitignore_path):
@@ -11,7 +11,8 @@ def _load_gitignore(gitignore_path):
     try:
         with open(gitignore_path, encoding="utf-8-sig") as f:
             return pathspec.PathSpec.from_lines("gitwildmatch", f.readlines())
-    except Exception:
+    except Exception as e:
+        emit_raw("WARNING", f"Failed to load .gitignore at {gitignore_path}: {e}", dest="LOG")
         return None
 
 
@@ -209,7 +210,9 @@ def crawl_local_files(
 
 
 if __name__ == "__main__":
-    print("--- Crawling parent directory ('..') ---")
+    from utils.output import emit_raw
+
+    emit_raw("INFO", "--- Crawling parent directory ('..') ---")
     files_data = crawl_local_files(
         "..",
         exclude_patterns={
@@ -221,6 +224,6 @@ if __name__ == "__main__":
             "output/*",
         },
     )
-    print(f"Found {len(files_data['files'])} files:")
+    emit_raw("INFO", f"Found {len(files_data['files'])} files:")
     for path in files_data["files"]:
-        print(f"  {path}")
+        emit_raw("INFO", f"  {path}")

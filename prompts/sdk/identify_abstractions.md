@@ -33,7 +33,7 @@ For each module, provide:
 Output the result STRICTLY as a YAML list of dictionaries, like this:
 ```yaml
 - name: |
-    CoreEngine{name_lang_hint}
+    Core Engine{name_lang_hint}
   description: |
     The main event loop and lifecycle management API. Provides the Engine class for initialization and the EventBus for inter-component communication. Used as the entry point by all other SDK modules.{desc_lang_hint}
   file_indices:

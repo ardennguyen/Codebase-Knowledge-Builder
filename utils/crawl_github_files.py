@@ -257,6 +257,8 @@ def crawl_github_files(
         url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{tree}"
         response = requests.get(url, headers=headers, timeout=(30, 30))
 
+        emit_raw("DEBUG", f"check_tree | ref='{tree}' for {owner}/{repo} -> exists={response.status_code == 200}", dest="LOG")
+
         if response.status_code in (403, 429) and not token:
             raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
 
@@ -520,13 +522,16 @@ def crawl_github_files(
 
 # Example usage
 if __name__ == "__main__":
+    from utils.output import emit_raw
+
     # Get token from environment variable (recommended for private repos)
     github_token = os.environ.get("GITHUB_TOKEN")
     if not github_token:
-        print(
+        emit_raw(
+            "WARNING",
             "Warning: No GitHub token found in environment variable 'GITHUB_TOKEN'.\n"
             "Private repositories will not be accessible without a token.\n"
-            "To access private repos, set the environment variable or pass the token explicitly."
+            "To access private repos, set the environment variable or pass the token explicitly.",
         )
 
     repo_url = "https://github.com/pydantic/pydantic/tree/6c38dc93f40a47f4d1350adca9ec0d72502e223f/pydantic"
@@ -543,19 +548,19 @@ if __name__ == "__main__":
     files = result["files"]
     stats = result["stats"]
 
-    print(f"\nDownloaded {stats['downloaded_count']} files.")
-    print(f"Skipped {stats['skipped_count']} files due to size limits or patterns.")
-    print(f"Base path for relative paths: {stats['base_path']}")
-    print(f"Include patterns: {stats['include_patterns']}")
-    print(f"Exclude patterns: {stats['exclude_patterns']}")
+    emit_raw("INFO", f"\nDownloaded {stats['downloaded_count']} files.")
+    emit_raw("INFO", f"Skipped {stats['skipped_count']} files due to size limits or patterns.")
+    emit_raw("INFO", f"Base path for relative paths: {stats['base_path']}")
+    emit_raw("INFO", f"Include patterns: {stats['include_patterns']}")
+    emit_raw("INFO", f"Exclude patterns: {stats['exclude_patterns']}")
 
     # Display all file paths in the dictionary
-    print("\nFiles in dictionary:")
+    emit_raw("INFO", "\nFiles in dictionary:")
     for file_path in sorted(files.keys()):
-        print(f"  {file_path}")
+        emit_raw("INFO", f"  {file_path}")
 
     # Example: accessing content of a specific file
     if files:
         sample_file = next(iter(files))
-        print(f"\nSample file: {sample_file}")
-        print(f"Content preview: {files[sample_file][:200]}...")
+        emit_raw("INFO", f"\nSample file: {sample_file}")
+        emit_raw("INFO", f"Content preview: {files[sample_file][:200]}...")

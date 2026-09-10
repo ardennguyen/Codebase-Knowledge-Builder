@@ -138,6 +138,7 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
     directory path (deterministic, no extra LLM call). Root-level files
     remain flat. Module names inside dir sub-layers are bare (no prefix).
     """
+    emit_raw("DEBUG", f"build_grouped_nav | building nav for {len(sections)} sections", dest="LOG")
     from collections import defaultdict
 
     lines = []

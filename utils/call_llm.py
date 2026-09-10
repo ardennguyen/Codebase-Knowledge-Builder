@@ -64,7 +64,10 @@ def _get_openrouter_model_info(model_id: str) -> dict:
         try:
             resp = requests.get("https://openrouter.ai/api/v1/models", timeout=5)
             _openrouter_models_cache = resp.json().get("data", [])
-        except Exception:
+        except Exception as e:
+            from utils.output import emit_raw
+
+            emit_raw("WARNING", f"Failed to fetch OpenRouter model info: {e}", dest="LOG")
             _openrouter_models_cache = []
 
     return next((m for m in _openrouter_models_cache if m.get("id") == model_id), None)
@@ -175,12 +178,12 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
         try:
             response_json = response.json()  # Log the response
         except (ValueError, requests.exceptions.JSONDecodeError):
-            from utils.output import emit_raw
+            from utils.output import emit
 
-            emit_raw(
-                "WARNING",
-                f"Warning: Provider returned invalid JSON. Status Code: {response.status_code}, Response Text: {response.text}",
-                dest="BOTH",
+            emit(
+                "WARN_INVALID_JSON",
+                status_code=response.status_code,
+                preview=response.text[:200].strip(),
             )
             raise ValueError(f"Provider returned invalid JSON. Status Code: {response.status_code}") from None
         response.raise_for_status()
@@ -216,7 +219,7 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -> str:
     import time
 
-    from utils.output import emit_raw
+    from utils.output import emit, emit_raw
     from utils.token_utils import count_tokens
 
     provider = get_llm_provider()
@@ -236,10 +239,11 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = N
         cache = load_cache()
         if prompt in cache:
             cached_response = cache[prompt]
-            emit_raw("DEBUG", f"CACHE HIT | response_chars={len(cached_response):,}", dest="LOG")
+            emit("CACHE_HIT", chars=f"{len(cached_response):,}")
             emit_raw("DEBUG", f"RESPONSE (cached):\n{cached_response}", dest="LOG")
             emit_raw("DEBUG", "LLM CALL END | result=cache_hit", dest="LOG")
             return cached_response
+        emit("CACHE_MISS")
 
     # Make the actual LLM call
     start_time = time.time()
@@ -280,16 +284,26 @@ def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -> str:
         # Map string levels to budgets for the installed SDK version
         budget_map = {"low": 1024, "medium": 4096, "high": 8192}
         budget = budget_map.get(thinking_level.lower(), 4096)
+        from utils.output import emit_raw
+
+        emit_raw("DEBUG", f"Gemini thinking config | budget={budget}", dest="LOG")
         thinking_config = types.ThinkingConfig(include_thoughts=True, thinking_budget=budget)
         kwargs["config"] = types.GenerateContentConfig(thinking_config=thinking_config)
 
     response = client.models.generate_content(**kwargs)
 
+    response_text = ""
     # Extract only text parts to avoid "non-text parts: ['thought_signature']" warnings
     if response.candidates and response.candidates[0].content.parts:
         text_parts = [part.text for part in response.candidates[0].content.parts if part.text is not None]
-        return "".join(text_parts)
-    return ""
+        response_text = "".join(text_parts)
+
+    if not response_text:
+        from utils.output import emit_raw
+
+        emit_raw("WARNING", "Gemini response contained no text parts", dest="LOG")
+
+    return response_text
 
 
 if __name__ == "__main__":

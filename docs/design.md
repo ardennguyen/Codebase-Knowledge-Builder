@@ -1081,14 +1081,15 @@ When `chapter_summaries` from shared store is empty (e.g., if summary generation
 
 ### `utils/output.py`
 
-> Notes for AI: This is the centralized output utility. ALL user-facing output (stdout prints, log file entries) goes through this module. No code file should use `print()` directly or define ANSI color constants.
+> Notes for AI: This is the centralized output utility. ALL user-facing output (stdout prints, log file entries) goes through this module. No code file should use `print()` directly or define ANSI color constants. Logging uses a simple file handle — no Python `logging` module.
 
 **Initialization:**
 ```python
-def init(language="english", use_cache=True, thinking_level=None):
+def init(language="english", use_cache=True, thinking_level=None, debug=False):
     """Load utils/strings.csv, set language, auto-translate missing strings via LLM.
     Must be called from main() after argument parsing, before any emit() calls.
-    Note: `_language` stores capitalized form (e.g., "Vietnamese") for display/LLM prompts. `_lang_col` stores lowercase (e.g., "vietnamese") for CSV column lookups."""
+    Note: `_language` stores capitalized form (e.g., "Vietnamese") for display/LLM prompts. `_lang_col` stores lowercase (e.g., "vietnamese") for CSV column lookups.
+    `debug` enables D-prefixed DEST keys to output to console (see DEST table below)."""
 ```
 
 **Output functions:**
@@ -1102,7 +1103,8 @@ def emit(key, suffix="", **kwargs):
 
 def emit_raw(level, text, dest="BOTH"):
     """Emit a pre-formatted string with explicit level styling.
-    Use for dynamic/structural output not in strings.csv (e.g., token breakdown tables)."""
+    Use for dynamic/structural output not in strings.csv (e.g., token breakdown tables).
+    DEBUG-level messages are suppressed from console unless --debug is active."""
 
 def get(key, **kwargs):
     """Return raw translated string without printing/logging.
@@ -1110,7 +1112,8 @@ def get(key, **kwargs):
 
 def configure_logging(project_name="project", mode="tutorial"):
     """Configure file-based logging. Creates logs/{project}_{mode}_{timestamp}.log.
-    Moved here from call_llm.py to centralize output concerns."""
+    Opens a plain file handle — no Python logging module. Log entries are timestamped
+    via _write_log(level, text) which is called by emit() and emit_raw()."""
 ```
 
 **String levels and their ANSI colors:**
@@ -1131,9 +1134,13 @@ def configure_logging(project_name="project", mode="tutorial"):
 | `BOTH` | Print to stdout (colored) + log to file (plain) |
 | `STDOUT` | Print to stdout only |
 | `LOG` | Log to file only |
+| `DBOTH` | Debug-gated: with `--debug` → same as `BOTH`; without → same as `LOG` |
+| `DSTDOUT` | Debug-gated: with `--debug` → same as `STDOUT`; without → suppressed entirely |
+
+> **Design principle:** LEVEL controls **color**, DEST controls **visibility**. To make a string debug-only, set its DEST to `DBOTH` or `DSTDOUT` — never change its LEVEL to `DEBUG` just for gating (that would lose the intended color).
 
 **Auto-translation flow:**
-1. On `init(language, use_cache=True, thinking_level=None)`, load `utils/strings.csv` with `csv.DictReader`.
+1. On `init(language, use_cache=True, thinking_level=None, debug=False)`, load `utils/strings.csv` with `csv.DictReader`.
 2. For each row, try: language column → English fallback.
 3. If any strings fell back to English (no translation found), batch-translate via LLM using `prompts/common/translate_strings.md`. `use_cache` and `thinking_level` are forwarded to the LLM call.
 4. Write translations directly back into `utils/strings.csv` using `_write_translations_to_csv()` with `utf-8-sig` encoding (BOM for Excel compatibility).

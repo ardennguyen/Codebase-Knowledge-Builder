@@ -27,6 +27,7 @@ class DeterministicFileMapper(Node):
         file_listing = "\n".join([f"{i} # {path}" for i, (path, _) in enumerate(files_data)])
 
         prompt = build_code_file_filter_prompt(project_name, file_listing)
+        emit_raw("DEBUG", f"DeterministicFileMapper prep | {len(files_data)} candidate files for filtering", dest="LOG")
         return prompt, shared.get("use_cache", True), shared.get("thinking_level", None), shared.get("max_tokens", 100000)
 
     def exec(self, prep_res):
@@ -135,7 +136,7 @@ class ContextRouter(Node):
 
         if shared.get("mode", "tutorial") == "api-reference":
             emit("CAPACITY_API_REF_MODE")
-            return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree, False)
+            return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree)
 
         if total_tokens > effective_limit and force_batch:
             emit(
@@ -165,7 +166,7 @@ class ContextRouter(Node):
             emit(
                 "CAPACITY_FITS", tokens=f"{total_tokens:,}", limit=f"{effective_limit:,}", safety=f"{safety_limit:,}", overhead=f"{prompt_overhead:,}"
             )
-            return ("direct", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree, False)
+            return ("direct", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree)
 
         return (
             "batch",
@@ -175,11 +176,10 @@ class ContextRouter(Node):
             file_token_map,
             count_tokens,
             directory_tree,
-            shared.get("debug", False),
         )
 
     def exec(self, prep_res):
-        route, files_data, effective_limit, batch_size, file_token_map, _count_tokens, directory_tree, debug = prep_res
+        route, files_data, effective_limit, batch_size, file_token_map, _count_tokens, directory_tree = prep_res
         emit_raw(
             "DEBUG",
             f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}",
@@ -221,12 +221,11 @@ class ContextRouter(Node):
         emit_raw("DEBUG", f"NODE COMPLETE | node=ContextRouter | route={route} | batches={len(batches)}", dest="LOG")
 
         # Debug: show detailed batch info
-        if debug:
-            for idx, batch in enumerate(batches):
-                content_tokens = sum(file_token_map[i] for i, p, _c in batch)
-                emit("CAPACITY_BATCH_DEBUG", index=idx, file_count=len(batch), tokens=f"{content_tokens:,}", limit=f"{effective_limit:,}")
-                for i, p, _c in batch:
-                    emit("BATCH_FILE_ITEM", index=i, path=p)
+        for idx, batch in enumerate(batches):
+            content_tokens = sum(file_token_map[i] for i, p, _c in batch)
+            emit("CAPACITY_BATCH_DEBUG", index=idx, file_count=len(batch), tokens=f"{content_tokens:,}", limit=f"{effective_limit:,}")
+            for i, p, _c in batch:
+                emit("BATCH_FILE_ITEM", index=i, path=p)
 
         # Store directory tree for later use
         self._directory_tree = directory_tree
@@ -234,6 +233,7 @@ class ContextRouter(Node):
         return batches
 
     def post(self, shared, prep_res, exec_res):
+        emit_raw("DEBUG", f"ContextRouter post | route={'batch' if isinstance(exec_res, list) else exec_res}", dest="LOG")
         if exec_res == "direct":
             return "direct"
         if exec_res == "deterministic":
@@ -320,6 +320,7 @@ class MapAbstractions(BatchNode):
         all_abstractions = []
         for batch_abs in exec_res_list:
             all_abstractions.extend(batch_abs)
+        emit_raw("DEBUG", f"MapAbstractions post | collected {len(all_abstractions)} partial abstractions", dest="LOG")
         shared["mapped_abstractions"] = all_abstractions
 
 
@@ -399,6 +400,10 @@ class FetchRepo(Node):
             else:
                 project_name = os.path.basename(os.path.abspath(local_dir))
             shared["project_name"] = project_name
+
+        emit_raw(
+            "DEBUG", f"FetchRepo prep | project_name='{project_name}' | source='{shared.get('repo_url') or shared.get('local_dir', '.')}'", dest="LOG"
+        )
 
         # Get file patterns directly from shared
         include_patterns = shared["include_patterns"]
@@ -487,6 +492,8 @@ class IdentifyAbstractions(Node):
 
         context = create_llm_context(files_data)
         directory_tree = build_directory_tree(files_data)
+        current_tokens = count_tokens(context)
+        emit_raw("DEBUG", f"IdentifyAbstractions prep | context_tokens={current_tokens:,} | files={len(files_data)}", dest="LOG")
         return (
             context,
             directory_tree,
@@ -721,6 +728,11 @@ class AnalyzeRelationships(Node):
                     rest_list = ", ".join(f"{idx} # {p}" for idx, p, _c, _t in remaining_files)
                     context += f"  Other files (path only, budget exhausted): {rest_list}\\n"
 
+        emit_raw(
+            "DEBUG",
+            f"AnalyzeRelationships prep | total_budget={total_budget:,} | per_abstr_budget={per_abstr_budget:,} | abstractions={num_abstractions}",
+            dest="LOG",
+        )
         return (
             context,
             "\n".join(abstraction_info_for_prompt),
@@ -876,6 +888,9 @@ class OrderChapters(Node):
         if language.lower() != "english":
             list_lang_note = f" (Names might be in {language.capitalize()})"
 
+        emit_raw(
+            "DEBUG", f"OrderChapters prep | abstractions={len(abstractions)} | relationships={len(relationships.get('details', []))}", dest="LOG"
+        )
         return (
             abstraction_listing,
             context,
@@ -1512,6 +1527,7 @@ class CombineTutorial(Node):
             }.get(mode, "Documentation")
             nav_snippet = f"nav:\n  - {nav_section}:\n" + "\n".join(nav_lines)
 
+            emit_raw("DEBUG", f"CombineTutorial prep | is_mkdocs=True | chapters={len(chapter_files)}", dest="LOG")
             return {
                 "output_path": output_path,
                 "output_base_dir": output_base_dir,
@@ -1560,6 +1576,7 @@ class CombineTutorial(Node):
 
         index_content += f"\n---\n\n**{ui['full_content']}:** [full_content.md](full_content.md)\n"
 
+        emit_raw("DEBUG", f"CombineTutorial prep | is_mkdocs={is_mkdocs} | chapters={len(chapter_files)}", dest="LOG")
         return {
             "output_path": output_path,
             "output_base_dir": output_base_dir,
