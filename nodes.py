@@ -1,4 +1,5 @@
 import os
+import re
 import traceback
 from collections import defaultdict
 
@@ -1325,7 +1326,7 @@ class WriteChapters(BatchNode):
                 instruction_lang_note = f" (in {lang_cap})"
                 mermaid_lang_note = f" (All diagram labels, edge text, and subgraph titles MUST use {lang_cap} with proper diacritics/tones — NEVER use unaccented/romanized text)"
                 code_comment_note = f" (PRESERVE original code comments exactly as-is. Add your explanatory notes OUTSIDE code blocks in {lang_cap}, not inside them.)"
-                link_lang_note = f" (Link text: use the {lang_cap} chapter title. Link target: copy EXACTLY from the (doc: filename.md) annotation in the Index — NEVER re-derive or re-slugify)"
+                link_lang_note = f" (Link text: use the {lang_cap} chapter title. Link target: copy the path EXACTLY from the (doc: path.md) annotation — do NOT re-derive or modify it)"
                 tone_note = f" (appropriate for {lang_cap} readers)"
 
             prompt_template = load_prompt_template("draft_chapters", mode=mode)
@@ -1560,6 +1561,16 @@ class CombineTutorial(Node):
                         }
                     )
 
+            # Disambiguate duplicate module_names (e.g. same filename in different dirs)
+            from collections import Counter
+
+            name_counts = Counter(cf["module_name"] for cf in chapter_files)
+            for cf in chapter_files:
+                if name_counts[cf["module_name"]] > 1 and cf.get("original_path"):
+                    dir_prefix = os.path.dirname(cf["original_path"])
+                    if dir_prefix:
+                        cf["module_name"] = f"{dir_prefix}/{cf['module_name']}"
+
             # Build flat nav with directory sub-grouping
             # (will be replaced by LLM grouping in exec for api-reference)
             from collections import defaultdict
@@ -1679,10 +1690,297 @@ class CombineTutorial(Node):
             for child in section.get("children", []):
                 CombineTutorial._build_index_sections(lines, [child], chapter_files, level + 1)
 
+    @staticmethod
+    def _normalize_chapter_links(chapter_files):
+        """Deterministic post-processing: fix all cross-chapter markdown link targets.
+
+        Builds a lookup from known chapter filenames, then rewrites every
+        ``[text](target.md)`` link so the target is a correct relative path
+        from the current chapter's directory to the target chapter.
+        """
+        # Build lookup: various path forms → canonical filename
+        filename_lookup = {}
+        ambiguous_basenames = set()
+        for cf in chapter_files:
+            fname = cf["filename"]  # e.g. "CoreService/AccountingService.cs.md"
+            filename_lookup[fname] = fname
+            basename = fname.rsplit("/", 1)[-1]
+            if basename in filename_lookup and filename_lookup[basename] != fname:
+                ambiguous_basenames.add(basename)
+            else:
+                filename_lookup[basename] = fname
+
+        # Remove ambiguous basenames (same name in different dirs)
+        for ab in ambiguous_basenames:
+            filename_lookup.pop(ab, None)
+
+        link_pattern = re.compile(r"\[([^\]]*)\]\(([^)#]+\.md)(#[^)]*)?\)")
+        fixed_count = 0
+
+        for cf in chapter_files:
+            current_dir = os.path.dirname(cf["filename"])  # e.g. "CoreService"
+
+            def fix_link(match, _dir=current_dir):
+                nonlocal fixed_count
+                text, target, anchor = match.group(1), match.group(2), match.group(3) or ""
+                if target.startswith(("http://", "https://")):
+                    return match.group(0)
+                # Try resolving the target as-is (LLM copied verbatim from index)
+                canonical = filename_lookup.get(target)
+                if not canonical:
+                    # Try resolving relative to current dir
+                    resolved = os.path.normpath(os.path.join(_dir, target)).replace("\\", "/")
+                    canonical = filename_lookup.get(resolved)
+                if canonical:
+                    correct_rel = os.path.relpath(canonical, _dir).replace("\\", "/") if _dir else canonical
+                    if correct_rel != target:
+                        fixed_count += 1
+                    return f"[{text}]({correct_rel}{anchor})"
+                return match.group(0)  # Unknown target — leave as-is
+
+            cf["content"] = link_pattern.sub(fix_link, cf["content"])
+
+        if fixed_count:
+            emit_raw("DEBUG", f"LINK NORMALIZATION | fixed {fixed_count} cross-chapter links", dest="LOG")
+
+    @staticmethod
+    def _write_mkdocs_output(output_path, prep_res, chapter_files):
+        """Write all MkDocs output: nav grouping, mkdocs.yml, index, homepage, chapters."""
+        project_name = prep_res["project_name"]
+        mode = prep_res["mode"]
+        api_docs_path = os.path.join(output_path, "docs", "api")
+        os.makedirs(api_docs_path, exist_ok=True)
+
+        mode_labels = {
+            "tutorial": get("UI_MODE_TUTORIAL"),
+            "advanced": get("UI_MODE_ADVANCED"),
+            "sdk": get("UI_MODE_SDK"),
+            "api-reference": get("UI_MODE_API_REF"),
+        }
+        site_title = f"{project_name} — {mode_labels.get(mode, 'Documentation')}"
+        emit("COMBINE_FORMAT_MKDOCS", mode=mode_labels.get(mode, "Documentation"))
+        emit("COMBINE_CHAPTER_COUNT", count=len(chapter_files))
+
+        # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
+        sections = None
+        emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
+        if mode == "api-reference" and len(chapter_files) > 5:
+            try:
+                chapter_summaries = prep_res.get("chapter_summaries", [])
+                module_entries = []
+                for i, cf in enumerate(chapter_files):
+                    summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
+                    module_entries.append(f"- {cf['module_name']}: {summary}")
+                module_list = "\n".join(module_entries)
+
+                # Load grouping prompt template
+                prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", "common", "group_modules.md")
+                with open(prompt_path, encoding="utf-8-sig") as f:
+                    group_template = f.read()
+
+                language = prep_res.get("language", "english")
+                language_note = f"Section names MUST be in {language}." if language.lower() != "english" else ""
+
+                group_prompt = group_template.format(
+                    project_name=project_name,
+                    module_count=len(chapter_files),
+                    module_list=module_list,
+                    directory_tree=prep_res.get("directory_tree", "N/A"),
+                    language_note=language_note,
+                )
+
+                emit("LLM_CALL_GROUPING", count=len(chapter_files))
+                from utils.call_llm import call_llm
+
+                log_token_estimation("NavGrouping", group_prompt, prep_res.get("max_tokens", 100000))
+                group_response = call_llm(group_prompt, use_cache=prep_res.get("use_cache", True), thinking_level=prep_res.get("thinking_level"))
+                parsed = parse_yaml_response(group_response)
+                sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
+
+                if sections:
+                    # Validate: ensure all modules are covered
+                    grouped_modules = collect_all_modules(sections)
+                    ungrouped = [cf["module_name"] for cf in chapter_files if cf["module_name"] not in grouped_modules]
+                    if ungrouped:
+                        sections.append({"name": get("UI_OTHER"), "modules": ungrouped})
+
+                    nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
+                    nav_lines.insert(0, "    - api/index.md")
+                    nav_label = mode_labels.get(mode, "Documentation")
+                    nav_snippet = f"nav:\n  - {nav_label}:\n" + "\n".join(nav_lines)
+                    emit("DONE_GROUPING", count=len(sections))
+                else:
+                    emit("GROUP_EMPTY_FALLBACK")
+                    nav_snippet = prep_res["nav_snippet"]
+
+            except Exception as e:
+                emit("GROUP_ERROR_FALLBACK", error=e)
+                emit_raw("ERROR", f"LLM grouping failed: {e}\n{traceback.format_exc()}", dest="LOG")
+                nav_snippet = prep_res["nav_snippet"]
+                sections = None
+        else:
+            nav_snippet = prep_res["nav_snippet"]
+
+        emit_raw(
+            "DEBUG",
+            f"NAV SNIPPET FINAL | grouped={sections is not None} | nav_snippet_lines={nav_snippet.count(chr(10)) + 1}",
+            dest="LOG",
+        )
+        emit_raw("DEBUG", f"NAV SNIPPET CONTENT:\n{nav_snippet}", dest="LOG")
+        if sections:
+            emit("COMBINE_NAV_GROUPED", count=len(sections))
+        else:
+            emit("COMBINE_NAV_FLAT")
+
+        # --- Generate mkdocs.yml ---
+        lang_code_map = {
+            "vietnamese": "vi",
+            "chinese": "zh",
+            "japanese": "ja",
+            "korean": "ko",
+            "french": "fr",
+            "spanish": "es",
+            "german": "de",
+            "portuguese": "pt",
+            "russian": "ru",
+            "thai": "th",
+            "indonesian": "id",
+            "arabic": "ar",
+        }
+        language = prep_res.get("language", "english")
+        lang_code = lang_code_map.get(language.lower(), "")
+        mkdocs_config = build_mkdocs_config(site_title, nav_snippet, include_home=True, lang_code=lang_code)
+        mkdocs_filepath = os.path.join(output_path, "mkdocs.yml")
+        with open(mkdocs_filepath, "w", encoding="utf-8") as f:
+            f.write(mkdocs_config)
+        emit("FILE_WROTE", path=mkdocs_filepath)
+
+        # --- Generate javascripts/mermaid-init.js ---
+        js_dir = os.path.join(output_path, "docs", "javascripts")
+        os.makedirs(js_dir, exist_ok=True)
+        js_filepath = os.path.join(js_dir, "mermaid-init.js")
+        with open(js_filepath, "w", encoding="utf-8") as f:
+            f.write(build_mermaid_init_js())
+        emit("FILE_WROTE", path=js_filepath)
+
+        # --- Generate docs/index.md — homepage redirect to api/ ---
+        mode_label = mode_labels.get(mode, "Documentation")
+        home_index_path = os.path.join(output_path, "docs", "index.md")
+        home_content = f'# {project_name}\n\n<meta http-equiv="refresh" content="0; url=api/">\n\n[→ {mode_label}](api/index.md)\n'
+        with open(home_index_path, "w", encoding="utf-8") as f:
+            f.write(home_content)
+        emit("FILE_WROTE", path=home_index_path)
+
+        # --- Generate docs/api/index.md — section landing page ---
+        if sections:
+            chapter_index_label = get("UI_CHAPTER_INDEX")
+            chapters_label = get("UI_CHAPTERS")
+            index_lines = [
+                f"# {project_name} — {mode_label}",
+                "",
+                f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
+                "",
+                f"## {chapter_index_label}",
+                "",
+            ]
+            CombineTutorial._build_index_sections(index_lines, sections, chapter_files)
+            index_content = "\n".join(index_lines)
+        else:
+            # Build a rich flat index with module listing table
+            chapter_summaries = prep_res.get("chapter_summaries", [])
+            chapter_index_label = get("UI_CHAPTER_INDEX")
+            chapters_label = get("UI_CHAPTERS")
+            th_chapter = get("UI_TH_CHAPTER")
+            th_description = get("UI_TH_DESCRIPTION")
+            index_lines = [
+                f"# {project_name} — {mode_label}",
+                "",
+                f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
+                "",
+                f"## {chapter_index_label}",
+                "",
+                f"| {th_chapter} | {th_description} |",
+                "|---------|-------------|",
+            ]
+            for i, cf in enumerate(chapter_files):
+                dir_path = os.path.dirname(cf.get("original_path", "")) or ""
+                display = f"{dir_path}/{cf['module_name']}" if dir_path else cf["module_name"]
+                summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
+                # Truncate and sanitize for table cell (replace pipes and newlines)
+                summary = summary.replace("|", "—").replace("\n", " ").strip()
+                if len(summary) > 200:
+                    summary = summary[:197] + "..."
+                index_lines.append(f"| [{display}]({cf['filename']}) | {summary} |")
+            index_lines.append("")
+            index_content = "\n".join(index_lines)
+        api_index_filepath = os.path.join(api_docs_path, "index.md")
+        with open(api_index_filepath, "w", encoding="utf-8") as f:
+            f.write(index_content)
+        emit("FILE_WROTE", path=api_index_filepath)
+
+        # --- Write nav_snippet.yml ---
+        nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")
+        with open(nav_filepath, "w", encoding="utf-8") as f:
+            f.write(nav_snippet)
+        emit("FILE_WROTE", path=nav_filepath)
+
+        # --- Normalize cross-chapter links ---
+        CombineTutorial._normalize_chapter_links(chapter_files)
+
+        # --- Write chapter files ---
+        for chapter_info in chapter_files:
+            chapter_filepath = os.path.join(api_docs_path, chapter_info["filename"])
+            os.makedirs(os.path.dirname(chapter_filepath), exist_ok=True)
+            with open(chapter_filepath, "w", encoding="utf-8") as f:
+                f.write(chapter_info["content"])
+            emit("FILE_WROTE", path=chapter_filepath)
+
+    @staticmethod
+    def _write_standalone_output(output_path, prep_res, chapter_files, ui):
+        """Write standalone (non-MkDocs) output: index.md, chapters, full_content.md."""
+        index_content = prep_res["index_content"]
+        emit("COMBINE_FORMAT_STANDALONE")
+        emit("COMBINE_CHAPTER_COUNT", count=len(chapter_files))
+
+        # Write index.md
+        index_filepath = os.path.join(output_path, "index.md")
+        with open(index_filepath, "w", encoding="utf-8") as f:
+            f.write(index_content)
+        emit("FILE_WROTE", path=index_filepath)
+
+        # Write chapter files
+        for chapter_info in chapter_files:
+            chapter_filepath = os.path.join(output_path, chapter_info["filename"])
+            with open(chapter_filepath, "w", encoding="utf-8") as f:
+                f.write(chapter_info["content"])
+            emit("FILE_WROTE", path=chapter_filepath)
+
+        # Create full_content.md
+        toc_lines = [f"# {ui['toc']}\n"]
+        full_content_lines = []
+
+        for i, chapter_info in enumerate(chapter_files):
+            content = chapter_info["content"]
+            title_line = content.split("\n", 1)[0]
+            if title_line.startswith("# "):
+                title = title_line[2:].strip()
+            else:
+                title = f"{ui['chapter']} {i + 1}"
+
+            toc_lines.append(f"- [{title}](#chapter-{i + 1})")
+            full_content_lines.append(f'<a id="chapter-{i + 1}"></a>\n')
+            full_content_lines.append(content)
+            full_content_lines.append("\n---\n")
+
+        full_content = "\n".join(toc_lines) + "\n\n" + "\n".join(full_content_lines)
+        full_content_filepath = os.path.join(output_path, "full_content.md")
+        with open(full_content_filepath, "w", encoding="utf-8") as f:
+            f.write(full_content)
+        emit("FILE_WROTE", path=full_content_filepath)
+
     def exec(self, prep_res):
         try:
             output_path = prep_res["output_path"]
-            prep_res["output_base_dir"]
             is_mkdocs = prep_res["is_mkdocs"]
             chapter_files = prep_res["chapter_files"]
             ui = prep_res["ui"]
@@ -1696,228 +1994,9 @@ class CombineTutorial(Node):
             os.makedirs(output_path, exist_ok=True)
 
             if is_mkdocs:
-                project_name = prep_res["project_name"]
-                mode = prep_res["mode"]
-                api_docs_path = os.path.join(output_path, "docs", "api")
-                os.makedirs(api_docs_path, exist_ok=True)
-
-                mode_labels = {
-                    "tutorial": get("UI_MODE_TUTORIAL"),
-                    "advanced": get("UI_MODE_ADVANCED"),
-                    "sdk": get("UI_MODE_SDK"),
-                    "api-reference": get("UI_MODE_API_REF"),
-                }
-                site_title = f"{project_name} — {mode_labels.get(mode, 'Documentation')}"
-                emit("COMBINE_FORMAT_MKDOCS", mode=mode_labels.get(mode, "Documentation"))
-                emit("COMBINE_CHAPTER_COUNT", count=len(chapter_files))
-
-                # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
-                sections = None
-                emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
-                if mode == "api-reference" and len(chapter_files) > 5:
-                    try:
-                        chapter_summaries = prep_res.get("chapter_summaries", [])
-                        module_entries = []
-                        for i, cf in enumerate(chapter_files):
-                            summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
-                            module_entries.append(f"- {cf['module_name']}: {summary}")
-                        module_list = "\n".join(module_entries)
-
-                        # Load grouping prompt template
-                        prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", "common", "group_modules.md")
-                        with open(prompt_path, encoding="utf-8-sig") as f:
-                            group_template = f.read()
-
-                        language = prep_res.get("language", "english")
-                        language_note = f"Section names MUST be in {language}." if language.lower() != "english" else ""
-
-                        group_prompt = group_template.format(
-                            project_name=project_name,
-                            module_count=len(chapter_files),
-                            module_list=module_list,
-                            directory_tree=prep_res.get("directory_tree", "N/A"),
-                            language_note=language_note,
-                        )
-
-                        emit("LLM_CALL_GROUPING", count=len(chapter_files))
-                        from utils.call_llm import call_llm
-
-                        log_token_estimation("NavGrouping", group_prompt, prep_res.get("max_tokens", 100000))
-                        group_response = call_llm(
-                            group_prompt, use_cache=prep_res.get("use_cache", True), thinking_level=prep_res.get("thinking_level")
-                        )
-                        parsed = parse_yaml_response(group_response)
-                        sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
-
-                        if sections:
-                            # Validate: ensure all modules are covered
-                            grouped_modules = collect_all_modules(sections)
-                            ungrouped = [cf["module_name"] for cf in chapter_files if cf["module_name"] not in grouped_modules]
-                            if ungrouped:
-                                sections.append({"name": get("UI_OTHER"), "modules": ungrouped})
-
-                            nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
-                            nav_lines.insert(0, "    - api/index.md")
-                            nav_label = mode_labels.get(mode, "Documentation")
-                            nav_snippet = f"nav:\n  - {nav_label}:\n" + "\n".join(nav_lines)
-                            emit("DONE_GROUPING", count=len(sections))
-                        else:
-                            emit("GROUP_EMPTY_FALLBACK")
-                            nav_snippet = prep_res["nav_snippet"]
-
-                    except Exception as e:
-                        emit("GROUP_ERROR_FALLBACK", error=e)
-                        emit_raw("ERROR", f"LLM grouping failed: {e}\n{traceback.format_exc()}", dest="LOG")
-                        nav_snippet = prep_res["nav_snippet"]
-                        sections = None
-                else:
-                    nav_snippet = prep_res["nav_snippet"]
-
-                emit_raw(
-                    "DEBUG",
-                    f"NAV SNIPPET FINAL | grouped={sections is not None} | nav_snippet_lines={nav_snippet.count(chr(10)) + 1}",
-                    dest="LOG",
-                )
-                emit_raw("DEBUG", f"NAV SNIPPET CONTENT:\n{nav_snippet}", dest="LOG")
-                if sections:
-                    emit("COMBINE_NAV_GROUPED", count=len(sections))
-                else:
-                    emit("COMBINE_NAV_FLAT")
-
-                # Generate mkdocs.yml with Material theme + mermaid support
-                # Map language name to MkDocs Material language code for UI localization
-                lang_code_map = {
-                    "vietnamese": "vi",
-                    "chinese": "zh",
-                    "japanese": "ja",
-                    "korean": "ko",
-                    "french": "fr",
-                    "spanish": "es",
-                    "german": "de",
-                    "portuguese": "pt",
-                    "russian": "ru",
-                    "thai": "th",
-                    "indonesian": "id",
-                    "arabic": "ar",
-                }
-                language = prep_res.get("language", "english")
-                lang_code = lang_code_map.get(language.lower(), "")
-                mkdocs_config = build_mkdocs_config(site_title, nav_snippet, include_home=False, lang_code=lang_code)
-                mkdocs_filepath = os.path.join(output_path, "mkdocs.yml")
-                with open(mkdocs_filepath, "w", encoding="utf-8") as f:
-                    f.write(mkdocs_config)
-                emit("FILE_WROTE", path=mkdocs_filepath)
-
-                # Generate javascripts/mermaid-init.js for Mermaid default theme
-                js_dir = os.path.join(output_path, "docs", "javascripts")
-                os.makedirs(js_dir, exist_ok=True)
-                js_filepath = os.path.join(js_dir, "mermaid-init.js")
-                with open(js_filepath, "w", encoding="utf-8") as f:
-                    f.write(build_mermaid_init_js())
-                emit("FILE_WROTE", path=js_filepath)
-
-                # Generate docs/api/index.md — API Reference section landing page with module table
-                if sections:
-                    mode_label = mode_labels.get(mode, "Documentation")
-                    chapter_index_label = get("UI_CHAPTER_INDEX")
-                    chapters_label = get("UI_CHAPTERS")
-                    index_lines = [
-                        f"# {project_name} — {mode_label}",
-                        "",
-                        f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
-                        "",
-                        f"## {chapter_index_label}",
-                        "",
-                    ]
-                    self._build_index_sections(index_lines, sections, chapter_files)
-                    index_content = "\n".join(index_lines)
-                else:
-                    # Build a rich flat index with module listing table
-                    chapter_summaries = prep_res.get("chapter_summaries", [])
-                    mode_label = mode_labels.get(mode, "Documentation")
-                    chapter_index_label = get("UI_CHAPTER_INDEX")
-                    chapters_label = get("UI_CHAPTERS")
-                    th_chapter = get("UI_TH_CHAPTER")
-                    th_description = get("UI_TH_DESCRIPTION")
-                    index_lines = [
-                        f"# {project_name} — {mode_label}",
-                        "",
-                        f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
-                        "",
-                        f"## {chapter_index_label}",
-                        "",
-                        f"| {th_chapter} | {th_description} |",
-                        "|---------|-------------|",
-                    ]
-                    for i, cf in enumerate(chapter_files):
-                        dir_path = os.path.dirname(cf.get("original_path", "")) or ""
-                        display = f"{dir_path}/{cf['module_name']}" if dir_path else cf["module_name"]
-                        summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
-                        # Truncate and sanitize for table cell (replace pipes and newlines)
-                        summary = summary.replace("|", "—").replace("\n", " ").strip()
-                        if len(summary) > 200:
-                            summary = summary[:197] + "..."
-                        index_lines.append(f"| [{display}]({cf['filename']}) | {summary} |")
-                    index_lines.append("")
-                    index_content = "\n".join(index_lines)
-                api_index_filepath = os.path.join(api_docs_path, "index.md")
-                with open(api_index_filepath, "w", encoding="utf-8") as f:
-                    f.write(index_content)
-                emit("FILE_WROTE", path=api_index_filepath)
-
-                # Write nav_snippet.yml
-                nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")
-                with open(nav_filepath, "w", encoding="utf-8") as f:
-                    f.write(nav_snippet)
-                emit("FILE_WROTE", path=nav_filepath)
-
-                # Write module API pages
-                for chapter_info in chapter_files:
-                    chapter_filepath = os.path.join(api_docs_path, chapter_info["filename"])
-                    os.makedirs(os.path.dirname(chapter_filepath), exist_ok=True)
-                    with open(chapter_filepath, "w", encoding="utf-8") as f:
-                        f.write(chapter_info["content"])
-                    emit("FILE_WROTE", path=chapter_filepath)
+                self._write_mkdocs_output(output_path, prep_res, chapter_files)
             else:
-                index_content = prep_res["index_content"]
-                emit("COMBINE_FORMAT_STANDALONE")
-                emit("COMBINE_CHAPTER_COUNT", count=len(chapter_files))
-
-                # Write index.md
-                index_filepath = os.path.join(output_path, "index.md")
-                with open(index_filepath, "w", encoding="utf-8") as f:
-                    f.write(index_content)
-                emit("FILE_WROTE", path=index_filepath)
-
-                # Write chapter files
-                for chapter_info in chapter_files:
-                    chapter_filepath = os.path.join(output_path, chapter_info["filename"])
-                    with open(chapter_filepath, "w", encoding="utf-8") as f:
-                        f.write(chapter_info["content"])
-                    emit("FILE_WROTE", path=chapter_filepath)
-
-                # Create full_content.md
-                toc_lines = [f"# {ui['toc']}\n"]
-                full_content_lines = []
-
-                for i, chapter_info in enumerate(chapter_files):
-                    content = chapter_info["content"]
-                    title_line = content.split("\n", 1)[0]
-                    if title_line.startswith("# "):
-                        title = title_line[2:].strip()
-                    else:
-                        title = f"{ui['chapter']} {i + 1}"
-
-                    toc_lines.append(f"- [{title}](#chapter-{i + 1})")
-                    full_content_lines.append(f'<a id="chapter-{i + 1}"></a>\n')
-                    full_content_lines.append(content)
-                    full_content_lines.append("\n---\n")
-
-                full_content = "\n".join(toc_lines) + "\n\n" + "\n".join(full_content_lines)
-                full_content_filepath = os.path.join(output_path, "full_content.md")
-                with open(full_content_filepath, "w", encoding="utf-8") as f:
-                    f.write(full_content)
-                emit("FILE_WROTE", path=full_content_filepath)
+                self._write_standalone_output(output_path, prep_res, chapter_files, ui)
 
             emit_raw(
                 "DEBUG",

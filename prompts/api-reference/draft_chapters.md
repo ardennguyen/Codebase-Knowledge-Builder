@@ -116,12 +116,12 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
   MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
   MERMAID LANGUAGE RULES: All diagram text — node labels, decision diamond texts, edge labels, and subgraph titles — MUST be written in the same language as the rest of the document{mermaid_lang_note}. Node identifiers (IDs) MUST remain ASCII alphanumeric (e.g. `startNode`, `stepInit`), but the displayed label inside quotes MUST use the target language with proper diacritics.
 
-- Link to other documented files using Markdown links with relative paths. Each file's doc path is shown in the Index above as `(doc: path.md)`. The link target filename MUST be copied EXACTLY and VERBATIM from the `(doc: ...)` annotation — NEVER re-derive, re-slugify, or guess filenames. Compute the relative path from your location ({current_doc_path}) to the target{link_lang_note}. Translate the surrounding prose text, not the code.
+- Link to other documented files using Markdown links. Each file's doc path is shown in the Index above as `(doc: path.md)`. Copy the path EXACTLY from the `(doc: ...)` annotation as the link target — NEVER re-derive, re-slugify, or guess filenames. Do NOT modify the path; link targets will be normalized automatically{link_lang_note}. Translate the surrounding prose text, not the code.
 
 - PAGE LENGTH: Aim for 3,000-8,000 words per reference page. This limit includes prose AND code — use per-method extraction (not whole-file dumps) to stay within it. Only if the file defines more than 20 classes or 60+ methods should you fall back to a summary table for the least significant items:
   | Class/Function | Visibility | Responsibility | Key Methods |
 
-- End the page with the `## See Also` section listing related files with Markdown links{link_lang_note}, based on imports or call relationships visible in the source code. Link targets MUST be copied EXACTLY from the `(doc: ...)` annotations in the Index.
+- End the page with the `## See Also` section listing related files with Markdown links{link_lang_note}, based on imports or call relationships visible in the source code. Copy link targets EXACTLY from the `(doc: ...)` annotations in the Index — they will be normalized automatically.
 
 - Return ONLY valid Markdown content. Do not include conversational filler.
 
