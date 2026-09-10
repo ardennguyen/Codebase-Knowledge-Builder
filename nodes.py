@@ -16,7 +16,7 @@ from utils.prompts import (
     load_prompt_template,
     parse_yaml_response,
 )
-from utils.token_utils import count_tokens, create_token_counter, log_token_estimation, resolve_max_tokens
+from utils.token_utils import count_tokens, log_token_estimation, resolve_max_tokens
 
 
 class DeterministicFileMapper(Node):
@@ -87,9 +87,6 @@ class ContextRouter(Node):
         max_tokens = resolve_max_tokens(shared)
 
         shared["max_tokens"] = max_tokens
-
-        # --- Token estimation setup ---
-        count_tokens = create_token_counter()
 
         # --- Calculate prompt overhead FIRST ---
         # 1. Prompt templates: check both IA/MA (for batching) and WC (for chapter writing)
@@ -471,8 +468,6 @@ class IdentifyAbstractions(Node):
 
             safety_limit = int(max_tokens * 0.95)
 
-            count_tokens = create_token_counter()
-
             context = ""
             current_tokens = 0
 
@@ -651,8 +646,7 @@ class AnalyzeRelationships(Node):
         safety_limit = int(max_tokens * 0.95)
         prompt_overhead = 2000  # approximate tokens for prompt template + response
 
-        estimate_tokens = create_token_counter()
-        current_tokens = estimate_tokens(context)
+        current_tokens = count_tokens(context)
 
         total_budget = safety_limit - current_tokens - prompt_overhead
         num_abstractions = len(abstractions)
@@ -665,7 +659,7 @@ class AnalyzeRelationships(Node):
                 if 0 <= idx < len(files_data):
                     path, file_content = files_data[idx]
                     entry = f"\\n--- File: {idx} # {path} ---\\n{file_content}\\n"
-                    sized.append((idx, path, file_content, estimate_tokens(entry)))
+                    sized.append((idx, path, file_content, count_tokens(entry)))
             # Sort largest first (most architecturally significant)
             sized.sort(key=lambda x: x[3], reverse=True)
             abstr_file_data.append(sized)
@@ -1150,7 +1144,6 @@ class WriteChapters(BatchNode):
                                     )
                                 else:
                                     # Fallback for old manifest format: regenerate summary via LLM
-                                    count_tokens = create_token_counter()
                                     summary_prompt = build_chapter_summary_prompt(chapter_num, abstraction_name, clean_content, language)
                                     cached_content_tokens = count_tokens(clean_content)
                                     summary_tokens = count_tokens(summary_prompt)
@@ -1192,7 +1185,6 @@ class WriteChapters(BatchNode):
             prev_chapters_budget = int(max_tokens * 0.50)
 
             if self.chapter_summaries:
-                count_tokens = create_token_counter()
                 selected_summaries = []
                 running_tokens = 0
 
