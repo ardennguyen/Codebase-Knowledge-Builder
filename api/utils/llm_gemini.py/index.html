@@ -1,0 +1,3193 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/llm_gemini.py/">
+      
+      
+        <link rel="prev" href="../llm_anthropic.py/">
+      
+      
+        <link rel="next" href="../llm_openrouter.py/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>llm_gemini.py - Codebase Knowledge Builder API Reference</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/panzoom.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <meta name="panzoom-theme" content="material">
+<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm_geminipy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-header__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Codebase Knowledge Builder API Reference
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              llm_gemini.py
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-nav__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Codebase Knowledge Builder API Reference
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline Orchestration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pipeline Orchestration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../main.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../flow.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nodes.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Repository Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_local_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_local_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_github_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_github_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Inference & Providers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM Inference & Providers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Inference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core Inference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1" id="__nav_3_4_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../call_llm.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_config.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_config.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_common.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_common.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Drivers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Provider Drivers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_1" id="__nav_3_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_anthropic.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_anthropic.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_gemini.py
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_gemini.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_model_limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model_limits()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call_gemini" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        call_gemini()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="call_gemini()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-configuration-preparation-and-model-parameter-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Configuration Preparation and Model Parameter Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-stream-execution-and-dynamic-thinking-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Stream Execution and Dynamic Thinking Fallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-telemetry-recording-and-thought-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Telemetry Recording and Thought Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-block-and-truncation-post-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Block and Truncation Post-Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_timeout_ms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _timeout_ms()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_get_client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _get_client()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_thinking_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _thinking_config()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_max_output_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _max_output_tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _name()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_price" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _price()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _record()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _stream()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stream-result-payload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stream Result Payload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pricing-catalog-_pricing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pricing Catalog (_PRICING)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-configuration-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Configuration Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thinking-parameter-rejection-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thinking Parameter Rejection Recovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#safety-refusals-and-policy-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Safety Refusals and Policy Blocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-truncation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Truncation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_openrouter.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_openrouter.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt & Context Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt & Context Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5_1" id="__nav_3_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../thinking.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    thinking.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation & System Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Documentation & System Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_1" id="__nav_3_6_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mkdocs.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mkdocs.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../output.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    i18n.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../__init__.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    __init__.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_model_limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model_limits()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call_gemini" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        call_gemini()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="call_gemini()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-configuration-preparation-and-model-parameter-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Configuration Preparation and Model Parameter Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-stream-execution-and-dynamic-thinking-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Stream Execution and Dynamic Thinking Fallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-telemetry-recording-and-thought-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Telemetry Recording and Thought Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-block-and-truncation-post-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Block and Truncation Post-Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_timeout_ms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _timeout_ms()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_get_client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _get_client()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_thinking_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _thinking_config()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_max_output_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _max_output_tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _name()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_price" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _price()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _record()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _stream()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stream-result-payload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stream Result Payload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pricing-catalog-_pricing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pricing Catalog (_PRICING)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-configuration-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Configuration Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thinking-parameter-rejection-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thinking Parameter Rejection Recovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#safety-refusals-and-policy-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Safety Refusals and Policy Blocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-truncation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Truncation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="llm_geminipy">llm_gemini.py</h1>
+<blockquote>
+<p><strong>Source:</strong> <code>utils/llm_gemini.py</code></p>
+</blockquote>
+<p>Following the runtime configuration resolution and model capability negotiation established in <a href="../llm_config.py/">llm_config.py</a>, <code>llm_gemini.py</code> acts as the dedicated low-level driver for Google Gemini models. It encapsulates all communication with Google's generative AI infrastructure, handling authentication, request construction, streaming generation, thinking parameter calibration, finish reason classification, and token usage accounting.</p>
+<h2 id="technical-overview">Technical Overview</h2>
+<p>The <code>llm_gemini.py</code> module serves as the native integration driver for Google Gemini models (Gemini 3.1+ with Gemini 2.5 fallback architectures) within the repository synthesis pipeline. It directly imports the official <code>google-genai</code> SDK and provides a self-contained execution boundary for all Google-specific API interactions. The module isolates upstream orchestration components—such as <a href="../call_llm.py/">call_llm.py</a>—from the complexities of Google API authentication modes, deprecations across Gemini generations, and vendor-specific streaming protocols.</p>
+<p>Architecturally, the driver manages authentication across both Google AI Studio (API key) and Google Cloud Vertex AI (Project ID and Location). It enforces strict parameter isolation across model families. For Gemini 3.x architectures, reasoning capabilities are configured via <code>ThinkingConfig.thinking_level</code>, clamped to per-model supported tiers. For Gemini 2.5 models, reasoning uses an explicit integer <code>thinking_budget</code>. The driver ensures that these mutually exclusive fields are never submitted within the same payload, which would trigger an immediate HTTP 400 Bad Request. Furthermore, the module omits deprecated sampling parameters (such as <code>temperature</code> and <code>top_p</code>) to guarantee compatibility across Vertex AI endpoints.</p>
+<p>Inference execution relies entirely on <code>generate_content_stream</code> to prevent HTTP transport drops during extended reasoning sessions. The driver inspects the streaming chunks in real time, assembling raw completion tokens alongside internal reasoning thoughts (<code>include_thoughts</code>). It parses granular completion metadata, routing safety stops or content policy rejections to <a href="../llm_common.py/">llm_common.py</a>'s <code>LLMRefusalError</code>, length limits to <code>TruncatedResponse</code>, and successful text completions to the caller while updating centralized financial and token telemetry ledgers.</p>
+<div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <pre class="mermaid-raw"><code>flowchart TD
+    subgraph SubgraphGeminiInit["1. Initialization and Request Preparation"]
+        stepEntry["call_gemini(prompt, thinking_level)"]
+        stepResolve["Resolve Model and Output Budget via llm_config"]
+        stepThinking["Build ThinkingConfig via _thinking_config()"]
+        stepConfig["Construct types.GenerateContentConfig"]
+    end
+
+    subgraph SubgraphGeminiStream["2. Stream Transport and Fault Tolerance"]
+        stepClient["_stream(): Call generate_content_stream"]
+        stepError{"ClientError 400 on thinking?"}
+        stepFallback["Register model in _thinking_rejected and strip thinking_config"]
+        stepRetryStream["_stream(): Re-dispatch without thinking"]
+        stepYield["Accumulate text, thoughts, finish reason, and usage"]
+    end
+
+    subgraph SubgraphGeminiEvaluation["3. Accounting and Response Classification"]
+        stepRecord["_record(): Calculate cost and record usage in llm_common"]
+        stepFinish{"Evaluate Finish and Block Reasons"}
+        stepRefusal["Raise LLMRefusalError retryable or deterministic"]
+        stepTruncate["Return TruncatedResponse(text)"]
+        stepSuccess["Return raw text"]
+    end
+
+    stepEntry --&gt; stepResolve
+    stepResolve --&gt; stepThinking
+    stepThinking --&gt; stepConfig
+    stepConfig --&gt; stepClient
+    stepClient --&gt; stepError
+    stepError -- "Yes" --&gt; stepFallback
+    stepFallback --&gt; stepRetryStream
+    stepRetryStream --&gt; stepYield
+    stepError -- "No" --&gt; stepYield
+    stepYield --&gt; stepRecord
+    stepRecord --&gt; stepFinish
+    stepFinish -- "BLOCKED or SAFETY" --&gt; stepRefusal
+    stepFinish -- "MAX_TOKENS" --&gt; stepTruncate
+    stepFinish -- "Normal STOP" --&gt; stepSuccess
+
+    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
+    class stepEntry entryNode
+    class stepClient entryNode
+    class stepRecord entryNode</code></pre> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div>
+<h2 id="public-api">Public API</h2>
+<h3 id="get_model"><code>get_model()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def get_model() -&gt; str:</code></p>
+<p><strong>Description</strong>: Resolves and returns the normalized Gemini model identifier configured for the current runtime. It inspects the <code>GEMINI_MODEL</code> environment variable, falling back to <code>DEFAULT_GEMINI_MODEL</code> (from <code>utils.llm_config</code>) if unset. The raw model string is stripped of leading resource path prefixes such as <code>models/</code> or <code>publishers/google/models/</code> via <code>gemini_model_id</code> to ensure compatibility with both AI Studio and Vertex AI SDK client calls.</p>
+<p><strong>Parameters</strong>:
+None.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The sanitized model name (e.g., <code>"gemini-3.7-flash"</code>).</p>
+<p><strong>Raises</strong>:
+None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""GEMINI_MODEL without a 'models/' or 'publishers/google/models/' resource prefix."""</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">return</span> <span class="n">gemini_model_id</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_MODEL"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_GEMINI_MODEL</span><span class="p">)</span>
+</code></pre></div></p>
+<p>The <code>get_model</code> function acts as the single entry point for model name normalization within the driver. Upstream dispatchers and internal helper functions use this sanitized ID to ensure cache consistency, pricing lookups, and SDK request formatting without redundant regex parsing.</p>
+<hr />
+<h3 id="get_model_limits"><code>get_model_limits()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def get_model_limits(model: str) -&gt; tuple[int, int]:</code></p>
+<p><strong>Description</strong>: Retrieves the maximum input and output token boundaries for a given Gemini model identifier. The function implements an in-memory caching mechanism via <code>_model_limits_cache</code> to minimize network overhead. When querying Google AI Studio (when <code>GEMINI_PROJECT_ID</code> is absent), the function attempts to fetch dynamic limits via <code>client.models.get(model=model)</code>. If Vertex AI is active, or if the API query fails, the function falls back to static defaults defined in <code>GEMINI_DEFAULT_LIMITS</code> (from <code>utils.llm_config</code>).</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The normalized model identifier string.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[int, int]</code>: A 2-element tuple representing <code>(input_token_limit, output_token_limit)</code>.</p>
+<p><strong>Raises</strong>:
+None (internal exceptions during lookup are trapped, logged as warnings via <code>emit()</code>, and resolved to default limits).</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_model_limits</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""(input_token_limit, output_token_limit). AI Studio reports them via models.get; Vertex does</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="sd">    not (the SDK maps no limits there), so the static Gemini 3.x / 2.5 table applies."""</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">if</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">_model_limits_cache</span><span class="p">:</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">return</span> <span class="n">_model_limits_cache</span><span class="p">[</span><span class="n">model</span><span class="p">]</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">limits</span> <span class="o">=</span> <span class="n">GEMINI_DEFAULT_LIMITS</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_PROJECT_ID"</span><span class="p">):</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>            <span class="n">info</span> <span class="o">=</span> <span class="n">_get_client</span><span class="p">()</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>            <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"input_token_limit"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"output_token_limit"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Gemini models.get | model=</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> | input=</span><span class="si">{</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | output=</span><span class="si">{</span><span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_GEMINI_MODEL_LOOKUP"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[:</span><span class="mi">200</span><span class="p">])</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">_model_limits_cache</span><span class="p">[</span><span class="n">model</span><span class="p">]</span> <span class="o">=</span> <span class="n">limits</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="k">return</span> <span class="n">limits</span>
+</code></pre></div></p>
+<p>The implementation prevents repetitive remote lookups by memoizing results in <code>_model_limits_cache</code>. When running against Vertex AI endpoints, Google does not expose token ceilings via the standard <code>models.get</code> endpoint; the driver handles this discrepancy by bypassing the network lookup entirely and applying local static limits.</p>
+<hr />
+<h3 id="call_gemini"><code>call_gemini()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def call_gemini(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
+<p><strong>Description</strong>: Dispatches a single-turn completion request to Google Gemini using streaming transport and returns the synthesized response text. It coordinates token estimation, thinking parameter selection, function calling suppression, stream processing, error recovery, operational logging, and finish reason classification.</p>
+<p>Because this function implements the central workflow of the module, its internal logic is broken down into four distinct execution phases:</p>
+<h4 id="phase-1-configuration-preparation-and-model-parameter-resolution">Phase 1: Configuration Preparation and Model Parameter Resolution</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.token_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_tokens_raw</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">()</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">raw_tokens</span> <span class="o">=</span> <span class="n">count_tokens_raw</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">max_output</span> <span class="o">=</span> <span class="n">_max_output_tokens</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">thinking</span><span class="p">,</span> <span class="n">level_desc</span> <span class="o">=</span> <span class="n">_thinking_config</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="c1"># No tools are passed, so automatic function calling is off (google-genai warns on streams otherwise).</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">no_afc</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">AutomaticFunctionCallingConfig</span><span class="p">(</span><span class="n">disable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">config</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">GenerateContentConfig</span><span class="p">(</span><span class="n">max_output_tokens</span><span class="o">=</span><span class="n">max_output</span><span class="p">,</span> <span class="n">thinking_config</span><span class="o">=</span><span class="n">thinking</span><span class="p">,</span> <span class="n">automatic_function_calling</span><span class="o">=</span><span class="n">no_afc</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">emit_raw</span><span class="p">(</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="s2">"DEBUG"</span><span class="p">,</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="sa">f</span><span class="s2">"Gemini request | model=</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">level_desc</span><span class="si">}</span><span class="s2"> | max_output_tokens=</span><span class="si">{</span><span class="n">max_output</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | location=</span><span class="si">{</span><span class="n">gemini_location</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'GEMINI_PROJECT_ID'</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'ai-studio'</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">,</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>The initial phase resolves the model ID and calculates the baseline token count of the prompt using <code>count_tokens_raw</code>. It determines the output token ceiling by invoking <code>_max_output_tokens</code> and configures the reasoning behavior using <code>_thinking_config</code>. Automatic function calling is explicitly disabled using <code>types.AutomaticFunctionCallingConfig(disable=True)</code> to prevent the SDK from emitting runtime stream warnings when no tool schemas are supplied.</p>
+<h4 id="phase-2-stream-execution-and-dynamic-thinking-fallback">Phase 2: Stream Execution and Dynamic Thinking Fallback</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">except</span> <span class="n">genai_errors</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="c1"># A model that rejects our thinking control (unknown future model, level set changed):</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="c1"># warn once and resend without it for the rest of the run.</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">"code"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="mi">400</span> <span class="ow">and</span> <span class="n">thinking</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">"think"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="n">_thinking_rejected</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_GEMINI_THINKING_REJECTED"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[:</span><span class="mi">200</span><span class="p">])</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>            <span class="n">config</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">GenerateContentConfig</span><span class="p">(</span><span class="n">max_output_tokens</span><span class="o">=</span><span class="n">max_output</span><span class="p">,</span> <span class="n">thinking_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">automatic_function_calling</span><span class="o">=</span><span class="n">no_afc</span><span class="p">)</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>            <span class="n">result</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>            <span class="k">raise</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+</code></pre></div>
+<p>Execution delegates to the private <code>_stream</code> helper inside a timed block. If the endpoint rejects the thinking parameter by returning an HTTP 400 <code>ClientError</code> containing the string <code>"think"</code>, the driver catches the exception, registers the model into <code>_thinking_rejected</code> to bypass thinking parameters on future calls, emits a warning, strips <code>thinking_config</code>, and immediately retries the request.</p>
+<h4 id="phase-3-telemetry-recording-and-thought-logging">Phase 3: Telemetry Recording and Thought Logging</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"usage"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>        <span class="n">_record</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">"usage"</span><span class="p">],</span> <span class="n">raw_tokens</span><span class="p">,</span> <span class="n">level_desc</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">"finish"</span><span class="p">],</span> <span class="n">elapsed</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="n">record_usage</span><span class="p">(</span><span class="s2">"GEMINI"</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">if</span> <span class="n">is_debug</span><span class="p">()</span> <span class="ow">and</span> <span class="n">result</span><span class="p">[</span><span class="s2">"thoughts"</span><span class="p">]:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"THINKING SUMMARY:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'thoughts'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+</code></pre></div>
+<p>Once the stream completes, telemetry is written to the global usage ledger via <code>_record()</code>. If the response omitted usage metadata, <code>record_usage()</code> is called with <code>cost=None</code> to mark cost tracking as unverified. When CLI debugging is enabled via <code>is_debug()</code>, extracted reasoning traces (<code>result["thoughts"]</code>) are written to the persistent log file.</p>
+<h4 id="phase-4-block-and-truncation-post-processing">Phase 4: Block and Truncation Post-Processing</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"block_reason"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">result</span><span class="p">[</span><span class="s2">"finish"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_BLOCK_FINISH_REASONS</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>        <span class="n">category</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"block_reason"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">result</span><span class="p">[</span><span class="s2">"finish"</span><span class="p">]</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="c1"># A blocked prompt repeats for the same input; a stop on the candidate may pass on resampling.</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="n">retryable</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="s2">"block_reason"</span><span class="p">]</span> <span class="ow">and</span> <span class="n">result</span><span class="p">[</span><span class="s2">"finish"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_RETRYABLE_FINISH_REASONS</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">count_event</span><span class="p">(</span><span class="s2">"GEMINI"</span><span class="p">,</span> <span class="s2">"refusals"</span><span class="p">)</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_LLM_BLOCKED_RETRYABLE"</span> <span class="k">if</span> <span class="n">retryable</span> <span class="k">else</span> <span class="s2">"WARN_LLM_REFUSAL"</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s2">"Gemini"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="k">raise</span> <span class="n">LLMRefusalError</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s2">"GEMINI"</span><span class="p">,</span> <span class="n">retryable</span><span class="o">=</span><span class="n">retryable</span><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"finish"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_TRUNCATION_FINISH_REASONS</span><span class="p">:</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="n">count_event</span><span class="p">(</span><span class="s2">"GEMINI"</span><span class="p">,</span> <span class="s2">"truncations"</span><span class="p">)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_LLM_TRUNCATED"</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s2">"Gemini"</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">max_output</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="k">return</span> <span class="n">TruncatedResponse</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">"text"</span><span class="p">])</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]:</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Gemini response contained no text (finish_reason=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'finish'</span><span class="p">]</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'n/a'</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span>
+</code></pre></div>
+<p>The final phase inspects candidate finish states and prompt feedback blocks. If the request was halted by safety mechanisms, terms-of-service violations, or content blocks (<code>_BLOCK_FINISH_REASONS</code>), it increments the refusal counter, logs a warning, and raises <code>LLMRefusalError</code>. It differentiates between permanent prompt refusals (<code>retryable=False</code>) and transient candidate stops (<code>retryable=True</code>). If the generation was halted due to context or budget exhaustion (<code>MAX_TOKENS</code>), it logs the truncation and returns a <code>TruncatedResponse</code> instance. Otherwise, it returns the generated text.</p>
+<p><strong>Parameters</strong>:
+* <code>prompt</code> (<code>str</code>): The full text prompt to be completed by the model.
+* <code>thinking_level</code> (<code>str | None</code>, optional): The requested reasoning intensity (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, etc.), or <code>None</code> to adopt the model default.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The generated completion text, or an instance of <code>TruncatedResponse</code> (which subclasses <code>str</code>) if generation exceeded output token limits.</p>
+<p><strong>Raises</strong>:
+* <code>LLMRefusalError</code>: If the prompt or generated response was blocked by safety filters, recitation checks, or policy restrictions.
+* <code>google.genai.errors.ClientError</code>: For unhandled 4xx client errors that are not related to thinking parameter rejection.
+* <code>ValueError</code>: If neither <code>GEMINI_PROJECT_ID</code> nor <code>GEMINI_API_KEY</code> is present in the environment.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Real usage pattern from utils/call_llm.py delegating to call_gemini</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_gemini</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_gemini</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">response_text</span> <span class="o">=</span> <span class="n">call_gemini</span><span class="p">(</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">prompt</span><span class="o">=</span><span class="s2">"Generate an architecture summary for the authentication subsystem."</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">thinking_level</span><span class="o">=</span><span class="s2">"high"</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h2 id="internal-helpers">Internal Helpers</h2>
+<h3 id="_timeout_ms"><code>_timeout_ms()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _timeout_ms() -&gt; int:</code></p>
+<p><strong>Description</strong>: Parses the <code>GEMINI_TIMEOUT_SECONDS</code> environment variable to compute the global request timeout in milliseconds for the <code>google-genai</code> SDK. Because the SDK applies this deadline to the entire streamed response rather than individual socket read intervals, the timeout must accommodate extended reasoning cycles. The value is clamped to a minimum of 30.0 seconds (30,000 ms), defaulting to 1,800.0 seconds (1,800,000 ms or 30 minutes).</p>
+<p><strong>Parameters</strong>:
+None.</p>
+<p><strong>Returns</strong>:
+* <code>int</code>: Total per-request deadline in milliseconds.</p>
+<p><strong>Raises</strong>:
+None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_timeout_ms</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="sd">"""Total per-request deadline (the SDK applies it to the whole streamed response)."""</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="n">seconds</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_TIMEOUT_SECONDS"</span><span class="p">,</span> <span class="s2">"1800"</span><span class="p">))</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="n">seconds</span> <span class="o">=</span> <span class="mf">1800.0</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+</code></pre></div></p>
+<p>The function incorporates defensive parsing of the environment variable. If an invalid or non-numeric string is configured, the <code>ValueError</code> exception handler reverts the value to the 1,800-second baseline. Clamping with <code>max(seconds, 30.0)</code> guarantees that aggressive user configurations do not drop connections during standard network handshakes.</p>
+<hr />
+<h3 id="_get_client"><code>_get_client()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _get_client():</code></p>
+<p><strong>Description</strong>: Initializes and returns the process-wide <code>google.genai.Client</code> singleton. The client is configured with HTTP deadline options derived from <code>_timeout_ms()</code> and automated retry parameters (<code>HttpRetryOptions</code>) for status codes 408, 429, 500, 502, 503, and 504. The helper evaluates the execution environment to configure either Vertex AI (via <code>GEMINI_PROJECT_ID</code> and <code>gemini_location()</code>) or Google AI Studio (via <code>GEMINI_API_KEY</code>). When using AI Studio, <code>vertexai=False</code> is passed explicitly to prevent ambient environment variables such as <code>GOOGLE_GENAI_USE_VERTEXAI</code> from rerouting requests.</p>
+<p><strong>Parameters</strong>:
+None.</p>
+<p><strong>Returns</strong>:
+* <code>genai.Client</code>: The configured Google GenAI client instance.</p>
+<p><strong>Raises</strong>:
+* <code>ValueError</code>: If neither <code>GEMINI_PROJECT_ID</code> nor <code>GEMINI_API_KEY</code> is present in the environment.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_get_client</span><span class="p">():</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="k">global</span> <span class="n">_client</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="k">if</span> <span class="n">_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        <span class="n">http_options</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">HttpOptions</span><span class="p">(</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>            <span class="n">timeout</span><span class="o">=</span><span class="n">_timeout_ms</span><span class="p">(),</span>  <span class="c1"># milliseconds; with no timeout a stalled connection hangs forever</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>            <span class="c1"># One SDK retry for transient errors; PocketFlow node retries (5 x 20 s) sit on top.</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>            <span class="n">retry_options</span><span class="o">=</span><span class="n">types</span><span class="o">.</span><span class="n">HttpRetryOptions</span><span class="p">(</span><span class="n">attempts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">http_status_codes</span><span class="o">=</span><span class="p">[</span><span class="mi">408</span><span class="p">,</span> <span class="mi">429</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">502</span><span class="p">,</span> <span class="mi">503</span><span class="p">,</span> <span class="mi">504</span><span class="p">]),</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_PROJECT_ID"</span><span class="p">):</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>            <span class="n">_client</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">vertexai</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_PROJECT_ID"</span><span class="p">),</span> <span class="n">location</span><span class="o">=</span><span class="n">gemini_location</span><span class="p">(),</span> <span class="n">http_options</span><span class="o">=</span><span class="n">http_options</span><span class="p">)</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_API_KEY"</span><span class="p">):</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>            <span class="c1"># vertexai=False explicitly: GOOGLE_GENAI_USE_VERTEXAI=true in the environment would otherwise</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>            <span class="c1"># route the API key to Vertex AI.</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>            <span class="n">_client</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">vertexai</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_API_KEY"</span><span class="p">),</span> <span class="n">http_options</span><span class="o">=</span><span class="n">http_options</span><span class="p">)</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment"</span><span class="p">)</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    <span class="k">return</span> <span class="n">_client</span>
+</code></pre></div></p>
+<p>This helper manages client lifecycle state through the global <code>_client</code> reference. The SDK's built-in HTTP retry policy is constrained to two attempts, operating underneath the higher-level workflow retry loops in the pipeline's execution graph.</p>
+<hr />
+<h3 id="_thinking_config"><code>_thinking_config()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _thinking_config(model: str, level: str | None) -&gt; tuple[types.ThinkingConfig | None, str]:</code></p>
+<p><strong>Description</strong>: Constructs the vendor-specific reasoning configuration object (<code>types.ThinkingConfig</code>) based on the target model's supported mode (<code>"level"</code> vs <code>"budget"</code>). If the model previously rejected thinking parameters (tracked in <code>_thinking_rejected</code>), the function bypasses configuration and returns <code>None</code>. For Gemini 3.x models (<code>mode == "level"</code>), it clamps the requested level to the model's supported enumeration via <code>clamp_level</code>, warning the user via <code>warn_once</code> if clamping occurs. For Gemini 2.5 models (<code>mode == "budget"</code>), it clamps the budget to the allowed integer range. The two modes are never mixed.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): Normalized Gemini model name.
+* <code>level</code> (<code>str | None</code>): Desired reasoning intensity level.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[types.ThinkingConfig | None, str]</code>: A tuple containing the initialized SDK thinking configuration (or <code>None</code>) and a human-readable telemetry description string.</p>
+<p><strong>Raises</strong>:
+None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_thinking_config</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="sd">"""(ThinkingConfig | None, description). Never mixes thinking_level with thinking_budget."""</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">mode</span><span class="p">,</span> <span class="n">spec</span> <span class="o">=</span> <span class="n">gemini_thinking_mode</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">include</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">is_debug</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># thought summaries only for the debug log</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="k">if</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">_thinking_rejected</span><span class="p">:</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"default (thinking config rejected by model)"</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">level</span><span class="p">:</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="c1"># Model default thinking; with --debug still ask for summaries so they can be logged.</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="k">return</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">ThinkingConfig</span><span class="p">(</span><span class="n">include_thoughts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">include</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">!=</span> <span class="s2">"none"</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">"default"</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"level"</span><span class="p">:</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>        <span class="n">effective</span> <span class="o">=</span> <span class="n">clamp_level</span><span class="p">(</span><span class="n">level</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">spec</span><span class="p">)</span> <span class="ow">or</span> <span class="n">spec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>        <span class="k">if</span> <span class="n">effective</span> <span class="o">!=</span> <span class="n">level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">warn_once</span><span class="p">(</span><span class="s2">"gemini_level"</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_THINKING_LEVEL_CLAMPED"</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">effective</span><span class="o">=</span><span class="n">effective</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="k">return</span> <span class="n">types</span><span class="o">.</span><span class="n">ThinkingConfig</span><span class="p">(</span><span class="n">thinking_level</span><span class="o">=</span><span class="n">effective</span><span class="p">,</span> <span class="n">include_thoughts</span><span class="o">=</span><span class="n">include</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"thinking_level=</span><span class="si">{</span><span class="n">effective</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"budget"</span><span class="p">:</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">_can_disable</span> <span class="o">=</span> <span class="n">spec</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="n">budget</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">GEMINI_THINKING_BUDGETS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">level</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">4096</span><span class="p">),</span> <span class="n">low</span><span class="p">),</span> <span class="n">high</span><span class="p">)</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>        <span class="k">return</span> <span class="n">types</span><span class="o">.</span><span class="n">ThinkingConfig</span><span class="p">(</span><span class="n">thinking_budget</span><span class="o">=</span><span class="n">budget</span><span class="p">,</span> <span class="n">include_thoughts</span><span class="o">=</span><span class="n">include</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"thinking_budget=</span><span class="si">{</span><span class="n">budget</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="k">if</span> <span class="n">warn_once</span><span class="p">(</span><span class="s2">"gemini_no_thinking"</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_THINKING_NOT_SUPPORTED"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"unsupported"</span>
+</code></pre></div></p>
+<p>The function coordinates with <code>utils.llm_config.gemini_thinking_mode</code> to determine whether the target model supports categorical thinking levels or integer token budgets. The <code>include_thoughts</code> flag is enabled only when debug logging is active (<code>is_debug()</code>), avoiding transport overhead and log bloat during standard execution.</p>
+<hr />
+<h3 id="_max_output_tokens"><code>_max_output_tokens()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _max_output_tokens(model: str, level: str | None) -&gt; int:</code></p>
+<p><strong>Description</strong>: Resolves the maximum generation limit for output tokens based on the active model and reasoning intensity. It retrieves the model's static or queried token limit using <code>get_model_limits()</code>, and delegates budget calculation to <code>gemini_output_budget</code> from <code>utils.llm_config</code>. Because Google Gemini maintains separate input and output token quotas, the output budget is not dynamically reduced for large prompts.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): Normalized model name.
+* <code>level</code> (<code>str | None</code>): Desired thinking level string.</p>
+<p><strong>Returns</strong>:
+* <code>int</code>: The maximum allowed output tokens for the completion request.</p>
+<p><strong>Raises</strong>:
+None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_max_output_tokens</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="sd">"""Per-level budget capped by the model's output limit. Gemini documents separate input and</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="sd">    output limits, so output is not reduced for large prompts (input_token_budget still reserves it)."""</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">_input_limit</span><span class="p">,</span> <span class="n">output_limit</span> <span class="o">=</span> <span class="n">get_model_limits</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="k">return</span> <span class="n">gemini_output_budget</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">output_limit</span><span class="p">)</span>
+</code></pre></div></p>
+<p>This helper ensures that downstream requests do not exceed the architectural limits of the model while allocating sufficient headroom for internal reasoning steps, which share the <code>max_output_tokens</code> allocation on Gemini 3.x and 2.5 architectures.</p>
+<hr />
+<h3 id="_name"><code>_name()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _name(value) -&gt; str:</code></p>
+<p><strong>Description</strong>: Normalizes enum members, status objects, or dynamic error types into a standardized uppercase string. In the <code>google-genai</code> SDK, unexpected or newly introduced finish reasons may arrive as raw strings or dynamically generated enum instances. This helper safely extracts the <code>.name</code> attribute if present, splits by dot notation, and transforms the resulting identifier to uppercase.</p>
+<p><strong>Parameters</strong>:
+* <code>value</code> (<code>Any</code>): An enum instance, string, or arbitrary object representing a finish or block reason.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: Standardized uppercase string identifier.</p>
+<p><strong>Raises</strong>:
+None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_name</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="sd">"""Enum → 'NAME' (unknown enum members arrive as dynamic values; compare by name)."""</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="k">return</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+</code></pre></div></p>
+<p>By decoupling finish reason evaluation from static SDK enum classes, <code>_name</code> prevents <code>AttributeError</code> exceptions when newer API releases introduce unmapped finish conditions.</p>
+<hr />
+<h3 id="_price"><code>_price()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _price(model: str, prompt_tokens: int, cached: int, output_tokens: int, today: datetime.date | None = None) -&gt; float | None:</code></p>
+<p><strong>Description</strong>: Calculates the estimated financial cost (in USD) for an inference request based on token consumption, prompt caching, long-context thresholds, promotional pricing calendars, and deployment locations. It performs a longest-prefix match against the <code>_PRICING</code> table. If the model qualifies for introductory rates (<code>_INTRO_PRICING</code>) and the current date is before <code>_INTRO_PRICING_UNTIL</code> (December 31, 2026), discounted rates are applied. If the input exceeds <code>_LONG_CONTEXT_THRESHOLD</code> (200,000 tokens) and the model defines dual-tier pricing, Tier-2 rates are evaluated. Finally, a 10% regional uplift (<code>_REGIONAL_UPLIFT = 1.10</code>) is applied if the request was routed through Vertex AI outside the <code>global</code> region.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): Target model name.
+* <code>prompt_tokens</code> (<code>int</code>): Total input prompt tokens.
+* <code>cached</code> (<code>int</code>): Tokens read from explicit or implicit prompt context caches.
+* <code>output_tokens</code> (<code>int</code>): Total output tokens (including reasoning tokens).
+* <code>today</code> (<code>datetime.date | None</code>, optional): Explicit date override used for testing pricing cutoffs. Defaults to <code>datetime.date.today()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>float | None</code>: Estimated cost in USD, or <code>None</code> if the model pricing is unmapped.</p>
+<p><strong>Raises</strong>:
+None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_price</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cached</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">output_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">today</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_PRICING</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">row</span> <span class="o">=</span> <span class="n">_PRICING</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_INTRO_PRICING</span> <span class="ow">and</span> <span class="p">(</span><span class="n">today</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="n">_INTRO_PRICING_UNTIL</span><span class="p">:</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        <span class="n">row</span> <span class="o">=</span> <span class="n">_INTRO_PRICING</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="n">p_in</span><span class="p">,</span> <span class="n">p_out</span><span class="p">,</span> <span class="n">p_cache</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span> <span class="ow">and</span> <span class="n">prompt_tokens</span> <span class="o">&gt;</span> <span class="n">_LONG_CONTEXT_THRESHOLD</span> <span class="k">else</span> <span class="n">row</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    <span class="n">uncached</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">prompt_tokens</span> <span class="o">-</span> <span class="n">cached</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    <span class="n">cost</span> <span class="o">=</span> <span class="p">(</span><span class="n">uncached</span> <span class="o">*</span> <span class="n">p_in</span> <span class="o">+</span> <span class="n">cached</span> <span class="o">*</span> <span class="n">p_cache</span> <span class="o">+</span> <span class="n">output_tokens</span> <span class="o">*</span> <span class="n">p_out</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1_000_000</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_PROJECT_ID"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">gemini_location</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"global"</span><span class="p">:</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>        <span class="n">cost</span> <span class="o">*=</span> <span class="n">_REGIONAL_UPLIFT</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>    <span class="k">return</span> <span class="n">cost</span>
+</code></pre></div></p>
+<p>The algorithm splits input tokens into cached and uncached portions, applying differential rates to each. If a model identifier does not match any prefix in <code>_PRICING</code>, the function safely returns <code>None</code>, signaling downstream telemetry engines that costs could not be computed.</p>
+<hr />
+<h3 id="_record"><code>_record()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _record(model: str, usage, raw_prompt_tokens: int, level_desc: str, finish: str, elapsed: float) -&gt; None:</code></p>
+<p><strong>Description</strong>: Extracts token metrics from the SDK's <code>usage_metadata</code> object, invokes <code>_price()</code> to estimate request expense, and writes operational metrics into the centralized session ledger using <code>record_usage()</code>. It calculates the observed tokenization ratio between Gemini's native tokenizer and the pipeline's offline estimator (<code>raw_prompt_tokens</code>), outputting detailed diagnostics to the debug log.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The model identifier.
+* <code>usage</code> (<code>types.GenerateContentResponseUsageMetadata</code>): The usage container returned in the final stream chunk.
+* <code>raw_prompt_tokens</code> (<code>int</code>): The offline baseline token count computed prior to transmission.
+* <code>level_desc</code> (<code>str</code>): Telemetry description of the applied thinking configuration.
+* <code>finish</code> (<code>str</code>): Resolved finish reason identifier.
+* <code>elapsed</code> (<code>float</code>): Request duration in seconds.</p>
+<p><strong>Returns</strong>:
+None.</p>
+<p><strong>Raises</strong>:
+None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">raw_prompt_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">level_desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">finish</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">prompt</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"prompt_token_count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">candidates</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"candidates_token_count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">thoughts</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"thoughts_token_count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">cached</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"cached_content_token_count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="n">output</span> <span class="o">=</span> <span class="n">candidates</span> <span class="o">+</span> <span class="n">thoughts</span>  <span class="c1"># thinking is billed as output</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="n">cost</span> <span class="o">=</span> <span class="n">_price</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">cached</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="n">record_usage</span><span class="p">(</span><span class="s2">"GEMINI"</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">input_tokens</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">output_tokens</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="n">thinking_tokens</span><span class="o">=</span><span class="n">thoughts</span><span class="p">,</span> <span class="n">cache_read</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">)</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="n">ratio</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">/</span> <span class="n">raw_prompt_tokens</span> <span class="k">if</span> <span class="n">raw_prompt_tokens</span> <span class="k">else</span> <span class="mf">0.0</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="n">emit_raw</span><span class="p">(</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>        <span class="s2">"DEBUG"</span><span class="p">,</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>        <span class="sa">f</span><span class="s2">"GEMINI USAGE | model=</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">level_desc</span><span class="si">}</span><span class="s2"> | finish=</span><span class="si">{</span><span class="n">finish</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'n/a'</span><span class="si">}</span><span class="s2"> | in=</span><span class="si">{</span><span class="n">prompt</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | out=</span><span class="si">{</span><span class="n">candidates</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | thinking=</span><span class="si">{</span><span class="n">thoughts</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | "</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>        <span class="sa">f</span><span class="s2">"cached=</span><span class="si">{</span><span class="n">cached</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | est_cost=</span><span class="si">{</span><span class="s1">'$'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">format</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span><span class="w"> </span><span class="s1">'.4f'</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'n/a'</span><span class="si">}</span><span class="s2"> | elapsed=</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s | observed_token_ratio=</span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>        <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">,</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    <span class="p">)</span>
+</code></pre></div></p>
+<p>The function handles reasoning tokens by consolidating candidate tokens and thought tokens into total output volume, matching Google's billing architecture. The ratio of actual prompt tokens to raw offline estimates is tracked to assist in calibrating tokenizer multiplier settings.</p>
+<hr />
+<h3 id="_stream"><code>_stream()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _stream(model: str, prompt: str, config: types.GenerateContentConfig) -&gt; dict:</code></p>
+<p><strong>Description</strong>: Consumes the generator returned by <code>client.models.generate_content_stream</code>. It iterates through streaming response chunks, accumulating text content, separating internal thoughts from candidate output, capturing prompt blocks, monitoring finish reasons, and saving the final usage metadata.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): Target model identifier.
+* <code>prompt</code> (<code>str</code>): Raw prompt text.
+* <code>config</code> (<code>types.GenerateContentConfig</code>): Fully populated generation configuration schema.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: An aggregation dictionary containing:
+  * <code>"text"</code> (<code>str</code>): Concatenated output text.
+  * <code>"thoughts"</code> (<code>str</code>): Concatenated thinking traces.
+  * <code>"finish"</code> (<code>str</code>): Uppercase finish reason.
+  * <code>"block_reason"</code> (<code>str</code>): Uppercase prompt block reason.
+  * <code>"usage"</code> (<code>types.GenerateContentResponseUsageMetadata | None</code>): Token usage metadata.</p>
+<p><strong>Raises</strong>:
+* <code>google.genai.errors.ClientError</code>: If network or authentication errors occur during stream consumption.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_stream</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="sd">"""Consume generate_content_stream; returns text, thoughts, finish, block_reason, usage."""</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">text</span><span class="p">,</span> <span class="n">thoughts</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">finish</span><span class="p">,</span> <span class="n">block_reason</span><span class="p">,</span> <span class="n">usage</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="kc">None</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">_get_client</span><span class="p">()</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">generate_content_stream</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="p">[</span><span class="n">prompt</span><span class="p">],</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">):</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        <span class="n">feedback</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="s2">"prompt_feedback"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        <span class="k">if</span> <span class="n">feedback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">feedback</span><span class="p">,</span> <span class="s2">"block_reason"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>            <span class="n">block_reason</span> <span class="o">=</span> <span class="n">_name</span><span class="p">(</span><span class="n">feedback</span><span class="o">.</span><span class="n">block_reason</span><span class="p">)</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="s2">"usage_metadata"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>            <span class="n">usage</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">usage_metadata</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="s2">"candidates"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]:</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="s2">"finish_reason"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>                <span class="n">finish</span> <span class="o">=</span> <span class="n">_name</span><span class="p">(</span><span class="n">candidate</span><span class="o">.</span><span class="n">finish_reason</span><span class="p">)</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>            <span class="n">content</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s2">"parts"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]:</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>                    <span class="p">(</span><span class="n">thoughts</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="s2">"thought"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>            <span class="k">break</span>  <span class="c1"># candidate_count is 1</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"text"</span><span class="p">:</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="s2">"thoughts"</span><span class="p">:</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">thoughts</span><span class="p">),</span> <span class="s2">"finish"</span><span class="p">:</span> <span class="n">finish</span><span class="p">,</span> <span class="s2">"block_reason"</span><span class="p">:</span> <span class="n">block_reason</span><span class="p">,</span> <span class="s2">"usage"</span><span class="p">:</span> <span class="n">usage</span><span class="p">}</span>
+</code></pre></div></p>
+<p>The streaming loop evaluates candidate parts individually, appending content to <code>thoughts</code> if <code>part.thought</code> evaluates to <code>True</code>, and to <code>text</code> otherwise. It restricts candidate parsing to the first candidate (<code>candidate_count is 1</code>), matching the single-turn design of the pipeline.</p>
+<hr />
+<h2 id="data-structures">Data Structures</h2>
+<h3 id="stream-result-payload">Stream Result Payload</h3>
+<p>Returned internally by <code>_stream()</code> to consolidate stream accumulation data:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>"text"</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Full synthesized response text from candidate parts where <code>thought</code> is false.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"thoughts"</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Internal reasoning traces extracted when <code>include_thoughts=True</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"finish"</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Normalized finish reason name (e.g., <code>"STOP"</code>, <code>"MAX_TOKENS"</code>, <code>"SAFETY"</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"block_reason"</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Normalized prompt feedback block reason (e.g., <code>"SAFETY"</code>, <code>"PROHIBITED_CONTENT"</code>), or empty if unblocked.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"usage"</code></td>
+<td style="text-align: left;"><code>types.GenerateContentResponseUsageMetadata \| None</code></td>
+<td style="text-align: left;">Google GenAI SDK token usage object containing prompt, candidate, and cached counts.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pricing-catalog-_pricing">Pricing Catalog (<code>_PRICING</code>)</h3>
+<p>Module-level dictionary storing USD rates per million tokens. Entries follow the tuple format:
+<code>(input_rate, output_rate, cached_input_rate[, input_rate_over_200k, output_rate_over_200k, cached_rate_over_200k])</code></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Model Prefix</th>
+<th style="text-align: left;">Standard Input</th>
+<th style="text-align: left;">Standard Output</th>
+<th style="text-align: left;">Standard Cached</th>
+<th style="text-align: left;">Long Context Input (&gt;200K)</th>
+<th style="text-align: left;">Long Context Output (&gt;200K)</th>
+<th style="text-align: left;">Long Context Cached (&gt;200K)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>gemini-3.8-flash-cyber</code></td>
+<td style="text-align: left;">$1.50</td>
+<td style="text-align: left;">$7.50</td>
+<td style="text-align: left;">$0.15</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3.8-flash</code></td>
+<td style="text-align: left;">$1.50</td>
+<td style="text-align: left;">$7.50</td>
+<td style="text-align: left;">$0.15</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3.7-flash</code></td>
+<td style="text-align: left;">$1.50</td>
+<td style="text-align: left;">$7.50</td>
+<td style="text-align: left;">$0.15</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3.6-flash</code></td>
+<td style="text-align: left;">$1.50</td>
+<td style="text-align: left;">$7.50</td>
+<td style="text-align: left;">$0.15</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3.5-flash-lite</code></td>
+<td style="text-align: left;">$0.30</td>
+<td style="text-align: left;">$2.50</td>
+<td style="text-align: left;">$0.03</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3.5-flash</code></td>
+<td style="text-align: left;">$1.50</td>
+<td style="text-align: left;">$9.00</td>
+<td style="text-align: left;">$0.15</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3.1-flash-lite</code></td>
+<td style="text-align: left;">$0.25</td>
+<td style="text-align: left;">$1.50</td>
+<td style="text-align: left;">$0.025</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3.1-pro</code></td>
+<td style="text-align: left;">$2.00</td>
+<td style="text-align: left;">$12.00</td>
+<td style="text-align: left;">$0.20</td>
+<td style="text-align: left;">$4.00</td>
+<td style="text-align: left;">$18.00</td>
+<td style="text-align: left;">$0.40</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3-pro</code></td>
+<td style="text-align: left;">$2.00</td>
+<td style="text-align: left;">$12.00</td>
+<td style="text-align: left;">$0.20</td>
+<td style="text-align: left;">$4.00</td>
+<td style="text-align: left;">$18.00</td>
+<td style="text-align: left;">$0.40</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-3-flash</code></td>
+<td style="text-align: left;">$0.50</td>
+<td style="text-align: left;">$3.00</td>
+<td style="text-align: left;">$0.05</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-2.5-pro</code></td>
+<td style="text-align: left;">$1.25</td>
+<td style="text-align: left;">$10.00</td>
+<td style="text-align: left;">$0.125</td>
+<td style="text-align: left;">$2.50</td>
+<td style="text-align: left;">$15.00</td>
+<td style="text-align: left;">$0.25</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-2.5-flash-lite</code></td>
+<td style="text-align: left;">$0.10</td>
+<td style="text-align: left;">$0.40</td>
+<td style="text-align: left;">$0.01</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gemini-2.5-flash</code></td>
+<td style="text-align: left;">$0.30</td>
+<td style="text-align: left;">$2.50</td>
+<td style="text-align: left;">$0.03</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+</tbody>
+</table>
+<p>Introductory pricing overrides (<code>_INTRO_PRICING</code>) apply to <code>gemini-3.8-flash</code>, <code>gemini-3.7-flash</code>, and <code>gemini-3.6-flash</code> at <code>(0.75, 3.75, 0.075)</code> through December 31, 2026 (<code>_INTRO_PRICING_UNTIL</code>).</p>
+<h3 id="environment-configuration-schema">Environment Configuration Schema</h3>
+<p>The driver behavior is controlled through the following environment variables:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Operational Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>GEMINI_API_KEY</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>""</code></td>
+<td style="text-align: left;">Google AI Studio authentication key. Enables AI Studio transport mode.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GEMINI_PROJECT_ID</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>""</code></td>
+<td style="text-align: left;">Google Cloud project ID. Triggers Vertex AI transport mode (<code>vertexai=True</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GEMINI_LOCATION</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>"global"</code></td>
+<td style="text-align: left;">Google Cloud region for Vertex AI. Regional endpoints incur a 10% cost uplift.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GEMINI_MODEL</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;"><code>DEFAULT_GEMINI_MODEL</code></td>
+<td style="text-align: left;">Target Gemini model identifier.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GEMINI_TIMEOUT_SECONDS</code></td>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;"><code>1800</code></td>
+<td style="text-align: left;">Total stream execution deadline in seconds (clamped to a minimum of 30.0).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="error-handling">Error Handling</h2>
+<h3 id="thinking-parameter-rejection-recovery">Thinking Parameter Rejection Recovery</h3>
+<p>Certain experimental or future Gemini models may reject structured reasoning configurations via HTTP 400 Client Errors. The module catches these errors dynamically during stream execution:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>    <span class="k">except</span> <span class="n">genai_errors</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>        <span class="c1"># A model that rejects our thinking control (unknown future model, level set changed):</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>        <span class="c1"># warn once and resend without it for the rest of the run.</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">"code"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="mi">400</span> <span class="ow">and</span> <span class="n">thinking</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">"think"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>            <span class="n">_thinking_rejected</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_GEMINI_THINKING_REJECTED"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[:</span><span class="mi">200</span><span class="p">])</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>            <span class="n">config</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">GenerateContentConfig</span><span class="p">(</span><span class="n">max_output_tokens</span><span class="o">=</span><span class="n">max_output</span><span class="p">,</span> <span class="n">thinking_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">automatic_function_calling</span><span class="o">=</span><span class="n">no_afc</span><span class="p">)</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>            <span class="n">result</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>            <span class="k">raise</span>
+</code></pre></div>
+<p>When an HTTP 400 error occurs and the error payload contains the substring <code>"think"</code>, the model is permanently added to the <code>_thinking_rejected</code> set. The current request is immediately re-executed with <code>thinking_config=None</code>, ensuring the pipeline continues without failing the active workflow step.</p>
+<h3 id="safety-refusals-and-policy-blocks">Safety Refusals and Policy Blocks</h3>
+<p>The driver standardizes vendor-specific safety classifications into <code>LLMRefusalError</code> (defined in <code>utils.llm_common</code>). It categorizes finish states into two distinct groups:</p>
+<ol>
+<li><strong>Deterministic Refusals (<code>retryable=False</code>)</strong>: Blocks triggered on the prompt itself (via <code>block_reason</code>) or finish reasons matching explicit policy violations:</li>
+<li><code>PROHIBITED_CONTENT</code>, <code>BLOCKLIST</code>, <code>SPII</code></li>
+<li>
+<p><code>IMAGE_SAFETY</code>, <code>IMAGE_PROHIBITED_CONTENT</code>, <code>IMAGE_RECITATION</code>, <code>IMAGE_OTHER</code>
+   These errors indicate content that Google's filters will deterministically decline for the same input. They are not retried.</p>
+</li>
+<li>
+<p><strong>Retryable Refusals (<code>retryable=True</code>)</strong>: Blocks occurring on candidate generation where alternate sampling trajectories might succeed:</p>
+</li>
+<li><code>SAFETY</code>, <code>RECITATION</code>, <code>LANGUAGE</code>, <code>OTHER</code>
+   These errors are flagged with <code>retryable=True</code>, allowing upstream execution graphs to attempt re-generation with altered sampling conditions.</li>
+</ol>
+<h3 id="response-truncation">Response Truncation</h3>
+<p>When generation terminates due to output budget limits, the SDK emits a <code>finish_reason</code> of <code>MAX_TOKENS</code>. The driver records the event using <code>count_event("GEMINI", "truncations")</code> and wraps the accumulated text in a <code>TruncatedResponse</code> instance. Upstream caching layers (in <a href="../call_llm.py/">call_llm.py</a>) identify this type and bypass disk caching to ensure partial outputs are not permanently stored.</p>
+<hr />
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../call_llm.py/">call_llm.py</a> — Central inference facade and caching dispatcher that invokes <code>call_gemini</code>.</li>
+<li><a href="../llm_config.py/">llm_config.py</a> — Source of truth for model defaults, thinking mode definitions, output budgets, and credential validation.</li>
+<li><a href="../llm_common.py/">llm_common.py</a> — Shared types (<code>LLMRefusalError</code>, <code>TruncatedResponse</code>) and usage ledger functions (<code>record_usage</code>, <code>count_event</code>).</li>
+<li><a href="../thinking.py/">thinking.py</a> — Utility functions for reasoning level validation and clamping (<code>clamp_level</code>).</li>
+<li><a href="../token_utils.py/">token_utils.py</a> — Offline token counting utilities used to compute prompt sizing ratios.</li>
+<li><a href="../output.py/">output.py</a> — Centralized UI emitting and structured debug logging subsystem.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+        <script src="../../../assets/javascripts/panzoom.min.js"></script>
+      
+        <script src="../../../assets/javascripts/zoompan.js"></script>
+      
+    
+  </body>
+</html>

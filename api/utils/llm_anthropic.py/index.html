@@ -1,0 +1,3532 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/llm_anthropic.py/">
+      
+      
+        <link rel="prev" href="../llm_common.py/">
+      
+      
+        <link rel="next" href="../llm_gemini.py/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>llm_anthropic.py - Codebase Knowledge Builder API Reference</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/panzoom.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <meta name="panzoom-theme" content="material">
+<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm_anthropicpy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-header__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Codebase Knowledge Builder API Reference
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              llm_anthropic.py
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-nav__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Codebase Knowledge Builder API Reference
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline Orchestration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pipeline Orchestration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../main.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../flow.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nodes.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Repository Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_local_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_local_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_github_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_github_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Inference & Providers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM Inference & Providers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Inference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core Inference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1" id="__nav_3_4_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../call_llm.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_config.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_config.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_common.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_common.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Drivers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Provider Drivers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_1" id="__nav_3_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_anthropic.py
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_anthropic.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#call_anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        call_anthropic()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="call_anthropic()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-configuration-and-token-budget-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Configuration and Token Budget Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-primary-execution-and-truncation-retry-escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Primary Execution and Truncation Retry Escalation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-telemetry-refusal-handling-and-response-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Telemetry, Refusal Handling, and Response Packaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uses_adaptive_thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uses_adaptive_thinking()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_model_limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model_limits()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#normalize_effort" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        normalize_effort()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llmrefusalerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLMRefusalError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#truncatedresponse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TruncatedResponse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_get_client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _get_client()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _matches()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_fallback_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _fallback_config()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_build_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _build_request()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_resolve_max_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _resolve_max_tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_stream_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _stream_message()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_fallback_rejected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _fallback_rejected()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _send()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_price" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _price()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_message_cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _message_cost()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_record_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _record_usage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_log_thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _log_thinking()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_served_by_fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _served_by_fallback()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_extract_text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _extract_text()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pricing-directory-schema-_pricing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pricing Directory Schema (_PRICING)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-context-limits-schema-_model_limits-_default_limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Context Limits Schema (_MODEL_LIMITS, _DEFAULT_LIMITS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request-parameters-structure-params-betas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request Parameters Structure (params, betas)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-counts-tuple" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Counts Tuple
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_gemini.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_gemini.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_openrouter.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_openrouter.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt & Context Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt & Context Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5_1" id="__nav_3_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../thinking.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    thinking.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation & System Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Documentation & System Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_1" id="__nav_3_6_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mkdocs.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mkdocs.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../output.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    i18n.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../__init__.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    __init__.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#call_anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        call_anthropic()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="call_anthropic()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-configuration-and-token-budget-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Configuration and Token Budget Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-primary-execution-and-truncation-retry-escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Primary Execution and Truncation Retry Escalation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-telemetry-refusal-handling-and-response-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Telemetry, Refusal Handling, and Response Packaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uses_adaptive_thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uses_adaptive_thinking()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_model_limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_model_limits()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#normalize_effort" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        normalize_effort()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llmrefusalerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLMRefusalError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#truncatedresponse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TruncatedResponse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_get_client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _get_client()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _matches()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_fallback_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _fallback_config()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_build_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _build_request()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_resolve_max_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _resolve_max_tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_stream_message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _stream_message()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_fallback_rejected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _fallback_rejected()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _send()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_price" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _price()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _tokens()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_message_cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _message_cost()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_record_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _record_usage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_log_thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _log_thinking()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_served_by_fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _served_by_fallback()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_extract_text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _extract_text()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pricing-directory-schema-_pricing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pricing Directory Schema (_PRICING)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-context-limits-schema-_model_limits-_default_limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Context Limits Schema (_MODEL_LIMITS, _DEFAULT_LIMITS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request-parameters-structure-params-betas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request Parameters Structure (params, betas)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-counts-tuple" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Counts Tuple
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="llm_anthropicpy">llm_anthropic.py</h1>
+<blockquote>
+<p><strong>Source:</strong> <code>utils/llm_anthropic.py</code></p>
+</blockquote>
+<h2 id="technical-overview">Technical Overview</h2>
+<p>Following the internationalization and string localization workflows established in <a href="../i18n.py/">i18n.py</a>, <code>llm_anthropic.py</code> serves as the native Anthropic integration driver within the codebase synthesis pipeline. It isolates all Claude-specific protocol details, API communications, and response parsers so that the upstream dispatcher <a href="../call_llm.py/">call_llm.py</a> remains vendor-agnostic. The module interfaces with the official <code>anthropic</code> Python SDK, handling token sizing, context window enforcement, adaptive thinking configurations, prompt caching, server-side refusal fallbacks, and real-time streaming to prevent transport timeouts during generation.</p>
+<p>The module provides streaming execution for single-turn requests across modern Claude model families (including Claude Opus 5.5, Fable, Mythos, Sonnet, and legacy Haiku models). Because modern reasoning models can generate up to 128,000 output tokens including internal chain-of-thought blocks, every generation is processed as an HTTP stream. The engine dynamically calculates available context space by checking local models or querying the Anthropic Models API, clamping planned output tokens to avoid overflow errors while leaving sufficient margin for complex prompts.</p>
+<p>A key operational feature of this driver is its layered resilience architecture. When interacting with safety classifiers or models subject to refusal boundaries, the driver injects Anthropic beta fallback headers to request automated server-side rerouting. If beta headers are rejected with an HTTP 400 Bad Request, the system disables fallback parameters for the remainder of the execution run and retries natively. Furthermore, when generation cuts short due to output token boundaries, the driver escalates token allocation to the maximum available context window ceiling and executes a one-time automated retry before wrapping any remaining truncated text in a specialized container.</p>
+<div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <pre class="mermaid-raw"><code>flowchart TD
+    startNode["Receive Prompt and Thinking Level"] --&gt; resolveModel["Resolve Model and Thinking Effort"]
+
+    subgraph BudgetingStage["Token Budgeting and Request Construction"]
+        initBudget["Count Raw Tokens via count_tokens_raw"]
+        initBudget --&gt; resolveLimits["Query Context Limits via get_model_limits"]
+        resolveLimits --&gt; clampTokens["Clamp Output via _resolve_max_tokens"]
+        clampTokens --&gt; buildPayload["Build Request Payload and Beta Headers"]
+    end
+
+    subgraph ExecutionStage["Streamed Inference and Transport Fallbacks"]
+        streamReq["Stream Message via Anthropic SDK"]
+        streamReq --&gt; checkHttpErr{"BadRequestError on Fallback Header?"}
+        checkHttpErr -- "Yes" --&gt; disableFallbacks["Disable Server Fallbacks and Strip Extra Body"]
+        disableFallbacks --&gt; retryStream["Re-stream Native Request"]
+        checkHttpErr -- "No" --&gt; evaluateStop["Inspect Message Stop Reason"]
+        retryStream --&gt; evaluateStop
+    end
+
+    subgraph EscalationStage["Truncation Escalation and Post Processing"]
+        evaluateStop --&gt; isTruncated{"stop_reason is max_tokens and below ceiling?"}
+        isTruncated -- "Yes" --&gt; bumpCeiling["Escalate max_tokens to Context Ceiling"]
+        bumpCeiling --&gt; streamRetry["Re-execute Streamed Generation"]
+        streamRetry --&gt; finalizeUsage["Record Execution Usage and Cost"]
+        isTruncated -- "No" --&gt; finalizeUsage
+        finalizeUsage --&gt; checkRefusal{"stop_reason is refusal?"}
+        checkRefusal -- "Yes" --&gt; raiseRefusal["Raise LLMRefusalError"]
+        checkRefusal -- "No" --&gt; checkCutoff{"stop_reason in _TRUNCATION_STOPS?"}
+        checkCutoff -- "Yes" --&gt; wrapTruncated["Return TruncatedResponse"]
+        checkCutoff -- "No" --&gt; returnText["Return Extracted String Text"]
+    end
+
+    resolveModel --&gt; initBudget
+    buildPayload --&gt; streamReq
+
+    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
+    class startNode entryNode
+    class initBudget entryNode
+    class streamReq entryNode
+    class evaluateStop entryNode</code></pre> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div>
+<h2 id="public-api">Public API</h2>
+<h3 id="call_anthropic"><code>call_anthropic()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def call_anthropic(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
+<p><strong>Description</strong>: Sends a single-turn prompt to the resolved Anthropic Claude model via streaming and returns the completed text response. Under the hood, it tokenizes the prompt, scales it according to the codebase tokenizer ratio, calculates context boundaries, configures adaptive or budget-based reasoning, attaches server-side fallback betas, and initiates a streamed request. If the response stops because output tokens exceeded the initial budget, the function automatically retries once at the context window ceiling. It logs token usage and costs, emits diagnostics, raises exceptions on refusal, and returns either raw text or a <code>TruncatedResponse</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>prompt</code> (<code>str</code>): The raw text prompt destined for the model.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Desired reasoning effort level (e.g., <code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"xhigh"</code>, <code>"max"</code>, or <code>None</code>). Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The decoded response text extracted from the message content blocks. If truncation occurred after the retry attempt, returns an instance of <code>TruncatedResponse</code> (which is a subclass of <code>str</code>).</p>
+<p><strong>Raises</strong>:
+* <code>LLMRefusalError</code>: If the model declined the prompt due to content safety classifications (<code>stop_reason == "refusal"</code>).
+* <code>anthropic.APIError</code>: If SDK communication fails and cannot be handled by internal fallbacks.</p>
+<h4 id="phase-1-configuration-and-token-budget-resolution">Phase 1: Configuration and Token Budget Resolution</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_token_ratio</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.token_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_tokens_raw</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">()</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">effort</span> <span class="o">=</span> <span class="n">normalize_effort</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">raw_tokens</span> <span class="o">=</span> <span class="n">count_tokens_raw</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>  <span class="c1"># tokenize once; the scaled estimate drives the budget</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">max_tokens</span><span class="p">,</span> <span class="n">ceiling</span> <span class="o">=</span> <span class="n">_resolve_max_tokens</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">raw_tokens</span> <span class="o">*</span> <span class="n">get_token_ratio</span><span class="p">()),</span> <span class="n">model</span><span class="p">,</span> <span class="n">effort</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">params</span><span class="p">,</span> <span class="n">betas</span> <span class="o">=</span> <span class="n">_build_request</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">effort</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">emit_raw</span><span class="p">(</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="s2">"DEBUG"</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="sa">f</span><span class="s2">"Anthropic request | model=</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> | effort=</span><span class="si">{</span><span class="n">effort</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'default'</span><span class="si">}</span><span class="s2"> | max_tokens=</span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | "</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="sa">f</span><span class="s2">"fallbacks=</span><span class="si">{</span><span class="s1">'on'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">betas</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'off'</span><span class="si">}</span><span class="s2"> | prompt_cache=</span><span class="si">{</span><span class="s1">'on'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="s1">'cache_control'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'off'</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="p">)</span>
+</code></pre></div>
+The initial phase resolves the active model identifier and normalizes the desired reasoning effort string. The input prompt is tokenized using <code>count_tokens_raw()</code> to establish a raw baseline token count, which is then multiplied by <code>get_token_ratio()</code> to account for token density differences between tiktoken and Anthropic tokenizers. With this scaled token count, <code>_resolve_max_tokens()</code> calculates the planned <code>max_tokens</code> allocation alongside the maximum absolute context ceiling. Finally, <code>_build_request()</code> formats the complete API payload dictionary and associated beta headers, logging the planned configuration to the debug stream.</p>
+<h4 id="phase-2-primary-execution-and-truncation-retry-escalation">Phase 2: Primary Execution and Truncation Retry Escalation</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">message</span> <span class="o">=</span> <span class="n">_send</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">betas</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">==</span> <span class="s2">"max_tokens"</span> <span class="ow">and</span> <span class="n">max_tokens</span> <span class="o">&lt;</span> <span class="n">ceiling</span><span class="p">:</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="c1"># Thinking + reply outgrew the budget: retry once at the largest budget that fits.</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_TRUNCATED_RETRY"</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">max_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">cap</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ceiling</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">_record_usage</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">raw_tokens</span><span class="p">,</span> <span class="n">effort</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">params</span><span class="p">,</span> <span class="n">betas</span> <span class="o">=</span> <span class="n">_build_request</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">effort</span><span class="p">,</span> <span class="n">ceiling</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">message</span> <span class="o">=</span> <span class="n">_send</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">betas</span><span class="p">)</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">_record_usage</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">raw_tokens</span><span class="p">,</span> <span class="n">effort</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="k">if</span> <span class="n">is_debug</span><span class="p">():</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">_log_thinking</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre></div>
+The execution phase dispatches the request through <code>_send()</code> to initiate streaming. If generation terminates prematurely with <code>stop_reason == "max_tokens"</code> and the initial allocation was less than the contextual ceiling, the driver recognizes that reasoning and reply tokens exceeded the planned budget. It logs a warning, records intermediate billing metrics for the aborted attempt, rebuilds the request parameters with <code>max_tokens</code> expanded to the context ceiling, and executes a one-time retry. Upon receiving the final message, execution duration is logged and reasoning thoughts are recorded if debug logging is enabled.</p>
+<h4 id="phase-3-telemetry-refusal-handling-and-response-packaging">Phase 3: Telemetry, Refusal Handling, and Response Packaging</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="k">if</span> <span class="n">_served_by_fallback</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="ow">and</span> <span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">!=</span> <span class="s2">"refusal"</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>        <span class="n">count_event</span><span class="p">(</span><span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="s2">"fallbacks"</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_FALLBACK_SERVED"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">served_by</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">))</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">==</span> <span class="s2">"refusal"</span><span class="p">:</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">count_event</span><span class="p">(</span><span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="s2">"refusals"</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="n">details</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">"stop_details"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="n">category</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="kc">None</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_REFUSAL"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="k">raise</span> <span class="n">LLMRefusalError</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s2">"ANTHROPIC"</span><span class="p">)</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">text</span> <span class="o">=</span> <span class="n">_extract_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span> <span class="ow">in</span> <span class="n">_TRUNCATION_STOPS</span><span class="p">:</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="n">count_event</span><span class="p">(</span><span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="s2">"truncations"</span><span class="p">)</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_TRUNCATED"</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="s1">'max_tokens'</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="k">return</span> <span class="n">TruncatedResponse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Anthropic response contained no text blocks (stop_reason=</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    <span class="k">return</span> <span class="n">text</span>
+</code></pre></div>
+The final phase inspects response metadata. If the message was fulfilled by an alternative server-side fallback model rather than the primary target, a fallback event is recorded and reported. If the stop reason indicates a safety refusal, refusal counters increment, refusal categories are extracted from <code>stop_details</code>, and an <code>LLMRefusalError</code> is raised to signal non-retryable rejection to upstream nodes. If the message was truncated even after retrying at the ceiling limit, a truncation counter increments and the text is returned as a <code>TruncatedResponse</code> instance, preventing upstream caching layers from storing incomplete outputs.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Actual invocation pattern from call_anthropic implementation:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">()</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">effort</span> <span class="o">=</span> <span class="n">normalize_effort</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">raw_tokens</span> <span class="o">=</span> <span class="n">count_tokens_raw</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">max_tokens</span><span class="p">,</span> <span class="n">ceiling</span> <span class="o">=</span> <span class="n">_resolve_max_tokens</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">raw_tokens</span> <span class="o">*</span> <span class="n">get_token_ratio</span><span class="p">()),</span> <span class="n">model</span><span class="p">,</span> <span class="n">effort</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">params</span><span class="p">,</span> <span class="n">betas</span> <span class="o">=</span> <span class="n">_build_request</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">effort</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">message</span> <span class="o">=</span> <span class="n">_send</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">betas</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="get_model"><code>get_model()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def get_model() -&gt; str:</code></p>
+<p><strong>Description</strong>: Resolves the target Anthropic model identifier by reading the <code>ANTHROPIC_MODEL</code> environment variable. If the variable is unset or empty, it defaults to <code>DEFAULT_ANTHROPIC_MODEL</code> (<code>"claude-opus-5-5"</code>).</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The resolved model identifier name.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ANTHROPIC_MODEL"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_ANTHROPIC_MODEL</span>
+</code></pre></div>
+This utility function accesses the process environment to determine which model configuration should govern request generation. Upstream orchestration modules and local helper functions query this symbol to ensure model-specific heuristics—such as context window ceilings, reasoning token limits, and pricing rates—align with the active engine.</p>
+<hr />
+<h3 id="uses_adaptive_thinking"><code>uses_adaptive_thinking()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def uses_adaptive_thinking(model: str) -&gt; bool:</code></p>
+<p><strong>Description</strong>: Checks whether a specified Claude model supports Anthropic's adaptive thinking protocol. Under the hood, it performs prefix matching against <code>_ADAPTIVE_PREFIXES</code> (sourced from <code>ANTHROPIC_ADAPTIVE_PREFIXES</code> in <a href="../llm_config.py/">llm_config.py</a>), which designates models like Claude Opus 5.5 and Fable that dynamically modulate internal reasoning depth.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The model identifier string to evaluate.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if the model utilizes adaptive thinking; <code>False</code> if it relies on static <code>budget_tokens</code> or does not support reasoning blocks.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">uses_adaptive_thinking</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">return</span> <span class="n">_matches</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_ADAPTIVE_PREFIXES</span><span class="p">)</span>
+</code></pre></div>
+This function serves as a feature switch during request compilation. When this returns <code>True</code>, parameter assembly logic attaches <code>{"type": "adaptive"}</code> along with <code>output_config.effort</code> mappings. Conversely, when it returns <code>False</code>, older models such as Haiku 4.5 fall back to explicit token-budget structures (<code>budget_tokens</code>).</p>
+<hr />
+<h3 id="get_model_limits"><code>get_model_limits()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def get_model_limits(model: str) -&gt; tuple[int, int]:</code></p>
+<p><strong>Description</strong>: Determines the maximum input context window and maximum allowable output tokens for a given model. It queries an in-memory memoization cache <code>_model_limits_cache</code> to avoid repeated remote network roundtrips. On a cache miss, it contacts the Anthropic Models API via <code>_get_client().models.retrieve(model)</code> to read remote limits. If the API lookup encounters an <code>anthropic.APIError</code> (e.g., during offline operation or permission limitations), it logs a warning and falls back to pre-configured bounds from <code>_MODEL_LIMITS</code> or <code>_DEFAULT_LIMITS</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The model identifier string whose limits are requested.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[int, int]</code>: A two-element tuple consisting of <code>(context_window, max_output_tokens)</code>.</p>
+<p><strong>Raises</strong>:
+* None (API errors are trapped internally and resolved using offline fallbacks).</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_model_limits</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="sd">"""Return (context_window, max_output_tokens) from the Models API, with offline fallback."""</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">if</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">_model_limits_cache</span><span class="p">:</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="k">return</span> <span class="n">_model_limits_cache</span><span class="p">[</span><span class="n">model</span><span class="p">]</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">fallback</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_MODEL_LIMITS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">_DEFAULT_LIMITS</span><span class="p">)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="n">info</span> <span class="o">=</span> <span class="n">_get_client</span><span class="p">()</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"max_input_tokens"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fallback</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"max_tokens"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fallback</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Anthropic Models API | model=</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> | context=</span><span class="si">{</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | max_output=</span><span class="si">{</span><span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="k">except</span> <span class="n">anthropic</span><span class="o">.</span><span class="n">APIError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_MODEL_LOOKUP"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="n">limits</span> <span class="o">=</span> <span class="n">fallback</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="n">_model_limits_cache</span><span class="p">[</span><span class="n">model</span><span class="p">]</span> <span class="o">=</span> <span class="n">limits</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="k">return</span> <span class="n">limits</span>
+</code></pre></div>
+The function combines API-driven limit discovery with defensive offline resilience. By caching limits in the module-level dictionary <code>_model_limits_cache</code>, it ensures that the overhead of querying the Anthropic Models API occurs at most once per model ID per process execution. When the network is unavailable or the credentials lack permission to call the Models endpoint, the system seamlessly applies predefined defaults (such as 200,000 / 64,000 tokens for Haiku 4.5 or 1,000,000 / 128,000 tokens as the global default).</p>
+<hr />
+<h3 id="normalize_effort"><code>normalize_effort()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def normalize_effort(model: str, level: str | None) -&gt; str | None:</code></p>
+<p><strong>Description</strong>: Normalizes an abstract or user-specified thinking effort level to an effort value supported by the specified Anthropic model. It invokes <code>anthropic_effort()</code> from <a href="../llm_config.py/">llm_config.py</a> to map values (such as translating <code>"minimal"</code> to <code>"low"</code>, or downscaling <code>"xhigh"</code> to <code>"high"</code> on 4.6 family models). If an invalid or unsupported effort string is provided, it logs a warning via <code>emit()</code> and returns <code>None</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The model identifier string.
+* <code>level</code> (<code>str | None</code>): The requested effort level string or <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str | None</code>: The validated effort string (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"xhigh"</code>, or <code>"max"</code>), or <code>None</code> if unconfigured or unsupported.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">normalize_effort</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="sd">"""Map a thinking level to an effort value the model accepts (None = model default)."""</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">effort</span> <span class="o">=</span> <span class="n">anthropic_effort</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>  <span class="c1"># minimal → low; xhigh → high on the 4.6 family</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="k">if</span> <span class="n">level</span> <span class="ow">and</span> <span class="n">effort</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_THINKING_LEVEL_INVALID"</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">EFFORT_LEVELS</span><span class="p">)))</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">return</span> <span class="n">effort</span>
+</code></pre></div>
+This function serves as an input validation and sanitization bridge between abstract thinking configurations and concrete API parameters. Because different Claude releases accept different subsets of reasoning effort values, the normalization logic guarantees that invalid payload configurations are caught early before network dispatch, avoiding API validation rejections.</p>
+<hr />
+<h3 id="llmrefusalerror"><code>LLMRefusalError</code></h3>
+<p><strong>Visibility</strong>: Public (Re-exported)<br />
+<strong>Signature</strong>: <code>class LLMRefusalError(Exception):</code></p>
+<p><strong>Description</strong>: Domain exception re-exported from <a href="../llm_common.py/">llm_common.py</a>. Raised when the model's safety classifiers reject generation (<code>stop_reason == "refusal"</code>). It contains the model identifier, provider name, and refusal category.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Usage inside call_anthropic:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">==</span> <span class="s2">"refusal"</span><span class="p">:</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">count_event</span><span class="p">(</span><span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="s2">"refusals"</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">details</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">"stop_details"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">category</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">details</span> <span class="k">else</span> <span class="kc">None</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_REFUSAL"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="k">raise</span> <span class="n">LLMRefusalError</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s2">"ANTHROPIC"</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="truncatedresponse"><code>TruncatedResponse</code></h3>
+<p><strong>Visibility</strong>: Public (Re-exported)<br />
+<strong>Signature</strong>: <code>class TruncatedResponse(str):</code></p>
+<p><strong>Description</strong>: Domain string wrapper re-exported from <a href="../llm_common.py/">llm_common.py</a>. Represents a model output that terminated due to token length exhaustion (<code>stop_reason == "max_tokens"</code> or <code>"model_context_window_exceeded"</code>). Downstream caching modules detect this type and intentionally bypass response caching.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Usage inside call_anthropic:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">text</span> <span class="o">=</span> <span class="n">_extract_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span> <span class="ow">in</span> <span class="n">_TRUNCATION_STOPS</span><span class="p">:</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">count_event</span><span class="p">(</span><span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="s2">"truncations"</span><span class="p">)</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_TRUNCATED"</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="s1">'max_tokens'</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="k">return</span> <span class="n">TruncatedResponse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="internal-helpers">Internal Helpers</h2>
+<h3 id="_get_client"><code>_get_client()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _get_client() -&gt; anthropic.Anthropic:</code></p>
+<p><strong>Description</strong>: Lazily initializes and returns the shared singleton instance of <code>anthropic.Anthropic</code>. The client is configured with <code>max_retries=3</code> to handle transient network issues (HTTP 408, 409, 429, and 5xx) with exponential backoff beneath the orchestration layer.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>anthropic.Anthropic</code>: The initialized Anthropic client singleton.</p>
+<p><strong>Raises</strong>:
+* <code>anthropic.AnthropicError</code>: If client instantiation fails due to missing or invalid credentials.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_get_client</span><span class="p">():</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="k">global</span> <span class="n">_client</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="k">if</span> <span class="n">_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        <span class="c1"># SDK resolves credentials (ANTHROPIC_API_KEY / AUTH_TOKEN / ant profile) and</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="c1"># ANTHROPIC_BASE_URL itself. SDK retries 408/409/429/5xx with backoff;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="c1"># PocketFlow node retries sit on top of this.</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        <span class="n">_client</span> <span class="o">=</span> <span class="n">anthropic</span><span class="o">.</span><span class="n">Anthropic</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="k">return</span> <span class="n">_client</span>
+</code></pre></div>
+By deferring client instantiation until the first API request is dispatched, the module prevents import-time failures in environments where Anthropic credentials are absent. The underlying SDK manages authentication token discovery across environment variables and profile stores, while the retry policy guarantees localized resilience against transient provider throttling.</p>
+<hr />
+<h3 id="_matches"><code>_matches()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _matches(model: str, prefixes: tuple[str, ...] | list[str]) -&gt; bool:</code></p>
+<p><strong>Description</strong>: Helper predicate that checks whether a model identifier string begins with any prefix in the provided collection.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The target model string.
+* <code>prefixes</code> (<code>tuple[str, ...] | list[str]</code>): A sequence of string prefixes to match against.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if <code>model.startswith(p)</code> is true for any prefix <code>p</code>; otherwise <code>False</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_matches</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefixes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">)</span>
+</code></pre></div>
+This utility centralizes prefix-based matching throughout the module. It evaluates whether a model belongs to specific capability categories, such as adaptive thinking, default reasoning, or safety fallback eligibility.</p>
+<hr />
+<h3 id="_fallback_config"><code>_fallback_config()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _fallback_config(model: str) -&gt; tuple[list[str], dict]:</code></p>
+<p><strong>Description</strong>: Evaluates the <code>ANTHROPIC_FALLBACKS</code> environment variable and returns the appropriate beta header list and <code>extra_body</code> payload dictionary for server-side refusal fallbacks. If fallbacks have been globally disabled for the run (due to prior 400 Bad Request rejections) or explicitly set to <code>"off"</code>, it returns empty structures.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The model identifier string.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[list[str], dict]</code>: A tuple of <code>(betas, extra_body)</code>. For default fallbacks, returns <code>([_FALLBACK_DEFAULT_BETA], {"fallbacks": "default"})</code>. For custom model lists, returns <code>([_FALLBACK_LIST_BETA], {"fallbacks": [{"model": m}, ...]})</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_fallback_config</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="sd">"""Return (betas, extra_body) for server-side refusal fallbacks, or empty when disabled."""</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">setting</span> <span class="o">=</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ANTHROPIC_FALLBACKS"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"default"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="k">if</span> <span class="n">_fallbacks_disabled</span> <span class="ow">or</span> <span class="n">setting</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"off"</span><span class="p">:</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>        <span class="k">return</span> <span class="p">[],</span> <span class="p">{}</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="k">if</span> <span class="n">setting</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">_matches</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_FALLBACK_PREFIXES</span><span class="p">):</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>            <span class="k">return</span> <span class="p">[],</span> <span class="p">{}</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>        <span class="k">return</span> <span class="p">[</span><span class="n">_FALLBACK_DEFAULT_BETA</span><span class="p">],</span> <span class="p">{</span><span class="s2">"fallbacks"</span><span class="p">:</span> <span class="s2">"default"</span><span class="p">}</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">setting</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    <span class="k">return</span> <span class="p">[</span><span class="n">_FALLBACK_LIST_BETA</span><span class="p">],</span> <span class="p">{</span><span class="s2">"fallbacks"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"model"</span><span class="p">:</span> <span class="n">m</span><span class="p">}</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">]}</span>
+</code></pre></div>
+This helper structures server-side safety fallback configurations. When models encounter policy classifiers (such as Claude Opus 5.x and Fable 5.x), enabling Anthropic's fallback beta directs the Anthropic edge proxy to automatically redirect queries to secondary models rather than returning terminal refusal errors.</p>
+<hr />
+<h3 id="_build_request"><code>_build_request()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _build_request(prompt: str, model: str, effort: str | None, max_tokens: int) -&gt; tuple[dict, list[str]]:</code></p>
+<p><strong>Description</strong>: Constructs the parameters dictionary and beta header list required for the Anthropic Messages API. It configures the user prompt message, assigns <code>max_tokens</code>, attaches adaptive thinking parameters (or budget tokens for non-adaptive architectures), injects ephemeral prompt cache controls when enabled, and includes fallback headers.</p>
+<p><strong>Parameters</strong>:
+* <code>prompt</code> (<code>str</code>): The input user prompt text.
+* <code>model</code> (<code>str</code>): The target model ID.
+* <code>effort</code> (<code>str | None</code>): The normalized thinking effort level.
+* <code>max_tokens</code> (<code>int</code>): Maximum allowed output tokens.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[dict, list[str]]</code>: A tuple containing <code>(params, betas)</code> where <code>params</code> is the request keyword arguments dictionary and <code>betas</code> is a list of active Anthropic beta feature strings.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_build_request</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">effort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>        <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        <span class="s2">"max_tokens"</span><span class="p">:</span> <span class="n">max_tokens</span><span class="p">,</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>        <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="p">}</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="k">if</span> <span class="n">uses_adaptive_thinking</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>        <span class="k">if</span> <span class="n">effort</span> <span class="ow">or</span> <span class="n">_matches</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_THINKING_BY_DEFAULT_PREFIXES</span><span class="p">):</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>            <span class="n">thinking</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"adaptive"</span><span class="p">}</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>            <span class="k">if</span> <span class="n">is_debug</span><span class="p">():</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>                <span class="c1"># Readable reasoning summaries go to the log file (never to stdout).</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>                <span class="n">thinking</span><span class="p">[</span><span class="s2">"display"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"summarized"</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>            <span class="n">params</span><span class="p">[</span><span class="s2">"thinking"</span><span class="p">]</span> <span class="o">=</span> <span class="n">thinking</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>        <span class="k">if</span> <span class="n">effort</span><span class="p">:</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>            <span class="n">params</span><span class="p">[</span><span class="s2">"output_config"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"effort"</span><span class="p">:</span> <span class="n">effort</span><span class="p">}</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    <span class="k">elif</span> <span class="n">effort</span><span class="p">:</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>        <span class="n">budget</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">_BUDGET_BY_LEVEL</span><span class="p">[</span><span class="n">effort</span><span class="p">],</span> <span class="n">max_tokens</span> <span class="o">-</span> <span class="mi">1_024</span><span class="p">)</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>        <span class="k">if</span> <span class="n">budget</span> <span class="o">&gt;=</span> <span class="mi">1_024</span><span class="p">:</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>            <span class="n">params</span><span class="p">[</span><span class="s2">"thinking"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"enabled"</span><span class="p">,</span> <span class="s2">"budget_tokens"</span><span class="p">:</span> <span class="n">budget</span><span class="p">}</span>
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ANTHROPIC_PROMPT_CACHE"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"off"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"on"</span><span class="p">:</span>
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>        <span class="n">params</span><span class="p">[</span><span class="s2">"cache_control"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"ephemeral"</span><span class="p">}</span>
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>
+<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a>    <span class="n">betas</span><span class="p">,</span> <span class="n">extra_body</span> <span class="o">=</span> <span class="n">_fallback_config</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a>    <span class="k">if</span> <span class="n">extra_body</span><span class="p">:</span>
+<a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a>        <span class="n">params</span><span class="p">[</span><span class="s2">"extra_body"</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_body</span>
+<a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a>    <span class="k">return</span> <span class="n">params</span><span class="p">,</span> <span class="n">betas</span>
+</code></pre></div>
+This function isolates API parameter assembly across diverse Claude generations. For adaptive models, it configures <code>thinking: {"type": "adaptive"}</code> along with <code>output_config: {"effort": effort}</code>, enabling debug summaries if debug logging is enabled. For pre-adaptive models, it translates effort levels to explicit <code>budget_tokens</code>, ensuring token margins remain valid (<code>budget &gt;= 1024</code>).</p>
+<hr />
+<h3 id="_resolve_max_tokens"><code>_resolve_max_tokens()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _resolve_max_tokens(prompt_tokens: int, model: str, effort: str | None) -&gt; tuple[int, int]:</code></p>
+<p><strong>Description</strong>: Computes the optimal planned <code>max_tokens</code> budget and the absolute ceiling allowed by context limits and configuration overrides. It retrieves model limits via <code>get_model_limits()</code>, calculates available context room after subtracting prompt tokens and safety margins (<code>ANTHROPIC_CONTEXT_MARGIN</code>), and clamps output budgets to prevent context window overflow.</p>
+<p><strong>Parameters</strong>:
+* <code>prompt_tokens</code> (<code>int</code>): Estimated prompt token count (scaled by token multiplier).
+* <code>model</code> (<code>str</code>): Target model identifier string.
+* <code>effort</code> (<code>str | None</code>): Normalized thinking effort level.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[int, int]</code>: A tuple of <code>(wanted, ceiling)</code> representing the allocated budget and the maximum context ceiling.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_resolve_max_tokens</span><span class="p">(</span><span class="n">prompt_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">effort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">context_window</span><span class="p">,</span> <span class="n">output_cap</span> <span class="o">=</span> <span class="n">get_model_limits</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">cap</span> <span class="o">=</span> <span class="n">anthropic_output_cap</span><span class="p">()</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">wanted</span> <span class="o">=</span> <span class="n">anthropic_planned_output</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">effort</span><span class="p">)</span>  <span class="c1"># same value input_token_budget reserved</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="n">room</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">context_window</span> <span class="o">-</span> <span class="n">prompt_tokens</span> <span class="o">-</span> <span class="n">ANTHROPIC_CONTEXT_MARGIN</span><span class="p">,</span> <span class="mi">4_096</span><span class="p">)</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="n">ceiling</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">output_cap</span><span class="p">,</span> <span class="n">room</span><span class="p">,</span> <span class="n">cap</span><span class="p">)</span> <span class="k">if</span> <span class="n">cap</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">output_cap</span><span class="p">,</span> <span class="n">room</span><span class="p">)</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="k">if</span> <span class="n">ceiling</span> <span class="o">&lt;</span> <span class="n">wanted</span><span class="p">:</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>        <span class="c1"># Small shortfalls (template overhead on a budget-packed prompt) are expected; only report real cuts.</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="k">if</span> <span class="n">ceiling</span> <span class="o">&lt;</span> <span class="n">wanted</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">:</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_OUTPUT_CLAMPED"</span><span class="p">,</span> <span class="n">wanted</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">wanted</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">available</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ceiling</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>        <span class="n">wanted</span> <span class="o">=</span> <span class="n">ceiling</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    <span class="k">return</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">ceiling</span>
+</code></pre></div>
+The allocation algorithm balances token capacity across generation requirements. It reserves headroom defined by <code>ANTHROPIC_CONTEXT_MARGIN</code> to ensure prompt expansion or internal reasoning tokens do not trigger API context window errors. If the available room falls significantly short of the requested budget (<code>ceiling &lt; wanted * 0.9</code>), it issues a warning before clamping the allocation.</p>
+<hr />
+<h3 id="_stream_message"><code>_stream_message()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _stream_message(params: dict, betas: list[str]):</code></p>
+<p><strong>Description</strong>: Invokes either <code>client.beta.messages.stream()</code> (if beta headers are provided) or standard <code>client.messages.stream()</code> using context managers, returning the final accumulated message object upon stream completion.</p>
+<p><strong>Parameters</strong>:
+* <code>params</code> (<code>dict</code>): Keyword arguments passed directly to the Anthropic Messages streaming endpoint.
+* <code>betas</code> (<code>list[str]</code>): List of Anthropic beta feature strings.</p>
+<p><strong>Returns</strong>:
+* <code>anthropic.types.Message</code>: The fully accumulated message object returned by <code>stream.get_final_message()</code>.</p>
+<p><strong>Raises</strong>:
+* <code>anthropic.APIError</code>: If network failure or API validation errors occur during streaming.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_stream_message</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">betas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">_get_client</span><span class="p">()</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="k">if</span> <span class="n">betas</span><span class="p">:</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>        <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">betas</span><span class="o">=</span><span class="n">betas</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>            <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">get_final_message</span><span class="p">()</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">get_final_message</span><span class="p">()</span>
+</code></pre></div>
+By encapsulating streaming transport within context managers, this helper ensures that HTTP stream connections are cleanly consumed and terminated without socket leaks. Streaming prevents standard HTTP connection timeouts on generations that produce tens of thousands of reasoning and content tokens.</p>
+<hr />
+<h3 id="_fallback_rejected"><code>_fallback_rejected()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _fallback_rejected(error_text: str, params: dict) -&gt; bool:</code></p>
+<p><strong>Description</strong>: Determines whether an HTTP 400 Bad Request error from Anthropic was specifically caused by the refusal fallback feature itself (e.g., unsupported beta header, or accounts where default fallbacks are unavailable), rather than an invalid prompt or schema error.</p>
+<p><strong>Parameters</strong>:
+* <code>error_text</code> (<code>str</code>): The error message text from the caught <code>BadRequestError</code>.
+* <code>params</code> (<code>dict</code>): The parameter dictionary used in the rejected request.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if the error indicates that server-side fallback headers caused the rejection; otherwise <code>False</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_fallback_rejected</span><span class="p">(</span><span class="n">error_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="sd">"""True when a 400 rejects the fallback feature itself (beta header not enabled, or</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="sd">    `fallbacks: "default"` unsupported for this model/account) — not a user config error."""</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="n">text</span> <span class="o">=</span> <span class="n">error_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="k">if</span> <span class="s2">"anthropic-beta"</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="s2">"server-side-fallback"</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>        <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="k">return</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"extra_body"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fallbacks"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"default"</span> <span class="ow">and</span> <span class="s2">"fallbacks"</span> <span class="ow">in</span> <span class="n">text</span>
+</code></pre></div>
+This heuristic inspects error payloads to distinguish between genuine user configuration issues and server-side beta compatibility limitations. It searches for specific signatures indicating that beta fallback routing is not provisioned for the current API tier or model.</p>
+<hr />
+<h3 id="_send"><code>_send()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _send(params: dict, betas: list[str]):</code></p>
+<p><strong>Description</strong>: Executes a streamed request via <code>_stream_message()</code>. If a <code>BadRequestError</code> occurs and <code>_fallback_rejected()</code> confirms that server-side fallbacks caused the failure, it permanently sets <code>_fallbacks_disabled = True</code>, logs a warning, removes fallback configurations from the payload, and retries the request without fallback headers.</p>
+<p><strong>Parameters</strong>:
+* <code>params</code> (<code>dict</code>): Request parameter dictionary.
+* <code>betas</code> (<code>list[str]</code>): Active beta header list.</p>
+<p><strong>Returns</strong>:
+* <code>anthropic.types.Message</code>: The completed response message.</p>
+<p><strong>Raises</strong>:
+* <code>anthropic.BadRequestError</code>: If the 400 error is unrelated to fallback feature rejection.
+* <code>anthropic.APIError</code>: For other unrecoverable API errors.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_send</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">betas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="sd">"""Send one streamed request; disable fallbacks for the run if the feature is unavailable."""</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="k">global</span> <span class="n">_fallbacks_disabled</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>        <span class="k">return</span> <span class="n">_stream_message</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">betas</span><span class="p">)</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="k">except</span> <span class="n">anthropic</span><span class="o">.</span><span class="n">BadRequestError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="k">if</span> <span class="s2">"extra_body"</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">_fallback_rejected</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">params</span><span class="p">):</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>            <span class="n">_fallbacks_disabled</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_ANTHROPIC_FALLBACK_DISABLED"</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>            <span class="n">retry_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">"extra_body"</span><span class="p">}</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>            <span class="k">return</span> <span class="n">_stream_message</span><span class="p">(</span><span class="n">retry_params</span><span class="p">,</span> <span class="p">[])</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>        <span class="k">raise</span>
+</code></pre></div>
+This function implements an automated recovery loop. When an account or model rejects fallback headers, modifying the module global <code>_fallbacks_disabled</code> ensures that subsequent requests throughout the process skip fallback negotiation entirely, preventing repetitive failed calls.</p>
+<hr />
+<h3 id="_price"><code>_price()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _price(model: str, tokens_in: int, tokens_out: int, cache_read: int, cache_write: int) -&gt; float | None:</code></p>
+<p><strong>Description</strong>: Calculates the estimated USD cost of an API call based on token consumption metrics and prefix-matched pricing rates from <code>_PRICING</code>. Cache write operations are billed at 1.25× the base input token price.</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): Model identifier used to match pricing tiers.
+* <code>tokens_in</code> (<code>int</code>): Count of non-cached input tokens.
+* <code>tokens_out</code> (<code>int</code>): Count of generated output tokens.
+* <code>cache_read</code> (<code>int</code>): Count of input tokens read from prompt cache.
+* <code>cache_write</code> (<code>int</code>): Count of input tokens written to prompt cache.</p>
+<p><strong>Returns</strong>:
+* <code>float | None</code>: Total estimated cost in USD, or <code>None</code> if the model does not match any prefix in <code>_PRICING</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_price</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tokens_in</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tokens_out</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cache_read</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cache_write</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="n">price</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">_PRICING</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_PRICING</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">model</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="k">if</span> <span class="n">price</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>        <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">p_in</span><span class="p">,</span> <span class="n">p_out</span><span class="p">,</span> <span class="n">p_read</span> <span class="o">=</span> <span class="n">price</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="k">return</span> <span class="p">(</span><span class="n">tokens_in</span> <span class="o">*</span> <span class="n">p_in</span> <span class="o">+</span> <span class="n">tokens_out</span> <span class="o">*</span> <span class="n">p_out</span> <span class="o">+</span> <span class="n">cache_read</span> <span class="o">*</span> <span class="n">p_read</span> <span class="o">+</span> <span class="n">cache_write</span> <span class="o">*</span> <span class="n">p_in</span> <span class="o">*</span> <span class="mf">1.25</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1_000_000</span>
+</code></pre></div>
+Pricing calculations sort model prefixes by descending string length to ensure specific versions (such as <code>claude-fable-5-1</code>) match before broader family prefixes (<code>claude-fable-5</code>). Costs are calculated on a per-million token basis, incorporating cached read discounts and write surcharges.</p>
+<hr />
+<h3 id="_tokens"><code>_tokens()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _tokens(usage) -&gt; tuple[int, int, int, int]:</code></p>
+<p><strong>Description</strong>: Extracts input, output, cache-read, and cache-creation token counts from an Anthropic message usage container, defaulting missing fields to <code>0</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>usage</code> (<code>Any</code>): SDK usage object containing token metric attributes.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[int, int, int, int]</code>: A tuple of <code>(input_tokens, output_tokens, cache_read_tokens, cache_write_tokens)</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_tokens</span><span class="p">(</span><span class="n">usage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="k">return</span> <span class="p">(</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>        <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"input_tokens"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>        <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"output_tokens"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>        <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"cache_read_input_tokens"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        <span class="nb">getattr</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"cache_creation_input_tokens"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    <span class="p">)</span>
+</code></pre></div>
+This defensive helper extracts token counts across varying response payloads. Using <code>getattr()</code> with fallback zeros protects against schema differences across SDK minor versions or beta response formats.</p>
+<hr />
+<h3 id="_message_cost"><code>_message_cost()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _message_cost(message, served_model: str) -&gt; float | None:</code></p>
+<p><strong>Description</strong>: Calculates the estimated USD cost of an entire message response. When server-side fallbacks occur, it processes per-attempt usage records stored in <code>usage.iterations</code>, billing each attempt at its corresponding model's rate while skipping attempts declined before output generation. For un-iterated responses, it bills according to the served model's rates.</p>
+<p><strong>Parameters</strong>:
+* <code>message</code> (<code>Any</code>): The Anthropic message object.
+* <code>served_model</code> (<code>str</code>): The model ID that served the final response.</p>
+<p><strong>Returns</strong>:
+* <code>float | None</code>: Aggregated USD cost, or <code>None</code> if any consumed model's pricing rates are unrecognized.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_message_cost</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">served_model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="n">iterations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"iterations"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="k">if</span> <span class="n">iterations</span><span class="p">:</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>        <span class="n">total</span><span class="p">,</span> <span class="n">known</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">True</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">:</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>            <span class="n">tokens_in</span><span class="p">,</span> <span class="n">tokens_out</span><span class="p">,</span> <span class="n">cache_read</span><span class="p">,</span> <span class="n">cache_write</span> <span class="o">=</span> <span class="n">_tokens</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>            <span class="k">if</span> <span class="n">tokens_out</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>                <span class="k">continue</span>  <span class="c1"># declined before any output (primary or fallback attempt): not billed</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>            <span class="n">cost</span> <span class="o">=</span> <span class="n">_price</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">served_model</span><span class="p">,</span> <span class="n">tokens_in</span><span class="p">,</span> <span class="n">tokens_out</span><span class="p">,</span> <span class="n">cache_read</span><span class="p">,</span> <span class="n">cache_write</span><span class="p">)</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>            <span class="n">known</span> <span class="o">=</span> <span class="n">known</span> <span class="ow">and</span> <span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>            <span class="n">total</span> <span class="o">+=</span> <span class="n">cost</span> <span class="ow">or</span> <span class="mf">0.0</span>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>        <span class="k">return</span> <span class="n">total</span> <span class="k">if</span> <span class="n">known</span> <span class="k">else</span> <span class="kc">None</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>    <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">==</span> <span class="s2">"refusal"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_extract_text</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>        <span class="k">return</span> <span class="mf">0.0</span>  <span class="c1"># declined before any output: not billed</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>    <span class="k">return</span> <span class="n">_price</span><span class="p">(</span><span class="n">served_model</span><span class="p">,</span> <span class="o">*</span><span class="n">_tokens</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">usage</span><span class="p">))</span>
+</code></pre></div>
+This calculation accurately accounts for costs in multi-model fallback sequences. When Anthropic routes a request through multiple candidate models before completing, top-level usage covers only the final attempt, while <code>usage.iterations</code> tracks all intermediate executions. Declined requests that yielded zero output tokens are excluded from billing calculations.</p>
+<hr />
+<h3 id="_record_usage"><code>_record_usage()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _record_usage(message, raw_prompt_tokens: int, effort: str | None, elapsed: float) -&gt; None:</code></p>
+<p><strong>Description</strong>: Extracts usage metrics from a message, calculates costs, updates global session ledgers via <code>record_usage()</code>, and logs granular debugging telemetry (including elapsed time and observed token ratios).</p>
+<p><strong>Parameters</strong>:
+* <code>message</code> (<code>Any</code>): The completed Anthropic message object.
+* <code>raw_prompt_tokens</code> (<code>int</code>): Unscaled prompt token count measured by <code>count_tokens_raw()</code>.
+* <code>effort</code> (<code>str | None</code>): Normalized effort level string.
+* <code>elapsed</code> (<code>float</code>): Request duration in seconds.</p>
+<p><strong>Returns</strong>:
+* <code>None</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_record_usage</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">raw_prompt_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">effort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="n">served_model</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">tokens_in</span><span class="p">,</span> <span class="n">tokens_out</span><span class="p">,</span> <span class="n">cache_read</span><span class="p">,</span> <span class="n">cache_write</span> <span class="o">=</span> <span class="n">_tokens</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">usage</span><span class="p">)</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="n">cost</span> <span class="o">=</span> <span class="n">_message_cost</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">served_model</span><span class="p">)</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="n">record_usage</span><span class="p">(</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>        <span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="n">served_model</span><span class="p">,</span> <span class="n">input_tokens</span><span class="o">=</span><span class="n">tokens_in</span><span class="p">,</span> <span class="n">output_tokens</span><span class="o">=</span><span class="n">tokens_out</span><span class="p">,</span> <span class="n">cache_read</span><span class="o">=</span><span class="n">cache_read</span><span class="p">,</span> <span class="n">cache_write</span><span class="o">=</span><span class="n">cache_write</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="p">)</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    <span class="c1"># Observed Claude/tiktoken ratio helps tune ANTHROPIC_TOKEN_RATIO for this codebase.</span>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">tokens_in</span> <span class="o">+</span> <span class="n">cache_read</span> <span class="o">+</span> <span class="n">cache_write</span><span class="p">)</span> <span class="o">/</span> <span class="n">raw_prompt_tokens</span> <span class="k">if</span> <span class="n">raw_prompt_tokens</span> <span class="k">else</span> <span class="mf">0.0</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="n">emit_raw</span><span class="p">(</span>
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>        <span class="s2">"DEBUG"</span><span class="p">,</span>
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>        <span class="sa">f</span><span class="s2">"ANTHROPIC USAGE | model=</span><span class="si">{</span><span class="n">served_model</span><span class="si">}</span><span class="s2"> | effort=</span><span class="si">{</span><span class="n">effort</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'default'</span><span class="si">}</span><span class="s2"> | stop=</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">stop_reason</span><span class="si">}</span><span class="s2"> | "</span>
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>        <span class="sa">f</span><span class="s2">"in=</span><span class="si">{</span><span class="n">tokens_in</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | out=</span><span class="si">{</span><span class="n">tokens_out</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | cache_read=</span><span class="si">{</span><span class="n">cache_read</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | cache_write=</span><span class="si">{</span><span class="n">cache_write</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | "</span>
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>        <span class="sa">f</span><span class="s2">"est_cost=</span><span class="si">{</span><span class="s1">'$'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">format</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span><span class="w"> </span><span class="s1">'.4f'</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'n/a'</span><span class="si">}</span><span class="s2"> | elapsed=</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s | observed_token_ratio=</span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>        <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">,</span>
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>    <span class="p">)</span>
+</code></pre></div>
+This function logs operational telemetry for cost tracking and tokenizer calibration. Comparing actual Anthropic input tokens against raw tiktoken counts computes the <code>observed_token_ratio</code>, providing visibility into token expansion for the repository's source code mix.</p>
+<hr />
+<h3 id="_log_thinking"><code>_log_thinking()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _log_thinking(message) -&gt; None:</code></p>
+<p><strong>Description</strong>: Iterates through message content blocks, detects blocks with <code>type == "thinking"</code>, and outputs reasoning summaries to the debug log stream.</p>
+<p><strong>Parameters</strong>:
+* <code>message</code> (<code>Any</code>): The message object containing parsed content blocks.</p>
+<p><strong>Returns</strong>:
+* <code>None</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_log_thinking</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"thinking"</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="s2">"thinking"</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>            <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"THINKING SUMMARY:</span><span class="se">\n</span><span class="si">{</span><span class="n">block</span><span class="o">.</span><span class="n">thinking</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+</code></pre></div>
+Anthropic models utilizing adaptive thinking return their chain-of-thought blocks separately from final answer text. This function routes those reasoning traces to the debug log file (<code>dest="LOG"</code>) without polluting standard terminal outputs.</p>
+<hr />
+<h3 id="_served_by_fallback"><code>_served_by_fallback()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _served_by_fallback(message) -&gt; bool:</code></p>
+<p><strong>Description</strong>: Inspects content blocks and usage iterations to determine whether the request was fulfilled by a fallback model rather than the primary target.</p>
+<p><strong>Parameters</strong>:
+* <code>message</code> (<code>Any</code>): The message object to inspect.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if fallback indicators are detected in content blocks or iteration metadata; otherwise <code>False</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_served_by_fallback</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"fallback"</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>        <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>    <span class="n">iterations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">usage</span><span class="p">,</span> <span class="s2">"iterations"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"fallback_message"</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">)</span>
+</code></pre></div>
+This predicate detects whether server-side fallback handling was activated during execution. It inspects both content block structures and iteration event types to surface automated reroutes.</p>
+<hr />
+<h3 id="_extract_text"><code>_extract_text()</code></h3>
+<p><strong>Visibility</strong>: Private<br />
+<strong>Signature</strong>: <code>def _extract_text(message) -&gt; str:</code></p>
+<p><strong>Description</strong>: Extracts and concatenates text from all message content blocks that have <code>type == "text"</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>message</code> (<code>Any</code>): The message object returned by the Anthropic SDK.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The concatenated text string.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Sourced directly from utils/llm_anthropic.py</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_extract_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"text"</span><span class="p">)</span>
+</code></pre></div>
+Because the Anthropic Messages API returns structured content blocks (interleaving text, reasoning, tool use, and fallback metadata), this helper strips non-text blocks and extracts the synthesized textual content.</p>
+<h2 id="data-structures">Data Structures</h2>
+<h3 id="pricing-directory-schema-_pricing">Pricing Directory Schema (<code>_PRICING</code>)</h3>
+<p>The <code>_PRICING</code> dictionary maps model prefix substrings to pricing tuples. Rates are defined in USD per 1,000,000 tokens. Prompt cache writes are billed dynamically at 1.25× the base input token price.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Prefix Substring</th>
+<th style="text-align: left;">Input Cost ($/M)</th>
+<th style="text-align: left;">Output Cost ($/M)</th>
+<th style="text-align: left;">Cache Read Cost ($/M)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>"claude-opus-5-5"</code></td>
+<td style="text-align: left;"><code>4.00</code></td>
+<td style="text-align: left;"><code>20.00</code></td>
+<td style="text-align: left;"><code>0.20</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-opus-5"</code></td>
+<td style="text-align: left;"><code>5.00</code></td>
+<td style="text-align: left;"><code>25.00</code></td>
+<td style="text-align: left;"><code>0.50</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-fable-5-1"</code></td>
+<td style="text-align: left;"><code>10.00</code></td>
+<td style="text-align: left;"><code>50.00</code></td>
+<td style="text-align: left;"><code>0.25</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-fable-5"</code></td>
+<td style="text-align: left;"><code>10.00</code></td>
+<td style="text-align: left;"><code>50.00</code></td>
+<td style="text-align: left;"><code>1.00</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-mythos-5-1"</code></td>
+<td style="text-align: left;"><code>10.00</code></td>
+<td style="text-align: left;"><code>50.00</code></td>
+<td style="text-align: left;"><code>0.25</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-mythos-5"</code></td>
+<td style="text-align: left;"><code>10.00</code></td>
+<td style="text-align: left;"><code>50.00</code></td>
+<td style="text-align: left;"><code>1.00</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-sonnet-5"</code></td>
+<td style="text-align: left;"><code>2.00</code></td>
+<td style="text-align: left;"><code>10.00</code></td>
+<td style="text-align: left;"><code>0.20</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-opus-4-8"</code></td>
+<td style="text-align: left;"><code>5.00</code></td>
+<td style="text-align: left;"><code>25.00</code></td>
+<td style="text-align: left;"><code>0.50</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-opus-4-7"</code></td>
+<td style="text-align: left;"><code>5.00</code></td>
+<td style="text-align: left;"><code>25.00</code></td>
+<td style="text-align: left;"><code>0.50</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-opus-4-6"</code></td>
+<td style="text-align: left;"><code>5.00</code></td>
+<td style="text-align: left;"><code>25.00</code></td>
+<td style="text-align: left;"><code>0.50</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-sonnet-4-6"</code></td>
+<td style="text-align: left;"><code>3.00</code></td>
+<td style="text-align: left;"><code>15.00</code></td>
+<td style="text-align: left;"><code>0.30</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"claude-haiku-4-5"</code></td>
+<td style="text-align: left;"><code>1.00</code></td>
+<td style="text-align: left;"><code>5.00</code></td>
+<td style="text-align: left;"><code>0.10</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="model-context-limits-schema-_model_limits-_default_limits">Model Context Limits Schema (<code>_MODEL_LIMITS</code>, <code>_DEFAULT_LIMITS</code>)</h3>
+<p>Defines offline token limit fallback configurations when the Models API cannot be reached. Represented as a <code>tuple[int, int]</code> corresponding to <code>(context_window, max_output_tokens)</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Identifier</th>
+<th style="text-align: left;">Context Window</th>
+<th style="text-align: left;">Max Output Tokens</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>"claude-haiku-4-5"</code></td>
+<td style="text-align: left;"><code>200,000</code></td>
+<td style="text-align: left;"><code>64,000</code></td>
+<td style="text-align: left;">Hardcoded fallback for the Haiku 4.5 family.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>_DEFAULT_LIMITS</code></td>
+<td style="text-align: left;"><code>1,000,000</code></td>
+<td style="text-align: left;"><code>128,000</code></td>
+<td style="text-align: left;">Global default fallback applied to modern Claude architectures.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="request-parameters-structure-params-betas">Request Parameters Structure (<code>params</code>, <code>betas</code>)</h3>
+<p>The internal payload tuple returned by <code>_build_request()</code> and consumed by <code>_send()</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter Field</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>model</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Model identifier string.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>max_tokens</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Clamped maximum generation output budget.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>messages</code></td>
+<td style="text-align: left;"><code>list[dict[str, str]]</code></td>
+<td style="text-align: left;">Single-turn message list: <code>[{"role": "user", "content": prompt}]</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>thinking</code></td>
+<td style="text-align: left;"><code>dict[str, Any]</code> (optional)</td>
+<td style="text-align: left;">Reasoning configuration: <code>{"type": "adaptive", "display": "summarized"}</code> or <code>{"type": "enabled", "budget_tokens": int}</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>output_config</code></td>
+<td style="text-align: left;"><code>dict[str, str]</code> (optional)</td>
+<td style="text-align: left;">Effort configuration for adaptive models: <code>{"effort": effort}</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cache_control</code></td>
+<td style="text-align: left;"><code>dict[str, str]</code> (optional)</td>
+<td style="text-align: left;">Set to <code>{"type": "ephemeral"}</code> when prompt caching is enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>extra_body</code></td>
+<td style="text-align: left;"><code>dict[str, Any]</code> (optional)</td>
+<td style="text-align: left;">Contains fallback configurations (e.g., <code>{"fallbacks": "default"}</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>betas</code></td>
+<td style="text-align: left;"><code>list[str]</code></td>
+<td style="text-align: left;">Active Anthropic beta headers (e.g., <code>["server-side-fallback-2026-07-01"]</code>).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="token-counts-tuple">Token Counts Tuple</h3>
+<p>The standard 4-integer tuple returned by the <code>_tokens()</code> helper.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Index</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;"><code>tokens_in</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of un-cached input tokens processed by the API.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;"><code>tokens_out</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of generated output and thinking tokens.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>2</code></td>
+<td style="text-align: left;"><code>cache_read</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of prompt tokens matched and read from Anthropic prompt cache.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>3</code></td>
+<td style="text-align: left;"><code>cache_write</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of prompt tokens written to Anthropic prompt cache.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="error-handling">Error Handling</h2>
+<p>The module provides defensive exception handling and recovery workflows across API interactions:</p>
+<ul>
+<li><strong>Remote Models API Failures (<code>anthropic.APIError</code>)</strong>: When checking model context limits in <code>get_model_limits()</code>, network or authentication errors are caught. The driver logs <code>WARN_ANTHROPIC_MODEL_LOOKUP</code> and falls back to offline boundaries from <code>_MODEL_LIMITS</code> or <code>_DEFAULT_LIMITS</code> without crashing.</li>
+<li><strong>Server-Side Fallback Feature Rejection (<code>anthropic.BadRequestError</code>)</strong>: When Anthropic's API returns an HTTP 400 rejecting fallback beta headers (detected via <code>_fallback_rejected()</code>), the module isolates the failure. It sets <code>_fallbacks_disabled = True</code>, logs <code>WARN_ANTHROPIC_FALLBACK_DISABLED</code>, strips <code>extra_body</code> and beta headers from the parameters, and immediately retries the request natively.</li>
+<li><strong>Context Budget Shortfalls &amp; Output Clamping</strong>: In <code>_resolve_max_tokens()</code>, if available context room is below 90% of the planned output allocation (<code>ceiling &lt; wanted * 0.9</code>), the module issues <code>WARN_ANTHROPIC_OUTPUT_CLAMPED</code> and clamps output tokens to the context boundary.</li>
+<li><strong>Premature Token Truncation Retry Escalation</strong>: In <code>call_anthropic()</code>, when a response ends with <code>stop_reason == "max_tokens"</code> and <code>max_tokens &lt; ceiling</code>, the driver issues <code>WARN_ANTHROPIC_TRUNCATED_RETRY</code>, records the intermediate attempt's metrics, recalculates parameters using the context ceiling, and executes a one-time retry.</li>
+<li><strong>Terminal Truncation Handling (<code>_TRUNCATION_STOPS</code>)</strong>: If a response terminates due to <code>"max_tokens"</code> or <code>"model_context_window_exceeded"</code> after retry escalation, the driver logs <code>WARN_ANTHROPIC_TRUNCATED</code> and returns the generated text wrapped in a <code>TruncatedResponse</code> instance. This prevents upstream caching layers in <a href="../call_llm.py/">call_llm.py</a> from storing incomplete output.</li>
+<li><strong>Safety Classifications and Refusals (<code>stop_reason == "refusal"</code>)</strong>: When Claude refuses a prompt, the driver extracts classification categories from <code>message.stop_details</code>, increments failure counters via <code>count_event()</code>, issues <code>WARN_ANTHROPIC_REFUSAL</code>, and raises <code>LLMRefusalError</code>. This signals to <a href="../call_llm.py/">call_llm.py</a> and upstream workflow nodes that the request failed due to content boundaries and should not be retried.</li>
+</ul>
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../call_llm.py/">call_llm.py</a> — Unified inference dispatcher and two-tier persistent caching engine.</li>
+<li><a href="../llm_common.py/">llm_common.py</a> — Shared domain exceptions (<code>LLMRefusalError</code>), truncation wrappers (<code>TruncatedResponse</code>), and metrics accounting.</li>
+<li><a href="../llm_config.py/">llm_config.py</a> — Model registry, token ratios, context margin constants, and thinking level mappings.</li>
+<li><a href="../token_utils.py/">token_utils.py</a> — Codebase tokenization engine and raw token counter (<code>count_tokens_raw</code>).</li>
+<li><a href="../thinking.py/">thinking.py</a> — Abstract reasoning level normalization and budget resolution routines.</li>
+<li><a href="../output.py/">output.py</a> — Diagnostic event emission (<code>emit</code>, <code>emit_raw</code>) and debug logging sinks.</li>
+<li><a href="../i18n.py/">i18n.py</a> — Automated localization engine that consumes LLM inference pipelines.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+        <script src="../../../assets/javascripts/panzoom.min.js"></script>
+      
+        <script src="../../../assets/javascripts/zoompan.js"></script>
+      
+    
+  </body>
+</html>

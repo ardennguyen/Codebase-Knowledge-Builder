@@ -1,0 +1,2782 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/llm_common.py/">
+      
+      
+        <link rel="prev" href="../llm_config.py/">
+      
+      
+        <link rel="next" href="../llm_anthropic.py/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>llm_common.py - Codebase Knowledge Builder API Reference</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/panzoom.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <meta name="panzoom-theme" content="material">
+<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm_commonpy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-header__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Codebase Knowledge Builder API Reference
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              llm_common.py
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-nav__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Codebase Knowledge Builder API Reference
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline Orchestration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pipeline Orchestration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../main.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../flow.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nodes.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Repository Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_local_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_local_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_github_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_github_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Inference & Providers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM Inference & Providers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Inference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core Inference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1" id="__nav_3_4_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_1_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../call_llm.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_config.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_config.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_common.py
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_common.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#truncatedresponse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TruncatedResponse
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llmrefusalerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLMRefusalError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        request_key()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remember_refusal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remember_refusal()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#previous_refusal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        previous_refusal()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#record_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record_usage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count_event" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        count_event()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_usage_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_usage_summary()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_usage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warn_once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        warn_once()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_refused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _refused
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_warned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _warned
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usagerecord-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UsageRecord Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refusalmemo-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RefusalMemo Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Drivers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Provider Drivers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_1" id="__nav_3_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_anthropic.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_anthropic.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_gemini.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_gemini.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_openrouter.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_openrouter.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt & Context Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt & Context Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5_1" id="__nav_3_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../thinking.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    thinking.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation & System Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Documentation & System Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_1" id="__nav_3_6_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mkdocs.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mkdocs.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../output.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    i18n.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../__init__.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    __init__.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#truncatedresponse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TruncatedResponse
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llmrefusalerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLMRefusalError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#request_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        request_key()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remember_refusal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remember_refusal()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#previous_refusal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        previous_refusal()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#record_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record_usage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count_event" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        count_event()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_usage_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_usage_summary()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_usage()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warn_once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        warn_once()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_refused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _refused
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_warned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _warned
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usagerecord-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UsageRecord Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refusalmemo-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RefusalMemo Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="llm_commonpy">llm_common.py</h1>
+<blockquote>
+<p><strong>Source:</strong> <code>utils/llm_common.py</code></p>
+</blockquote>
+<h2 id="technical-overview">Technical Overview</h2>
+<p>Building upon the vendor-specific transport and parsing mechanics established in <a href="../llm_anthropic.py/">llm_anthropic.py</a>, the <code>llm_common.py</code> module defines the shared, provider-agnostic domain layer for the entire inference pipeline. It operates as a zero-dependency foundational component that explicitly avoids importing third-party provider SDKs (<code>anthropic</code>, <code>google-genai</code>, <code>openai</code>). By establishing uniform domain representations for incomplete generations, provider rejections, runtime deduplication, and financial telemetry, it isolates the high-level orchestration workflows in <a href="../call_llm.py/">call_llm.py</a> from the underlying provider implementations.</p>
+<p>The primary architectural role of <code>llm_common.py</code> is to manage stateful inference invariants across multi-step execution graphs. It provides a circuit-breaking refusal memoization mechanism (<code>_refused</code>) that prevents wasteful network retries against models that deterministically decline prompts due to safety, moderation, or policy violations. Furthermore, it defines custom string subtype semantics (<code>TruncatedResponse</code>) to intercept length-truncated completions before they can contaminate the disk-backed cache in <a href="../call_llm.py/">call_llm.py</a>, while simultaneously offering a centralized session ledger (<code>_usage</code>) to record token volumes, thinking token allocations, prompt cache interactions, and accumulated operational costs.</p>
+<div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <pre class="mermaid-raw"><code>flowchart TD
+    callLLM["call_llm Invocation"] --&gt; entryCheck
+
+    subgraph SubRefusal["Refusal Memoization Check"]
+        entryCheck["request_key: Hash scope and prompt"] --&gt; checkMemo{"previous_refusal exists?"}
+        checkMemo -- Yes --&gt; abortEarly["Re-raise cached LLMRefusalError"]
+        checkMemo -- No --&gt; execDriver["Dispatch to Provider Driver"]
+    end
+
+    subgraph SubExecution["Provider Execution and Error Handling"]
+        execDriver --&gt; evalResult{"Evaluate Completion State"}
+        evalResult -- Safety Declination --&gt; raiseRefusal["Raise LLMRefusalError"]
+        evalResult -- Max Tokens Hit --&gt; wrapTrunc["Wrap in TruncatedResponse"]
+        evalResult -- Success --&gt; returnText["Return Clean String"]
+        raiseRefusal --&gt; checkRetryable{"Is error retryable?"}
+        checkRetryable -- No --&gt; remember["remember_refusal in _refused"]
+        checkRetryable -- Yes --&gt; bypassMemo["Bypass Refusal Memo"]
+    end
+
+    subgraph SubLedger["Telemetry and Accounting"]
+        returnText --&gt; recUsage["record_usage input, output, cost"]
+        wrapTrunc --&gt; countTrunc["count_event truncations"]
+        remember --&gt; countRefusal["count_event refusals"]
+        recUsage --&gt; getSummary["get_usage_summary aggregation"]
+        countTrunc --&gt; getSummary
+        countRefusal --&gt; getSummary
+    end
+
+    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
+    class callLLM,entryCheck,execDriver,recUsage entryNode</code></pre> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div>
+<h2 id="public-api">Public API</h2>
+<h3 id="truncatedresponse"><code>TruncatedResponse</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>class TruncatedResponse(str):</code></p>
+<p><strong>Description</strong>: A specialized string subclass that tags model responses truncated by output token limits or context window boundaries. It preserves standard string behavior across serialization and downstream logging operations while exposing a sentinel <code>truncated = True</code> attribute. Higher-level orchestration layers, specifically <code>call_llm</code> and <code>parse_yaml_response</code>, inspect this boolean attribute to bypass persistent disk caching and signal upstream node retries.</p>
+<p><strong>Attributes</strong>:
+* <code>truncated</code> (<code>bool</code>): Sentinel flag, always set to <code>True</code>, identifying the output buffer as incomplete.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TruncatedResponse</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Response text from a reply that was cut off; call_llm returns it but never caches it."""</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">truncated</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+The implementation derives directly from native <code>str</code> without mutating base string memory layouts. Because instances pass standard string type checks throughout the Python runtime, intermediate formatters can safely inspect, print, or measure the truncated payload without raising type errors. Upstream orchestrators use <code>getattr(response, "truncated", False)</code> to selectively invalidate the run from the persistence cache, ensuring that defective, half-formed YAML blocks or code generations are forced through subsequent re-sampling passes.</p>
+<hr />
+<h3 id="llmrefusalerror"><code>LLMRefusalError</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>class LLMRefusalError(RuntimeError): def __init__(self, model: str, category: str | None, provider: str = "ANTHROPIC", retryable: bool = False):</code></p>
+<p><strong>Description</strong>: Domain exception raised when an LLM provider declines to generate a completion due to content moderation filters, safety guardrails, or recitation protections. It encapsulates the originating provider, model identifier, refusal classification category, and a criticality flag (<code>retryable</code>). This flag differentiates between deterministic prompt declines (such as system-level policy blocks that must never be re-sent) and stochastic candidate blocks (such as mid-generation recitation triggers that may succeed upon re-sampling).</p>
+<p><strong>Parameters</strong>:
+* <code>model</code> (<code>str</code>): The specific model identifier that issued the refusal (e.g., <code>"claude-3-7-sonnet-20250219"</code>).
+* <code>category</code> (<code>str | None</code>): The provider's safety category code or rejection reason (e.g., <code>"safety"</code>, <code>"recitation"</code>, <code>"content_filter"</code>).
+* <code>provider</code> (<code>str</code>): The identifier of the rejecting vendor platform. Defaults to <code>"ANTHROPIC"</code>.
+* <code>retryable</code> (<code>bool</code>): Indicates whether repeating the inference request with alternative sampling parameters could succeed. Defaults to <code>False</code>.</p>
+<p><strong>Returns</strong>:
+* <code>LLMRefusalError</code>: Instantiated exception object with formatted diagnostic details.</p>
+<p><strong>Raises</strong>:
+* N/A: Instantiation does not raise errors.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMRefusalError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Raised when the provider (and any configured fallback) declines a request.</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="sd">    retryable=False: the same request is declined again (Claude refusal, blocked prompt,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    prohibited content) — call_llm remembers it and does not re-send it on node retries.</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">    retryable=True: an output-side block that a new sample can pass (Gemini RECITATION / OTHER /</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">    SAFETY on the candidate, OpenRouter content_filter) — node retries re-sample normally.</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">    """</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="n">retryable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="n">provider</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">retryable</span> <span class="o">=</span> <span class="n">retryable</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2"> model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> declined the request (category=</span><span class="si">{</span><span class="n">category</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'unknown'</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</code></pre></div>
+The constructor structures diagnostic messages uniformly across diverse provider payloads, converting ambiguous vendor error codes into a standardized runtime exception. Downstream dispatchers evaluate the instance's <code>retryable</code> property to modulate retry loops. If <code>retryable</code> evaluates to <code>False</code>, the refusal is committed to the module's internal lookup table, short-circuiting identical subsequent requests before invoking network sockets.</p>
+<hr />
+<h3 id="request_key"><code>request_key()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def request_key(provider: str, model: str, thinking_level: str | None, prompt: str) -&gt; str:</code></p>
+<p><strong>Description</strong>: Generates a deterministic SHA-256 hexadecimal hash identifying an inference request. The key is composed of a scoped header containing the provider name, the model string, and the normalized reasoning effort level, followed by the exact prompt payload. This hash serves as the primary indexing key for refusal tracking and cache deduplication.</p>
+<p><strong>Parameters</strong>:
+* <code>provider</code> (<code>str</code>): The upstream inference provider (e.g., <code>"ANTHROPIC"</code>, <code>"GEMINI"</code>, <code>"OPENROUTER"</code>).
+* <code>model</code> (<code>str</code>): The target model name string.
+* <code>thinking_level</code> (<code>str | None</code>): The configured reasoning intensity (e.g., <code>"low"</code>, <code>"medium"</code>, <code>"high"</code>), or <code>None</code> if operating without reasoning tokens.
+* <code>prompt</code> (<code>str</code>): The complete serialized prompt string passed to the driver.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: A 64-character lowercase SHA-256 hexadecimal digest representing the request signature.</p>
+<p><strong>Raises</strong>:
+* N/A.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">request_key</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">scope</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="p">(</span><span class="n">thinking_level</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'default'</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">((</span><span class="n">scope</span> <span class="o">+</span> <span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</code></pre></div>
+The implementation uses a delimiter-separated scope prefix (<code>provider|model|thinking_level\n</code>) to ensure that identical prompt strings routed to different models or distinct reasoning budgets yield collision-free digests. The resulting string is encoded into UTF-8 before being passed to <code>hashlib.sha256</code>. This mechanism provides an identical hash output across diverse operating systems and process lifecycles.</p>
+<hr />
+<h3 id="remember_refusal"><code>remember_refusal()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def remember_refusal(key: str, error: LLMRefusalError) -&gt; None:</code></p>
+<p><strong>Description</strong>: Registers an encountered non-retryable <code>LLMRefusalError</code> into the module-level refusal registry (<code>_refused</code>), binding the error object to the request's deterministic SHA-256 hash.</p>
+<p><strong>Parameters</strong>:
+* <code>key</code> (<code>str</code>): The hexadecimal request digest computed via <code>request_key()</code>.
+* <code>error</code> (<code>LLMRefusalError</code>): The refusal error instance capturing the failure context.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* N/A.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">remember_refusal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">LLMRefusalError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">_refused</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
+</code></pre></div>
+This function populates the private global dictionary <code>_refused</code> to provide process-level memorization of declined inference attempts. When synthesis nodes attempt retries following a fatal safety refusal, registering the error through this function allows the caller to break out of cascading execution cycles immediately. The stored error retains its original stack context, failure model, and safety categories for subsequent inspection.</p>
+<hr />
+<h3 id="previous_refusal"><code>previous_refusal()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def previous_refusal(key: str) -&gt; LLMRefusalError | None:</code></p>
+<p><strong>Description</strong>: Queries the module-level refusal registry for a previously recorded <code>LLMRefusalError</code> matching the provided request hash.</p>
+<p><strong>Parameters</strong>:
+* <code>key</code> (<code>str</code>): The hexadecimal request digest computed via <code>request_key()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>LLMRefusalError | None</code>: The cached refusal error if previously recorded; otherwise <code>None</code>.</p>
+<p><strong>Raises</strong>:
+* N/A.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">previous_refusal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMRefusalError</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">return</span> <span class="n">_refused</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</code></pre></div>
+The retrieval helper executes an $O(1)$ dictionary lookup against the <code>_refused</code> table. Orchestrators in <code>call_llm</code> evaluate this lookup before calculating token bounds or initiating network requests. If an error is returned, the orchestrator immediately raises the memorized exception, preventing unnecessary network traffic, API quota consumption, and unneeded billing on inputs that will reliably trigger safety filters.</p>
+<hr />
+<h3 id="record_usage"><code>record_usage()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def record_usage(provider: str, model: str, *, input_tokens: int = 0, output_tokens: int = 0, thinking_tokens: int = 0, cache_read: int = 0, cache_write: int = 0, cost: float | None = None) -&gt; None:</code></p>
+<p><strong>Description</strong>: Records token volumes, prompt cache mechanics, and operational expenses for a completed inference call into the global usage ledger (<code>_usage</code>). It aggregates metrics per provider, tracks unique models utilized, and updates cost flags based on pricing availability.</p>
+<p><strong>Parameters</strong>:
+* <code>provider</code> (<code>str</code>): The provider identifier (e.g., <code>"GEMINI"</code>, <code>"ANTHROPIC"</code>).
+* <code>model</code> (<code>str</code>): The specific model used for the completion.
+* <code>input_tokens</code> (<code>int</code>): Count of prompt/input tokens processed. Defaults to <code>0</code>.
+* <code>output_tokens</code> (<code>int</code>): Count of total output tokens generated, including thinking tokens. Defaults to <code>0</code>.
+* <code>thinking_tokens</code> (<code>int</code>): Subset of output tokens dedicated to internal model reasoning. Defaults to <code>0</code>.
+* <code>cache_read</code> (<code>int</code>): Count of input tokens read from the provider's prompt cache. Defaults to <code>0</code>.
+* <code>cache_write</code> (<code>int</code>): Count of input tokens written to create new prompt cache entries. Defaults to <code>0</code>.
+* <code>cost</code> (<code>float | None</code>): Financial cost in USD for the transaction. If passed as <code>None</code>, marks the provider's overall cost as uncomputable. Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* N/A.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">record_usage</span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">input_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">output_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">thinking_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">cache_read</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">cache_write</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="sd">"""Accumulate one call. `output_tokens` includes thinking; `thinking_tokens` is the reported subset.</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="sd">    `cost` is USD; None means the price is unknown for this model (summary shows n/a)."""</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_usage</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>        <span class="n">provider</span><span class="p">,</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="p">{</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>            <span class="s2">"models"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>            <span class="s2">"calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>            <span class="s2">"input"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>            <span class="s2">"output"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>            <span class="s2">"thinking"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>            <span class="s2">"cache_read"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>            <span class="s2">"cache_write"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>            <span class="s2">"cost"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>            <span class="s2">"cost_known"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>            <span class="s2">"refusals"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>            <span class="s2">"fallbacks"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>            <span class="s2">"truncations"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>        <span class="p">},</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>    <span class="p">)</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>    <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"calls"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"input"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">input_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"output"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">output_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"thinking"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">thinking_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_read"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cache_read</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_write"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cache_write</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-5-39" name="__codelineno-5-39" href="#__codelineno-5-39"></a>    <span class="k">if</span> <span class="n">cost</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-5-40" name="__codelineno-5-40" href="#__codelineno-5-40"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"cost_known"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-5-41" name="__codelineno-5-41" href="#__codelineno-5-41"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-5-42" name="__codelineno-5-42" href="#__codelineno-5-42"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"cost"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cost</span>
+</code></pre></div>
+The implementation uses <code>dict.setdefault</code> to initialize zeroed usage buckets on the first call for a given provider. Integer token metrics defensively fall back to <code>0</code> if passed falsy or <code>None</code> values. When tracking costs, if any call for a model lacks price metadata (<code>cost is None</code>), the ledger sets <code>cost_known</code> to <code>False</code>, signaling downstream reporting routines in <a href="../output.py/">output.py</a> to render costs as unknown (<code>n/a</code>) rather than misleadingly incomplete figures.</p>
+<hr />
+<h3 id="count_event"><code>count_event()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def count_event(provider: str, event: str) -&gt; None:</code></p>
+<p><strong>Description</strong>: Increments discrete operational anomaly counters (<code>"refusals"</code>, <code>"fallbacks"</code>, or <code>"truncations"</code>) for a specified provider entry within the global usage ledger.</p>
+<p><strong>Parameters</strong>:
+* <code>provider</code> (<code>str</code>): The target provider key in the usage ledger.
+* <code>event</code> (<code>str</code>): The metric counter to increment; expected to be one of <code>"refusals"</code>, <code>"fallbacks"</code>, or <code>"truncations"</code>.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* <code>KeyError</code>: If <code>event</code> does not match an existing key in the ledger entry template.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_event</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="sd">"""Increment 'refusals' | 'fallbacks' | 'truncations' for a provider."""</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_usage</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">provider</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="p">{</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>            <span class="s2">"models"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>            <span class="s2">"calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="s2">"input"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="s2">"output"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>            <span class="s2">"thinking"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="s2">"cache_read"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="s2">"cache_write"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>            <span class="s2">"cost"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>            <span class="s2">"cost_known"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>            <span class="s2">"refusals"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>            <span class="s2">"fallbacks"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>            <span class="s2">"truncations"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>        <span class="p">},</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>    <span class="p">)</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    <span class="n">entry</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div>
+This function maintains parity between token volume reporting and pipeline operational health. By sharing the initialization structure with <code>record_usage()</code>, it allows events to be recorded before any tokens have been successfully generated—such as during immediate prompt rejections or connection fallback events. Upstream adapters call this helper whenever fallback headers are disabled, responses are truncated at context limits, or refusals are intercepted.</p>
+<hr />
+<h3 id="get_usage_summary"><code>get_usage_summary()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def get_usage_summary() -&gt; dict:</code></p>
+<p><strong>Description</strong>: Generates a consolidated summary of token allocations, costs, and operational events for all providers that processed at least one call during the execution run. Transforms internal sets of model names into lexicographically sorted lists.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A dictionary mapping provider names to shallow-copied usage records with sorted <code>"models"</code> lists, omitting inactive providers.</p>
+<p><strong>Raises</strong>:
+* N/A.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_usage_summary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="sd">"""{provider: totals} for every provider that made at least one call this run."""</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">provider</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]))</span> <span class="k">for</span> <span class="n">provider</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">_usage</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"calls"</span><span class="p">]}</span>
+</code></pre></div>
+The summary pipeline uses a dictionary comprehension that filters out uncalled providers (<code>if entry["calls"]</code>). It creates a decoupled copy of the internal accumulator using <code>dict(entry, ...)</code>, explicitly converting the internal <code>set</code> of model names into a deterministically sorted <code>list</code>. This transformation guarantees stable rendering when generating tables or serialized CLI output summaries.</p>
+<hr />
+<h3 id="reset_usage"><code>reset_usage()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def reset_usage() -&gt; None:</code></p>
+<p><strong>Description</strong>: Resets all in-memory usage ledgers and refusal caches, returning the module to an uninitialized state. Primarily intended for automated test suites and isolated execution resets.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* N/A.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">reset_usage</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">_usage</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">_refused</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</code></pre></div>
+The helper invokes <code>.clear()</code> on both the <code>_usage</code> ledger and <code>_refused</code> map in-place. This guarantees that subsequent pipeline executions within the same Python process boundary do not retain dirty telemetry or memorized refusals from previous test runs.</p>
+<hr />
+<h3 id="warn_once"><code>warn_once()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def warn_once(key: str, *parts) -&gt; bool:</code></p>
+<p><strong>Description</strong>: Evaluates whether a warning signature has already been displayed during the active process run, tracking compound keys to prevent noisy CLI log duplication.</p>
+<p><strong>Parameters</strong>:
+* <code>key</code> (<code>str</code>): The primary category or message identifier.
+* <code>*parts</code> (<code>Any</code>): Optional additional hashable values (such as model names or HTTP status codes) forming a composite warning key.</p>
+<p><strong>Returns</strong>:
+* <code>bool</code>: <code>True</code> if this specific warning marker is encountered for the first time; <code>False</code> if it has already been registered.</p>
+<p><strong>Raises</strong>:
+* N/A.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">warn_once</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="sd">"""True the first time a (key, parts) combination is seen this run."""</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">marker</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="k">if</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">_warned</span><span class="p">:</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="k">return</span> <span class="kc">False</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">_warned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
+The helper constructs a tuple <code>(key, *parts)</code> to serve as a composite hash in the private <code>_warned</code> set. If the marker is already present, the function returns <code>False</code>, allowing caller logging blocks to exit early. When a new marker is encountered, it is recorded in the set and returns <code>True</code>, ensuring that identical warnings (e.g., deprecated parameters, unsupported reasoning flags) are emitted only once per session.</p>
+<h2 id="internal-helpers">Internal Helpers</h2>
+<p>The <code>utils/llm_common.py</code> module maintains three internal, process-scoped data containers to track runtime state without exposing mutable data structures directly to external modules.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># Refused-request memo: a declined prompt is declined again, so PocketFlow retries</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># must not re-send it (wasted rate limit, and billed partial output on mid-stream declines).</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">_refused</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Usage ledger (one per process; a run is sequential)</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">_usage</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="c1"># De-duplicated warnings</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="n">_warned</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="_refused"><code>_refused</code></h3>
+<p>A process-level dictionary (<code>dict[str, LLMRefusalError]</code>) that maps SHA-256 request signatures generated by <code>request_key()</code> to their corresponding <code>LLMRefusalError</code> instances. It acts as an in-memory cache to prevent repetitive, non-retryable API calls. External modules access this dictionary exclusively through <code>remember_refusal()</code>, <code>previous_refusal()</code>, and <code>reset_usage()</code>.</p>
+<h3 id="_usage"><code>_usage</code></h3>
+<p>A process-level dictionary (<code>dict[str, dict[str, Any]]</code>) that aggregates operational statistics and token accounting across all active LLM providers. Each entry stores call counts, token usage, cost data, and error metrics. State modifications and reads are restricted to <code>record_usage()</code>, <code>count_event()</code>, <code>get_usage_summary()</code>, and <code>reset_usage()</code>.</p>
+<h3 id="_warned"><code>_warned</code></h3>
+<p>A process-level set (<code>set[tuple[str, ...]]</code>) containing composite warning markers. It records unique tuples passed to <code>warn_once()</code> to deduplicate warning messages in CLI logs throughout the life of the process.</p>
+<h2 id="data-structures">Data Structures</h2>
+<h3 id="usagerecord-schema"><code>UsageRecord</code> Schema</h3>
+<p>The internal dictionary structure maintained for each provider inside the <code>_usage</code> ledger, and exposed in shallow-copied form via <code>get_usage_summary()</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>models</code></td>
+<td style="text-align: left;"><code>set[str]</code> (internal) / <code>list[str]</code> (summary)</td>
+<td style="text-align: left;">Unique model identifiers invoked for this provider during the run.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>calls</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total number of attempted inference calls dispatched.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>input</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total count of input/prompt tokens processed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>output</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total count of output tokens generated (including thinking tokens).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>thinking</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Subset of output tokens dedicated to model reasoning/thinking.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cache_read</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Prompt tokens retrieved directly from provider-side caches.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cache_write</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Prompt tokens written to create new provider-side cache entries.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cost</code></td>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;">Cumulative calculated cost in USD across all calls.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cost_known</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;">Flag indicating whether all models used have known pricing metadata (<code>False</code> if any model cost was <code>None</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>refusals</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of declined requests encountered for this provider.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>fallbacks</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of times the provider dropped down to secondary models or disabled fallback beta headers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>truncations</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of model completions cut off by context or token limits.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="refusalmemo-schema"><code>RefusalMemo</code> Schema</h3>
+<p>The schema mapping maintained by the <code>_refused</code> dictionary for recording declined requests.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Value Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SHA-256 digest string (64 characters)</td>
+<td style="text-align: left;"><code>LLMRefusalError</code></td>
+<td style="text-align: left;">The captured refusal error instance, preserving model, category, provider, and retryability semantics.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="error-handling">Error Handling</h2>
+<p>The module provides the foundation for error handling across the system's inference layers:</p>
+<ul>
+<li><strong>Refusal Classification</strong>: <code>LLMRefusalError</code> introduces a structured categorization for declined prompts. By dividing errors into <code>retryable=False</code> (fatal declines, policy triggers, deterministic refusals) and <code>retryable=True</code> (transient safety blocks, recitation checks on output candidates), it provides the decision logic necessary for upstream graph nodes to either resample or abandon execution paths.</li>
+<li><strong>Truncation Signatures</strong>: Rather than raising an unhandled exception upon encountering context window limits or maximum token exhaustion, the module provides <code>TruncatedResponse</code>. This string subtype allows pipelines to inspect partial completions, bypass the disk-based cache, and trigger controlled retries via higher-level handlers (such as YAML parsers).</li>
+<li><strong>Cost Incompleteness Guard</strong>: If an invoked model does not have pricing metrics available, <code>record_usage()</code> flags <code>cost_known = False</code>. This prevents the pipeline from displaying inaccurate or partially calculated cost summaries in terminal logs.</li>
+</ul>
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../call_llm.py/">call_llm.py</a> — Central inference dispatcher that uses <code>request_key</code>, <code>previous_refusal</code>, <code>remember_refusal</code>, and <code>TruncatedResponse</code> to govern caching and execution.</li>
+<li><a href="../llm_anthropic.py/">llm_anthropic.py</a> — Anthropic integration driver that translates API response metrics into <code>record_usage</code> and handles <code>LLMRefusalError</code> and <code>TruncatedResponse</code>.</li>
+<li><a href="../llm_gemini.py/">llm_gemini.py</a> — Google Gemini adapter that reports token usage and converts candidate safety blocks into <code>LLMRefusalError</code>.</li>
+<li><a href="../llm_openrouter.py/">llm_openrouter.py</a> — OpenRouter integration layer that reports multi-provider costs and usage to <code>record_usage</code>.</li>
+<li><a href="../output.py/">output.py</a> — Telemetry and console formatting layer that processes <code>get_usage_summary()</code> to render final execution tables.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+        <script src="../../../assets/javascripts/panzoom.min.js"></script>
+      
+        <script src="../../../assets/javascripts/zoompan.js"></script>
+      
+    
+  </body>
+</html>

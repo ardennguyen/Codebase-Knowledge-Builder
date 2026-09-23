@@ -1,0 +1,2966 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ardennguyen.github.io/Codebase-Knowledge-Builder/api/utils/thinking.py/">
+      
+      
+        <link rel="prev" href="../prompts.py/">
+      
+      
+        <link rel="next" href="../token_utils.py/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>thinking.py - Codebase Knowledge Builder API Reference</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/panzoom.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <meta name="panzoom-theme" content="material">
+<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#thinkingpy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-header__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Codebase Knowledge Builder API Reference
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              thinking.py
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Codebase Knowledge Builder API Reference" class="md-nav__button md-logo" aria-label="Codebase Knowledge Builder API Reference" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Codebase Knowledge Builder API Reference
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline Orchestration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pipeline Orchestration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../main.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    main.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../flow.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    flow.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nodes.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nodes.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Ingestion
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Repository Ingestion
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_local_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_local_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crawl_github_files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crawl_github_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Inference & Providers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM Inference & Providers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Inference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core Inference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_1_1" id="__nav_3_4_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../call_llm.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    call_llm.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_config.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_config.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_common.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_common.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Drivers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Provider Drivers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2_1" id="__nav_3_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_anthropic.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_anthropic.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_gemini.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_gemini.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_openrouter.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    llm_openrouter.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt & Context Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt & Context Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_5_1" id="__nav_3_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    thinking.py
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    thinking.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolve_profile_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_profile_name()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clamp_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clamp_level()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        parse_overrides()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_thinking_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_thinking_plan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve_thinking_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_thinking_level()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#describe_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        describe_plan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constant-collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constant Collections
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Constant Collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thinking_levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        THINKING_LEVELS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thinking_profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        THINKING_PROFILES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node_keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NODE_KEYS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_analysis_nodes-and-mode_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _ANALYSIS_NODES and MODE_NODES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profiled_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROFILED_PROVIDERS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internal-profile-matrices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Profile Matrices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Profile Matrices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _PROFILES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_mode_adjustments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _MODE_ADJUSTMENTS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structural-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural Schemas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Structural Schemas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thinking-plan-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thinking Plan Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parsed-overrides-result-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parsed Overrides Result Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation & System Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Documentation & System Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6_1" id="__nav_3_6_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mkdocs.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mkdocs.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../output.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../i18n.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    i18n.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../__init__.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    __init__.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#technical-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolve_profile_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_profile_name()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clamp_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clamp_level()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        parse_overrides()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build_thinking_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_thinking_plan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve_thinking_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_thinking_level()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#describe_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        describe_plan()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Helpers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constant-collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constant Collections
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Constant Collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thinking_levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        THINKING_LEVELS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thinking_profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        THINKING_PROFILES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node_keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NODE_KEYS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_analysis_nodes-and-mode_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _ANALYSIS_NODES and MODE_NODES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profiled_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROFILED_PROVIDERS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internal-profile-matrices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal Profile Matrices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal Profile Matrices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _PROFILES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_mode_adjustments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _MODE_ADJUSTMENTS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structural-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural Schemas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Structural Schemas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thinking-plan-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thinking Plan Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parsed-overrides-result-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parsed Overrides Result Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="thinkingpy">thinking.py</h1>
+<blockquote>
+<p><strong>Source:</strong> <code>utils/thinking.py</code></p>
+</blockquote>
+<p>Following the prompt serialization and template loading mechanisms detailed in <a href="../prompts.py/">prompts.py</a>, the <code>thinking.py</code> module governs cognitive resource allocation and reasoning effort budgets across all Large Language Model (LLM) interaction points. Where <code>prompts.py</code> ensures structural integrity of inputs and outputs, <code>thinking.py</code> regulates the computational depth and latency profile of the inference requests dispatched across the pipeline.</p>
+<h2 id="technical-overview">Technical Overview</h2>
+<p><code>utils/thinking.py</code> implements the per-node thinking effort resolution subsystem, referred to internally as "thinking flows." Modern reasoning LLMs—such as Anthropic Claude 3.7 Sonnet, Google Gemini 2.5 / 3.x, and reasoning models served through OpenRouter—support variable reasoning parameters (such as <code>thinking_budget</code>, <code>thinking_level</code>, or <code>reasoning_effort</code>). Because different compilation phases within <code>Codebase-Knowledge-Builder</code> require radically different reasoning depth, applying a uniform reasoning level across the entire execution graph results in excessive API latency, token exhaustion, or degraded architectural synthesis. The module solves this optimization challenge by mapping individual pipeline call sites to an ordered cognitive effort scale.</p>
+<p>The architecture operates on a three-tier hierarchy of precedence resolved once during application bootstrap in <a href="../../main.py/">main.py</a>:
+1. <strong>Per-node Overrides (<code>--thinking-override NODE=LEVEL</code>)</strong>: Explicit granular overrides assigned to specific call sites via command-line flags.
+2. <strong>Global Effort Level (<code>--thinking-level LEVEL</code>)</strong>: A uniform override applied across every node in the pipeline.
+3. <strong>Preset Profiles (<code>--thinking-profile PROFILE</code>)</strong>: Predefined effort allocation tables (<code>economy</code>, <code>balanced</code>, <code>quality</code>, <code>max</code>, <code>off</code>) that assign calibrated effort levels based on node sensitivity, modified dynamically by execution mode (<code>tutorial</code>, <code>advanced</code>, <code>sdk</code>, <code>api-reference</code>).</p>
+<p>The module standardizes effort along an ordered canonical scale: <code>minimal</code>, <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, and <code>max</code>. Reasoning-heavy structural discovery phases (such as <code>identify_abstractions</code> and <code>reduce_abstractions</code>) receive high-tier allocations, whereas mechanical tasks (such as <code>filter_files</code> or <code>translate_strings</code>) are assigned minimal or low effort. Provider drivers (<a href="../llm_anthropic.py/">llm_anthropic.py</a>, <a href="../llm_gemini.py/">llm_gemini.py</a>, and <a href="../llm_openrouter.py/">llm_openrouter.py</a>) translate canonical project levels into provider-specific parameters at dispatch time using nearest-neighbor fallback resolution.</p>
+<div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
+    
+    <nav class="panzoom-nav">
+    <button class="panzoom-info panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path>
+    </svg>
+</button><button class="panzoom-reset panzoom-button">
+    <svg class="panzoom-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125.7 160l50.3 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L48 224c-17.7 0-32-14.3-32-32L16 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"></path>
+    </svg>
+</button>
+    </nav>
+    <pre class="mermaid-raw"><code>flowchart TD
+    subgraph ProfileSub["Profile Resolution"]
+        startProfile["Resolve Active Profile and Provider"]
+        checkAuto{"Profile is auto?"}
+        checkProvider{"Provider in PROFILED PROVIDERS?"}
+        assignBalanced["Profile = balanced"]
+        assignOff["Profile = off"]
+        assignExplicit["Profile = User Specified"]
+    end
+
+    subgraph PlanSub["Thinking Plan Construction"]
+        initPlan["Input: Resolved Profile, Mode, Global Level, Overrides"]
+        checkGlobal{"Global Level Specified?"}
+        applyGlobal["Populate All NODE KEYS with Global Level"]
+        checkBase{"Profile in Base Profiles?"}
+        loadBase["Load Base Profile Node Matrix"]
+        applyAdjustments["Apply Mode Specific Adjustments"]
+        loadOff["Set All NODE KEYS to None"]
+        applyOverrides["Merge CLI Node Overrides"]
+    end
+
+    subgraph RuntimeSub["Runtime Provider Adaptation"]
+        queryNode["Query Node Thinking Level via resolve thinking level"]
+        checkSupported{"Level Supported by Target Model?"}
+        exactLevel["Return Requested Level"]
+        nearestLevel["Compute Nearest Supported Level on Scale"]
+        finalLevel["Return Clamped Level or None"]
+    end
+
+    startProfile --&gt; checkAuto
+    checkAuto -- Yes --&gt; checkProvider
+    checkProvider -- Yes --&gt; assignBalanced
+    checkProvider -- No --&gt; assignOff
+    checkAuto -- No --&gt; assignExplicit
+
+    assignBalanced --&gt; initPlan
+    assignOff --&gt; initPlan
+    assignExplicit --&gt; initPlan
+
+    initPlan --&gt; checkGlobal
+    checkGlobal -- Yes --&gt; applyGlobal
+    checkGlobal -- No --&gt; checkBase
+    checkBase -- Yes --&gt; loadBase
+    loadBase --&gt; applyAdjustments
+    checkBase -- No --&gt; loadOff
+    applyGlobal --&gt; applyOverrides
+    applyAdjustments --&gt; applyOverrides
+    loadOff --&gt; applyOverrides
+
+    applyOverrides --&gt; queryNode
+    queryNode --&gt; checkSupported
+    checkSupported -- Yes --&gt; exactLevel
+    checkSupported -- No --&gt; nearestLevel
+    nearestLevel --&gt; finalLevel
+
+    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
+    class startProfile entryNode
+    class initPlan entryNode
+    class queryNode entryNode</code></pre> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div> 
+    <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
+Hold "Alt" / "Option" to enable pan &amp; zoom
+</div>
+</div>
+<h2 id="public-api">Public API</h2>
+<h3 id="resolve_profile_name"><code>resolve_profile_name()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def resolve_profile_name(profile: str | None, provider: str | None) -&gt; str:</code></p>
+<p><strong>Description</strong>: Resolves the operational profile identifier against the active model provider. When an explicit profile name (such as <code>"economy"</code>, <code>"balanced"</code>, <code>"quality"</code>, or <code>"max"</code>) is provided, the function normalizes the string to lowercase and returns it. If the profile is omitted or specified as <code>"auto"</code>, the function evaluates whether the target provider is an explicitly profiled ecosystem (<code>ANTHROPIC</code>, <code>GEMINI</code>, or <code>OPENROUTER</code>). In those ecosystems, current foundation models reason by default and per-node calibration is a vital cost-control mechanism, causing <code>"auto"</code> to resolve to <code>"balanced"</code>. For generic or local endpoints (such as Ollama or OpenAI-compatible hosts), <code>"auto"</code> defaults to <code>"off"</code>, preserving model-native behavior.</p>
+<p><strong>Parameters</strong>:
+* <code>profile</code> (<code>str | None</code>): The requested profile name passed via configuration or CLI flags. Defaults to <code>"auto"</code> if <code>None</code>.
+* <code>provider</code> (<code>str | None</code>): The uppercase identifier of the target inference provider (e.g., <code>"ANTHROPIC"</code>, <code>"GEMINI"</code>, <code>"OPENROUTER"</code>, <code>"OLLAMA"</code>).</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The normalized, concrete profile identifier (<code>"balanced"</code>, <code>"off"</code>, or the explicitly supplied profile).</p>
+<p><strong>Raises</strong>:
+* This function does not raise exceptions; unexpected or unmapped profile names pass through normalized.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">resolve_profile_name</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Resolve `auto` to a concrete profile for the active provider."""</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">profile</span> <span class="o">=</span> <span class="p">(</span><span class="n">profile</span> <span class="ow">or</span> <span class="s2">"auto"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">if</span> <span class="n">profile</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="k">return</span> <span class="s2">"balanced"</span> <span class="k">if</span> <span class="n">provider</span> <span class="ow">in</span> <span class="n">PROFILED_PROVIDERS</span> <span class="k">else</span> <span class="s2">"off"</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">return</span> <span class="n">profile</span>
+</code></pre></div></p>
+<p>The implementation performs a single-pass fallback check. By decoupling provider identification from CLI argument ingestion, it enables upstream initialization routines to establish operational profiles before driver instantiation. Providers outside <code>PROFILED_PROVIDERS</code> default to <code>"off"</code>, preventing downstream payload injectors from sending unsupported reasoning keys to third-party OpenAI-compatible REST endpoints.</p>
+<hr />
+<h3 id="clamp_level"><code>clamp_level()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def clamp_level(level: str, supported) -&gt; str | None:</code></p>
+<p><strong>Description</strong>: Normalizes an abstract project reasoning level to an explicit level supported by a specific model target. The function searches the target model's supported capabilities against the canonical <code>THINKING_LEVELS</code> tuple. If the exact level is directly supported, it returns unchanged. If the requested level is unsupported, the function identifies all overlapping supported levels and computes the nearest neighbor on the <code>THINKING_LEVELS</code> index scale. In the event of an equidistant tie between two supported levels, the algorithm deterministically selects the lower effort tier, safeguarding token budgets. If the model supports no recognized levels, or if the input level is not present in <code>THINKING_LEVELS</code>, it returns <code>None</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>level</code> (<code>str</code>): The requested reasoning level string (e.g., <code>"high"</code>, <code>"xhigh"</code>, <code>"minimal"</code>).
+* <code>supported</code> (<code>Iterable[str]</code>): A collection or container (such as a <code>set</code>, <code>list</code>, or <code>tuple</code>) containing the thinking levels officially supported by the active model or provider catalog.</p>
+<p><strong>Returns</strong>:
+* <code>str | None</code>: The exact level, the closest supported level ranked along the scale (ties breaking toward lower effort), or <code>None</code> if no valid level can be resolved.</p>
+<p><strong>Raises</strong>:
+* This function does not raise exceptions.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">clamp_level</span><span class="p">(</span><span class="n">level</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">supported</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Return `level` if the model supports it, else the nearest supported level on</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="sd">    THINKING_LEVELS (ties → lower). None when nothing on the scale is supported."""</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">if</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">:</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">return</span> <span class="n">level</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">ranked</span> <span class="o">=</span> <span class="p">[</span><span class="n">lvl</span> <span class="k">for</span> <span class="n">lvl</span> <span class="ow">in</span> <span class="n">THINKING_LEVELS</span> <span class="k">if</span> <span class="n">lvl</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">]</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">ranked</span> <span class="ow">or</span> <span class="n">level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">THINKING_LEVELS</span><span class="p">:</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">target</span> <span class="o">=</span> <span class="n">THINKING_LEVELS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">ranked</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">lvl</span><span class="p">:</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">THINKING_LEVELS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">lvl</span><span class="p">)</span> <span class="o">-</span> <span class="n">target</span><span class="p">),</span> <span class="n">THINKING_LEVELS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">lvl</span><span class="p">)))</span>
+</code></pre></div></p>
+<p>The clamping logic uses an absolute index distance metric paired with the index value as a secondary sorting key: <code>(abs(THINKING_LEVELS.index(lvl) - target), THINKING_LEVELS.index(lvl))</code>. This tuple comparison guarantees that if a requested level (e.g., index 2) is flanked symmetrically by supported levels at index 1 and index 3, the secondary element breaks the tie by choosing index 1. This prevents vendor drivers such as <a href="../llm_gemini.py/">llm_gemini.py</a> or <a href="../llm_openrouter.py/">llm_openrouter.py</a> from failing request schema validation when models only advertise a subset of reasoning modes (e.g., only <code>"low"</code> and <code>"high"</code>).</p>
+<hr />
+<h3 id="parse_overrides"><code>parse_overrides()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def parse_overrides(values: list[str] | None) -&gt; tuple[dict, list[str]]:</code></p>
+<p><strong>Description</strong>: Parses and validates raw command-line override parameters passed via <code>--thinking-override</code> flags. The function processes a list of key-value assignment strings formatted as <code>NODE=LEVEL</code>. Each entry is split at the first delimiter, stripped of surrounding whitespace, and normalized to lowercase. It verifies that the parsed node name exists within <code>NODE_KEYS</code> and that the assigned level exists within <code>THINKING_LEVELS</code>. Valid entries are aggregated into an overrides dictionary, while malformed strings or unknown tokens are collected into an invalid values list for consolidated error reporting by the CLI runner.</p>
+<p><strong>Parameters</strong>:
+* <code>values</code> (<code>list[str] | None</code>): A list of command-line override strings, typically sourced from <code>sys.argv</code> via <code>argparse</code>. Accepts <code>None</code> gracefully.</p>
+<p><strong>Returns</strong>:
+* <code>tuple[dict[str, str], list[str]]</code>: A 2-tuple containing:
+  1. <code>overrides</code>: A dictionary mapping valid node keys (<code>str</code>) to valid thinking levels (<code>str</code>).
+  2. <code>invalid</code>: A list of original string values (<code>str</code>) that failed delimiter parsing, contained invalid node names, or specified unrecognized levels.</p>
+<p><strong>Raises</strong>:
+* This function does not raise exceptions directly; syntax and schema validation errors are returned as structured data.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_overrides</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Parse NODE=LEVEL strings. Returns (overrides, invalid_values)."""</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">overrides</span><span class="p">,</span> <span class="n">invalid</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">[]</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span> <span class="ow">or</span> <span class="p">[]:</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">node</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"="</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">node</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">level</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">sep</span> <span class="ow">or</span> <span class="n">node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NODE_KEYS</span> <span class="ow">or</span> <span class="n">level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">THINKING_LEVELS</span><span class="p">:</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>            <span class="n">invalid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>            <span class="n">overrides</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">level</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="k">return</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">invalid</span>
+</code></pre></div></p>
+<p>The implementation relies on <code>str.partition("=")</code> rather than <code>str.split("=")</code> to guarantee safe single-split execution without throwing <code>ValueError</code> on missing delimiters. The guard clause validates three critical conditions: presence of the separator, membership of the node in <code>NODE_KEYS</code>, and validity of the assigned level in <code>THINKING_LEVELS</code>. By returning invalid values rather than halting execution, the function allows <a href="../../main.py/">main.py</a> to report every syntax error in a single terminal diagnostic emission before execution begins.</p>
+<hr />
+<h3 id="build_thinking_plan"><code>build_thinking_plan()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def build_thinking_plan(profile: str, mode: str, global_level: str | None, overrides: dict) -&gt; dict:</code></p>
+<p><strong>Description</strong>: Synthesizes the master thinking execution plan mapping every known node key in <code>NODE_KEYS</code> to a resolved thinking level or <code>None</code>. The construction enforces a strict precedence hierarchy: CLI overrides override global level overrides, which in turn override baseline profile allocations. When a <code>global_level</code> is defined, every node key is initialized to that uniform level. When no global level is specified, the plan initializes from <code>_PROFILES</code> using the resolved <code>profile</code> name and applies mode-specific adjustments from <code>_MODE_ADJUSTMENTS</code>. If the profile is <code>"off"</code>, every node is initialized to <code>None</code>, directing inference drivers to omit explicit reasoning payloads and accept vendor defaults. Finally, all keys present in the <code>overrides</code> dictionary are merged into the plan, taking ultimate precedence.</p>
+<p><strong>Parameters</strong>:
+* <code>profile</code> (<code>str</code>): The pre-resolved profile name (e.g., <code>"balanced"</code>, <code>"economy"</code>, <code>"quality"</code>, <code>"max"</code>, <code>"off"</code>).
+* <code>mode</code> (<code>str</code>): The operational documentation mode (<code>"tutorial"</code>, <code>"advanced"</code>, <code>"sdk"</code>, <code>"api-reference"</code>).
+* <code>global_level</code> (<code>str | None</code>): An optional uniform thinking level assigned across all pipeline nodes via <code>--thinking-level</code>.
+* <code>overrides</code> (<code>dict[str, str]</code>): A validated dictionary of per-node overrides returned by <code>parse_overrides()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>dict[str, str | None]</code>: A complete mapping of every string key in <code>NODE_KEYS</code> to its assigned thinking level (<code>str</code>) or <code>None</code>.</p>
+<p><strong>Raises</strong>:
+* This function does not raise exceptions directly.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_thinking_plan</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">global_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overrides</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="sd">"""Return {node_key: level | None} for every NODE key.</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="sd">    Precedence: overrides &gt; global_level &gt; profile table (+ mode adjustments).</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="sd">    `profile` must already be resolved (see resolve_profile_name).</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="sd">    """</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="k">if</span> <span class="n">global_level</span><span class="p">:</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">plan</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">NODE_KEYS</span><span class="p">,</span> <span class="n">global_level</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="k">elif</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">_PROFILES</span><span class="p">:</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">plan</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_PROFILES</span><span class="p">[</span><span class="n">profile</span><span class="p">])</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">plan</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_MODE_ADJUSTMENTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="p">{}))</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="k">else</span><span class="p">:</span>  <span class="c1"># "off": every node uses the model's default thinking behavior</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        <span class="n">plan</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">NODE_KEYS</span><span class="p">)</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">plan</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">overrides</span><span class="p">)</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="k">return</span> <span class="n">plan</span>
+</code></pre></div></p>
+<p>This function ensures that the resulting plan dictionary is fully populated across all known <code>NODE_KEYS</code>. When <code>global_level</code> is set, profile definitions and mode adjustments are bypassed entirely. When relying on profiles, <code>_MODE_ADJUSTMENTS</code> handles task nuances—such as elevating chapter writing in <code>"advanced"</code> mode under the <code>"economy"</code> profile from <code>"low"</code> to <code>"medium"</code> to accommodate architectural trade-off synthesis. Merging <code>overrides</code> at the final step ensures explicit CLI instructions cannot be overwritten by mode or profile heuristics.</p>
+<hr />
+<h3 id="resolve_thinking_level"><code>resolve_thinking_level()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def resolve_thinking_level(shared: dict, node_key: str) -&gt; str | None:</code></p>
+<p><strong>Description</strong>: Resolves the runtime thinking level for a specific LLM execution site during graph node execution. It inspects the pipeline state dictionary (<code>shared</code>) for a compiled <code>"thinking_plan"</code> dictionary. If the plan exists and contains <code>node_key</code>, its assigned level is returned. If no plan is present or the key is absent, the function falls back defensively to the top-level <code>"thinking_level"</code> key stored in the shared state. If neither exists, it returns <code>None</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>shared</code> (<code>dict</code>): The central shared context dictionary passed across execution nodes in <a href="../../flow.py/">flow.py</a> and <a href="../../nodes.py/">nodes.py</a>.
+* <code>node_key</code> (<code>str</code>): The unique string identifier of the active execution node (must match an entry in <code>NODE_KEYS</code>).</p>
+<p><strong>Returns</strong>:
+* <code>str | None</code>: The resolved thinking level string (e.g., <code>"medium"</code>, <code>"high"</code>), or <code>None</code> if the node should execute using model defaults.</p>
+<p><strong>Raises</strong>:
+* This function does not raise exceptions.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">resolve_thinking_level</span><span class="p">(</span><span class="n">shared</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">node_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="sd">"""Thinking level for one LLM call site. Falls back to the global level when no plan exists."""</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">plan</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"thinking_plan"</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="k">if</span> <span class="n">plan</span> <span class="ow">and</span> <span class="n">node_key</span> <span class="ow">in</span> <span class="n">plan</span><span class="p">:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="k">return</span> <span class="n">plan</span><span class="p">[</span><span class="n">node_key</span><span class="p">]</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"thinking_level"</span><span class="p">)</span>
+</code></pre></div></p>
+<p>This helper abstracts the pipeline state lookup across all call sites in <a href="../../nodes.py/">nodes.py</a>. Graph nodes invoke this function immediately prior to dispatching prompts to <a href="../call_llm.py/">call_llm.py</a>. Because the returned string is vendor-agnostic, downstream dispatchers remain decoupled from the workflow state schema, delegating final parameter mapping to provider drivers.</p>
+<hr />
+<h3 id="describe_plan"><code>describe_plan()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def describe_plan(plan: dict, mode: str | None = None) -&gt; str:</code></p>
+<p><strong>Description</strong>: Generates a compact, single-line human-readable summary of a thinking plan for terminal startup telemetry and diagnostic logging. It restricts output exclusively to nodes relevant to the active operational <code>mode</code> (using <code>MODE_NODES</code>), preventing terminal clutter from unused pipeline phases. If a node maps to <code>None</code> or an empty value, it renders as <code>"default"</code>.</p>
+<p><strong>Parameters</strong>:
+* <code>plan</code> (<code>dict[str, str | None]</code>): The compiled thinking plan mapping node keys to levels.
+* <code>mode</code> (<code>str | None</code>): The operational documentation mode (<code>"tutorial"</code>, <code>"advanced"</code>, <code>"sdk"</code>, <code>"api-reference"</code>). If omitted or invalid, formatting falls back to evaluating all keys in <code>NODE_KEYS</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: A comma-separated string of <code>key=level</code> assignments (e.g., <code>"filter_files=low, write_chapters=high, chapter_summary=low"</code>).</p>
+<p><strong>Raises</strong>:
+* This function does not raise exceptions.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">describe_plan</span><span class="p">(</span><span class="n">plan</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">"""Compact one-line rendering for the startup config display (only nodes that run in `mode`)."""</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">keys</span> <span class="o">=</span> <span class="n">MODE_NODES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">NODE_KEYS</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'default'</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span>
+</code></pre></div></p>
+<p>The helper filters execution nodes by consulting <code>MODE_NODES.get(mode, NODE_KEYS)</code>. In <code>"api-reference"</code> mode, for instance, structural discovery nodes like <code>map_abstractions</code> and <code>reduce_abstractions</code> are omitted from startup logs since the deterministic 1:1 file mapper bypasses those workflow steps. The fallback expression <code>plan.get(key) or 'default'</code> ensures unconfigured or <code>"off"</code> nodes are legibly labeled in CLI startup banners.</p>
+<hr />
+<h2 id="internal-helpers">Internal Helpers</h2>
+<p>The <code>thinking.py</code> module defines no private helper functions or nested closures. All algorithmic operations are exposed directly through the public API functions documented above. Internal state is maintained through module-scoped constant collections (<code>_ANALYSIS_NODES</code>, <code>_PROFILES</code>, and <code>_MODE_ADJUSTMENTS</code>) that isolate configuration tables from external mutation.</p>
+<hr />
+<h2 id="data-structures">Data Structures</h2>
+<h3 id="constant-collections">Constant Collections</h3>
+<h4 id="thinking_levels"><code>THINKING_LEVELS</code></h4>
+<p>An ordered tuple defining the standardized reasoning scale across the application:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">THINKING_LEVELS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"minimal"</span><span class="p">,</span> <span class="s2">"low"</span><span class="p">,</span> <span class="s2">"medium"</span><span class="p">,</span> <span class="s2">"high"</span><span class="p">,</span> <span class="s2">"xhigh"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">)</span>
+</code></pre></div>
+* <strong>Type</strong>: <code>tuple[str, ...]</code>
+* <strong>Purpose</strong>: Serves as the canonical coordinate space for effort comparisons and distance calculations in <code>clamp_level()</code>. While <code>minimal</code> is reserved for select OpenRouter endpoints, shipped profiles restrict standard baselines to <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, and <code>max</code>.</p>
+<h4 id="thinking_profiles"><code>THINKING_PROFILES</code></h4>
+<p>An immutable tuple enumerating all recognized profile identifiers:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">THINKING_PROFILES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"off"</span><span class="p">,</span> <span class="s2">"economy"</span><span class="p">,</span> <span class="s2">"balanced"</span><span class="p">,</span> <span class="s2">"quality"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">)</span>
+</code></pre></div>
+* <strong>Type</strong>: <code>tuple[str, ...]</code>
+* <strong>Purpose</strong>: Used for CLI argument validation and documentation.</p>
+<h4 id="node_keys"><code>NODE_KEYS</code></h4>
+<p>An immutable tuple defining every LLM interaction site across the pipeline in topological execution order:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">NODE_KEYS</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="s2">"filter_files"</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="s2">"map_abstractions"</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="s2">"reduce_abstractions"</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="s2">"identify_abstractions"</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="s2">"analyze_relationships"</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="s2">"order_chapters"</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="s2">"write_chapters"</span><span class="p">,</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="s2">"chapter_summary"</span><span class="p">,</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="s2">"group_modules"</span><span class="p">,</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="s2">"translate_strings"</span><span class="p">,</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">)</span>
+</code></pre></div></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Node Key</th>
+<th style="text-align: left;">Responsible Workflow Component</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>filter_files</code></td>
+<td style="text-align: left;"><code>DeterministicFileMapper</code></td>
+<td style="text-align: left;">Binary and non-code file classification (active in <code>api-reference</code> mode).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>map_abstractions</code></td>
+<td style="text-align: left;"><code>MapAbstractions</code></td>
+<td style="text-align: left;">Batch-level extraction of domain concepts and structural components.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>reduce_abstractions</code></td>
+<td style="text-align: left;"><code>ReduceAbstractions</code></td>
+<td style="text-align: left;">Merging and deduplicating partial abstractions into a unified index.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>identify_abstractions</code></td>
+<td style="text-align: left;"><code>IdentifyAbstractions</code></td>
+<td style="text-align: left;">Whole-codebase architectural discovery across small-to-medium repositories.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>analyze_relationships</code></td>
+<td style="text-align: left;"><code>AnalyzeRelationships</code></td>
+<td style="text-align: left;">Synthesizing project summaries, system boundaries, and entity dependencies.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>order_chapters</code></td>
+<td style="text-align: left;"><code>OrderChapters</code></td>
+<td style="text-align: left;">Establishing a pedagogical reading order for synthesized documentation chapters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>write_chapters</code></td>
+<td style="text-align: left;"><code>WriteChapters</code></td>
+<td style="text-align: left;">Generating comprehensive, long-form chapter content or reference manuals.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>chapter_summary</code></td>
+<td style="text-align: left;"><code>WriteChapters</code></td>
+<td style="text-align: left;">Drafting compact summaries used to inject contextual state across chapters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>group_modules</code></td>
+<td style="text-align: left;"><code>CombineTutorial</code></td>
+<td style="text-align: left;">Clustering modules into navigation trees for MkDocs (for 6+ modules).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>translate_strings</code></td>
+<td style="text-align: left;"><code>i18n</code></td>
+<td style="text-align: left;">Translating CLI user interface strings when running a new target language.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_analysis_nodes-and-mode_nodes"><code>_ANALYSIS_NODES</code> and <code>MODE_NODES</code></h4>
+<p>Internal mappings that filter active nodes by generation mode:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">_ANALYSIS_NODES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"map_abstractions"</span><span class="p">,</span> <span class="s2">"reduce_abstractions"</span><span class="p">,</span> <span class="s2">"identify_abstractions"</span><span class="p">,</span> <span class="s2">"analyze_relationships"</span><span class="p">,</span> <span class="s2">"order_chapters"</span><span class="p">)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">MODE_NODES</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">"tutorial"</span><span class="p">:</span> <span class="p">(</span><span class="o">*</span><span class="n">_ANALYSIS_NODES</span><span class="p">,</span> <span class="s2">"write_chapters"</span><span class="p">,</span> <span class="s2">"chapter_summary"</span><span class="p">,</span> <span class="s2">"translate_strings"</span><span class="p">),</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="s2">"advanced"</span><span class="p">:</span> <span class="p">(</span><span class="o">*</span><span class="n">_ANALYSIS_NODES</span><span class="p">,</span> <span class="s2">"write_chapters"</span><span class="p">,</span> <span class="s2">"chapter_summary"</span><span class="p">,</span> <span class="s2">"translate_strings"</span><span class="p">),</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="s2">"sdk"</span><span class="p">:</span> <span class="p">(</span><span class="o">*</span><span class="n">_ANALYSIS_NODES</span><span class="p">,</span> <span class="s2">"write_chapters"</span><span class="p">,</span> <span class="s2">"chapter_summary"</span><span class="p">,</span> <span class="s2">"translate_strings"</span><span class="p">),</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="s2">"api-reference"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"filter_files"</span><span class="p">,</span> <span class="s2">"write_chapters"</span><span class="p">,</span> <span class="s2">"chapter_summary"</span><span class="p">,</span> <span class="s2">"group_modules"</span><span class="p">,</span> <span class="s2">"translate_strings"</span><span class="p">),</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">}</span>
+</code></pre></div></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Active Pipeline Nodes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>tutorial</code></td>
+<td style="text-align: left;"><code>map_abstractions</code>, <code>reduce_abstractions</code>, <code>identify_abstractions</code>, <code>analyze_relationships</code>, <code>order_chapters</code>, <code>write_chapters</code>, <code>chapter_summary</code>, <code>translate_strings</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>advanced</code></td>
+<td style="text-align: left;"><code>map_abstractions</code>, <code>reduce_abstractions</code>, <code>identify_abstractions</code>, <code>analyze_relationships</code>, <code>order_chapters</code>, <code>write_chapters</code>, <code>chapter_summary</code>, <code>translate_strings</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sdk</code></td>
+<td style="text-align: left;"><code>map_abstractions</code>, <code>reduce_abstractions</code>, <code>identify_abstractions</code>, <code>analyze_relationships</code>, <code>order_chapters</code>, <code>write_chapters</code>, <code>chapter_summary</code>, <code>translate_strings</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>api-reference</code></td>
+<td style="text-align: left;"><code>filter_files</code>, <code>write_chapters</code>, <code>chapter_summary</code>, <code>group_modules</code>, <code>translate_strings</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="profiled_providers"><code>PROFILED_PROVIDERS</code></h4>
+<p>Tuple containing the provider identifiers whose thinking parameters are dynamically mapped per model:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">PROFILED_PROVIDERS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="s2">"GEMINI"</span><span class="p">,</span> <span class="s2">"OPENROUTER"</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h3 id="internal-profile-matrices">Internal Profile Matrices</h3>
+<h4 id="_profiles"><code>_PROFILES</code></h4>
+<p>The foundational lookup matrix mapping profiles to baseline node effort levels:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Node Key</th>
+<th style="text-align: left;"><code>economy</code></th>
+<th style="text-align: left;"><code>balanced</code></th>
+<th style="text-align: left;"><code>quality</code></th>
+<th style="text-align: left;"><code>max</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>filter_files</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>map_abstractions</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"xhigh"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>reduce_abstractions</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"max"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>identify_abstractions</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"max"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>analyze_relationships</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"xhigh"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>order_chapters</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>write_chapters</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"xhigh"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>chapter_summary</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>group_modules</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+<td style="text-align: left;"><code>"high"</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>translate_strings</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"low"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+<td style="text-align: left;"><code>"medium"</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_mode_adjustments"><code>_MODE_ADJUSTMENTS</code></h4>
+<p>Specialized overrides layered on top of base profiles for specific generation modes:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">_MODE_ADJUSTMENTS</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="s2">"economy"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"advanced"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"write_chapters"</span><span class="p">:</span> <span class="s2">"medium"</span><span class="p">}},</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">}</span>
+</code></pre></div>
+* <strong>Rationale</strong>: Advanced mode chapters require in-depth trade-off analysis. Because the number of abstractions is constrained by <code>max_abstraction_num</code>, elevating <code>write_chapters</code> to <code>"medium"</code> preserves analytical depth without significantly impacting overall token expenditure.</p>
+<hr />
+<h3 id="structural-schemas">Structural Schemas</h3>
+<h4 id="thinking-plan-schema">Thinking Plan Schema</h4>
+<p>The operational dictionary returned by <code>build_thinking_plan()</code> and stored under <code>shared["thinking_plan"]</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Example Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>[node_key]</code></td>
+<td style="text-align: left;"><code>str \| None</code></td>
+<td style="text-align: left;">Target reasoning level for a node, or <code>None</code> if running model default.</td>
+<td style="text-align: left;"><code>"high"</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="parsed-overrides-result-schema">Parsed Overrides Result Schema</h4>
+<p>The 2-tuple returned by <code>parse_overrides()</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Index</th>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Example Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;"><code>overrides</code></td>
+<td style="text-align: left;"><code>dict[str, str]</code></td>
+<td style="text-align: left;">Mapping of validated node keys to verified effort levels.</td>
+<td style="text-align: left;"><code>{"write_chapters": "max"}</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;"><code>invalid</code></td>
+<td style="text-align: left;"><code>list[str]</code></td>
+<td style="text-align: left;">Raw CLI input elements that violated formatting or schema rules.</td>
+<td style="text-align: left;"><code>["bad_node=high", "order_chapters=extreme"]</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="error-handling">Error Handling</h2>
+<p>The module employs defensive normalization and graceful degradation rather than raising runtime exceptions:</p>
+<ul>
+<li><strong>Safe Delimiter Splitting</strong>: <code>parse_overrides()</code> uses <code>str.partition("=")</code> to separate arguments without risking <code>ValueError</code> on strings lacking an <code>=</code> separator. It verifies each token against <code>NODE_KEYS</code> and <code>THINKING_LEVELS</code> before accepting it into the plan, collecting malformed entries into an <code>invalid</code> list so callers can emit descriptive terminal diagnostics.</li>
+<li><strong>Nearest-Neighbor Fallback</strong>: <code>clamp_level()</code> guards against API rejection when a model lacks support for an assigned level. Rather than throwing an error or failing payload validation, it uses distance minimization across <code>THINKING_LEVELS</code> indices to select the closest available level. Equidistant ties break toward the lower level to prevent unexpected billing spikes.</li>
+<li><strong>Defensive Property Access</strong>: <code>resolve_thinking_level()</code> uses <code>dict.get()</code> across nested dictionaries, falling back gracefully to the global <code>thinking_level</code> or <code>None</code> if the thinking plan is uninitialized.</li>
+<li><strong>Safe Profile Fallback</strong>: <code>resolve_profile_name()</code> treats <code>None</code> as <code>"auto"</code>, defaulting unrecognized providers to <code>"off"</code> to prevent sending invalid parameters to unsupported REST endpoints.</li>
+</ul>
+<hr />
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../prompts.py/">prompts.py</a> — Encapsulates prompt template loading and structured YAML parsing for pipeline nodes.</li>
+<li><a href="../call_llm.py/">call_llm.py</a> — Central inference dispatcher routing requests to vendor drivers based on resolved thinking levels.</li>
+<li><a href="../llm_config.py/">llm_config.py</a> — Manages model discovery, context window budgets, and provider settings.</li>
+<li><a href="../llm_anthropic.py/">llm_anthropic.py</a> — Translates thinking levels into Anthropic's <code>output_config.effort</code> parameters.</li>
+<li><a href="../llm_gemini.py/">llm_gemini.py</a> — Implements Gemini 3.x <code>thinking_level</code> and Gemini 2.5 <code>thinking_budget</code> mappings.</li>
+<li><a href="../llm_openrouter.py/">llm_openrouter.py</a> — Maps thinking levels to OpenRouter's catalog-backed <code>reasoning.effort</code> schema.</li>
+<li><a href="../../main.py/">main.py</a> — Application entry point responsible for parsing CLI thinking arguments and compiling the master plan.</li>
+<li><a href="../../nodes.py/">nodes.py</a> — Execution graph nodes that consume <code>resolve_thinking_level()</code> during pipeline execution.</li>
+<li><a href="../../flow.py/">flow.py</a> — Orchestrates the execution state machine passing the thinking plan across tasks.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.copy", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="../../../javascripts/mermaid-init.js"></script>
+      
+        <script src="../../../assets/javascripts/panzoom.min.js"></script>
+      
+        <script src="../../../assets/javascripts/zoompan.js"></script>
+      
+    
+  </body>
+</html>
