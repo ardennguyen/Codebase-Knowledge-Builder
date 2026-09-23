@@ -28,8 +28,8 @@ title: "Architecture & Design"
         - A link to `full_content.md` at the bottom.
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
     - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
-    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table), and `docs/nav_snippet.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode).
-    - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of each module's source files plus a generation signature (mode, language, provider, model, `write_chapters` thinking level, `draft_chapters` template digest) to skip regeneration of unchanged modules across runs.
+    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table), and `docs/nav_snippet.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode). `docs/api/` is generator-owned: `.md` pages that belong to no current chapter (removed/renamed modules, earlier runs in another mode) are deleted at the end of each run.
+    - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of each module's source files plus a generation signature (mode, language, provider, model, `write_chapters` thinking level, `draft_chapters` template digest) to skip regeneration of unchanged modules across runs. Entries are keyed by the module's source path, rebuilt from the current run's chapters (removed modules drop out) and saved only after the pages are written.
 
 ## 2. Flow Design
 
@@ -192,15 +192,17 @@ pocketflow>=0.0.3
 pyyaml>=6.0.3
 requests>=2.34.2
 gitpython>=3.1.59
-google-cloud-aiplatform>=1.164.0
 google-genai>=2.18.1
 anthropic>=1.8.0
 python-dotenv>=1.2.3
 pathspec>=1.1.1
 tiktoken>=0.8.0
+mkdocs>=1.6.0
 mkdocs-material>=9.0.0
-mkdocs-panzoom-plugin>=0.2.0
+mkdocs-panzoom-plugin>=0.5.2
 ```
+
+`google-genai` covers both Gemini API-key and Vertex AI access (it pulls in `google-auth`), so `google-cloud-aiplatform` is not needed. `mkdocs-panzoom-plugin>=0.5.2` is the version whose `include_selectors`/`exclude_selectors` handling the MkDocs config relies on.
 
 ## 5. Environment Configuration
 
@@ -529,7 +531,8 @@ shared = {
 | `mapped_abstractions` | `MapAbstractions` (batch path) | `list[dict]` | Per-batch abstraction results |
 | `file_batches` | `ContextRouter` (batch path) | `list[list[tuple]]` | File batches with global indices |
 | `directory_tree` | `ContextRouter.post()` (every route) | `str` | Full directory tree string (read by draft_chapters and group_modules prompts) |
-| `chapter_summaries` | `WriteChapters.post()` | `list[str]` | Per-chapter summaries for LLM nav grouping |
+| `chapter_summaries` | `WriteChapters.post()` | `list[str]` | Per-chapter summaries for LLM nav grouping and `api/index.md` descriptions |
+| `pending_manifest` | `WriteChapters.post()` (`--incremental` only) | `dict[str, dict]` | New incremental manifest (`{source_path: {"hash", "summary", "filename"}}`); written to `.doc_cache_manifest.json` by `CombineTutorial.post()` after the pages are on disk |
 
 ### Data Transformations Between Nodes
 
@@ -1072,20 +1075,43 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
 ```
 - Used by `write_mkdocs_output` to generate a ready-to-use `mkdocs.yml`
 - Includes Material theme, code copy, syntax highlighting, and mermaid diagram support
-- Merges the generated `nav_snippet` into the config's nav section
+- **Mermaid fence:** `pymdownx.superfences` custom fence `mermaid` with class `mermaid-raw` and `format: fence_div_format`, so each diagram is `<div class="mermaid-raw">…source…</div>`. It must be a DIV: the panzoom plugin's `zoompan.js` only activates on DIV/IMG elements.
+- **Panzoom:** `include_selectors: ['.mermaid-raw']` plus `exclude_selectors: ['.mermaid']`. The plugin's built-in `.mermaid` selector regex also matches `class="mermaid-raw"` and would wrap every diagram in a second, dead panzoom box.
+- Merges the generated `nav_snippet` into the config's nav section; `include_home=True` (always passed by `write_mkdocs_output`) adds `- Home: index.md`
 - Output file can be used directly with `mkdocs serve` or `mkdocs build`
+- **Must be kept in sync** with `.github/ci_mkdocs_config.py` `MKDOCS_YML` (theme, plugins, markdown_extensions, extra_javascript). The CI copy differs only in `site_name`, `site_url` and its fixed Home / Architecture & Design nav entries.
 
 #### `build_mermaid_init_js`
 ```python
 def build_mermaid_init_js() -> str:
 ```
 - Returns JavaScript that initializes Mermaid on `.mermaid-raw` elements (bypasses Material theme overrides)
-- **Code unwrapping:** `pymdownx.superfences` `fence_code_format` wraps content as `<pre class="mermaid-raw"><code>...</code></pre>`. The JS unwraps the `<code>` child (moves `textContent` up to `<pre>`) before calling `mermaid.run()`, since Mermaid expects diagram text directly in the target element.
-- Uses `securityLevel: 'loose'` and wraps `mermaid.run()` in try-catch with `.catch()` for resilient rendering
+- `fence_div_format` emits the diagram source (HTML-escaped) directly inside the DIV, which `mermaid.run()` reads and entity-decodes; no unwrapping is needed
+- Leaves `securityLevel` at Mermaid's default (`'strict'`): diagram source is LLM-generated, and no generated diagram needs a `loose`-only feature (click callbacks, unsanitized URLs)
+- Injects one CSS rule, `[data-md-color-scheme="slate"] .mermaid-raw { background-color: #fff; border-radius: .2rem; }`: on Material's dark palette the default theme's dark-gray edges would otherwise vanish against the dark panzoom box
+- Wraps `mermaid.run()` in try-catch with `.catch()` for resilient rendering
 - Uses `document.readyState` check instead of bare `DOMContentLoaded` listener for reliable initialization
 - Diagrams render with Mermaid's native default theme (yellow subgraph backgrounds, lavender nodes) matching GitHub rendering
 - Written to `docs/javascripts/mermaid-init.js` by `write_mkdocs_output`
-- **Must be kept in sync** with `.github/ci_mkdocs_config.py` `MERMAID_INIT_JS` constant
+- **Must be kept in sync** with `.github/ci_mkdocs_config.py` `MERMAID_INIT_JS` constant (identical text)
+
+#### `build_chapter_filenames`
+```python
+def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: bool) -> dict:
+```
+- Returns `{position_in_chapter_order: filename}` for every valid chapter. Shared by `WriteChapters.prep` (the `(doc: path.md)` link targets given to the LLM) and `CombineTutorial.prep` (the files written), so both always agree
+- `--mkdocs`: `original_path + ".md"` when the abstraction has an `original_path` (api-reference), else the sanitized lowercase name (`"LLM Call"` → `llm_call.md`); standalone: `NN_` prefix (`01_llm_call.md`)
+- Collisions (case-insensitive) with another chapter or with the generated `index.md` get a numeric suffix (`index_2.md`, `llm_call_2.md`), so a chapter named "Index" can no longer overwrite the `api/index.md` landing page. MkDocs builds `README.md` as its directory's index page, so `README.md` is compared as `<dir>/index.md` (a top-level extensionless `README` source becomes `README_2.md`)
+
+#### `strip_summary_header` / `summary_description` / `md_link_text`
+```python
+def strip_summary_header(summary: str) -> str
+def summary_description(summary: str, limit: int = 200) -> str
+def md_link_text(text: str) -> str
+```
+- `strip_summary_header`: drops the `"<Chapter> N — name:"` first line that WriteChapters puts on each chapter summary. Used for the grouping prompt's module list, for index descriptions, and by WriteChapters to re-head cached summaries with the current chapter number
+- `summary_description`: one-line table cell: header and the leading `(1) **Component Scope …**:` label removed (requires a `(1)`/`1.` marker, label ≤ 60 chars, ASCII or full-width `：` colon, so prose such as "1 file handles…" or a URL colon is never mistaken for the label), whitespace collapsed, `|` → `—`, capped at `limit` characters
+- `md_link_text`: backslash-escapes `\ ` `` ` `` `* _ [ ] |` so link text like `__init__.py` renders literally instead of as bold `init`
 
 #### `build_grouped_nav`
 ```python
@@ -1104,14 +1130,21 @@ def collect_all_modules(sections: list) -> set:
 - Recursively collects all module names from a sections tree
 - Used to validate LLM grouping covers all modules (ungrouped → "Other" section)
 
+#### `prune_sections`
+```python
+def prune_sections(sections: list, chapter_files: list) -> list:
+```
+- Drops grouped module names that match no `chapter_files` `module_name` (hallucinated or path-prefixed names), then drops sections left with no modules and no children (recursively). Non-dict entries are skipped
+- Runs on the parsed LLM grouping before `collect_all_modules`: an empty section would become a null nav entry (`- "Name":`) and `mkdocs build` would abort with "Expected nav to be a list, got None". If nothing survives, `write_mkdocs_output` falls back to the flat directory nav (`GROUP_EMPTY_FALLBACK`)
+
 #### `build_index_sections`
 ```python
-def build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3):
+def build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3, summaries: dict | None = None):
 ```
 - Recursively builds markdown sections with module tables for `api/index.md`
 - Each section gets a heading (`###`, `####`, etc.) and a `| Chapter | Description |` table
-- **Bare module names:** Chapter column displays bare `mod_name` (e.g., `[call_llm.py](...)`) — directory context is provided by the section heading, not the filename
-- **Smart description extraction:** When `description` starts with `"Internal API reference"` (the generic DeterministicFileMapper description), extracts the first meaningful paragraph from chapter content instead (skipping frontmatter, headings, code fences)
+- **Module names:** Chapter column displays `mod_name` (bare, or `dir/name` when disambiguated), escaped with `md_link_text` — directory context is provided by the section heading
+- **Descriptions:** `summaries` maps `module_name` → chapter summary (header stripped). When `description` starts with `"Internal API reference"` (the generic DeterministicFileMapper description), the summary is used instead; both go through `summary_description`
 - **Link paths:** Uses `match['filename']` directly (e.g., `utils/call_llm.py.md`) — NOT prefixed with `api/` since `index.md` is already at `docs/api/index.md`
 
 #### `normalize_chapter_links`
@@ -1126,8 +1159,10 @@ def normalize_chapter_links(chapter_files):
 ```python
 def write_mkdocs_output(output_path, prep_res, chapter_files):
 ```
-- Orchestrates all MkDocs output: nav grouping, mkdocs.yml, homepage redirect, section index, nav_snippet.yml, link normalization, and chapter files
-- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`
+- Orchestrates all MkDocs output: nav grouping, mkdocs.yml, homepage redirect, section index, nav_snippet.yml, link normalization, chapter files, and stale-page pruning
+- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`. The parsed sections go through `prune_sections` before use
+- The flat index (no grouping) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description
+- Ends with `prune_stale_pages(api_docs_path, chapter_files)`: deletes every `.md` under `docs/api/` that is neither `index.md` nor a current chapter file (matched by file identity, `os.stat` device + inode, so a case-only rename on a case-insensitive filesystem never deletes the page just written), emitting `MKDOCS_PRUNED_STALE`, and removes directories left empty. MkDocs publishes every page in `docs_dir` even when the nav no longer lists it, so without this, pages of removed modules stayed live and searchable (and CI's cache restored them every run)
 - Called by `CombineTutorial.exec` when `is_mkdocs=True`
 
 #### `write_standalone_output`
@@ -1139,14 +1174,14 @@ def write_standalone_output(output_path, prep_res, chapter_files, ui):
 
 #### Dynamic Nav Section Labels
 
-`CombineTutorial` uses a `mode_labels` dict for all user-facing mode names:
+`write_mkdocs_output` (and `CombineTutorial.prep` for its flat nav) resolves user-facing mode names from `utils/strings.csv`, falling back to `"Documentation"`:
 
 ```python
 mode_labels = {
-    "tutorial": "Tutorial",
-    "advanced": "Advanced Guide",
-    "sdk": "SDK Guide",
-    "api-reference": "API Reference",
+    "tutorial": get("UI_MODE_TUTORIAL"),
+    "advanced": get("UI_MODE_ADVANCED"),
+    "sdk": get("UI_MODE_SDK"),
+    "api-reference": get("UI_MODE_API_REF"),
 }
 ```
 
@@ -1156,11 +1191,8 @@ This drives:
 - Index page title: `"# {project_name} — {mode_label}"`
 - CLI progress: `emit("COMBINE_FORMAT_MKDOCS", mode=mode_label)`
 
-#### Content-Based Summary Extraction
-When `chapter_summaries` from shared store is empty (e.g., if summary generation failed or was skipped), the LLM grouping module list builder falls back to extracting the first paragraph from each chapter's generated content:
-- Skips lines starting with `---`, `#`, `` ``` ``, or empty lines
-- Joins remaining lines and truncates to 300 characters
-- Falls back to `cf["description"]` if no paragraph found
+#### Summary Fallback for Nav Grouping
+Each `module_list` entry uses the chapter's summary (header stripped) when it is present and non-empty, and otherwise `cf["description"]`. There is no content parsing.
 
 
 ### `utils/output.py`
@@ -1222,7 +1254,7 @@ def configure_logging(project_name="project", mode="tutorial"):
 | `STDOUT` | Print to stdout only |
 | `LOG` | Log to file only |
 | `DBOTH` | Debug-gated: with `--debug` → same as `BOTH`; without → same as `LOG` |
-| `DSTDOUT` | Debug-gated: with `--debug` → same as `STDOUT`; without → suppressed entirely |
+| `DSTDOUT` | Debug-gated: with `--debug` → same as `STDOUT` (not logged); without → same as `LOG` |
 
 > **Design principle:** LEVEL controls **color**, DEST controls **visibility**. To make a string debug-only, set its DEST to `DBOTH` or `DSTDOUT` — never change its LEVEL to `DEBUG` just for gating (that would lose the intended color).
 
@@ -1484,9 +1516,11 @@ Prompt builder: `utils.prompts.build_code_file_filter_prompt(project_name, file_
 
 Filters non-code files (configs, UI layouts, static assets) and creates a 1:1 mapping of each code file to a documentation module.
 
+- **Filter listing:** `prep()` lists only files with non-whitespace content (`{i} # {path}`, original indices kept). Empty files such as a bare `__init__.py` are never sent to the LLM, and `post()` also re-checks the content (`if idx not in valid_indices or not content.strip()`), so they are skipped (`SKIP_NON_CODE_FILE`) deterministically even if the LLM returns an index it was not shown, instead of the page flipping in and out between runs
 - **Module naming:** `clean_name = os.path.basename(file_path)` — basename with file extension
+- **Doc path:** `doc_path = file_path.replace(os.sep, "/")` — the crawler keeps `os.sep`, so on Windows this turns `utils\sub\x.py` into `utils/sub/x.py` for nav directory labels, index text and filenames (matching CI)
 - **Doc filename:** `original_path + '.md'` (preserves original extension, e.g., `utils/call_llm.py.md`)
-- **Abstraction dict:** `{"name": clean_name, "description": f"Internal API reference for `{file_path}`", "files": [idx], "original_path": file_path}`
+- **Abstraction dict:** `{"name": clean_name, "description": f"Internal API reference for `{doc_path}`", "files": [idx], "original_path": doc_path}`
 - **Writes:** `shared["abstractions"]`, `shared["chapter_order"]` (sorted by directory depth), `shared["relationships"]`
 
 **`prep()` return:** 4-element `tuple` — `(prompt, use_cache, thinking_level, max_tokens)` (passes `use_cache` from shared store)
@@ -1517,13 +1551,14 @@ Template: `prompts/{mode}/draft_chapters.md`
 | `mermaid_lang_note` | Lang note or `""` |
 | `tone_note` | (tutorial template only) Lang note or `""` |
 
-**Chapter filename generation:**
+**Chapter filename generation:** `filenames = build_chapter_filenames(chapter_order, abstractions, shared["mkdocs"])` (`utils/mkdocs.py`, same call as `CombineTutorial.prep`):
 ```python
 # In --mkdocs mode with api-reference (DeterministicFileMapper):
-# doc_rel_path = original_path + ".md" (preserves original extension, e.g., utils/call_llm.py.md)
-# Standard mode:
+# original_path + ".md" (preserves original extension, e.g., utils/call_llm.py.md)
+# --mkdocs without original_path: f"{safe_name}.md"; standard mode:
 safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
 filename = f"{i+1:02d}_{safe_name}.md"
+# Case-insensitive collisions (incl. the reserved index.md; README.md counts as its directory's index.md) get a _2, _3 ... suffix
 ```
 
 **Token usage logging:** Before each LLM call, computes per-component token counts via `count_tokens()`:
@@ -1545,8 +1580,11 @@ filename = f"{i+1:02d}_{safe_name}.md"
 4. An LLM call (uses the plan's `chapter_summary` level and the run's `use_cache` setting) produces a structured brief (4 points × 3-5 sentences)
 5. Summary is stored as `"Chapter N — Name:\n{summary}"` in `self.chapter_summaries`
 6. Subsequent chapters receive a sliding window of `self.chapter_summaries` capped at 50% of context window as `previous_chapters_summary` (drops oldest summaries first when budget exceeded)
-7. **Incremental mode (`--incremental`)**: summaries are persisted in `.doc_cache_manifest.json` alongside content hashes. The hash is `md5(generation_signature + file_context_str)`, where `generation_signature = f"{mode}|{language}|{provider}|{model}|{write_chapters level}|{md5(draft_chapters template)}"` is computed once in `prep()` — switching model, effort, language or template regenerates pages (a one-time full rebuild after upgrading). On cache hits, summaries are loaded from manifest (zero LLM calls). Old manifest format (hash-only strings) is auto-detected and migrated.
-7a. An empty chapter response raises `ValueError` (node retry). A truncated response (`TruncatedResponse`) is kept for this run but gets `hash=None`; `post()` then **removes** any older manifest entry for that module (`manifest.pop(name)`), so no stale hash can serve the partial page and the next incremental run regenerates it.
+7. **Incremental mode (`--incremental`)**: summaries are persisted in `.doc_cache_manifest.json` alongside content hashes. The hash is `md5(generation_signature + file_context_str)`, where `generation_signature = f"{mode}|{language}|{provider}|{model}|{write_chapters level}|{md5(draft_chapters template)}"` is computed once in `prep()` — switching model, effort, language or template regenerates pages (a one-time full rebuild after upgrading). On cache hits, summaries are loaded from manifest (zero LLM calls) and re-headed with the current chapter number (`strip_summary_header`), since numbers shift when modules are added or removed. Old manifest format (hash-only strings) is auto-detected and migrated.
+   - **Manifest key:** `item["cache_key"]` = the module's `original_path` (e.g. `utils/__init__.py`), falling back to the abstraction name when there is none. Bare names collided when two files shared a basename, so all but one of them missed the cache on every run. Lookups fall back to the legacy name key (`manifest.get(cache_key) or manifest.get(name)`); that is safe because the hash covers the file path.
+   - **Page check:** each entry also stores the chapter `filename`, and a hit requires `hash == current_hash` **and** that filename equal the module's current one (`same_page`). Standalone filenames carry the chapter position (`NN_`), so after positions shift the file at the current name can hold another module's (or an older) page. Entries without a `filename` (older manifests) are trusted only with `--mkdocs`, whose names are path-derived; in standalone mode they regenerate once.
+   - **When it is saved:** `post()` builds `shared["pending_manifest"]` from this run's results only (entries with a hash), so removed modules and legacy name keys drop out. `CombineTutorial.post()` writes it (temp file + `os.replace`) after `write_mkdocs_output`/`write_standalone_output` returned. Saving earlier let an interrupted run leave new hashes next to old pages, which later runs served as cache hits.
+7a. An empty chapter response raises `ValueError` (node retry). A truncated response (`TruncatedResponse`) is kept for this run but gets `hash=None`, so it is left out of the new manifest: no stale hash can serve the partial page and the next incremental run regenerates it.
 7b. `exec_fallback(item, exc)`: when a chapter still fails after all retries, emit `WARN_CHAPTER_FALLBACK` and return a placeholder page (`# {name}` + `UI_CHAPTER_UNAVAILABLE`) with `hash=None` and a placeholder summary appended to `chapter_summaries` (keeps summaries aligned with chapter files). The run completes instead of discarding every chapter already generated.
 8. CLI output: `\033[96m[Summarizing] Chapter N for cross-chapter context (X tokens)...\033[0m` → `\033[96m[Summary Done] Chapter N: X tokens\033[0m` (cyan)
 9. Log: `CHAPTER SUMMARY START | chapter=N | prompt_tokens=X` → `CHAPTER SUMMARY DONE | chapter=N | summary_tokens=X`
@@ -1589,8 +1627,9 @@ full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
 **`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str, "module_name": str, "description": str, "original_path": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `mode`, `chapter_summaries`, `directory_tree`, `language`, `use_cache`, `thinking_level`, `max_tokens`. Standard adds: `index_content`.
 **`exec()` operations:**
 - **Standard mode:** Creates output directory, writes `index.md`, individual chapter files, and `full_content.md`.
-- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/javascripts/mermaid-init.js` (native Mermaid default theme initializer), `docs/api/index.md` (section landing page with chapter table and relative links), `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
-**`post()` writes:** `shared["final_output_dir"] = exec_res` (output path string). Returns `None`.
+- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/javascripts/mermaid-init.js` (native Mermaid default theme initializer), `docs/api/index.md` (section landing page with chapter table and relative links), `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`, then deletes stale `docs/api/*.md` pages. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
+- Chapter filenames come from `build_chapter_filenames(chapter_order, abstractions, is_mkdocs)`, the same call WriteChapters used for its link targets.
+**`post()` writes:** `shared["final_output_dir"] = exec_res` (output path string). With `--incremental`, also writes `shared["pending_manifest"]` to `{exec_res}/.doc_cache_manifest.json` (temp file + `os.replace`), only now that the pages are on disk. Returns `None`.
 
 
 
@@ -2055,7 +2094,27 @@ Used by: CombineTutorial.exec (1 caller each)
 def write_mkdocs_output(output_path, prep_res, chapter_files):
 def write_standalone_output(output_path, prep_res, chapter_files, ui):
 ```
-Orchestrate all output writing: MkDocs mode (nav, config, index, chapters) or standalone mode (index, chapters, full_content.md).
+Orchestrate all output writing: MkDocs mode (nav, config, index, chapters, stale-page pruning) or standalone mode (index, chapters, full_content.md).
+
+#### `build_chapter_filenames` — `utils/mkdocs.py`
+Used by: WriteChapters.prep, CombineTutorial.prep (2 callers)
+```python
+def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: bool) -> dict:
+```
+Single source of chapter filenames, so the link targets given to the LLM always match the files written. Replaces three inline copies of the `safe_name` logic.
+
+#### `strip_summary_header` — `utils/mkdocs.py`
+Used by: WriteChapters.exec (cache-hit re-heading), write_mkdocs_output (grouping prompt + index descriptions)
+```python
+def strip_summary_header(summary: str) -> str:
+```
+
+#### `prune_sections` / `prune_stale_pages` — `utils/mkdocs.py`
+Used by: write_mkdocs_output (1 caller each)
+```python
+def prune_sections(sections: list, chapter_files: list) -> list:
+def prune_stale_pages(api_docs_path, chapter_files):
+```
 
 ### Anti-Patterns to Avoid
 

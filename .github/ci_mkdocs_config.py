@@ -3,6 +3,9 @@
 Called by .github/workflows/deploy-docs.yml to generate the MkDocs config
 and JS files in the output directory. Uses plain file writes to avoid
 shell heredoc / quoting issues in GitHub Actions.
+
+Keep MKDOCS_YML (theme/plugins/markdown_extensions/extra_javascript) and
+MERMAID_INIT_JS in sync with build_mkdocs_config / MERMAID_INIT_JS in utils/mkdocs.py.
 """
 
 import pathlib
@@ -32,6 +35,8 @@ plugins:
   - panzoom:
       include_selectors:
         - ".mermaid-raw"
+      exclude_selectors:
+        - ".mermaid"
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -40,7 +45,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid-raw
-          format: !!python/name:pymdownx.superfences.fence_code_format
+          format: !!python/name:pymdownx.superfences.fence_div_format
   - pymdownx.inlinehilite
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js
@@ -52,28 +57,31 @@ nav:
 
 # ── mermaid-init.js ─────────────────────────────────────────────────
 MERMAID_INIT_JS = """\
-// Initialize Mermaid on .mermaid-raw elements (bypasses Material theme override)
+// Mermaid initialization for MkDocs Material.
+//
 // Material for MkDocs targets .mermaid class for its own color overrides.
 // By using .mermaid-raw, diagrams render with Mermaid's default theme:
 // yellow subgraph backgrounds, lavender nodes, clean rectangles.
 //
-// pymdownx.superfences fence_code_format wraps content as:
-//   <pre class="mermaid-raw"><code>flowchart TD ...</code></pre>
-// Mermaid expects the diagram text directly in the target element,
-// so we unwrap the <code> child before calling mermaid.run().
+// pymdownx.superfences fence_div_format emits the diagram source directly as:
+//   <div class="mermaid-raw">flowchart TD ...</div>
+// which is what mermaid.run() reads and what the panzoom plugin activates on (DIV/IMG only).
+//
+// securityLevel stays at Mermaid's default ('strict'): diagram source is LLM-generated.
+//
+// Mermaid's default theme draws edges in dark gray, which disappear on Material's
+// dark (slate) palette, so diagrams get a light card there.
 (function() {
+  var style = document.createElement('style');
+  style.textContent = '[data-md-color-scheme="slate"] .mermaid-raw { background-color: #fff; border-radius: .2rem; }';
+  document.head.appendChild(style);
+
   function initMermaid() {
     if (typeof mermaid === 'undefined') return;
     try {
-      // Unwrap: move <code> text content up to <pre> and remove <code>
-      document.querySelectorAll('pre.mermaid-raw > code').forEach(function(code) {
-        var pre = code.parentElement;
-        pre.textContent = code.textContent;
-      });
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'default',
-        securityLevel: 'loose'
+        theme: 'default'
       });
       mermaid.run({ querySelector: '.mermaid-raw' }).catch(function(err) {
         console.warn('Mermaid render error:', err);

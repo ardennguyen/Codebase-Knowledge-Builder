@@ -6,6 +6,7 @@ nodes.py (CombineTutorial static methods) and utils/prompts.py.
 
 import json
 import os
+import posixpath
 import re
 import traceback
 from collections import defaultdict
@@ -36,18 +37,21 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
     - Material theme with code copy buttons
     - Syntax highlighting (pymdownx.highlight + inlinehilite)
     - Mermaid diagram rendering via custom 'mermaid-raw' class (bypasses
-      Material's Mermaid color overrides so diagrams use Mermaid's default theme)
-    - Panzoom plugin for interactive Mermaid diagram zoom/pan
+      Material's Mermaid color overrides so diagrams use Mermaid's default theme).
+      The fence renders as <div class="mermaid-raw"> because panzoom only activates on DIV/IMG.
+    - Panzoom plugin for interactive Mermaid diagram zoom/pan ('.mermaid' excluded: the
+      plugin's default '.mermaid' selector also matches 'mermaid-raw' and double-wraps diagrams)
     - Navigation from the generated nav_snippet
     - Optional theme language for UI localization (Search, Table of Contents, etc.)
 
     Users can run `mkdocs serve` or `mkdocs build` directly in the output dir.
+    Keep in sync with MKDOCS_YML in .github/ci_mkdocs_config.py.
     """
     # Extract nav items from nav_snippet (strip the "nav:" header line)
     nav_lines = nav_yaml.split("\n")
     nav_body = "\n".join(nav_lines[1:]) if nav_lines else ""
 
-    # Conditional Home nav entry (CI has root index.md, local mkdocs doesn't)
+    # Optional Home nav entry (write_mkdocs_output always writes docs/index.md and passes include_home=True)
     home_line = "  - Home: index.md\n" if include_home else ""
 
     # Optional Material theme language (e.g. "vi", "zh", "ja", "ko")
@@ -75,6 +79,8 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
         f"  - panzoom:\n"
         f"      include_selectors:\n"
         f"        - '.mermaid-raw'\n"
+        f"      exclude_selectors:\n"
+        f"        - '.mermaid'\n"
         f"markdown_extensions:\n"
         f"  - pymdownx.highlight:\n"
         f"      anchor_linenums: true\n"
@@ -83,7 +89,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
         f"      custom_fences:\n"
         f"        - name: mermaid\n"
         f"          class: mermaid-raw\n"
-        f"          format: !!python/name:pymdownx.superfences.fence_code_format\n"
+        f"          format: !!python/name:pymdownx.superfences.fence_div_format\n"
         f"  - pymdownx.inlinehilite\n"
         f"extra_javascript:\n"
         f"  - https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js\n"
@@ -101,23 +107,25 @@ MERMAID_INIT_JS = """\
 // By using .mermaid-raw, diagrams render with Mermaid's default theme:
 // yellow subgraph backgrounds, lavender nodes, clean rectangles.
 //
-// pymdownx.superfences fence_code_format wraps content as:
-//   <pre class="mermaid-raw"><code>flowchart TD ...</code></pre>
-// Mermaid expects the diagram text directly in the target element,
-// so we unwrap the <code> child before calling mermaid.run().
+// pymdownx.superfences fence_div_format emits the diagram source directly as:
+//   <div class="mermaid-raw">flowchart TD ...</div>
+// which is what mermaid.run() reads and what the panzoom plugin activates on (DIV/IMG only).
+//
+// securityLevel stays at Mermaid's default ('strict'): diagram source is LLM-generated.
+//
+// Mermaid's default theme draws edges in dark gray, which disappear on Material's
+// dark (slate) palette, so diagrams get a light card there.
 (function() {
+  var style = document.createElement('style');
+  style.textContent = '[data-md-color-scheme="slate"] .mermaid-raw { background-color: #fff; border-radius: .2rem; }';
+  document.head.appendChild(style);
+
   function initMermaid() {
     if (typeof mermaid === 'undefined') return;
     try {
-      // Unwrap: move <code> text content up to <pre> and remove <code>
-      document.querySelectorAll('pre.mermaid-raw > code').forEach(function(code) {
-        var pre = code.parentElement;
-        pre.textContent = code.textContent;
-      });
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'default',
-        securityLevel: 'loose'
+        theme: 'default'
       });
       mermaid.run({ querySelector: '.mermaid-raw' }).catch(function(err) {
         console.warn('Mermaid render error:', err);
@@ -138,6 +146,77 @@ MERMAID_INIT_JS = """\
 def build_mermaid_init_js() -> str:
     """Return the JavaScript snippet that initializes Mermaid diagrams."""
     return MERMAID_INIT_JS
+
+
+# ---------------------------------------------------------------------------
+# Chapter filenames and summary text helpers
+# ---------------------------------------------------------------------------
+
+_SUMMARY_HEADER_RE = re.compile(r"^.+ \d+ — .+:$")
+# "(1) **Label**:", "**(1) Label:**", "1. Label:" — ASCII or full-width colon (CJK summaries)
+_SUMMARY_LABEL_RE = re.compile(r"^\W{0,3}\(?1[.)]\W{0,3}[^:\uff1a\n]{1,60}[:\uff1a]\**\s*")
+_MD_ESCAPE_RE = re.compile(r"([\\`*_\[\]|])")
+
+
+def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: bool) -> dict:
+    """Map each valid position in *chapter_order* to its chapter filename.
+
+    Shared by WriteChapters (link targets given to the LLM) and CombineTutorial (files written)
+    so both always agree. --mkdocs: the mirrored source path when the abstraction has an
+    ``original_path`` (api-reference), else the sanitized name; standalone: ``NN_`` prefix.
+    Names that collide case-insensitively with another chapter or with the generated
+    ``index.md`` get a numeric suffix, so no chapter can overwrite another page. MkDocs builds
+    ``README.md`` as its directory's index page, so it counts as ``index.md`` of that directory.
+    """
+
+    def page_key(filename):
+        directory, basename = posixpath.split(filename.lower())
+        return posixpath.join(directory, "index.md") if basename == "readme.md" else filename.lower()
+
+    filenames = {}
+    used = {"index.md"}
+    for i, abstraction_index in enumerate(chapter_order):
+        if not 0 <= abstraction_index < len(abstractions):
+            continue
+        abstraction = abstractions[abstraction_index]
+        if is_mkdocs and abstraction.get("original_path"):
+            base = abstraction["original_path"].replace(os.sep, "/")
+        else:
+            chapter_name = abstraction["name"].replace("\n", " ").strip()
+            safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
+            base = safe_name if is_mkdocs else f"{i + 1:02d}_{safe_name}"
+        filename, suffix = f"{base}.md", 2
+        while page_key(filename) in used:
+            filename, suffix = f"{base}_{suffix}.md", suffix + 1
+        used.add(page_key(filename))
+        filenames[i] = filename
+    return filenames
+
+
+def strip_summary_header(summary: str) -> str:
+    """Drop the ``<Chapter> N — name:`` first line that WriteChapters puts on every chapter summary."""
+    first, sep, rest = summary.partition("\n")
+    if sep and _SUMMARY_HEADER_RE.match(first.strip()):
+        return rest.strip()
+    return summary.strip()
+
+
+def summary_description(summary: str, limit: int = 200) -> str:
+    """One-line table-cell description from a chapter summary.
+
+    Removes the chapter header line and the leading ``(1) **Component Scope ...**:`` label,
+    collapses whitespace, replaces pipes (they would split the table row) and caps the length.
+    """
+    text = _SUMMARY_LABEL_RE.sub("", strip_summary_header(summary), count=1)
+    text = " ".join(text.split()).replace("|", "—")
+    if len(text) > limit:
+        text = text[: limit - 3].rstrip() + "..."
+    return text
+
+
+def md_link_text(text: str) -> str:
+    """Escape Markdown metacharacters so names like ``__init__.py`` render literally as link text."""
+    return _MD_ESCAPE_RE.sub(r"\\\1", " ".join(str(text).split()))
 
 
 def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
@@ -202,13 +281,41 @@ def collect_all_modules(sections: list) -> set:
     return result
 
 
+def prune_sections(sections: list, chapter_files: list) -> list:
+    """Drop grouped module names that match no chapter, then drop sections left empty.
+
+    An empty section would be emitted as a null nav entry (``- "Name":``), which makes
+    ``mkdocs build`` abort with "Expected nav to be a list, got None".
+    """
+    known = {cf["module_name"] for cf in chapter_files}
+    pruned = []
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        modules = [m for m in section.get("modules") or [] if isinstance(m, str) and m in known]
+        children = prune_sections(section.get("children") or [], chapter_files)
+        if not modules and not children:
+            continue
+        kept = {key: value for key, value in section.items() if key != "children"}
+        kept["modules"] = modules
+        if children:
+            kept["children"] = children
+        pruned.append(kept)
+    return pruned
+
+
 # ---------------------------------------------------------------------------
 # Index / link normalization / output writers (moved from nodes.py CombineTutorial)
 # ---------------------------------------------------------------------------
 
 
-def build_index_sections(lines, sections, chapter_files, level=3):
-    """Recursively build index.md sections with module tables."""
+def build_index_sections(lines, sections, chapter_files, level=3, summaries=None):
+    """Recursively build index.md sections with module tables.
+
+    *summaries* maps module_name → chapter summary. It replaces the generic DeterministicFileMapper
+    description ("Internal API reference for ...") in the description column.
+    """
+    summaries = summaries or {}
     heading = "#" * level
     for section in sections:
         lines.append(f"{heading} {section['name']}")
@@ -219,20 +326,13 @@ def build_index_sections(lines, sections, chapter_files, level=3):
             for mod_name in section["modules"]:
                 match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
                 if match:
-                    display = mod_name
-                    # Use description, but if it's the generic mapper description, extract from content
                     desc = match["description"]
                     if desc.startswith("Internal API reference"):
-                        content_lines = match["content"].strip().split("\n")
-                        for cl in content_lines:
-                            cs = cl.strip()
-                            if cs and not cs.startswith(("---", "#", "```", "title:", "sidebar_position:")):
-                                desc = cs[:120]
-                                break
-                    lines.append(f"| [{display}]({match['filename']}) | {desc} |")
+                        desc = summaries.get(mod_name) or ""
+                    lines.append(f"| [{md_link_text(mod_name)}]({match['filename']}) | {summary_description(desc)} |")
             lines.append("")
         for child in section.get("children", []):
-            build_index_sections(lines, [child], chapter_files, level + 1)
+            build_index_sections(lines, [child], chapter_files, level + 1, summaries)
 
 
 def normalize_chapter_links(chapter_files):
@@ -305,17 +405,21 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     emit("COMBINE_FORMAT_MKDOCS", mode=mode_labels.get(mode, "Documentation"))
     emit("COMBINE_CHAPTER_COUNT", count=len(chapter_files))
 
+    # Chapter summaries (aligned with chapter_files, header line dropped) for the grouping prompt and index descriptions
+    chapter_summaries = prep_res.get("chapter_summaries", [])
+    summaries = [
+        strip_summary_header(chapter_summaries[i]) if i < len(chapter_summaries) and chapter_summaries[i] else "" for i in range(len(chapter_files))
+    ]
+    summary_by_module = {cf["module_name"]: summary for cf, summary in zip(chapter_files, summaries, strict=True) if summary}
+
     # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
     sections = None
     emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
     if mode == "api-reference" and len(chapter_files) > 5:
         try:
-            chapter_summaries = prep_res.get("chapter_summaries", [])
-            module_entries = []
-            for i, cf in enumerate(chapter_files):
-                summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
-                module_entries.append(f"- {cf['module_name']}: {summary}")
-            module_list = "\n".join(module_entries)
+            module_list = "\n".join(
+                f"- {cf['module_name']}: {summary or cf['description']}" for cf, summary in zip(chapter_files, summaries, strict=True)
+            )
 
             # Load grouping prompt template
             prompt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "prompts", "common", "group_modules.md")
@@ -339,6 +443,9 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             group_response = call_llm(group_prompt, use_cache=prep_res.get("use_cache", True), thinking_level=prep_res.get("thinking_level"))
             parsed = parse_yaml_response(group_response)
             sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
+            if isinstance(sections, list):
+                # Drop unknown module names and the sections they leave empty (null nav entries break mkdocs build)
+                sections = prune_sections(sections, chapter_files)
 
             if sections:
                 # Validate: ensure all modules are covered
@@ -426,11 +533,10 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             f"## {chapter_index_label}",
             "",
         ]
-        build_index_sections(index_lines, sections, chapter_files)
+        build_index_sections(index_lines, sections, chapter_files, summaries=summary_by_module)
         index_content = "\n".join(index_lines)
     else:
         # Build a rich flat index with module listing table
-        chapter_summaries = prep_res.get("chapter_summaries", [])
         chapter_index_label = get("UI_CHAPTER_INDEX")
         chapters_label = get("UI_CHAPTERS")
         th_chapter = get("UI_TH_CHAPTER")
@@ -445,15 +551,10 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             f"| {th_chapter} | {th_description} |",
             "|---------|-------------|",
         ]
-        for i, cf in enumerate(chapter_files):
-            dir_path = os.path.dirname(cf.get("original_path", "")) or ""
-            display = f"{dir_path}/{cf['module_name']}" if dir_path else cf["module_name"]
-            summary = chapter_summaries[i] if i < len(chapter_summaries) and chapter_summaries[i] else cf["description"]
-            # Truncate and sanitize for table cell (replace pipes and newlines)
-            summary = summary.replace("|", "—").replace("\n", " ").strip()
-            if len(summary) > 200:
-                summary = summary[:197] + "..."
-            index_lines.append(f"| [{display}]({cf['filename']}) | {summary} |")
+        for cf, summary in zip(chapter_files, summaries, strict=True):
+            # original_path already is "dir/name" (module_name may carry a dir prefix for duplicate basenames)
+            display = cf.get("original_path") or cf["module_name"]
+            index_lines.append(f"| [{md_link_text(display)}]({cf['filename']}) | {summary_description(summary or cf['description'])} |")
         index_lines.append("")
         index_content = "\n".join(index_lines)
     api_index_filepath = os.path.join(api_docs_path, "index.md")
@@ -477,6 +578,39 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
         with open(chapter_filepath, "w", encoding="utf-8") as f:
             f.write(chapter_info["content"])
         emit("FILE_WROTE", path=chapter_filepath)
+
+    # --- Remove pages left over from earlier runs ---
+    prune_stale_pages(api_docs_path, chapter_files)
+
+
+def prune_stale_pages(api_docs_path, chapter_files):
+    """Delete .md pages under docs/api/ that belong to no current chapter, plus directories left empty.
+
+    docs/api/ is generator-owned. Pages of removed, renamed or filtered-out modules (or from an
+    earlier run in another mode) would otherwise stay published and searchable, because MkDocs
+    builds every .md in docs_dir even when the nav no longer lists it.
+
+    Pages are matched by file identity (device + inode), not path text: on a case-insensitive
+    filesystem a case-only rename rewrites the existing entry, which keeps its old spelling.
+    """
+
+    def identity(path):
+        st = os.stat(path)
+        return st.st_dev, st.st_ino
+
+    keep = set()
+    for filename in ["index.md", *(cf["filename"] for cf in chapter_files)]:
+        path = os.path.join(api_docs_path, filename)
+        if os.path.exists(path):
+            keep.add(identity(path))
+    for root, _dirs, files in os.walk(api_docs_path, topdown=False):
+        for name in files:
+            path = os.path.join(root, name)
+            if name.endswith(".md") and identity(path) not in keep:
+                os.remove(path)
+                emit("MKDOCS_PRUNED_STALE", path=path)
+        if os.path.normcase(root) != os.path.normcase(api_docs_path) and not os.listdir(root):
+            os.rmdir(root)
 
 
 def write_standalone_output(output_path, prep_res, chapter_files, ui):

@@ -13,7 +13,7 @@ from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
 from utils.files import build_directory_tree, get_content_for_indices
 from utils.llm_config import resolve_llm_settings
-from utils.mkdocs import write_mkdocs_output, write_standalone_output, yaml_str
+from utils.mkdocs import build_chapter_filenames, strip_summary_header, write_mkdocs_output, write_standalone_output, yaml_str
 from utils.output import emit, emit_raw, get
 
 
@@ -52,7 +52,9 @@ class DeterministicFileMapper(Node):
         files_data = shared["files"]
         project_name = shared["project_name"]
 
-        file_listing = "\n".join([f"{i} # {path}" for i, (path, _) in enumerate(files_data)])
+        # Empty/whitespace-only files (e.g. bare __init__.py) are left out: post() skips unlisted indices,
+        # so they are never documented instead of flipping in and out with the LLM's answer.
+        file_listing = "\n".join([f"{i} # {path}" for i, (path, content) in enumerate(files_data) if content.strip()])
 
         prompt = build_code_file_filter_prompt(project_name, file_listing)
         emit_raw("DEBUG", f"DeterministicFileMapper prep | {len(files_data)} candidate files for filtering", dest="LOG")
@@ -76,16 +78,17 @@ class DeterministicFileMapper(Node):
         modules = []
         chapter_order = []
 
-        for idx, (file_path, _content) in enumerate(files):
-            if idx not in valid_indices:
+        for idx, (file_path, content) in enumerate(files):
+            # Re-check emptiness: the LLM can return an index it was not shown (e.g. a contiguous range)
+            if idx not in valid_indices or not content.strip():
                 emit("SKIP_NON_CODE_FILE", path=file_path)
                 continue
 
             clean_name = os.path.basename(file_path)
+            # Forward slashes everywhere original_path is shown (nav dir labels, index) — the crawler keeps os.sep
+            doc_path = file_path.replace(os.sep, "/")
 
-            modules.append(
-                {"name": clean_name, "description": f"Internal API reference for `{file_path}`", "files": [idx], "original_path": file_path}
-            )
+            modules.append({"name": clean_name, "description": f"Internal API reference for `{doc_path}`", "files": [idx], "original_path": doc_path})
             chapter_order.append(len(modules) - 1)
 
         shared["abstractions"] = modules
@@ -1012,20 +1015,12 @@ class WriteChapters(BatchNode):
         # Create a complete list of all chapters
         all_chapters = []
         chapter_filenames = {}  # Store chapter filename mapping for linking
+        filenames = build_chapter_filenames(chapter_order, abstractions, shared.get("mkdocs", False))  # Same names CombineTutorial writes
         for i, abstraction_index in enumerate(chapter_order):
             if 0 <= abstraction_index < len(abstractions):
                 chapter_num = i + 1
                 chapter_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()  # Sanitize: match CombineTutorial's name cleaning
-                is_mkdocs = shared.get("mkdocs", False)
-                if is_mkdocs and "original_path" in abstractions[abstraction_index]:
-                    doc_rel_path = abstractions[abstraction_index]["original_path"] + ".md"
-                    filename = doc_rel_path.replace(os.sep, "/")
-                elif is_mkdocs:
-                    safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
-                    filename = f"{safe_name}.md"
-                else:
-                    safe_name = "".join(c if c.isalnum() else "_" for c in chapter_name).lower()
-                    filename = f"{i + 1:02d}_{safe_name}.md"
+                filename = filenames[i]
 
                 # Format with doc path mapping for LLM link generation
                 all_chapters.append(f"{chapter_num}. {chapter_name} (doc: {filename})")
@@ -1080,6 +1075,8 @@ class WriteChapters(BatchNode):
                         "thinking_level": thinking_level,
                         "summary_thinking_level": summary_thinking_level,
                         "generation_signature": generation_signature,
+                        # Manifest key: the source path is unique; bare names collide (e.g. several __init__.py)
+                        "cache_key": abstraction_details.get("original_path") or abstraction_details["name"],
                         "advanced_mode": shared.get("advanced_mode", False),
                         "mode": shared.get("mode", "tutorial"),
                         "mkdocs": shared.get("mkdocs", False),
@@ -1114,6 +1111,7 @@ class WriteChapters(BatchNode):
         output_dir = item.get("output_dir", "output")
         filename = item.get("filename")
         max_tokens = item.get("max_tokens", 100000)
+        cache_key = item.get("cache_key") or abstraction_name
 
         # Prepare file context string from the map
         file_context_str = "\n\n".join(
@@ -1134,17 +1132,23 @@ class WriteChapters(BatchNode):
                 try:
                     with open(manifest_path, encoding="utf-8") as f:
                         manifest = json.load(f)
-                    # Support both old format (string hash) and new format (dict with hash+summary)
-                    cached_entry = manifest.get(abstraction_name)
+                    # Support both old format (string hash) and new format (dict with hash+summary).
+                    # Older manifests are keyed by module name; the hash covers the file path, so that fallback is safe.
+                    cached_entry = manifest.get(cache_key) or manifest.get(abstraction_name)
                     if isinstance(cached_entry, str):
-                        cached_hash, cached_summary = cached_entry, None
+                        cached_hash, cached_summary, cached_file = cached_entry, None, None
                     elif isinstance(cached_entry, dict):
                         cached_hash = cached_entry.get("hash")
                         cached_summary = cached_entry.get("summary")
+                        cached_file = cached_entry.get("filename")
                     else:
-                        cached_hash, cached_summary = None, None
+                        cached_hash, cached_summary, cached_file = None, None, None
+                    # The entry must describe the page now at `filename`: standalone names carry the chapter
+                    # position (NN_), so after a shift that file can hold another module's or an older page.
+                    # Entries without a filename (older manifests) are trusted only for --mkdocs path-derived names.
+                    same_page = cached_file == filename if cached_file else is_mkdocs
 
-                    if cached_hash == current_hash:
+                    if cached_hash == current_hash and same_page:
                         # Cache hit! Read existing file
                         file_path = (
                             os.path.join(output_dir, project_name, "docs", "api", filename)
@@ -1167,7 +1171,10 @@ class WriteChapters(BatchNode):
 
                             # Load persisted summary from manifest or regenerate via LLM
                             if cached_summary:
-                                self.chapter_summaries.append(cached_summary)
+                                # Re-head with the current chapter number (it shifts when modules are added or removed)
+                                self.chapter_summaries.append(
+                                    f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{strip_summary_header(cached_summary)}"
+                                )
                                 emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens="manifest")
                                 emit_raw(
                                     "DEBUG",
@@ -1204,7 +1211,14 @@ class WriteChapters(BatchNode):
                                 )
 
                             summary_entry = self.chapter_summaries[-1] if self.chapter_summaries else None
-                            return {"content": clean_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
+                            return {
+                                "content": clean_content,
+                                "hash": current_hash,
+                                "name": abstraction_name,
+                                "cache_key": cache_key,
+                                "filename": filename,
+                                "summary": summary_entry,
+                            }
                 except Exception as e:
                     emit("WARN_MANIFEST_CACHE_FAIL", error=e)
 
@@ -1360,7 +1374,14 @@ class WriteChapters(BatchNode):
         )
 
         summary_entry = f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
-        return {"content": chapter_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
+        return {
+            "content": chapter_content,
+            "hash": current_hash,
+            "name": abstraction_name,
+            "cache_key": cache_key,
+            "filename": filename,
+            "summary": summary_entry,
+        }
 
     def exec_fallback(self, item, exc):
         """Keep the run alive when one chapter still fails after all retries.
@@ -1381,33 +1402,15 @@ class WriteChapters(BatchNode):
         # exec_res_list contains dicts with content and hashes
         shared["chapters"] = [res["content"] for res in exec_res_list]
 
-        # Save MD5 incremental manifest if enabled
+        # MD5 incremental manifest: rebuilt from this run's chapters only, so entries of removed modules
+        # (and legacy name keys) drop out. Truncated or placeholder pages have no hash and are left out,
+        # so they regenerate on the next run. CombineTutorial.post saves it once the pages are on disk.
         if shared.get("incremental"):
-            output_dir = os.path.join(shared.get("output_dir", "output"), shared.get("project_name"))
-            os.makedirs(output_dir, exist_ok=True)
-            manifest_path = os.path.join(output_dir, ".doc_cache_manifest.json")
-
-            manifest = {}
-            if os.path.exists(manifest_path):
-                try:
-                    with open(manifest_path, encoding="utf-8") as f:
-                        manifest = json.load(f)
-                except Exception:
-                    pass
-
-            for res in exec_res_list:
-                if res.get("hash") and res.get("name"):
-                    manifest[res["name"]] = {
-                        "hash": res["hash"],
-                        "summary": res.get("summary", ""),
-                    }
-                elif res.get("name"):
-                    # Truncated or placeholder page: drop any older entry so a matching
-                    # hash can never serve this page from cache on a later run.
-                    manifest.pop(res["name"], None)
-
-            with open(manifest_path, "w", encoding="utf-8") as f:
-                json.dump(manifest, f, indent=2)
+            shared["pending_manifest"] = {
+                res.get("cache_key") or res["name"]: {"hash": res["hash"], "summary": res.get("summary", ""), "filename": res.get("filename")}
+                for res in exec_res_list
+                if res.get("hash") and res.get("name")
+            }
 
         # Save summaries to shared store for CombineTutorial's LLM nav grouping
         shared["chapter_summaries"] = list(self.chapter_summaries)
@@ -1482,18 +1485,13 @@ class CombineTutorial(Node):
         if is_mkdocs:
             nav_items = []
             chapter_files = []
+            filenames = build_chapter_filenames(chapter_order, abstractions, is_mkdocs=True)
 
             for i, abstraction_index in enumerate(chapter_order):
                 if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
                     abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
                     original_path = abstractions[abstraction_index].get("original_path")
-
-                    if original_path:
-                        doc_rel_path = original_path + ".md"
-                        filename = doc_rel_path.replace(os.sep, "/")
-                    else:
-                        safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
-                        filename = f"{safe_name}.md"
+                    filename = filenames[i]
 
                     dir_prefix = os.path.dirname(original_path) if original_path else ""
                     nav_items.append((dir_prefix, abstraction_name, filename))
@@ -1591,11 +1589,11 @@ class CombineTutorial(Node):
         index_content += f"## {ui['chapters']}\n\n"
 
         chapter_files = []
+        filenames = build_chapter_filenames(chapter_order, abstractions, is_mkdocs=False)
         for i, abstraction_index in enumerate(chapter_order):
             if 0 <= abstraction_index < len(abstractions) and i < len(chapters_content):
                 abstraction_name = abstractions[abstraction_index]["name"].replace("\n", " ").strip()
-                safe_name = "".join(c if c.isalnum() else "_" for c in abstraction_name).lower()
-                filename = f"{i + 1:02d}_{safe_name}.md"
+                filename = filenames[i]
                 index_content += f"{i + 1}. [{abstraction_name}]({filename})\n"
 
                 chapter_content = chapters_content[i]
@@ -1646,4 +1644,15 @@ class CombineTutorial(Node):
 
     def post(self, shared, prep_res, exec_res):
         shared["final_output_dir"] = exec_res  # Store the output path
+
+        # Save the incremental manifest only now that the pages it describes are on disk: saved earlier,
+        # an interrupted run left new hashes next to old pages, which later runs served as cache hits.
+        manifest = shared.get("pending_manifest")
+        if shared.get("incremental") and manifest is not None:
+            manifest_path = os.path.join(exec_res, ".doc_cache_manifest.json")
+            tmp_path = f"{manifest_path}.tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(manifest, f, indent=2)
+            os.replace(tmp_path, manifest_path)
+
         emit("GEN_COMPLETE", path=exec_res)
