@@ -200,11 +200,14 @@ def _record(model: str, usage, raw_prompt_tokens: int, level_desc: str, finish: 
     cost = _price(model, prompt, cached, output)
     record_usage("GEMINI", model, input_tokens=prompt, output_tokens=output, thinking_tokens=thoughts, cache_read=cached, cost=cost)
     ratio = prompt / raw_prompt_tokens if raw_prompt_tokens else 0.0
+    from utils.token_utils import observe_prompt_tokens
+
+    observe_prompt_tokens("GEMINI", model, raw_prompt_tokens, prompt)  # prompt_token_count includes cached tokens
     emit_raw(
         "DEBUG",
         f"GEMINI USAGE | model={model} | {level_desc} | finish={finish or 'n/a'} | in={prompt:,} | out={candidates:,} | thinking={thoughts:,} | "
         f"cached={cached:,} | est_cost={'$' + format(cost, '.4f') if cost is not None else 'n/a'} | elapsed={elapsed:.1f}s | observed_token_ratio={ratio:.2f}",
-        dest="LOG",
+        dest="BOTH",
     )
 
 
@@ -264,7 +267,7 @@ def call_gemini(prompt: str, thinking_level: str | None = None) -> str:
     if result["usage"] is not None:
         _record(model, result["usage"], raw_tokens, level_desc, result["finish"], elapsed)
     else:
-        record_usage("GEMINI", model, cost=None)
+        record_usage("GEMINI", model, cost=None, measured=False)  # stream carried no usage_metadata
     if is_debug() and result["thoughts"]:
         emit_raw("DEBUG", f"THINKING SUMMARY:\n{result['thoughts']}", dest="LOG")
 

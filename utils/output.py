@@ -40,6 +40,10 @@ _strings = {}  # {key: {"text": str, "level": str, "dest": str}}
 _language = "English"  # Capitalized for display (e.g., "Vietnamese")
 _lang_col = "english"  # Lowercase for CSV column lookup
 _log_file = None  # File handle for log output (set by configure_logging)
+# Log lines written before configure_logging (credential preflight, string translation) are kept
+# here and flushed into the log file once it opens; bounded so a run without a log file cannot grow it.
+_pending_log = []
+PENDING_LOG_MAX_LINES = 5_000
 _csv_path = None
 _use_cache = True
 _thinking_level = None
@@ -180,6 +184,10 @@ def configure_logging(project_name="project", mode="tutorial"):
     emit_raw("INFO", sep, dest="LOG")
     emit_raw("INFO", f"RUN STARTED | project={project_name} | mode={mode} | timestamp={timestamp}", dest="LOG")
     emit_raw("INFO", f"Log file: {log_path}", dest="LOG")
+    if _pending_log:
+        _log_file.write("".join(_pending_log))
+        _log_file.flush()
+        _pending_log.clear()
 
     return log_path
 
@@ -197,12 +205,15 @@ def shutdown():
 
 
 def _write_log(level, text):
-    """Write a timestamped line to the log file (no-op if logging not configured)."""
-    if _log_file is None:
-        return
-
+    """Write a timestamped line to the log file (buffered until configure_logging opens it)."""
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
-    _log_file.write(f"{ts} - {level} - {text}\n")
+    line = f"{ts} - {level} - {text}\n"
+    if _log_file is None:
+        _pending_log.append(line)
+        if len(_pending_log) > PENDING_LOG_MAX_LINES:
+            del _pending_log[0]
+        return
+    _log_file.write(line)
     _log_file.flush()
 
 

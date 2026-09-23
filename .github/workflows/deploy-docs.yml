@@ -56,6 +56,16 @@ jobs:
           restore-keys: |
             doc-cache-
 
+      # Rolling cache: restore the newest token-ratio calibration, save the updated one under a new key,
+      # so each run starts with the ratio learned from the previous runs' billed usage.
+      - name: Cache token-ratio calibration
+        uses: actions/cache@v6
+        with:
+          path: llm_token_calibration.json
+          key: token-calibration-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            token-calibration-
+
       - name: Generate API Specs via Codebase KB
         env:
           PYTHONUNBUFFERED: "1"

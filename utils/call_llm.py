@@ -80,7 +80,16 @@ def _cache_key(prompt: str, provider: str, model: str, thinking_level: str | Non
     return hashlib.sha256((scope + prompt).encode("utf-8")).hexdigest()
 
 
-from utils.llm_common import LLMRefusalError, previous_refusal, remember_refusal, request_key
+from utils.llm_common import (
+    LLMRefusalError,
+    previous_refusal,
+    record_estimate,
+    remember_refusal,
+    request_key,
+    usage_delta,
+    usage_snapshot,
+    usage_step,
+)
 from utils.llm_config import (
     GEMINI_THINKING_BUDGETS,  # noqa: F401 — re-exported for callers of the old location
     get_llm_provider,
@@ -177,8 +186,21 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
 
         usage = response_json.get("usage") or {}
         from utils.llm_common import record_usage
+        from utils.token_utils import count_tokens_raw, observe_prompt_tokens
 
-        record_usage(provider, model, input_tokens=usage.get("prompt_tokens") or 0, output_tokens=usage.get("completion_tokens") or 0, cost=None)
+        prompt_tokens = usage.get("prompt_tokens") or 0
+        record_usage(
+            provider,
+            model,
+            input_tokens=prompt_tokens,
+            output_tokens=usage.get("completion_tokens") or 0,
+            thinking_tokens=(usage.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0,
+            cache_read=(usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0,
+            cost=None,
+            measured=bool(usage),
+        )
+        if usage:
+            observe_prompt_tokens(provider, model, count_tokens_raw(prompt), prompt_tokens)
         choice = response_json["choices"][0]
         text = (choice.get("message") or {}).get("content") or ""
         if choice.get("finish_reason") == "length":
@@ -226,14 +248,42 @@ def _call_llm_openrouter(prompt: str, thinking_level: str | None = None) -> str:
     return call_openrouter(prompt, thinking_level=thinking_level)
 
 
+def _emit_call_usage(step: str, estimate: int, usage: dict, measured: int) -> None:
+    """One console line per LLM call: billed input vs the estimate, output (thinking), cached, cost.
+    `measured` = requests with provider-reported usage (the deviation is per measured request)."""
+    from utils.output import emit, get
+    from utils.token_utils import format_cost
+
+    per_request = usage["input"] / measured
+    deviation = f"{(per_request - estimate) / estimate:+.0%}" if estimate else get("CFG_VALUE_UNKNOWN")
+    emit(
+        "LLM_CALL_USAGE",
+        step=step,
+        input=f"{usage['input']:,}",
+        estimate=f"{estimate:,}",
+        deviation=deviation,
+        requests=get("LLM_CALL_REQUESTS", count=measured) if measured > 1 else "",
+        output=f"{usage['output']:,}",
+        thinking=f"{usage['thinking']:,}",
+        cached=f"{usage['cache_read']:,}",
+        cost=format_cost(usage),
+    )
+
+
 # Provider and model come from resolve_llm_settings(): LLM_PROVIDER, or Gemini when only Gemini
 # credentials are set (default gemini-3.8-flash; Claude defaults to claude-sonnet-5).
-def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -> str:
+def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None, step: str | None = None) -> str:
+    """Send one prompt to the active provider (cached per provider/model/level/prompt).
+
+    `step` is the calling node's NODE_KEYS name (utils/thinking.py): usage is attributed to it for the
+    per-call usage line, the step subtotals and the end-of-run summary.
+    """
     from utils.output import emit, emit_raw
     from utils.token_utils import count_tokens
 
+    step = step or "other"
     provider, model, _, _ = resolve_llm_settings()
-    prompt_tokens = count_tokens(prompt)
+    prompt_tokens = count_tokens(prompt)  # memoized: the node already counted this prompt
 
     emit_raw("DEBUG", f"{'=' * 80}", dest="LOG")
     emit_raw(
@@ -250,6 +300,8 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = N
         if key in cache:
             cached_response = cache[key]
             emit("CACHE_HIT", chars=f"{len(cached_response):,}")
+            record_estimate(step, prompt_tokens, cache_hit=True)
+            emit("LLM_CALL_CACHED", step=step, estimate=f"{prompt_tokens:,}")
             emit_raw("DEBUG", f"RESPONSE (cached):\n{cached_response}", dest="LOG")
             emit_raw("DEBUG", "LLM CALL END | result=cache_hit", dest="LOG")
             return cached_response
@@ -267,19 +319,33 @@ def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = N
     start_time = time.time()
     emit_raw("DEBUG", f"API CALL | sending request to {provider}...", dest="LOG")
 
+    # Usage of this call = ledger delta for the provider: it includes every billed request the call
+    # made (Anthropic truncation retry, resend after fallbacks were disabled), even when it raises.
+    before = usage_snapshot(provider)
+    returned = False
     try:
-        if provider == "GEMINI":
-            response_text = _call_llm_gemini(prompt, thinking_level=thinking_level)
-        elif provider == "ANTHROPIC":
-            response_text = _call_llm_anthropic(prompt, thinking_level=thinking_level)
-        elif provider == "OPENROUTER":
-            response_text = _call_llm_openrouter(prompt, thinking_level=thinking_level)
-        else:  # generic method using a URL that is OpenAI compatible API (Ollama, ...)
-            response_text = _call_llm_provider(prompt, thinking_level=thinking_level)
+        with usage_step(step):
+            if provider == "GEMINI":
+                response_text = _call_llm_gemini(prompt, thinking_level=thinking_level)
+            elif provider == "ANTHROPIC":
+                response_text = _call_llm_anthropic(prompt, thinking_level=thinking_level)
+            elif provider == "OPENROUTER":
+                response_text = _call_llm_openrouter(prompt, thinking_level=thinking_level)
+            else:  # generic method using a URL that is OpenAI compatible API (Ollama, ...)
+                response_text = _call_llm_provider(prompt, thinking_level=thinking_level)
+        returned = True
     except LLMRefusalError as e:
         if not e.retryable:
             remember_refusal(refusal_key, e)
         raise
+    finally:
+        call_usage = usage_delta(before, usage_snapshot(provider))
+        measured = call_usage["calls"] - call_usage["unmeasured_calls"]
+        if measured:
+            record_estimate(step, prompt_tokens * measured)
+            _emit_call_usage(step, prompt_tokens, call_usage, measured)
+        elif returned:  # answered, but the provider reported no usage
+            emit("LLM_CALL_USAGE_MISSING", step=step, estimate=f"{prompt_tokens:,}")
 
     elapsed = time.time() - start_time
     emit_raw("DEBUG", f"API CALL COMPLETE | elapsed={elapsed:.1f}s | response_chars={len(response_text):,}", dest="LOG")

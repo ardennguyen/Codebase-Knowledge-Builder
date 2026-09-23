@@ -6,10 +6,13 @@
   block, OpenRouter content_filter / moderation). Deterministic declines (retryable=False) are
   remembered by call_llm and not re-sent; sampling-dependent output blocks (retryable=True, e.g.
   Gemini RECITATION / OTHER) are re-sampled by the node retry.
-- Usage ledger: per-call token/cost accounting for the end-of-run LLM_USAGE_SUMMARY.
+- Usage ledger: per-request token/cost accounting per provider and per step (call_llm(step=...)),
+  used for the per-call usage lines, step subtotals and the end-of-run LLM_USAGE_SUMMARY.
 - warn_once: de-duplicates warnings that would otherwise repeat on every call.
 """
 
+import contextlib
+import contextvars
 import hashlib
 
 
@@ -59,7 +62,46 @@ def previous_refusal(key: str) -> LLMRefusalError | None:
 # ---------------------------------------------------------------------------
 # Usage ledger (one per process; a run is sequential)
 # ---------------------------------------------------------------------------
+# Totals per provider and per step (the NODE_KEYS name passed to call_llm(step=...)). `input` is the
+# TOTAL prompt tokens the provider counted, cached tokens included, for every provider; cache_read /
+# cache_write are breakdowns of it. `output` includes thinking; `thinking` is the reported subset.
 _usage = {}
+_steps = {}
+_current_step = contextvars.ContextVar("llm_usage_step", default="other")
+
+
+def _new_entry() -> dict:
+    return {
+        "models": set(),
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "cache_read": 0,
+        "cache_write": 0,
+        "cost": 0.0,
+        "unpriced_calls": 0,
+        "unmeasured_calls": 0,
+        "refusals": 0,
+        "fallbacks": 0,
+        "truncations": 0,
+        "estimated_input": 0,
+        "cache_hits": 0,
+    }
+
+
+@contextlib.contextmanager
+def usage_step(step: str | None):
+    """Attribute every record_usage / count_event inside the block to `step`."""
+    token = _current_step.set(step or "other")
+    try:
+        yield
+    finally:
+        _current_step.reset(token)
+
+
+def current_step() -> str:
+    return _current_step.get()
 
 
 def record_usage(
@@ -72,69 +114,71 @@ def record_usage(
     cache_read: int = 0,
     cache_write: int = 0,
     cost: float | None = None,
+    measured: bool = True,
 ) -> None:
-    """Accumulate one call. `output_tokens` includes thinking; `thinking_tokens` is the reported subset.
-    `cost` is USD; None means the price is unknown for this model (summary shows n/a)."""
-    entry = _usage.setdefault(
-        provider,
-        {
-            "models": set(),
-            "calls": 0,
-            "input": 0,
-            "output": 0,
-            "thinking": 0,
-            "cache_read": 0,
-            "cache_write": 0,
-            "cost": 0.0,
-            "cost_known": True,
-            "refusals": 0,
-            "fallbacks": 0,
-            "truncations": 0,
-        },
-    )
-    if model:
-        entry["models"].add(model)
-    entry["calls"] += 1
-    entry["input"] += input_tokens or 0
-    entry["output"] += output_tokens or 0
-    entry["thinking"] += thinking_tokens or 0
-    entry["cache_read"] += cache_read or 0
-    entry["cache_write"] += cache_write or 0
-    if cost is None:
-        entry["cost_known"] = False
-    else:
-        entry["cost"] += cost
+    """Accumulate one API request. `input_tokens` = total prompt tokens (cached included);
+    `output_tokens` includes thinking. `cost` is USD; None = unknown price (counted as unpriced).
+    measured=False: the provider reported no usage, or the request was an unbilled decline — it counts
+    as a request but is left out of estimate-vs-billed comparisons (`unmeasured_calls`)."""
+    for entry in (_usage.setdefault(provider, _new_entry()), _steps.setdefault(current_step(), _new_entry())):
+        if model:
+            entry["models"].add(model)
+        entry["calls"] += 1
+        if not measured:
+            entry["unmeasured_calls"] += 1
+        entry["input"] += input_tokens or 0
+        entry["output"] += output_tokens or 0
+        entry["thinking"] += thinking_tokens or 0
+        entry["cache_read"] += cache_read or 0
+        entry["cache_write"] += cache_write or 0
+        if cost is None:
+            entry["unpriced_calls"] += 1
+        else:
+            entry["cost"] += cost
 
 
 def count_event(provider: str, event: str) -> None:
-    """Increment 'refusals' | 'fallbacks' | 'truncations' for a provider."""
-    entry = _usage.setdefault(
-        provider,
-        {
-            "models": set(),
-            "calls": 0,
-            "input": 0,
-            "output": 0,
-            "thinking": 0,
-            "cache_read": 0,
-            "cache_write": 0,
-            "cost": 0.0,
-            "cost_known": True,
-            "refusals": 0,
-            "fallbacks": 0,
-            "truncations": 0,
-        },
-    )
-    entry[event] += 1
+    """Increment 'refusals' | 'fallbacks' | 'truncations' for a provider (and the current step)."""
+    _usage.setdefault(provider, _new_entry())[event] += 1
+    _steps.setdefault(current_step(), _new_entry())[event] += 1
+
+
+def record_estimate(step: str, estimated_input: int, *, cache_hit: bool = False) -> None:
+    """Add call_llm's input estimate for a call (billed or served from the LLM cache) to a step."""
+    entry = _steps.setdefault(step or "other", _new_entry())
+    if cache_hit:
+        entry["cache_hits"] += 1
+    else:
+        entry["estimated_input"] += estimated_input or 0
+
+
+def usage_snapshot(provider: str) -> dict:
+    """Copy of a provider's running totals (diff two snapshots to get one call's usage)."""
+    entry = _usage.get(provider)
+    return {k: v for k, v in entry.items() if k != "models"} if entry else {k: v for k, v in _new_entry().items() if k != "models"}
+
+
+def usage_delta(before: dict, after: dict) -> dict:
+    return {k: after[k] - before.get(k, 0) for k in after}
+
+
+def _public(entry: dict) -> dict:
+    return dict(entry, models=sorted(entry["models"]), cost_known=entry["unpriced_calls"] == 0)
 
 
 def get_usage_summary() -> dict:
     """{provider: totals} for every provider that made at least one call this run."""
-    return {provider: dict(entry, models=sorted(entry["models"])) for provider, entry in _usage.items() if entry["calls"]}
+    return {provider: _public(entry) for provider, entry in _usage.items() if entry["calls"]}
+
+
+def get_step_summary() -> dict:
+    """{step: totals} in first-use order, including steps answered only from the LLM cache."""
+    return {step: _public(entry) for step, entry in _steps.items() if entry["calls"] or entry["cache_hits"]}
 
 
 def reset_usage() -> None:
     _usage.clear()
+    _steps.clear()
     _refused.clear()
 
 

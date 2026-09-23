@@ -36,6 +36,7 @@ def safe_exec(func):
     return wrapper
 
 
+from utils.llm_common import get_step_summary
 from utils.prompts import (
     build_chapter_summary_prompt,
     build_code_file_filter_prompt,
@@ -44,7 +45,22 @@ from utils.prompts import (
     parse_yaml_response,
 )
 from utils.thinking import resolve_thinking_level
-from utils.token_utils import count_tokens, input_token_budget, log_token_estimation, resolve_max_tokens
+from utils.token_utils import (
+    count_tokens,
+    count_tokens_many,
+    emit_step_usage,
+    input_token_budget,
+    log_token_estimation,
+    resolve_max_tokens,
+)
+
+
+def emit_step_subtotals(*steps: str) -> None:
+    """Print the running usage subtotal of each step (batch nodes call this from post())."""
+    summary = get_step_summary()
+    for step in steps:
+        if step in summary:
+            emit_step_usage("LLM_STEP_SUBTOTAL", step, summary[step])
 
 
 class DeterministicFileMapper(Node):
@@ -65,7 +81,7 @@ class DeterministicFileMapper(Node):
         prompt, use_cache, thinking_level, max_tokens = prep_res
         emit("LLM_CALL_FILTER_FILES")
         log_token_estimation(self.__class__.__name__, prompt, max_tokens)
-        response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="filter_files")
         valid_indices = parse_yaml_response(response)
         if not isinstance(valid_indices, list):
             valid_indices = []
@@ -114,6 +130,12 @@ class ContextRouter(Node):
         max_tokens = resolve_max_tokens(shared)
 
         shared["max_tokens"] = max_tokens
+        directory_tree = build_directory_tree(files_data)
+
+        if shared.get("mode", "tutorial") == "api-reference":
+            # One chapter per file, packed by WriteChapters itself: no routing budget is needed.
+            emit("CAPACITY_API_REF_MODE")
+            return ("deterministic", files_data, 0, shared.get("batch_size", 50), None, None, directory_tree)
 
         # --- Calculate prompt overhead FIRST ---
         # 1. Prompt templates: check both IA/MA (for batching) and WC (for chapter writing)
@@ -129,7 +151,6 @@ class ContextRouter(Node):
                     max_template_tokens = max(max_template_tokens, t)
 
         # 2. Directory tree (shared across IA, MA, and WC prompts)
-        directory_tree = build_directory_tree(files_data)
         tree_tokens = count_tokens(directory_tree)
 
         # 3. Chapter listing estimate (used in WC draft_chapters prompts)
@@ -146,14 +167,9 @@ class ContextRouter(Node):
             listing=f"{listing_tokens:,}",
         )
 
-        # --- Count file content tokens ---
-        total_tokens = 0
-        file_token_map = []
-        for i, (path, content) in enumerate(files_data):
-            entry = f"--- File Index {i}: {path} ---\n{content}\n\n"
-            tokens = count_tokens(entry)
-            total_tokens += tokens
-            file_token_map.append(tokens)
+        # --- Count file content tokens (batch-encoded; memoized for the nodes that re-count entries) ---
+        file_token_map = count_tokens_many([f"--- File Index {i}: {path} ---\n{content}\n\n" for i, (path, content) in enumerate(files_data)])
+        total_tokens = sum(file_token_map)
 
         # --- Effective limit = context minus output reserve minus overhead ---
         # Reserve output for whichever consumer of this budget thinks more: IdentifyAbstractions
@@ -164,10 +180,6 @@ class ContextRouter(Node):
         )
         effective_limit = safety_limit - prompt_overhead
         force_batch = shared.get("force_batch", False)
-
-        if shared.get("mode", "tutorial") == "api-reference":
-            emit("CAPACITY_API_REF_MODE")
-            return ("deterministic", files_data, effective_limit, shared.get("batch_size", 50), None, None, directory_tree)
 
         if total_tokens > effective_limit and force_batch:
             emit(
@@ -324,7 +336,9 @@ class MapAbstractions(BatchNode):
         log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"], token_usage=token_usage)
         for i, path, _content in files:
             emit("BATCH_FILE_ITEM", index=i, path=path)
-        response = call_llm(prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"])
+        response = call_llm(
+            prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"], step="map_abstractions"
+        )
 
         abstractions = parse_yaml_response(response)
 
@@ -349,6 +363,7 @@ class MapAbstractions(BatchNode):
             all_abstractions.extend(batch_abs)
         emit_raw("DEBUG", f"MapAbstractions post | collected {len(all_abstractions)} partial abstractions", dest="LOG")
         shared["mapped_abstractions"] = all_abstractions
+        emit_step_subtotals("map_abstractions")
 
 
 class ReduceAbstractions(Node):
@@ -389,7 +404,7 @@ class ReduceAbstractions(Node):
 
         emit("LLM_CALL_REDUCE_ABSTRACTIONS", count=len(mapped_abstractions))
         log_token_estimation(self.__class__.__name__, prompt, max_tokens)
-        response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="reduce_abstractions")
 
         abstractions = parse_yaml_response(response)
 
@@ -513,12 +528,13 @@ class IdentifyAbstractions(Node):
                 context += entry
                 current_tokens += entry_tokens
 
-            return context
+            # Entries end on a blank line, so the joined context counts as the sum of its entries
+            # (measured: identical) — no need to re-encode the whole codebase once more.
+            return context, current_tokens
 
-        context = create_llm_context(files_data)
+        context, context_tokens = create_llm_context(files_data)
         directory_tree = build_directory_tree(files_data)
-        current_tokens = count_tokens(context)
-        emit_raw("DEBUG", f"IdentifyAbstractions prep | context_tokens={current_tokens:,} | files={len(files_data)}", dest="LOG")
+        emit_raw("DEBUG", f"IdentifyAbstractions prep | context_tokens={context_tokens:,} | files={len(files_data)}", dest="LOG")
         return (
             context,
             directory_tree,
@@ -531,7 +547,8 @@ class IdentifyAbstractions(Node):
             shared.get("advanced_mode", False),
             shared.get("max_tokens", 100000),
             shared.get("mode", "tutorial"),
-        )  # Return all parameters (11-element tuple)
+            context_tokens,
+        )  # Return all parameters (12-element tuple)
 
     @safe_exec
     def exec(self, prep_res):
@@ -547,6 +564,7 @@ class IdentifyAbstractions(Node):
             _advanced_mode,
             max_tokens,
             mode,
+            context_tokens,
         ) = prep_res  # Unpack all parameters
 
         # Add language instruction and hints only if not English
@@ -572,14 +590,14 @@ class IdentifyAbstractions(Node):
         )
 
         token_usage = {
-            "file_content": count_tokens(context),
+            "file_content": context_tokens,
             "directory_tree": count_tokens(directory_tree),
         }
         token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
         emit("LLM_CALL_IDENTIFY_ABSTRACTIONS")
         log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
         response = call_llm(
-            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="identify_abstractions"
         )  # Use cache only if enabled and not retrying
 
         # --- Validation ---
@@ -807,7 +825,7 @@ class AnalyzeRelationships(Node):
         emit("LLM_CALL_ANALYZE_RELATIONSHIPS")
         log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
         response = call_llm(
-            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="analyze_relationships"
         )  # Use cache only if enabled and not retrying
 
         # --- Validation ---
@@ -943,7 +961,7 @@ class OrderChapters(Node):
         emit("LLM_CALL_ORDER_CHAPTERS")
         log_token_estimation(self.__class__.__name__, prompt, max_tokens)
         response = call_llm(
-            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+            prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="order_chapters"
         )  # Use cache only if enabled and not retrying
 
         # --- Validation ---
@@ -1175,7 +1193,7 @@ class WriteChapters(BatchNode):
                                 self.chapter_summaries.append(
                                     f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{strip_summary_header(cached_summary)}"
                                 )
-                                emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens="manifest")
+                                emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens=f"~{count_tokens(self.chapter_summaries[-1]):,}")
                                 emit_raw(
                                     "DEBUG",
                                     f"CHAPTER SUMMARY LOADED | chapter={chapter_num} | name={abstraction_name.strip()} | source=manifest",
@@ -1199,11 +1217,14 @@ class WriteChapters(BatchNode):
                                     dest="LOG",
                                 )
                                 chapter_summary = call_llm(
-                                    summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=summary_thinking_level
+                                    summary_prompt,
+                                    use_cache=(use_cache and self.cur_retry == 0),
+                                    thinking_level=summary_thinking_level,
+                                    step="chapter_summary",
                                 )
                                 summary_response_tokens = count_tokens(chapter_summary)
                                 self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
-                                emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
+                                emit("SUMMARY_DONE_CACHED", chapter_num=chapter_num, tokens=f"~{summary_response_tokens:,}")
                                 emit_raw(
                                     "DEBUG",
                                     f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,} | source=cache",
@@ -1228,11 +1249,14 @@ class WriteChapters(BatchNode):
         # Capped at 50% of context window — drops oldest summaries first.
         prev_chapters_budget = int(max_tokens * 0.50)
 
+        prev_chapters_tokens = 0
         if self.chapter_summaries:
             selected_summaries = []
             running_tokens = 0
 
-            # Build from newest to oldest — most recent chapters are most relevant
+            # Build from newest to oldest — most recent chapters are most relevant. Each summary string
+            # is counted once (memoized), and the joined text is never re-counted: its size is the sum
+            # of the parts plus the separators, which keeps this step linear in the chapter count.
             for summary in reversed(self.chapter_summaries):
                 summary_tokens = count_tokens(summary)
                 if running_tokens + summary_tokens > prev_chapters_budget and selected_summaries:
@@ -1241,6 +1265,8 @@ class WriteChapters(BatchNode):
                 running_tokens += summary_tokens
 
             selected_summaries.reverse()  # Restore chronological order
+            separator_tokens = count_tokens("\n---\n")
+            prev_chapters_tokens = running_tokens + separator_tokens * (len(selected_summaries) - 1)
 
             if len(selected_summaries) < len(self.chapter_summaries):
                 dropped = len(self.chapter_summaries) - len(selected_summaries)
@@ -1253,6 +1279,7 @@ class WriteChapters(BatchNode):
                 )
                 window_note = f"[{dropped} earlier chapter summaries omitted — showing {len(selected_summaries)} most recent for context budget]"
                 previous_chapters_summary = window_note + "\n---\n" + "\n---\n".join(selected_summaries)
+                prev_chapters_tokens += count_tokens(window_note) + separator_tokens
             else:
                 previous_chapters_summary = "\n---\n".join(self.chapter_summaries)
         else:
@@ -1309,13 +1336,13 @@ class WriteChapters(BatchNode):
         # Compute token usage for diagnostics
         token_usage = {
             "file_context": count_tokens(file_context_str),
-            "prev_chapters": count_tokens(previous_chapters_summary),
+            "prev_chapters": prev_chapters_tokens,
             "chapter_listing": count_tokens(item["full_chapter_listing"]),
         }
         token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
         emit("LLM_CALL_WRITE_CHAPTER", chapter_num=chapter_num, name=abstraction_name.strip())
         log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
-        chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="write_chapters")
         if not chapter_content.strip():
             raise ValueError(f"Empty chapter response for '{abstraction_name.strip()}'")
         if getattr(chapter_content, "truncated", False):
@@ -1324,8 +1351,8 @@ class WriteChapters(BatchNode):
             current_hash = None
 
         # Log response token count
-        response_tokens = count_tokens(chapter_content)
-        emit("DONE_WRITE_CHAPTER", chapter_num=chapter_num, tokens=f"{response_tokens:,}")
+        response_tokens = count_tokens(chapter_content)  # text size estimate; billed output is on the usage line
+        emit("DONE_WRITE_CHAPTER", chapter_num=chapter_num, tokens=f"~{response_tokens:,}")
         emit_raw(
             "DEBUG",
             f"CHAPTER RESPONSE | chapter={chapter_num} | name={abstraction_name.strip()} | response_tokens={response_tokens:,}",
@@ -1363,10 +1390,12 @@ class WriteChapters(BatchNode):
             f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}",
             dest="LOG",
         )
-        chapter_summary = call_llm(summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=summary_thinking_level)
+        chapter_summary = call_llm(
+            summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=summary_thinking_level, step="chapter_summary"
+        )
         summary_response_tokens = count_tokens(chapter_summary)
         self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
-        emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
+        emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"~{summary_response_tokens:,}")
         emit_raw(
             "DEBUG",
             f"CHAPTER SUMMARY DONE | chapter={chapter_num} | summary_tokens={summary_response_tokens:,}",
@@ -1419,6 +1448,7 @@ class WriteChapters(BatchNode):
         del self.chapters_written_so_far
         del self.chapter_summaries
         emit("DONE_ALL_CHAPTERS", count=len(exec_res_list))
+        emit_step_subtotals("write_chapters", "chapter_summary")
 
 
 class CombineTutorial(Node):
