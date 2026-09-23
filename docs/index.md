@@ -68,6 +68,8 @@ The application will crawl the repository, analyze the codebase structure, gener
 
 *Built using [Pocket Flow](https://github.com/The-Pocket/PocketFlow), a 100-line LLM framework.*
 
+*Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): free for non-commercial use (personal, academic, research); commercial use requires a separate license ([open an issue](https://github.com/ardennguyen/Codebase-Knowledge-Builder/issues)). Derived from [PocketFlow Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge) (MIT). See [LICENSE](https://github.com/ardennguyen/Codebase-Knowledge-Builder/blob/main/LICENSE) and [NOTICE](https://github.com/ardennguyen/Codebase-Knowledge-Builder/blob/main/NOTICE).*
+
 ## Documentation Modes
 
 | Mode | Audience | Description |

@@ -98,7 +98,8 @@ codebase_kb/
 ├── .coderabbit.yaml                 # CodeRabbit AI review config
 ├── Dockerfile                       # Docker container build for CI/deployment
 ├── .dockerignore                    # Docker build exclusions
-├── LICENSE                          # MIT license
+├── LICENSE                          # CC BY-NC-SA 4.0 (project copyright + full legal code)
+├── NOTICE                           # How to credit, commercial-license contact, upstream MIT notices
 ├── .github/
 │   ├── ci_mkdocs_config.py          # CI helper: generates mkdocs.yml and mermaid-init.js (avoids bash heredoc issues)
 │   └── workflows/

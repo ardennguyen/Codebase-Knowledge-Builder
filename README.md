@@ -6,6 +6,8 @@
 
 # AI Codebase Knowledge Builder
 
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
 ## 🚀 Getting Started
 
 1. Clone this repository
@@ -165,8 +167,18 @@ To run this project in a Docker container, you'll need to pass your API keys as 
    ```
 </details>
 
+## 📄 License
+
+Codebase Knowledge Builder © 2026 Arden Nguyen Duc Huy is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+- **Free for non-commercial use**, such as personal, academic, and non-commercial research use. Commercial use (use primarily intended for or directed towards commercial advantage or monetary compensation, for example in a commercial product, to provide paid services, or in a company's business operations) is not licensed; to request a commercial license, [open an issue](https://github.com/ardennguyen/Codebase-Knowledge-Builder/issues).
+- **Credit required:** if you share this project or any part of it, as-is or modified (including inside another project), credit it as shown in [NOTICE](NOTICE), indicate whether you made changes, and link the license.
+- **Share alike:** modified versions you share must stay under CC BY-NC-SA 4.0. Please contribute improvements back as pull requests.
+- Portions derived from [PocketFlow Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge) and the documentation in `docs/pocketflow/` remain under the MIT License (notices in [NOTICE](NOTICE)). Versions published before this license change remain MIT-licensed.
+
 ## 🙏 Acknowledgement
 
+- Derived from [PocketFlow Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge) by Zachary Huang (MIT License).
 - Built using [Pocket Flow](https://github.com/The-Pocket/PocketFlow), a 100-line LLM framework that lets Agents (e.g., Cursor, Windsurf, Copilot, Cline, Antigravity, Claude Code) build for you.
 
 ---
@@ -174,6 +186,8 @@ To run this project in a Docker container, you'll need to pass your API keys as 
 ## 🇻🇳 Tiếng Việt
 
 # Trình Xây Dựng Kiến Thức Mã Nguồn Bằng AI
+
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ## 🚀 Bắt đầu
 
@@ -333,6 +347,16 @@ python main.py --dir /path/to/project --mode tutorial --thinking-profile economy
    ```
 </details>
 
+## 📄 Giấy phép
+
+Codebase Knowledge Builder © 2026 Arden Nguyen Duc Huy được cấp phép theo [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Xem [LICENSE](LICENSE) và [NOTICE](NOTICE).
+
+- **Miễn phí cho mục đích phi thương mại**, như sử dụng cá nhân, học thuật và nghiên cứu phi thương mại. Không cấp phép cho mục đích thương mại (tức là sử dụng chủ yếu nhằm hoặc hướng tới lợi thế thương mại hay khoản thù lao bằng tiền, ví dụ trong sản phẩm thương mại, để cung cấp dịch vụ có thu phí, hoặc trong hoạt động kinh doanh của doanh nghiệp); để xin giấy phép thương mại, hãy [tạo issue](https://github.com/ardennguyen/Codebase-Knowledge-Builder/issues).
+- **Bắt buộc ghi nguồn:** nếu bạn chia sẻ dự án này hoặc bất kỳ phần nào của nó, nguyên bản hay đã chỉnh sửa (kể cả khi đưa vào dự án khác), hãy ghi nguồn như hướng dẫn trong [NOTICE](NOTICE), cho biết bạn có chỉnh sửa hay không và dẫn liên kết tới giấy phép.
+- **Chia sẻ tương tự:** các phiên bản chỉnh sửa mà bạn chia sẻ phải giữ giấy phép CC BY-NC-SA 4.0. Mong bạn đóng góp lại các cải tiến qua pull request.
+- Các phần có nguồn gốc từ [PocketFlow Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge) và tài liệu trong `docs/pocketflow/` vẫn theo giấy phép MIT (thông báo trong [NOTICE](NOTICE)). Các phiên bản phát hành trước lần đổi giấy phép này vẫn theo giấy phép MIT.
+
 ## 🙏 Lời cảm ơn
 
+- Phát triển từ [PocketFlow Tutorial-Codebase-Knowledge](https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge) của Zachary Huang (giấy phép MIT).
 - Được xây dựng bằng [Pocket Flow](https://github.com/The-Pocket/PocketFlow), một framework LLM vỏn vẹn 100 dòng code cho phép các Tác nhân (như Cursor, Windsurf, Copilot, Cline, Antigravity, Claude Code) lập trình thay bạn.
