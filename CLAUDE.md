@@ -161,7 +161,7 @@ Select-String -Path "*.py","utils/*.py" -Pattern '"([A-Z_]+)"' -AllMatches |
 3. **Generate:** `main.py --mode api-reference --mkdocs --incremental --no-cache ...` (`--force-rebuild` only from the manual `force_rebuild` input); stale `docs/api/` pages are pruned by the generator
 4. **Doc cache save:** `actions/cache/save@v6` under `doc-cache-${{ github.run_id }}-${{ github.run_attempt }}` right after Generate, so a failure in the deploy steps keeps the paid-for pages
 5. **Config generation:** `python3 .github/ci_mkdocs_config.py` generates `mkdocs.yml` and `mermaid-init.js`
-6. **Nav merge:** `sed '1d'` strips first line of `nav_snippet.yml` and appends to base nav
+6. **Nav merge:** `sed '1d'` strips first line of `output/<Project>/nav_snippet.yml` (next to `mkdocs.yml`, outside `docs/` so it is not published) and appends to base nav
 7. **Deploy:** `mkdocs gh-deploy --force`
 
 ### CI Rules

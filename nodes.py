@@ -13,7 +13,14 @@ from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
 from utils.files import build_directory_tree, get_content_for_indices
 from utils.llm_config import resolve_llm_settings
-from utils.mkdocs import build_chapter_filenames, strip_summary_header, write_mkdocs_output, write_standalone_output, yaml_str
+from utils.mkdocs import (
+    build_chapter_filenames,
+    split_frontmatter,
+    strip_summary_header,
+    write_mkdocs_output,
+    write_standalone_output,
+    yaml_str,
+)
 from utils.output import emit, emit_raw, get
 
 
@@ -1179,11 +1186,8 @@ class WriteChapters(BatchNode):
                                 cached_content = f.read()
 
                             # If it's mkdocs, strip the frontmatter before adding to chapters_written_so_far
-                            clean_content = cached_content
-                            if is_mkdocs and clean_content.startswith("---"):
-                                parts = clean_content.split("---", 2)
-                                if len(parts) >= 3:
-                                    clean_content = parts[2].strip()
+                            # (only a real YAML block: a chapter that opens with a '---' rule keeps its content)
+                            clean_content = split_frontmatter(cached_content)[0] if is_mkdocs else cached_content
 
                             self.chapters_written_so_far.append(clean_content)
 
@@ -1511,6 +1515,18 @@ class CombineTutorial(Node):
 
         is_mkdocs = shared.get("mkdocs", False)
 
+        # --- Project overview: summary, source line, relationship diagram ---
+        # Standalone index.md always shows it; the MkDocs landing page shows it except in api-reference,
+        # whose relationships are a stub (one line of summary, no edges).
+        overview = f"{relationships_data['summary']}\n\n"
+        if repo_url:
+            overview += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
+        else:
+            local_dir = shared.get("local_dir", "")
+            if local_dir:
+                overview += f"**{ui['source_repo']}:** `{local_dir}`\n\n"
+        overview += f"```mermaid\n{mermaid_diagram}\n```\n\n"
+
         # --- Prepare index.md or nav_snippet.yml content ---
         if is_mkdocs:
             nav_items = []
@@ -1530,7 +1546,7 @@ class CombineTutorial(Node):
                     chapter_content = chapters_content[i]
                     frontmatter = f"---\ntitle: {yaml_str(abstraction_name)}\nsidebar_position: {i + 1}\n---\n\n"
 
-                    if not chapter_content.startswith("---"):
+                    if not split_frontmatter(chapter_content)[1]:
                         chapter_content = frontmatter + chapter_content
 
                     if not chapter_content.endswith("\n\n"):
@@ -1596,6 +1612,7 @@ class CombineTutorial(Node):
                 "ui": ui,
                 "project_name": project_name,
                 "mode": shared.get("mode", "tutorial"),
+                "overview": "" if mode == "api-reference" else overview,
                 "chapter_summaries": shared.get("chapter_summaries", []),
                 "directory_tree": shared.get("directory_tree", ""),
                 "language": shared.get("language", "english"),
@@ -1605,17 +1622,7 @@ class CombineTutorial(Node):
             }
         # Traditional tutorial mode
         index_content = f"# {ui['tutorial']}: {project_name}\n\n"
-        index_content += f"{relationships_data['summary']}\n\n"
-        if repo_url:
-            index_content += f"**{ui['source_repo']}:** [{repo_url}]({repo_url})\n\n"
-        else:
-            local_dir = shared.get("local_dir", "")
-            if local_dir:
-                index_content += f"**{ui['source_repo']}:** `{local_dir}`\n\n"
-
-        index_content += "```mermaid\n"
-        index_content += mermaid_diagram + "\n"
-        index_content += "```\n\n"
+        index_content += overview
         index_content += f"## {ui['chapters']}\n\n"
 
         chapter_files = []

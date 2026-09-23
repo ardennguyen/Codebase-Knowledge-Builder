@@ -9,7 +9,9 @@ import os
 import posixpath
 import re
 import traceback
-from collections import defaultdict
+from collections import Counter, defaultdict
+
+import yaml
 
 from utils.call_llm import call_llm
 from utils.output import emit, emit_raw, get
@@ -52,7 +54,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
     nav_body = "\n".join(nav_lines[1:]) if nav_lines else ""
 
     # Optional Home nav entry (write_mkdocs_output always writes docs/index.md and passes include_home=True)
-    home_line = "  - Home: index.md\n" if include_home else ""
+    home_line = f"  - {yaml_str(get('UI_HOME'))}: index.md\n" if include_home else ""
 
     # Optional Material theme language (e.g. "vi", "zh", "ja", "ko")
     lang_line = f"  language: {lang_code}\n" if lang_code else ""
@@ -152,6 +154,7 @@ def build_mermaid_init_js() -> str:
 # Chapter filenames and summary text helpers
 # ---------------------------------------------------------------------------
 
+_FRONTMATTER_RE = re.compile(r"^-{3}[ \t]*\n(.*?\n)(?:\.{3}|-{3})[ \t]*\n", re.DOTALL)  # same block MkDocs' meta parser reads
 _SUMMARY_HEADER_RE = re.compile(r"^.+ \d+ — .+:$")
 # "(1) **Label**:", "**(1) Label:**", "1. Label:" — ASCII or full-width colon (CJK summaries)
 _SUMMARY_LABEL_RE = re.compile(r"^\W{0,3}\(?1[.)]\W{0,3}[^:\uff1a\n]{1,60}[:\uff1a]\**\s*")
@@ -191,6 +194,22 @@ def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: 
         used.add(page_key(filename))
         filenames[i] = filename
     return filenames
+
+
+def split_frontmatter(text: str) -> tuple[str, bool]:
+    """Split a leading YAML frontmatter block off *text*, recognized the way MkDocs does.
+
+    Returns ``(body, found)``. Only a block that parses as a YAML mapping counts, so a chapter that merely
+    opens with a ``---`` horizontal rule keeps all of its content.
+    """
+    match = _FRONTMATTER_RE.match(text)
+    if match:
+        try:
+            if isinstance(yaml.safe_load(match.group(1)), dict):
+                return text[match.end() :].strip(), True
+        except Exception:  # like MkDocs: YAMLError, or e.g. ValueError from an impossible date (2024-02-30)
+            pass
+    return text, False
 
 
 def strip_summary_header(summary: str) -> str:
@@ -342,21 +361,16 @@ def normalize_chapter_links(chapter_files):
     ``[text](target.md)`` link so the target is a correct relative path
     from the current chapter's directory to the target chapter.
     """
-    # Build lookup: various path forms → canonical filename
-    filename_lookup = {}
-    ambiguous_basenames = set()
-    for cf in chapter_files:
-        fname = cf["filename"]  # e.g. "CoreService/AccountingService.cs.md"
-        filename_lookup[fname] = fname
+    # Build lookup: every full path first (e.g. "CoreService/AccountingService.cs.md"), then a bare-basename
+    # alias only for basenames that occur once and are not themselves a full path, so an alias can never
+    # shadow or remove a real file (the result no longer depends on chapter order).
+    filenames = [cf["filename"] for cf in chapter_files]
+    filename_lookup = {fname: fname for fname in filenames}
+    basename_counts = Counter(fname.rsplit("/", 1)[-1] for fname in filenames)
+    for fname in filenames:
         basename = fname.rsplit("/", 1)[-1]
-        if basename in filename_lookup and filename_lookup[basename] != fname:
-            ambiguous_basenames.add(basename)
-        else:
+        if basename_counts[basename] == 1 and basename not in filename_lookup:
             filename_lookup[basename] = fname
-
-    # Remove ambiguous basenames (same name in different dirs)
-    for ab in ambiguous_basenames:
-        filename_lookup.pop(ab, None)
 
     link_pattern = re.compile(r"\[([^\]]*)\]\(([^)#]+\.md)(#[^)]*)?\)")
     fixed_count = 0
@@ -377,6 +391,10 @@ def normalize_chapter_links(chapter_files):
                 canonical = filename_lookup.get(resolved)
             if canonical:
                 correct_rel = os.path.relpath(canonical, _dir).replace("\\", "/") if _dir else canonical
+                # Cached pages are normalized again on later runs, where a page-relative target that is also
+                # another chapter's root-relative path would be read as that chapter: pin it with "./".
+                if _dir and filename_lookup.get(correct_rel, canonical) != canonical:
+                    correct_rel = f"./{correct_rel}"
                 if correct_rel != target:
                     fixed_count += 1
                 return f"[{text}]({correct_rel}{anchor})"
@@ -548,6 +566,11 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             "",
             f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
             "",
+        ]
+        # tutorial/advanced/sdk: project summary, source line and relationship diagram (as in the standalone index.md)
+        if prep_res.get("overview"):
+            index_lines += [prep_res["overview"].rstrip(), ""]
+        index_lines += [
             f"## {chapter_index_label}",
             "",
             f"| {th_chapter} | {th_description} |",
@@ -564,11 +587,14 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
         f.write(index_content)
     emit("FILE_WROTE", path=api_index_filepath)
 
-    # --- Write nav_snippet.yml ---
-    nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")
+    # --- Write nav_snippet.yml (next to mkdocs.yml: MkDocs publishes every non-Markdown file inside docs/) ---
+    nav_filepath = os.path.join(output_path, "nav_snippet.yml")
     with open(nav_filepath, "w", encoding="utf-8") as f:
         f.write(nav_snippet)
     emit("FILE_WROTE", path=nav_filepath)
+    legacy_nav_filepath = os.path.join(output_path, "docs", "nav_snippet.yml")  # written there before; drop it from the site
+    if os.path.exists(legacy_nav_filepath):
+        os.remove(legacy_nav_filepath)
 
     # --- Normalize cross-chapter links ---
     normalize_chapter_links(chapter_files)

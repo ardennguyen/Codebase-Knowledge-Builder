@@ -110,7 +110,7 @@ jobs:
         run: |
           # The generated nav_snippet.yml has "nav:" on the first line. 
           # We strip it and append the rest to our base config so it merges flawlessly.
-          sed '1d' output/Codebase-Knowledge-Builder/docs/nav_snippet.yml >> output/Codebase-Knowledge-Builder/mkdocs.yml
+          sed '1d' output/Codebase-Knowledge-Builder/nav_snippet.yml >> output/Codebase-Knowledge-Builder/mkdocs.yml
 
       - name: Deploy to GitHub Pages
         working-directory: output/Codebase-Knowledge-Builder

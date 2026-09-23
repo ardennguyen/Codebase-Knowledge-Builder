@@ -28,7 +28,7 @@ title: "Architecture & Design"
         - A link to `full_content.md` at the bottom.
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
     - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
-    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table), and `docs/nav_snippet.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode). `docs/api/` is generator-owned: `.md` pages that belong to no current chapter (removed/renamed modules, earlier runs in another mode) are deleted at the end of each run.
+    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table; tutorial/advanced/sdk also show the project summary and relationship diagram), and `nav_snippet.yml` next to `mkdocs.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode; kept out of `docs/` so it is not published). `docs/api/` is generator-owned: `.md` pages that belong to no current chapter (removed/renamed modules, earlier runs in another mode) are deleted at the end of each run.
     - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of each module's source files plus a generation signature (mode, language, provider, model, `write_chapters` thinking level, `draft_chapters` template digest) to skip regeneration of unchanged modules across runs. Entries are keyed by the module's source path, rebuilt from the current run's chapters (removed modules drop out) and saved only after the pages are written.
 
 ## 2. Flow Design
@@ -1118,7 +1118,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
 - Includes Material theme, code copy, syntax highlighting, and mermaid diagram support
 - **Mermaid fence:** `pymdownx.superfences` custom fence `mermaid` with class `mermaid-raw` and `format: fence_div_format`, so each diagram is `<div class="mermaid-raw">…source…</div>`. It must be a DIV: the panzoom plugin's `zoompan.js` only activates on DIV/IMG elements.
 - **Panzoom:** `include_selectors: ['.mermaid-raw']` plus `exclude_selectors: ['.mermaid']`. The plugin's built-in `.mermaid` selector regex also matches `class="mermaid-raw"` and would wrap every diagram in a second, dead panzoom box.
-- Merges the generated `nav_snippet` into the config's nav section; `include_home=True` (always passed by `write_mkdocs_output`) adds `- Home: index.md`
+- Merges the generated `nav_snippet` into the config's nav section; `include_home=True` (always passed by `write_mkdocs_output`) adds `- "<UI_HOME>": index.md`, the Home label translated like the rest of the nav (`get("UI_HOME")`, quoted with `yaml_str`)
 - Output file can be used directly with `mkdocs serve` or `mkdocs build`
 - **Must be kept in sync** with `.github/ci_mkdocs_config.py` `MKDOCS_YML` (theme, plugins, markdown_extensions, extra_javascript). The CI copy differs only in `site_name`, `site_url` and its fixed Home / Architecture & Design nav entries.
 
@@ -1194,7 +1194,15 @@ def normalize_chapter_links(chapter_files):
 ```
 - Deterministic post-processing: fixes all cross-chapter `[text](target.md)` links
 - Builds lookup from known filenames, rewrites each link to correct relative path via `os.path.relpath()`
-- Handles ambiguous basenames (same filename in different dirs) by excluding them from basename-only fallback
+- Lookup is built in two passes: every full path first, then a bare-basename alias only for basenames that occur exactly once and are not themselves a full path. Ambiguous basenames (same filename in different dirs) get no alias, and the result no longer depends on chapter order (the old single pass could pop a root file's own key)
+- **Idempotent:** cached pages are read back and normalized again on every `--incremental` run. A page-relative target that equals another chapter's root-relative path (e.g. `config.py.md` from `app/` while a root `config.py.md` exists) is written as `./config.py.md`, so the next pass cannot re-read it as the root chapter
+
+#### `split_frontmatter`
+```python
+def split_frontmatter(text: str) -> tuple[str, bool]:
+```
+- Returns `(body, found)`: splits a leading YAML frontmatter block off `text`, recognized the way MkDocs' meta parser does (`^---\n…\n(---|...)\n`) and only when it parses as a YAML mapping
+- Used by `WriteChapters.exec` (strip the frontmatter from a cached page) and `CombineTutorial.prep` (inject the generator frontmatter only when the page has none). A chapter that merely opens with a `---` horizontal rule is no longer mistaken for frontmatter (the old `split("---", 2)` dropped everything up to the next rule on every cache hit)
 
 #### `write_mkdocs_output`
 ```python
@@ -1202,7 +1210,8 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
 ```
 - Orchestrates all MkDocs output: nav grouping, mkdocs.yml, homepage redirect, section index, nav_snippet.yml, link normalization, chapter files, and stale-page pruning
 - For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`. The parsed sections go through `prune_sections` before use
-- The flat index (no grouping) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description
+- The flat index (no grouping) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description. For tutorial/advanced/sdk it also places `prep_res["overview"]` (project summary, source line, relationship Mermaid diagram — the same block as the standalone `index.md`) between the count line and the chapter index
+- Writes `nav_snippet.yml` next to `mkdocs.yml` (output root), not in `docs/`: MkDocs copies every non-Markdown file in `docs_dir` into the site, so it used to be published at the site root. A leftover `docs/nav_snippet.yml` from older runs is removed
 - Ends with `prune_stale_pages(api_docs_path, chapter_files)`: deletes every `.md` under `docs/api/` that is neither `index.md` nor a current chapter file (matched by file identity, `os.stat` device + inode, so a case-only rename on a case-insensitive filesystem never deletes the page just written), emitting `MKDOCS_PRUNED_STALE`, and removes directories left empty. MkDocs publishes every page in `docs_dir` even when the nav no longer lists it, so without this, pages of removed modules stayed live and searchable (and CI's cache restored them every run)
 - Called by `CombineTutorial.exec` when `is_mkdocs=True`
 
@@ -1668,10 +1677,10 @@ toc_lines.append(f"- [{title}](#chapter-{i+1})")
 full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
 ```
 
-**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str, "module_name": str, "description": str, "original_path": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `mode`, `chapter_summaries`, `directory_tree`, `language`, `use_cache`, `thinking_level`, `max_tokens`. Standard adds: `index_content`.
+**`prep()` return:** `dict` with keys: `output_path`, `output_base_dir`, `is_mkdocs`, `chapter_files` (list of `{"filename": str, "content": str, "module_name": str, "description": str, "original_path": str}`), `ui` (translated strings). MkDocs adds: `nav_snippet`, `project_name`, `mode`, `overview` (summary + source line + relationship diagram markdown, `""` in api-reference), `chapter_summaries`, `directory_tree`, `language`, `use_cache`, `thinking_level`, `max_tokens`. Standard adds: `index_content`.
 **`exec()` operations:**
 - **Standard mode:** Creates output directory, writes `index.md`, individual chapter files, and `full_content.md`.
-- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/javascripts/mermaid-init.js` (native Mermaid default theme initializer), `docs/api/index.md` (section landing page with chapter table and relative links), `docs/nav_snippet.yml`, and individual chapter files in `docs/api/`, then deletes stale `docs/api/*.md` pages. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
+- **MkDocs mode:** Generates `mkdocs.yml` (via `build_mkdocs_config()` with Material theme, mermaid, panzoom, navigation.indexes), `docs/javascripts/mermaid-init.js` (native Mermaid default theme initializer), `docs/api/index.md` (section landing page with chapter table and relative links), `nav_snippet.yml` (output root), and individual chapter files in `docs/api/`, then deletes stale `docs/api/*.md` pages. The generator frontmatter (`title`, `sidebar_position`) is injected only when `split_frontmatter()` finds no frontmatter block. For `api-reference` mode with 6+ modules, runs LLM grouping to create nested sidebar sections.
 - Chapter filenames come from `build_chapter_filenames(chapter_order, abstractions, is_mkdocs)`, the same call WriteChapters used for its link targets.
 **`post()` writes:** `shared["final_output_dir"] = exec_res` (output path string). With `--incremental`, also writes `shared["pending_manifest"]` to `{exec_res}/.doc_cache_manifest.json` (temp file + `os.replace`), only now that the pages are on disk. Returns `None`.
 
@@ -1770,6 +1779,7 @@ All user-facing strings (CLI output, generated UI labels) are externalized to `u
 | `UI_TOC` | Table of Contents | TOC heading |
 | `UI_CHAPTER` | Chapter | Individual chapter prefix |
 | `UI_FULL_CONTENT` | Full Content | Full content link label |
+| `UI_HOME` | Home | MkDocs nav label of the site's `index.md` |
 
 **Usage in code:**
 ```python
@@ -2146,6 +2156,12 @@ Used by: WriteChapters.prep, CombineTutorial.prep (2 callers)
 def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: bool) -> dict:
 ```
 Single source of chapter filenames, so the link targets given to the LLM always match the files written. Replaces three inline copies of the `safe_name` logic.
+
+#### `split_frontmatter` — `utils/mkdocs.py`
+Used by: WriteChapters.exec (cache-hit strip), CombineTutorial.prep (frontmatter injection check)
+```python
+def split_frontmatter(text: str) -> tuple[str, bool]:
+```
 
 #### `strip_summary_header` — `utils/mkdocs.py`
 Used by: WriteChapters.exec (cache-hit re-heading), write_mkdocs_output (grouping prompt + index descriptions)
