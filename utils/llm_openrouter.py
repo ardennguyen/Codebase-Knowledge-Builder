@@ -26,8 +26,9 @@ so any upstream family works without hardcoded tables:
 Environment: OPENROUTER_API_KEY (optional for non-OpenRouter hosts), OPENROUTER_MODEL,
 OPENROUTER_BASE_URL (default https://openrouter.ai/api; a trailing /v1 is accepted),
 OPENROUTER_MAX_OUTPUT_TOKENS, OPENROUTER_TIMEOUT_SECONDS (max silence between stream events, default 300),
-OPENROUTER_TEMPERATURE (default 0.7, non-reasoning requests only), OPENROUTER_APP_URL (HTTP-Referer
-for app attribution; default: this project's repository).
+OPENROUTER_TEMPERATURE (default 0.7, non-reasoning requests only), OPENROUTER_APP_URL (opt-in app
+attribution: when set, sent as HTTP-Referer with the X-OpenRouter-Title / X-Title headers; unset = no
+attribution headers).
 """
 
 import json
@@ -56,9 +57,9 @@ _DETERMINISTIC_NATIVE_REASONS = {"refusal", "prohibited_content", "blocklist", "
 _REFUSAL_ERROR_TYPES = {"refusal", "content_policy_violation", "moderation"}
 # Thinking budget per level for models that take reasoning.max_tokens but no effort (min 1024).
 _REASONING_BUDGETS = {"minimal": 1_024, "low": 2_048, "medium": 8_192, "high": 16_384, "xhigh": 24_576, "max": 32_000}
-# OpenRouter app attribution headers (tool identity, not user-facing text).
+# OpenRouter app attribution title (tool identity, not user-facing text); sent only when
+# OPENROUTER_APP_URL opts in.
 _APP_TITLE = "Codebase Knowledge Builder"
-_APP_URL = "https://github.com/ardennguyen/Codebase-Knowledge-Builder"
 
 
 def get_model() -> str:
@@ -142,6 +143,15 @@ def build_payload(prompt: str, model: str, level: str | None, prompt_tokens: int
         except ValueError:
             payload["temperature"] = 0.7
     return payload, desc
+
+
+def _attribution_headers() -> dict:
+    """OpenRouter app attribution (rankings / activity page), opt-in: nothing identifying the tool is
+    sent unless OPENROUTER_APP_URL is set. OpenRouter attributes by HTTP-Referer; the title needs it."""
+    url = os.getenv("OPENROUTER_APP_URL", "").strip()
+    if not url:
+        return {}
+    return {"HTTP-Referer": url, "X-OpenRouter-Title": _APP_TITLE, "X-Title": _APP_TITLE}  # X-Title: legacy name
 
 
 def _retry_after(resp) -> float | None:
@@ -315,19 +325,15 @@ def call_openrouter(prompt: str, thinking_level: str | None = None) -> str:
     api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
     raw_tokens = count_tokens_raw(prompt)
     payload, desc = build_payload(prompt, model, thinking_level, int(raw_tokens * get_token_ratio()))
-    headers = {
-        "Content-Type": "application/json",
-        "HTTP-Referer": os.getenv("OPENROUTER_APP_URL", "").strip() or _APP_URL,
-        "X-OpenRouter-Title": _APP_TITLE,
-        "X-Title": _APP_TITLE,  # legacy name, still accepted
-    }
+    headers = {"Content-Type": "application/json", **_attribution_headers()}
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
     max_tokens = payload.get("max_tokens")
     emit_raw(
         "DEBUG",
         f"OpenRouter request | model={model} | {desc} | max_tokens={f'{max_tokens:,}' if max_tokens else 'omitted'} | "
-        f"temperature={payload.get('temperature', 'omitted')} | catalog={'yes' if openrouter_catalog() else 'no'}",
+        f"temperature={payload.get('temperature', 'omitted')} | catalog={'yes' if openrouter_catalog() else 'no'} | "
+        f"attribution={'on' if 'HTTP-Referer' in headers else 'off'}",
         dest="LOG",
     )
 

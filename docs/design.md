@@ -272,7 +272,8 @@ mkdocs-panzoom-plugin>=0.2.0
 # OPENROUTER_TIMEOUT_SECONDS = 300
 # Only for non-reasoning requests on models that accept it:
 # OPENROUTER_TEMPERATURE = 0.7
-# App attribution (HTTP-Referer header); default: this project's GitHub repository:
+# App attribution is off by default. Set a URL to opt in: it is sent as HTTP-Referer together with the
+#   title "Codebase Knowledge Builder" (X-OpenRouter-Title), e.g. this project's repository:
 # OPENROUTER_APP_URL = https://github.com/ardennguyen/Codebase-Knowledge-Builder
 
 # --- Ollama ---
@@ -2214,7 +2215,7 @@ Catalog-driven (`llm_config.openrouter_model_info`: exact id, `canonical_slug`, 
 - `reasoning.exclude = not --debug` (reasoning is billed either way; with `--debug` it is logged).
 - `max_tokens`: `openrouter_output_budget(model, level)` (shared per-effort table capped by `top_provider.max_completion_tokens`, 32K when that is unknown, and `OPENROUTER_MAX_OUTPUT_TOKENS`), clamped to `context − prompt − CONTEXT_MARGIN` (min 4,096). Omitted for a model missing from the catalog unless `OPENROUTER_MAX_OUTPUT_TOKENS` is set.
 - `temperature` (`OPENROUTER_TEMPERATURE`, default 0.7) only when: no reasoning requested, not `rejects_sampling_params(model)` (Claude 4.7+/5.x, Gemini 3.x), `temperature` in `supported_parameters`, and the model is neither `mandatory` nor `default_enabled` reasoning.
-- SSE streaming (`stream: true`; lines split as bytes and decoded per line — `str.splitlines()` would break JSON containing U+2028; `:`-prefixed keep-alive lines skipped; read timeout `OPENROUTER_TIMEOUT_SECONDS` between events). A proxy that answers with one `application/json` body is parsed as a single chunk. Headers `Authorization: Bearer` (when a key is set), `HTTP-Referer` (`OPENROUTER_APP_URL`, default the project repository), `X-OpenRouter-Title` and legacy `X-Title`.
+- SSE streaming (`stream: true`; lines split as bytes and decoded per line — `str.splitlines()` would break JSON containing U+2028; `:`-prefixed keep-alive lines skipped; read timeout `OPENROUTER_TIMEOUT_SECONDS` between events). A proxy that answers with one `application/json` body is parsed as a single chunk. Headers `Authorization: Bearer` (when a key is set). App attribution is opt-in (`llm_openrouter._attribution_headers()`): only when `OPENROUTER_APP_URL` is set are `HTTP-Referer` (that URL), `X-OpenRouter-Title` and legacy `X-Title` ("Codebase Knowledge Builder") sent; unset → no attribution headers.
 - Usage from the final chunk: prompt / completion (incl. reasoning) / `completion_tokens_details.reasoning_tokens` / `prompt_tokens_details.cached_tokens`/`cache_write_tokens` / `cost` (USD, authoritative; with BYOK, `cost_details.upstream_inference_cost` is added).
 - Claude 4.6+ through OpenRouter: effort → Anthropic `output_config.effort` (xhigh → high on 4.6, minimal → low); Gemini 3.x: effort → `thinkingLevel`.
 
