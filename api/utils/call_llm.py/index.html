@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -534,7 +534,7 @@
   <span class="md-ellipsis">
     
   
-    Repository Ingestion
+    Codebase Ingestion & Processing
   
 
     
@@ -550,7 +550,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Repository Ingestion
+    Codebase Ingestion & Processing
   
 
           </label>
@@ -620,6 +620,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../crawl_local_files.py/" class="md-nav__link">
         
   
@@ -656,34 +684,6 @@
     
   
     crawl_github_files.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../exclude_patterns.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    exclude_patterns.py
   
 
     
@@ -774,7 +774,7 @@
   <span class="md-ellipsis">
     
   
-    LLM Inference & Providers
+    LLM Infrastructure
   
 
     
@@ -790,7 +790,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    LLM Inference & Providers
+    LLM Infrastructure
   
 
           </label>
@@ -827,7 +827,7 @@
   <span class="md-ellipsis">
     
   
-    Core Inference
+    Inference & Token Management
   
 
     
@@ -843,7 +843,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Core Inference
+    Inference & Token Management
   
 
           </label>
@@ -859,6 +859,10 @@
   
     
     
+      
+        
+      
+        
       
         
       
@@ -996,78 +1000,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#call_llm" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        call_llm()
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="call_llm()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#phase-1-settings-resolution-and-prompt-telemetry" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 1: Settings Resolution and Prompt Telemetry
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-2-cache-evaluation-and-short-circuiting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 2: Cache Evaluation and Short-Circuiting
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-3-refusal-interception" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 3: Refusal Interception
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-4-dynamic-provider-dispatch-and-refusal-recording" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 4: Dynamic Provider Dispatch and Refusal Recording
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-5-cache-persistence-and-response-return" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 5: Cache Persistence and Response Return
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#load_cache" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1086,6 +1018,89 @@
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notice_legacy_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        notice_legacy_cache()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call_llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        call_llm()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="call_llm()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-configuration-resolution-and-token-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Configuration Resolution and Token Preflight
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-cache-lookup-and-hit-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Cache Lookup and Hit Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-refusal-check-and-short-circuiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Refusal Check and Short-Circuiting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-provider-dispatch-and-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Provider Dispatch and Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-response-validation-caching-and-telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Response Validation, Caching, and Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1130,10 +1145,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-environment-configuration-and-endpoint-resolution" class="md-nav__link">
+  <a href="#phase-1-environment-and-configuration-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Environment Configuration and Endpoint Resolution
+        Phase 1: Environment and Configuration Validation
       
     </span>
   </a>
@@ -1141,10 +1156,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-payload-construction-and-reasoning-adaptation" class="md-nav__link">
+  <a href="#phase-2-payload-construction-and-reasoning-parameter-clamping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Payload Construction and Reasoning Adaptation
+        Phase 2: Payload Construction and Reasoning Parameter Clamping
       
     </span>
   </a>
@@ -1152,10 +1167,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-http-transmission-and-error-interception" class="md-nav__link">
+  <a href="#phase-3-http-request-execution-and-json-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: HTTP Transmission and Error Interception
+        Phase 3: HTTP Request Execution and JSON Parsing
       
     </span>
   </a>
@@ -1163,10 +1178,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-4-json-parsing-usage-accounting-and-truncation-handling" class="md-nav__link">
+  <a href="#phase-4-response-validation-token-usage-tracking-and-truncation-detection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 4: JSON Parsing, Usage Accounting, and Truncation Handling
+        Phase 4: Response Validation, Token Usage Tracking, and Truncation Detection
       
     </span>
   </a>
@@ -1229,10 +1244,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cache-store-schema-llm_cache_v2json" class="md-nav__link">
+  <a href="#module-level-variables-and-constants" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cache Store Schema (llm_cache_v2.json)
+        Module-Level Variables and Constants
       
     </span>
   </a>
@@ -1240,10 +1255,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#openai-compatible-completion-request-schema" class="md-nav__link">
+  <a href="#disk-cache-schema-llm_cache_v2json" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OpenAI-Compatible Completion Request Schema
+        Disk Cache Schema (llm_cache_v2.json)
       
     </span>
   </a>
@@ -1251,21 +1266,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#generic-provider-completion-response-schema" class="md-nav__link">
+  <a href="#generic-provider-json-request-payload" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Generic Provider Completion Response Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#re-exported-configuration-symbols" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Re-exported Configuration Symbols
+        Generic Provider JSON Request Payload
       
     </span>
   </a>
@@ -1351,6 +1355,62 @@
     
   
     llm_common.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token_utils.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token_utils.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../thinking.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    thinking.py
   
 
     
@@ -1623,7 +1683,7 @@
   <span class="md-ellipsis">
     
   
-    Prompt & Context Management
+    Documentation Synthesis
   
 
     
@@ -1639,7 +1699,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Prompt & Context Management
+    Documentation Synthesis
   
 
           </label>
@@ -1653,8 +1713,6 @@
   
     
     
-      
-        
       
         
       
@@ -1735,42 +1793,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../thinking.py/" class="md-nav__link">
+      <a href="../mkdocs.py/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    thinking.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../token_utils.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    token_utils.py
+    mkdocs.py
   
 
     
@@ -1829,7 +1859,7 @@
   <span class="md-ellipsis">
     
   
-    Documentation & System Utilities
+    Output & Localization
   
 
     
@@ -1845,7 +1875,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Documentation & System Utilities
+    Output & Localization
   
 
           </label>
@@ -1859,10 +1889,6 @@
   
     
     
-      
-        
-      
-        
       
         
       
@@ -1915,34 +1941,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../mkdocs.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    mkdocs.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../output.py/" class="md-nav__link">
         
   
@@ -1979,34 +1977,6 @@
     
   
     i18n.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../__init__.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    __init__.py
   
 
     
@@ -2093,78 +2063,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#call_llm" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        call_llm()
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="call_llm()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#phase-1-settings-resolution-and-prompt-telemetry" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 1: Settings Resolution and Prompt Telemetry
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-2-cache-evaluation-and-short-circuiting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 2: Cache Evaluation and Short-Circuiting
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-3-refusal-interception" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 3: Refusal Interception
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-4-dynamic-provider-dispatch-and-refusal-recording" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 4: Dynamic Provider Dispatch and Refusal Recording
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-5-cache-persistence-and-response-return" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 5: Cache Persistence and Response Return
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#load_cache" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2183,6 +2081,89 @@
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notice_legacy_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        notice_legacy_cache()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call_llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        call_llm()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="call_llm()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-configuration-resolution-and-token-preflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Configuration Resolution and Token Preflight
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-cache-lookup-and-hit-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Cache Lookup and Hit Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-refusal-check-and-short-circuiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Refusal Check and Short-Circuiting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-provider-dispatch-and-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Provider Dispatch and Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-response-validation-caching-and-telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Response Validation, Caching, and Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2227,10 +2208,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-environment-configuration-and-endpoint-resolution" class="md-nav__link">
+  <a href="#phase-1-environment-and-configuration-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: Environment Configuration and Endpoint Resolution
+        Phase 1: Environment and Configuration Validation
       
     </span>
   </a>
@@ -2238,10 +2219,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-payload-construction-and-reasoning-adaptation" class="md-nav__link">
+  <a href="#phase-2-payload-construction-and-reasoning-parameter-clamping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: Payload Construction and Reasoning Adaptation
+        Phase 2: Payload Construction and Reasoning Parameter Clamping
       
     </span>
   </a>
@@ -2249,10 +2230,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-3-http-transmission-and-error-interception" class="md-nav__link">
+  <a href="#phase-3-http-request-execution-and-json-parsing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 3: HTTP Transmission and Error Interception
+        Phase 3: HTTP Request Execution and JSON Parsing
       
     </span>
   </a>
@@ -2260,10 +2241,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-4-json-parsing-usage-accounting-and-truncation-handling" class="md-nav__link">
+  <a href="#phase-4-response-validation-token-usage-tracking-and-truncation-detection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 4: JSON Parsing, Usage Accounting, and Truncation Handling
+        Phase 4: Response Validation, Token Usage Tracking, and Truncation Detection
       
     </span>
   </a>
@@ -2326,10 +2307,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cache-store-schema-llm_cache_v2json" class="md-nav__link">
+  <a href="#module-level-variables-and-constants" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cache Store Schema (llm_cache_v2.json)
+        Module-Level Variables and Constants
       
     </span>
   </a>
@@ -2337,10 +2318,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#openai-compatible-completion-request-schema" class="md-nav__link">
+  <a href="#disk-cache-schema-llm_cache_v2json" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OpenAI-Compatible Completion Request Schema
+        Disk Cache Schema (llm_cache_v2.json)
       
     </span>
   </a>
@@ -2348,21 +2329,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#generic-provider-completion-response-schema" class="md-nav__link">
+  <a href="#generic-provider-json-request-payload" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Generic Provider Completion Response Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#re-exported-configuration-symbols" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Re-exported Configuration Symbols
+        Generic Provider JSON Request Payload
       
     </span>
   </a>
@@ -2418,9 +2388,9 @@
 <p><strong>Source:</strong> <code>utils/call_llm.py</code></p>
 </blockquote>
 <h2 id="technical-overview">Technical Overview</h2>
-<p>Following the package-level initialization documented in <a href="../__init__.py/"><strong>init</strong>.py</a>, which establishes the modular namespace for the utility suite, <code>call_llm.py</code> acts as the primary inference orchestration interface for all pipeline nodes. It decouples the upstream pipeline workflows—such as topological synthesis nodes in <a href="../../nodes.py/">nodes.py</a> and state machines in <a href="../../flow.py/">flow.py</a>—from concrete model providers. The module provides a unified execution facade that coordinates request routing, model configuration resolution, prompt token counting, disk-backed caching, refusal interception, and telemetry reporting.</p>
-<p>At its core, <code>call_llm.py</code> implements a persistent two-tier caching mechanism and a refusal memorization pattern. Prompts, provider types, model identifiers, and requested thinking budgets are hashed using SHA-256 to create deterministic cache keys. Responses are cached in-memory and committed to an atomic disk file (<code>llm_cache_v2.json</code>) using a temporary file replacement pattern to prevent corruption during unexpected process termination. The module also integrates refusal interception: when a model issues a non-retryable refusal, the request signature is memorized in-memory, preventing redundant API billing and repetitive HTTP transactions across node retry loops.</p>
-<p>The engine dispatches requests to backend-specific adapter drivers based on the active provider configuration. Dedicated internal handlers wrap official SDK integrations for Google Gemini (<a href="../llm_gemini.py/">llm_gemini.py</a>), Anthropic (<a href="../llm_anthropic.py/">llm_anthropic.py</a>), and OpenRouter (<a href="../llm_openrouter.py/">llm_openrouter.py</a>). For local deployments or self-hosted reasoning models (such as Ollama or generic OpenAI-compatible reverse proxies), <code>call_llm.py</code> features a native HTTP client implementation using <code>requests</code>. This client dynamically adjusts sampling parameters, handles reasoning effort tokens (<code>think</code> / <code>reasoning_effort</code>), tracks token usage metadata, and identifies length-based output truncations.</p>
+<p>The <code>utils/call_llm.py</code> module serves as the centralized inference router and cache orchestrator across the <code>Codebase-Knowledge-Builder</code> architecture. It abstracts model provider variance by dispatching requests to Google Gemini, Anthropic Claude, OpenRouter, or generic OpenAI-compatible APIs (such as local Ollama endpoints). The module integrates persistent disk-backed caching, token usage accounting, reasoning effort clamping, and active error caching to avoid redundant API consumption when downstream workers encounter fatal model refusals.</p>
+<p>At its core, the execution pipeline handles configuration discovery via <a href="../llm_config.py/">utils/llm_config.py</a>, token evaluation through <a href="../token_utils.py/">utils/token_utils.py</a>, and event logging and localization through <a href="../output.py/">utils/output.py</a>. The caching subsystem utilizes a scoped SHA-256 hash algorithm taking into account the provider, model, thinking level, and prompt payload. Cache reads occur lazily into an in-memory singleton, while writes use atomic file replacement semantics to ensure atomic cache persistence across multi-process or interrupted runs.</p>
+<p>When executed directly as a standalone script via <code>python utils/call_llm.py</code>, the module triggers a self-test harness. It checks LLM credentials via <code>check_llm_auth()</code>, evaluates the filesystem for legacy v1 cache remnants with <code>notice_legacy_cache()</code>, and issues a live round-trip test query (<code>"Hello, how are you?"</code>) to verify connectivity and parsing integrity before workflow execution.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -2448,56 +2418,60 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    subgraph SubgraphCacheRefusal["Cache and Refusal Evaluation"]
-        initCall["Resolve LLM Settings and Count Tokens"]
-        checkCache{"Cache Enabled and Key Present?"}
-        returnCache["Return Cached Response"]
-        checkRefusal{"Request Previously Refused?"}
-        raiseRefused["Raise Cached LLMRefusalError"]
+    subgraph RequestPreflight["Request Preflight and Cache Check"]
+        startNode["Receive Prompt and Options"]
+        resolveConfig["Resolve Provider, Model, and Thinking Level"]
+        computeHash["Compute SHA-256 Cache Key"]
+        checkCache{"Cache Enabled and Hit?"}
+        returnCached["Return Cached Response"]
+        checkRefusal{"Previous Refusal Recorded?"}
+        raiseRefusal["Raise Cached LLMRefusalError"]
     end
 
-    subgraph SubgraphProviderDispatch["Provider Dispatch Routing"]
-        routeEngine{"Evaluate Resolved Provider"}
-        dispatchGemini["Dispatch to utils.llm_gemini"]
-        dispatchAnthropic["Dispatch to utils.llm_anthropic"]
-        dispatchOpenRouter["Dispatch to utils.llm_openrouter"]
-        dispatchGeneric["Dispatch to _call_llm_provider"]
+    subgraph ProviderExecution["Provider Dispatch and Parsing"]
+        dispatchProvider{"Provider Type?"}
+        callGemini["_call_llm_gemini"]
+        callAnthropic["_call_llm_anthropic"]
+        callOpenRouter["_call_llm_openrouter"]
+        callGeneric["_call_llm_provider"]
     end
 
-    subgraph SubgraphResponseProcessing["Response Processing and Cache Commit"]
-        catchRefusal{"Catch LLMRefusalError?"}
-        recordRefusal["Record Refusal in Memory"]
-        verifyTruncation{"Response Valid and Not Truncated?"}
-        writeCache["Atomic Write to llm_cache_v2.json"]
-        returnResponse["Return Final Response Text"]
+    subgraph ResponseProcessing["Response Validation and Cache Update"]
+        checkErrors{"Error or Refusal?"}
+        recordRefusal["Record Non-retryable Refusal"]
+        evalTruncated{"Is Response Truncated or Empty?"}
+        writeCache["Persist to Cache via Atomic Temp File"]
+        returnFinal["Return Model Response Text"]
     end
 
-    initCall --&gt; checkCache
-    checkCache -- "Yes" --&gt; returnCache
+    startNode --&gt; resolveConfig
+    resolveConfig --&gt; computeHash
+    computeHash --&gt; checkCache
+    checkCache -- "Yes" --&gt; returnCached
     checkCache -- "No" --&gt; checkRefusal
-    checkRefusal -- "Yes" --&gt; raiseRefused
-    checkRefusal -- "No" --&gt; routeEngine
+    checkRefusal -- "Yes" --&gt; raiseRefusal
+    checkRefusal -- "No" --&gt; dispatchProvider
 
-    routeEngine -- "GEMINI" --&gt; dispatchGemini
-    routeEngine -- "ANTHROPIC" --&gt; dispatchAnthropic
-    routeEngine -- "OPENROUTER" --&gt; dispatchOpenRouter
-    routeEngine -- "Other / OLLAMA" --&gt; dispatchGeneric
+    dispatchProvider -- "GEMINI" --&gt; callGemini
+    dispatchProvider -- "ANTHROPIC" --&gt; callAnthropic
+    dispatchProvider -- "OPENROUTER" --&gt; callOpenRouter
+    dispatchProvider -- "OLLAMA or Other" --&gt; callGeneric
 
-    dispatchGemini --&gt; catchRefusal
-    dispatchAnthropic --&gt; catchRefusal
-    dispatchOpenRouter --&gt; catchRefusal
-    dispatchGeneric --&gt; catchRefusal
+    callGemini --&gt; checkErrors
+    callAnthropic --&gt; checkErrors
+    callOpenRouter --&gt; checkErrors
+    callGeneric --&gt; checkErrors
 
-    catchRefusal -- "Non-retryable Error" --&gt; recordRefusal
-    catchRefusal -- "Success" --&gt; verifyTruncation
-    verifyTruncation -- "Cacheable" --&gt; writeCache
-    verifyTruncation -- "Truncated or Empty" --&gt; returnResponse
-    writeCache --&gt; returnResponse
+    checkErrors -- "LLMRefusalError" --&gt; recordRefusal
+    checkErrors -- "Success" --&gt; evalTruncated
+    evalTruncated -- "Valid Text" --&gt; writeCache
+    evalTruncated -- "Truncated or Empty" --&gt; returnFinal
+    writeCache --&gt; returnFinal
 
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-    class initCall entryNode;
-    class routeEngine entryNode;
-    class catchRefusal entryNode;</code></pre> 
+    class startNode entryNode
+    class dispatchProvider entryNode
+    class checkErrors entryNode</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -2506,205 +2480,219 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
-<h2 id="public-api">Public API</h2>
-<h3 id="call_llm"><code>call_llm()</code></h3>
-<p><strong>Visibility</strong>: Public
-<strong>Signature</strong>: <code>def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>: Main orchestrator function for Large Language Model invocations. Resolves active provider settings, computes token metrics, queries the disk-backed cache singleton, evaluates prior model refusals, dispatches prompts to target backend drivers, measures elapsed execution time, and conditionally updates the cache.</p>
-<p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): The complete formatted prompt text sent to the downstream model.
-* <code>use_cache</code> (<code>bool</code>, optional): Flag indicating whether to check existing entries in <code>llm_cache_v2.json</code> and persist new successful responses. Defaults to <code>True</code>.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Model-agnostic reasoning effort level (e.g., <code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"max"</code>). Defaults to <code>None</code>.</p>
-<p><strong>Returns</strong>:
-* <code>str</code>: The textual response generated by the provider or loaded from cache. If the response was truncated due to output length limits, an instance of <code>TruncatedResponse</code> (a <code>str</code> subclass) is returned.</p>
-<p><strong>Raises</strong>:
-* <code>LLMRefusalError</code>: When a provider refuses to answer the prompt or triggers safety thresholds.
-* <code>ValueError</code>: If required environment variables are absent, or invalid JSON is returned.
-* <code>RuntimeError</code>: If an API response lacks expected choice payloads.
-* <code>Exception</code>: Propagated from downstream HTTP or provider SDK driver failures.</p>
-<h4 id="phase-1-settings-resolution-and-prompt-telemetry">Phase 1: Settings Resolution and Prompt Telemetry</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span><span class="p">,</span> <span class="n">emit_raw</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.token_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_tokens</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">provider</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">resolve_llm_settings</span><span class="p">()</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">prompt_tokens</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">80</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">emit_raw</span><span class="p">(</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="s2">"DEBUG"</span><span class="p">,</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="sa">f</span><span class="s2">"LLM CALL START | provider=</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2"> | model=</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> | thinking=</span><span class="si">{</span><span class="n">thinking_level</span><span class="si">}</span><span class="s2"> | cache=</span><span class="si">{</span><span class="s1">'enabled'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">use_cache</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'disabled'</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">prompt_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">,</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">)</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"PROMPT:</span><span class="se">\n</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-</code></pre></div>
-This phase reads global configuration parameters by calling <code>resolve_llm_settings()</code> from <a href="../llm_config.py/">llm_config.py</a>. It calculates prompt token consumption using <code>count_tokens()</code> from <a href="../token_utils.py/">token_utils.py</a> to provide visibility into payload sizing. Diagnostic metadata—including model identifier, provider name, thinking levels, and complete prompt contents—are written directly to logger channels via <code>emit_raw()</code> from <a href="../output.py/">output.py</a>.</p>
-<h4 id="phase-2-cache-evaluation-and-short-circuiting">Phase 2: Cache Evaluation and Short-Circuiting</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="c1"># Check cache if enabled</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">key</span> <span class="o">=</span> <span class="n">_cache_key</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">provider</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">)</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">if</span> <span class="n">use_cache</span><span class="p">:</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="n">cache</span> <span class="o">=</span> <span class="n">load_cache</span><span class="p">()</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            <span class="n">cached_response</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"CACHE_HIT"</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cached_response</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"RESPONSE (cached):</span><span class="se">\n</span><span class="si">{</span><span class="n">cached_response</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>            <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"LLM CALL END | result=cache_hit"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>            <span class="k">return</span> <span class="n">cached_response</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"CACHE_MISS"</span><span class="p">)</span>
-</code></pre></div>
-When caching is enabled, the execution pipeline generates a unique SHA-256 key matching the prompt and runtime scope. It invokes <code>load_cache()</code> to access the global cache map. If a match is found, the system records a <code>CACHE_HIT</code> event, writes debug logs containing character count metrics, and immediately returns the cached output string, bypassing API calls and network overhead.</p>
-<h4 id="phase-3-refusal-interception">Phase 3: Refusal Interception</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="c1"># A request the provider already declined this run is declined again: do not re-send it on</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="c1"># node retries (rate limits, billed partial output). The node retry still sees the error.</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">refusal_key</span> <span class="o">=</span> <span class="n">request_key</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">refused</span> <span class="o">=</span> <span class="n">previous_refusal</span><span class="p">(</span><span class="n">refusal_key</span><span class="p">)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">if</span> <span class="n">refused</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"LLM CALL END | result=refused_before (not re-sent)"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="k">raise</span> <span class="n">refused</span>
-</code></pre></div>
-Before initiating remote network calls, <code>call_llm()</code> queries <code>previous_refusal()</code> using a deterministic refusal key generated by <code>request_key()</code> from <a href="../llm_common.py/">llm_common.py</a>. If this specific prompt and model combination resulted in a non-retryable refusal earlier in the session, the memorized <code>LLMRefusalError</code> is immediately re-raised. This prevents cascading retries in <a href="../../nodes.py/">nodes.py</a> from generating repeated billable errors for permanently declined prompts.</p>
-<h4 id="phase-4-dynamic-provider-dispatch-and-refusal-recording">Phase 4: Dynamic Provider Dispatch and Refusal Recording</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="c1"># Make the actual LLM call</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"API CALL | sending request to </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">..."</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"GEMINI"</span><span class="p">:</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_gemini</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="k">elif</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"ANTHROPIC"</span><span class="p">:</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_anthropic</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="k">elif</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"OPENROUTER"</span><span class="p">:</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_openrouter</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="k">else</span><span class="p">:</span>  <span class="c1"># generic method using a URL that is OpenAI compatible API (Ollama, ...)</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_provider</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="k">except</span> <span class="n">LLMRefusalError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="o">.</span><span class="n">retryable</span><span class="p">:</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>            <span class="n">remember_refusal</span><span class="p">(</span><span class="n">refusal_key</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>        <span class="k">raise</span>
-</code></pre></div>
-The router directs the call to dedicated adapters depending on the <code>provider</code> string: <code>_call_llm_gemini</code> for Google Gemini, <code>_call_llm_anthropic</code> for Anthropic Claude, <code>_call_llm_openrouter</code> for OpenRouter, or fallback to <code>_call_llm_provider</code> for generic OpenAI-compatible HTTP endpoints. The dispatch block captures <code>LLMRefusalError</code> exceptions. If the exception's <code>retryable</code> property is <code>False</code>, it calls <code>remember_refusal()</code> to cache the failure in memory before propagating the exception up the execution stack.</p>
-<h4 id="phase-5-cache-persistence-and-response-return">Phase 5: Cache Persistence and Response Return</h4>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"API CALL COMPLETE | elapsed=</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s | response_chars=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">response_text</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"RESPONSE:</span><span class="se">\n</span><span class="si">{</span><span class="n">response_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="c1"># Update cache if enabled. Empty and truncated responses (llm_common.TruncatedResponse)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="c1"># are never cached — they would be replayed on every later run.</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">if</span> <span class="n">use_cache</span> <span class="ow">and</span> <span class="n">response_text</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">response_text</span><span class="p">,</span> <span class="s2">"truncated"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="n">cache</span> <span class="o">=</span> <span class="n">load_cache</span><span class="p">()</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">response_text</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="n">save_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"CACHE WRITE | saved response to cache"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"LLM CALL END | result=success | elapsed=</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="k">return</span> <span class="n">response_text</span>
-</code></pre></div>
-Following a successful API invocation, elapsed execution time is calculated and logged alongside character counts. The system determines whether the response can be cached: empty responses and truncated outputs (<code>getattr(response_text, "truncated", False)</code>) are excluded to avoid caching incomplete text. Valid completions are committed to disk via <code>save_cache()</code>, and the final string or <code>TruncatedResponse</code> object is returned to the caller.</p>
-<p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Extracted from utils/call_llm.py (__main__ self-test block)</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">test_prompt</span> <span class="o">=</span> <span class="s2">"Hello, how are you?"</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">emit</span><span class="p">(</span><span class="s2">"SELFTEST_LLM_CALL"</span><span class="p">)</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">response1</span> <span class="o">=</span> <span class="n">call_llm</span><span class="p">(</span><span class="n">test_prompt</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">emit</span><span class="p">(</span><span class="s2">"SELFTEST_LLM_RESPONSE"</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">response1</span><span class="p">)</span>
-</code></pre></div></p>
 <hr />
+<h2 id="public-api">Public API</h2>
 <h3 id="load_cache"><code>load_cache()</code></h3>
-<p><strong>Visibility</strong>: Public
+<p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def load_cache() -&gt; dict:</code></p>
-<p><strong>Description</strong>: Accesses and returns the process-wide in-memory cache dictionary singleton. On initial access, it deserializes cache data from <code>llm_cache_v2.json</code>. If the file does not exist or contains invalid JSON data, it emits an alert and falls back to an empty dictionary, ensuring file corruption does not interrupt pipeline runs.</p>
+<p><strong>Description</strong>: Loads the v2 persistent disk cache (<code>llm_cache_v2.json</code>) into the module-level in-memory cache singleton (<code>_cache</code>). If the in-memory dictionary is already initialized, it immediately returns the active reference, bypassing disk I/O. When reading from disk for the first time, it handles missing files gracefully by initializing an empty dictionary, and catches <code>json.JSONDecodeError</code> or <code>OSError</code> anomalies by emitting a warning event via <code>utils.output.emit</code> and resetting to an empty dictionary.</p>
 <p><strong>Parameters</strong>:
 None.</p>
 <p><strong>Returns</strong>:
-* <code>dict</code>: A key-value dictionary mapping SHA-256 prompt-scope hashes to generated text responses.</p>
+* <code>dict</code>: The global in-memory mapping of SHA-256 keys to cached string responses.</p>
 <p><strong>Raises</strong>:
-No exceptions are raised; file missing and syntax errors are handled internally and logged.</p>
+None. Errors are trapped internally and logged via <code>utils.output.emit_raw</code>.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Implementation pattern from utils/call_llm.py</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_cache</span><span class="p">():</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="k">global</span> <span class="n">_cache</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">if</span> <span class="n">_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="k">return</span> <span class="n">_cache</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="n">_cache</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"CACHE_LOADED"</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">_cache</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">cache_file</span><span class="p">)</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span><span class="p">,</span> <span class="n">emit_raw</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_CACHE_LOAD_FAIL"</span><span class="p">)</span>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Cache load error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>        <span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    <span class="k">return</span> <span class="n">_cache</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_cache</span><span class="p">():</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">global</span> <span class="n">_cache</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">if</span> <span class="n">_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="k">return</span> <span class="n">_cache</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            <span class="n">_cache</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"CACHE_LOADED"</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">_cache</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">cache_file</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span><span class="p">,</span> <span class="n">emit_raw</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_CACHE_LOAD_FAIL"</span><span class="p">)</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Cache load error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="k">return</span> <span class="n">_cache</span>
 </code></pre></div>
-<code>load_cache</code> uses the global <code>_cache</code> variable to avoid re-parsing large JSON files on repeated calls. When the cache file is read for the first time, it reports successful loading along with the entry count via <code>emit("CACHE_LOADED", ...)</code>. If an <code>OSError</code> or <code>JSONDecodeError</code> occurs, it emits <code>WARN_CACHE_LOAD_FAIL</code>, outputs the error detail to the application log, and initializes <code>_cache</code> as an empty dictionary.</p>
+The implementation uses a global variable <code>_cache</code> to ensure that files up to hundreds of megabytes in size are only parsed once during the lifecycle of the Python process. If the file is not found, <code>_cache</code> defaults to <code>{}</code> without failing, allowing subsequent saves to write a fresh cache file.</p>
 <hr />
 <h3 id="save_cache"><code>save_cache()</code></h3>
-<p><strong>Visibility</strong>: Public
+<p><strong>Visibility</strong>: Public<br />
 <strong>Signature</strong>: <code>def save_cache(cache: dict) -&gt; None:</code></p>
-<p><strong>Description</strong>: Persists the updated cache dictionary to disk atomically. Serializes the dictionary to a temporary staging file (<code>llm_cache_v2.json.tmp</code>) before renaming it over the destination target (<code>llm_cache_v2.json</code>). This ensures that process aborts, OS interrupts, or power failures cannot leave behind truncated or corrupt cache files.</p>
+<p><strong>Description</strong>: Commits the in-memory cache dictionary to disk. To prevent race conditions, corrupted states, or truncated cache files if the process is terminated mid-write, the function implements atomic file replacement. It writes the serialized JSON data into a temporary sibling file (<code>llm_cache_v2.json.tmp</code>) and executes <code>os.replace</code> to atomically overwrite the destination cache file.</p>
 <p><strong>Parameters</strong>:
-* <code>cache</code> (<code>dict</code>): The full cache dictionary to serialize to disk.</p>
+* <code>cache</code> (<code>dict</code>): The updated dictionary containing key-value pairs of cache keys and string responses.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-No exceptions are raised; I/O and serialization errors are caught and logged via telemetry utilities.</p>
+None. Catches <code>OSError</code> and <code>TypeError</code> and emits diagnostic warnings.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Implementation pattern from utils/call_llm.py</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">save_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">):</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">global</span> <span class="n">_cache</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="c1"># Write to a temp file and atomically replace, so an interrupted run never leaves a truncated cache.</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">tmp_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s2">.tmp"</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">)</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span><span class="p">,</span> <span class="n">emit_raw</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_CACHE_SAVE_FAIL"</span><span class="p">)</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Cache save error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">save_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">global</span> <span class="n">_cache</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="c1"># Write to a temp file and atomically replace, so an interrupted run never leaves a truncated cache.</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">tmp_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">cache_file</span><span class="si">}</span><span class="s2">.tmp"</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span><span class="p">,</span> <span class="n">emit_raw</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"WARN_CACHE_SAVE_FAIL"</span><span class="p">)</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Cache save error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
 </code></pre></div>
-<code>save_cache</code> updates the in-memory singleton <code>_cache</code> and initiates atomic file replacement. The write target is derived by appending <code>.tmp</code> to <code>cache_file</code>. Once <code>json.dump</code> finishes writing the temporary file, <code>os.replace()</code> provides atomic replacement on POSIX and Windows systems. If writing fails due to disk quotas, file permissions, or serialization type errors, the function catches <code>(OSError, TypeError)</code>, logs the failure, and prevents process crashes.</p>
+The method assigns the provided dictionary directly to the module's global <code>_cache</code> reference before initiating disk persistence. If writing to disk fails due to disk quotas, file permission locks, or non-serializable objects, <code>WARN_CACHE_SAVE_FAIL</code> is emitted to the output logging system without interrupting worker execution.</p>
+<hr />
+<h3 id="notice_legacy_cache"><code>notice_legacy_cache()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def notice_legacy_cache() -&gt; None:</code></p>
+<p><strong>Description</strong>: Inspects the local working directory for the existence of the obsolete pre-v2 cache file defined by <code>LEGACY_CACHE_FILE</code> (<code>llm_cache.json</code>). The legacy format keyed entries strictly by prompt string rather than the model-scoped hash used in v2. If detected, it reads the file size and notifies the user via the <code>CACHE_LEGACY_FOUND</code> emission event so obsolete files can be identified and reclaimed via cleanup commands.</p>
+<p><strong>Parameters</strong>:
+None.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+None. Catches <code>OSError</code> silently if the legacy file does not exist.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">notice_legacy_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Point out a leftover pre-v2 cache file: it is never read, so it only takes disk space."""</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">LEGACY_CACHE_FILE</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="k">return</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">emit</span><span class="p">(</span><span class="s2">"CACHE_LEGACY_FOUND"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">LEGACY_CACHE_FILE</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">size</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1_048_576</span><span class="si">:</span><span class="s2">,.1f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">current</span><span class="o">=</span><span class="n">cache_file</span><span class="p">)</span>
+</code></pre></div>
+This utility function executes during preflight routines (such as direct module execution or main entry point verification). By converting byte size to megabytes via division by <code>1_048_576</code>, it yields human-readable disk consumption feedback.</p>
+<hr />
+<h3 id="call_llm"><code>call_llm()</code></h3>
+<p><strong>Visibility</strong>: Public<br />
+<strong>Signature</strong>: <code>def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -&gt; str:</code></p>
+<p><strong>Description</strong>: Primary entry point for making LLM generation requests across all pipeline nodes. It resolves provider settings, counts prompt tokens, inspects cache and prior refusal records, dispatches to specific backend drivers, and conditionally updates persistent cache upon successful non-truncated completions.</p>
+<p><strong>Parameters</strong>:
+* <code>prompt</code> (<code>str</code>): The full text prompt to submit to the language model.
+* <code>use_cache</code> (<code>bool</code>, optional): Whether to inspect and write to the local cache. Defaults to <code>True</code>.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Desired reasoning effort (e.g., <code>"low"</code>, <code>"medium"</code>, <code>"high"</code>). Defaults to <code>None</code>.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The text response returned by the target LLM provider.</p>
+<p><strong>Raises</strong>:
+* <code>LLMRefusalError</code>: When an LLM model refuses a prompt or policy triggers an unrecoverable decline.
+* <code>ValueError</code>: If required environment variables are absent or unparseable.
+* <code>Exception</code>: Network timeouts, HTTP errors, or backend connection failures.</p>
+<h4 id="phase-1-configuration-resolution-and-token-preflight">Phase 1: Configuration Resolution and Token Preflight</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">emit</span><span class="p">,</span> <span class="n">emit_raw</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.token_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_tokens</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">provider</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">resolve_llm_settings</span><span class="p">()</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">prompt_tokens</span> <span class="o">=</span> <span class="n">count_tokens</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">80</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">emit_raw</span><span class="p">(</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="s2">"DEBUG"</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="sa">f</span><span class="s2">"LLM CALL START | provider=</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2"> | model=</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> | thinking=</span><span class="si">{</span><span class="n">thinking_level</span><span class="si">}</span><span class="s2"> | cache=</span><span class="si">{</span><span class="s1">'enabled'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">use_cache</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'disabled'</span><span class="si">}</span><span class="s2"> | prompt_tokens=</span><span class="si">{</span><span class="n">prompt_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">,</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="p">)</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"PROMPT:</span><span class="se">\n</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+</code></pre></div>
+The initial phase resolves the active provider name, configured model identifier, and auxiliary settings by delegating to <a href="../llm_config.py/">utils/llm_config.py</a>. The input prompt's tokens are tallied using <a href="../token_utils.py/">utils/token_utils.py</a>, and verbose diagnostics are logged to track the request lifecycle.</p>
+<h4 id="phase-2-cache-lookup-and-hit-resolution">Phase 2: Cache Lookup and Hit Resolution</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="c1"># Check cache if enabled</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">key</span> <span class="o">=</span> <span class="n">_cache_key</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">provider</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="k">if</span> <span class="n">use_cache</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="n">cache</span> <span class="o">=</span> <span class="n">load_cache</span><span class="p">()</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>            <span class="n">cached_response</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>            <span class="n">emit</span><span class="p">(</span><span class="s2">"CACHE_HIT"</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cached_response</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>            <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"RESPONSE (cached):</span><span class="se">\n</span><span class="si">{</span><span class="n">cached_response</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>            <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"LLM CALL END | result=cache_hit"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>            <span class="k">return</span> <span class="n">cached_response</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="n">emit</span><span class="p">(</span><span class="s2">"CACHE_MISS"</span><span class="p">)</span>
+</code></pre></div>
+If <code>use_cache</code> is <code>True</code>, the function computes the deterministic cache key via <code>_cache_key()</code>. It calls <code>load_cache()</code> to access the in-memory singleton; if a key matches, it logs a <code>CACHE_HIT</code> event along with response character length and immediately returns the cached text without making an external network call.</p>
+<h4 id="phase-3-refusal-check-and-short-circuiting">Phase 3: Refusal Check and Short-Circuiting</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>    <span class="c1"># A request the provider already declined this run is declined again: do not re-send it on</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="c1"># node retries (rate limits, billed partial output). The node retry still sees the error.</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">refusal_key</span> <span class="o">=</span> <span class="n">request_key</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">refused</span> <span class="o">=</span> <span class="n">previous_refusal</span><span class="p">(</span><span class="n">refusal_key</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="k">if</span> <span class="n">refused</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"LLM CALL END | result=refused_before (not re-sent)"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="k">raise</span> <span class="n">refused</span>
+</code></pre></div>
+Before reaching out to the remote provider, the function constructs a refusal key using <code>request_key()</code> from <a href="../llm_common.py/">utils/llm_common.py</a>. If this identical request previously failed with an unrecoverable refusal during this application run, it re-raises the recorded <code>LLMRefusalError</code> immediately to prevent rate limit depletion and duplicate billing.</p>
+<h4 id="phase-4-provider-dispatch-and-execution">Phase 4: Provider Dispatch and Execution</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>    <span class="c1"># Make the actual LLM call</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"API CALL | sending request to </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">..."</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"GEMINI"</span><span class="p">:</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_gemini</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="k">elif</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"ANTHROPIC"</span><span class="p">:</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_anthropic</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="k">elif</span> <span class="n">provider</span> <span class="o">==</span> <span class="s2">"OPENROUTER"</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_openrouter</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>        <span class="k">else</span><span class="p">:</span>  <span class="c1"># generic method using a URL that is OpenAI compatible API (Ollama, ...)</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>            <span class="n">response_text</span> <span class="o">=</span> <span class="n">_call_llm_provider</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="k">except</span> <span class="n">LLMRefusalError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="o">.</span><span class="n">retryable</span><span class="p">:</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>            <span class="n">remember_refusal</span><span class="p">(</span><span class="n">refusal_key</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>        <span class="k">raise</span>
+</code></pre></div>
+The dispatch branch evaluates the resolved <code>provider</code> string to invoke the appropriate backend wrapper. If the call raises an <code>LLMRefusalError</code>, the exception is inspected: non-retryable refusals are captured in memory via <code>remember_refusal</code> before being re-raised to the caller.</p>
+<h4 id="phase-5-response-validation-caching-and-telemetry">Phase 5: Response Validation, Caching, and Telemetry</h4>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"API CALL COMPLETE | elapsed=</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s | response_chars=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">response_text</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"RESPONSE:</span><span class="se">\n</span><span class="si">{</span><span class="n">response_text</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="c1"># Update cache if enabled. Empty and truncated responses (llm_common.TruncatedResponse)</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="c1"># are never cached — they would be replayed on every later run.</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">if</span> <span class="n">use_cache</span> <span class="ow">and</span> <span class="n">response_text</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">response_text</span><span class="p">,</span> <span class="s2">"truncated"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="n">cache</span> <span class="o">=</span> <span class="n">load_cache</span><span class="p">()</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">response_text</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="n">save_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>        <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"CACHE WRITE | saved response to cache"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="n">emit_raw</span><span class="p">(</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"LLM CALL END | result=success | elapsed=</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"LOG"</span><span class="p">)</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="k">return</span> <span class="n">response_text</span>
+</code></pre></div>
+Following successful execution, elapsed wall-clock duration and response payload size are logged. If caching is enabled, the result is checked against emptiness and the <code>truncated</code> attribute flag (indicating an incomplete output sequence). Complete, valid responses are committed to the cache file via <code>save_cache()</code>, and the final text string is returned.</p>
 <hr />
 <h2 id="internal-helpers">Internal Helpers</h2>
 <h3 id="_cache_key"><code>_cache_key()</code></h3>
-<p><strong>Visibility</strong>: Private
+<p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _cache_key(prompt: str, provider: str, model: str, thinking_level: str | None) -&gt; str:</code></p>
-<p><strong>Description</strong>: Generates a deterministic SHA-256 hash identifying a cached completion. Incorporates the provider name, model identifier, normalized thinking budget, and the complete prompt text into the hashing scope.</p>
+<p><strong>Description</strong>: Constructs a SHA-256 hexadecimal hash representing the discrete configuration and payload of an LLM request. By prefixing the prompt with the provider name, model identifier, and normalized reasoning effort level, this function guarantees that responses remain isolated across different models and configurations even when prompts are identical.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): The exact input prompt text.
-* <code>provider</code> (<code>str</code>): The name of the LLM provider (e.g., <code>"GEMINI"</code>, <code>"ANTHROPIC"</code>).
-* <code>model</code> (<code>str</code>): The specific model identifier string.
-* <code>thinking_level</code> (<code>str | None</code>): The requested reasoning level or <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): The exact input text sent to the model.
+* <code>provider</code> (<code>str</code>): The active provider name (e.g., <code>"GEMINI"</code>, <code>"ANTHROPIC"</code>, <code>"OLLAMA"</code>).
+* <code>model</code> (<code>str</code>): The target model name string.
+* <code>thinking_level</code> (<code>str | None</code>): The requested reasoning budget or effort level string, defaulting to <code>"default"</code> if <code>None</code>.</p>
 <p><strong>Returns</strong>:
 * <code>str</code>: A 64-character hexadecimal SHA-256 digest string.</p>
+<p><strong>Raises</strong>:
+None.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Implementation from utils/call_llm.py</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_cache_key</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">scope</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="p">(</span><span class="n">thinking_level</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'default'</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">((</span><span class="n">scope</span> <span class="o">+</span> <span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_cache_key</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">scope</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="p">(</span><span class="n">thinking_level</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'default'</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">((</span><span class="n">scope</span> <span class="o">+</span> <span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 </code></pre></div>
-<code>_cache_key</code> standardizes the cache scope by building a prefix formatted as <code>{provider}|{model}|{thinking_level}\n</code>. If <code>thinking_level</code> is absent, it defaults to <code>"default"</code>. By concatenating this scope prefix with the raw UTF-8 prompt bytes and running SHA-256 hashing, cache entries are strictly segregated across different models, providers, and reasoning budgets.</p>
+The scope string formats the provider, model, and normalized thinking level followed by a newline delimiter. This prefix is prepended to the raw prompt before encoding as UTF-8 bytes and hashing, preventing cache collisions across model migrations.</p>
 <hr />
 <h3 id="_call_llm_provider"><code>_call_llm_provider()</code></h3>
-<p><strong>Visibility</strong>: Private
+<p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _call_llm_provider(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>: Low-level HTTP communication driver for OpenAI-compatible REST endpoints, including local Ollama installations and self-hosted inference servers. It resolves endpoint URLs, sets headers, shapes JSON payloads, tunes reasoning parameters, posts requests via <code>requests</code>, parses token usage, and handles truncated completions.</p>
+<p><strong>Description</strong>: Implements HTTP communication with generic OpenAI-compatible chat completion endpoints (such as Ollama or custom local server deployments). It dynamically parses environment variables matching <code>&lt;provider&gt;_MODEL</code>, <code>&lt;provider&gt;_BASE_URL</code>, and <code>&lt;provider&gt;_API_KEY</code>, prepares JSON payloads with sampling parameters or reasoning effort levels, executes a POST request via <code>requests.post</code>, and parses output choices and token usage.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): The raw prompt to pass in the <code>messages</code> array.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Desired reasoning effort configuration. Defaults to <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): Prompt text to be passed under a user role message.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning effort level to inject into Ollama-compatible payloads. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: The completion text extracted from <code>choices[0].message.content</code>. If <code>finish_reason == "length"</code>, returns an instance of <code>TruncatedResponse</code>.</p>
+* <code>str</code>: The extracted completion content or a <code>TruncatedResponse</code> wrapper if <code>finish_reason == "length"</code>.</p>
 <p><strong>Raises</strong>:
-* <code>ValueError</code>: If required environment variables (<code>&lt;provider&gt;_MODEL</code>, <code>&lt;provider&gt;_BASE_URL</code>) are missing, or if the server returns non-JSON payloads.
-* <code>RuntimeError</code>: If the HTTP 200 response JSON omits the mandatory <code>choices</code> list.
-* <code>Exception</code>: For connection drops, timeouts, or HTTP status error codes.</p>
-<h4 id="phase-1-environment-configuration-and-endpoint-resolution">Phase 1: Environment Configuration and Endpoint Resolution</h4>
+* <code>ValueError</code>: Missing required environment variables or malformed non-JSON responses from the server.
+* <code>RuntimeError</code>: Successful HTTP responses that lack the expected <code>choices</code> array.
+* <code>Exception</code>: Wrapped connection errors, HTTP errors, or socket timeouts.</p>
+<h4 id="phase-1-environment-and-configuration-validation">Phase 1: Environment and Configuration Validation</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>    <span class="c1"># Read the provider from environment variable</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">provider</span> <span class="o">=</span> <span class="n">get_llm_provider</span><span class="p">()</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">provider</span><span class="p">:</span>
@@ -2729,8 +2717,8 @@ No exceptions are raised; I/O and serialization errors are caught and logged via
 <a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="c1"># Append the endpoint to the base URL</span>
 <a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span><span class="si">}</span><span class="s2">/v1/chat/completions"</span>
 </code></pre></div>
-This phase retrieves configuration from environment variables based on the active provider prefix. It uses <code>get_llm_provider()</code> from <a href="../llm_config.py/">llm_config.py</a> to determine the provider key (e.g., <code>OLLAMA</code>). It verifies that both <code>&lt;provider&gt;_MODEL</code> and <code>&lt;provider&gt;_BASE_URL</code> are defined in the environment, stripping trailing slashes from the base URL and appending the standard <code>/v1/chat/completions</code> endpoint path.</p>
-<h4 id="phase-2-payload-construction-and-reasoning-adaptation">Phase 2: Payload Construction and Reasoning Adaptation</h4>
+The method resolves the active provider name via <code>get_llm_provider()</code>. It looks up provider-specific variables in <code>os.environ</code> for the model name, base URL, and optional API key, throwing <code>ValueError</code> if model or base URL entries are unset, and constructs the standard <code>/v1/chat/completions</code> endpoint URL.</p>
+<h4 id="phase-2-payload-construction-and-reasoning-parameter-clamping">Phase 2: Payload Construction and Reasoning Parameter Clamping</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>    <span class="c1"># Configure headers and payload based on provider</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span>
@@ -2756,8 +2744,8 @@ This phase retrieves configuration from environment variables based on the activ
 <a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>        <span class="c1"># Claude Opus 4.7+ / Opus 5.x / Sonnet 5 / Fable reject sampling parameters (400).</span>
 <a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>        <span class="n">payload</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"temperature"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
-The request headers and payload are prepared for transmission. If an API key is available, an <code>Authorization: Bearer &lt;key&gt;</code> header is attached. For Ollama reasoning models, the requested thinking level is clamped to allowed values (<code>low</code>, <code>medium</code>, <code>high</code>) using <code>_clamp_level</code> from <a href="../thinking.py/">thinking.py</a>, and populated into both <code>think</code> and <code>reasoning_effort</code> fields while resetting temperature to <code>1.0</code>. If <code>rejects_sampling_params(model)</code> evaluates to true (e.g., newer Claude models), the <code>temperature</code> parameter is stripped entirely to prevent 400 Bad Request errors.</p>
-<h4 id="phase-3-http-transmission-and-error-interception">Phase 3: HTTP Transmission and Error Interception</h4>
+Headers are initialized with standard JSON content types and optional bearer authorization. The JSON body is populated with messages and a default temperature of 0.7. For Ollama reasoning models, <code>_clamp_level</code> normalizes the thinking level to <code>low</code>, <code>medium</code>, or <code>high</code>, setting both <code>think</code> and <code>reasoning_effort</code> fields while shifting temperature to 1.0. If <code>rejects_sampling_params(model)</code> evaluates to true, the <code>temperature</code> parameter is stripped completely to prevent upstream 400 Bad Request responses.</p>
+<h4 id="phase-3-http-request-execution-and-json-parsing">Phase 3: HTTP Request Execution and JSON Parsing</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># HTTP status first: an HTML 502 page must not look like a JSON bug</span>
@@ -2772,7 +2760,7 @@ The request headers and payload are prepared for transmission. If an API key is 
 <a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>                <span class="n">preview</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">[:</span><span class="mi">200</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
 <a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>            <span class="p">)</span>
 <a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Provider returned invalid JSON. Status Code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>        <span class="c1"># ...</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="o">//</span> <span class="o">...</span>
 <a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>        <span class="n">error_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"HTTP error occurred: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>        <span class="k">try</span><span class="p">:</span>
@@ -2790,8 +2778,8 @@ The request headers and payload are prepared for transmission. If an API key is 
 <a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse response as JSON from </span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">. The server might have returned an invalid response."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 </code></pre></div>
-The HTTP payload is dispatched using <code>requests.post</code> with a connect timeout of 10 seconds and a read timeout of 300 seconds. Status codes are checked using <code>response.raise_for_status()</code>. The parser verifies that the returned body is valid JSON; if parsing fails (for example, receiving an HTML error page from a proxy), a <code>WARN_INVALID_JSON</code> warning is logged and a clean <code>ValueError</code> is raised. Dedicated exception blocks wrap transport errors (<code>ConnectionError</code>, <code>Timeout</code>, <code>HTTPError</code>) into actionable exceptions that include server error payloads where available.</p>
-<h4 id="phase-4-json-parsing-usage-accounting-and-truncation-handling">Phase 4: JSON Parsing, Usage Accounting, and Truncation Handling</h4>
+The network request is dispatched with a connect timeout of 10 seconds and read timeout of 300 seconds. <code>response.raise_for_status()</code> guarantees that gateway errors (such as HTML 502 Bad Gateway responses) are captured prior to JSON parsing attempts. Exceptions are captured and mapped into clear, contextual exceptions with provider references.</p>
+<h4 id="phase-4-response-validation-token-usage-tracking-and-truncation-detection">Phase 4: Response Validation, Token Usage Tracking, and Truncation Detection</h4>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>        <span class="c1"># Defensive check: API may return 200 with error/rate-limit payload missing 'choices'</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>        <span class="k">if</span> <span class="s2">"choices"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">response_json</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">response_json</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">]:</span>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>            <span class="n">error_detail</span> <span class="o">=</span> <span class="n">response_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="n">response_json</span><span class="p">)</span>
@@ -2812,101 +2800,128 @@ The HTTP payload is dispatched using <code>requests.post</code> with a connect t
 <a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>            <span class="k">return</span> <span class="n">TruncatedResponse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 <a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>        <span class="k">return</span> <span class="n">text</span>
 </code></pre></div>
-This phase handles the parsed JSON structure. It ensures the response contains a non-empty <code>choices</code> list; if missing, it logs <code>WARN_API_NO_CHOICES</code> and raises a <code>RuntimeError</code>. Token usage metrics (<code>prompt_tokens</code>, <code>completion_tokens</code>) are recorded globally via <code>record_usage()</code> from <a href="../llm_common.py/">llm_common.py</a>. Finally, it inspects <code>finish_reason</code>: if execution stopped due to length limits (<code>finish_reason == "length"</code>), the generated string is returned wrapped in a <code>TruncatedResponse</code> instance, signaling upstream callers that output generation was truncated.</p>
+The parsed response is inspected for valid completion choices. Token consumption metadata reported in the <code>usage</code> block is registered via <code>record_usage()</code>. If the choice metadata indicates <code>finish_reason == "length"</code>, the text is wrapped in a <code>TruncatedResponse</code> object so downstream consumers recognize that max output token limits were hit and avoid caching partial results.</p>
 <hr />
 <h3 id="_call_llm_anthropic"><code>_call_llm_anthropic()</code></h3>
-<p><strong>Visibility</strong>: Private
+<p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _call_llm_anthropic(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>: Dispatches inference requests to Anthropic Claude models. Implements lazy-loading for the <code>anthropic</code> SDK dependency and routes prompts to <code>call_anthropic()</code> in <a href="../llm_anthropic.py/">llm_anthropic.py</a>.</p>
+<p><strong>Description</strong>: Lazily imports and delegates execution to the dedicated Anthropic Claude driver defined in <a href="../llm_anthropic.py/">utils/llm_anthropic.py</a>. If the optional <code>anthropic</code> library is not installed in the environment, it catches the <code>ImportError</code> and raises an actionable error message directing the user to install dependencies.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): Input text prompt.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning configuration passed to the Claude driver. Defaults to <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): Prompt text to be passed to the Anthropic Messages API.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Desired reasoning budget level. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: Model completion output text.</p>
+* <code>str</code>: The text response returned by Claude.</p>
 <p><strong>Raises</strong>:
-* <code>ImportError</code>: If the <code>anthropic</code> package is not installed in the active environment.</p>
+* <code>ImportError</code>: If the <code>anthropic</code> client package is missing from the Python runtime environment.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Implementation from utils/call_llm.py</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_anthropic</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_anthropic</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_anthropic</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">"LLM_PROVIDER=ANTHROPIC requires the 'anthropic' package: pip install -r requirements.txt"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="k">return</span> <span class="n">call_anthropic</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_anthropic</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_anthropic</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_anthropic</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">"LLM_PROVIDER=ANTHROPIC requires the 'anthropic' package: pip install -r requirements.txt"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="k">return</span> <span class="n">call_anthropic</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
 </code></pre></div>
-This helper defers importing <code>utils.llm_anthropic</code> until an Anthropic model call is actually initiated. If the dependency is missing, it intercepts the <code>ImportError</code> and raises a clearer message directing the user to install requirements. Once verified, it passes <code>prompt</code> and <code>thinking_level</code> to <code>call_anthropic()</code>.</p>
+The helper insulates the root orchestrator from optional dependencies, ensuring users operating solely on Gemini or Ollama backends are not required to install the Anthropic SDK.</p>
 <hr />
 <h3 id="_call_llm_gemini"><code>_call_llm_gemini()</code></h3>
-<p><strong>Visibility</strong>: Private
+<p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>: Dispatches inference requests to Google Gemini models. Lazily imports <code>call_gemini</code> from <a href="../llm_gemini.py/">llm_gemini.py</a> and verifies that the <code>google-genai</code> package is available.</p>
+<p><strong>Description</strong>: Lazily imports and dispatches inference tasks to the Google Gemini driver located in <a href="../llm_gemini.py/">utils/llm_gemini.py</a>. It validates that the <code>google-genai</code> package is available, raising an <code>ImportError</code> with installation instructions if absent.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): Input text prompt.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning level mapped to Gemini thinking budgets. Defaults to <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): Prompt text submitted to the Gemini API.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Gemini thinking budget configuration string. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: Model completion output text.</p>
+* <code>str</code>: Text generation output from Gemini.</p>
 <p><strong>Raises</strong>:
-* <code>ImportError</code>: If <code>google-genai</code> (version 1.56 or higher) is missing from the environment.</p>
+* <code>ImportError</code>: When <code>google-genai</code> (&gt;=1.56) is not installed in the current environment.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Implementation from utils/call_llm.py</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_gemini</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_gemini</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_gemini</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">"LLM_PROVIDER=GEMINI requires the 'google-genai' package (&gt;=1.56): pip install -r requirements.txt"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="k">return</span> <span class="n">call_gemini</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_gemini</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_gemini</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_gemini</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">"LLM_PROVIDER=GEMINI requires the 'google-genai' package (&gt;=1.56): pip install -r requirements.txt"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="k">return</span> <span class="n">call_gemini</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
 </code></pre></div>
-<code>_call_llm_gemini</code> prevents unnecessary imports of the Google GenAI SDK when other providers are active. If an <code>ImportError</code> occurs, it raises an error instructing the user to install <code>google-genai &gt;= 1.56</code>. When available, it delegates request handling to <code>call_gemini()</code>.</p>
+This lazy import pattern avoids runtime initialization costs during startup and allows headless execution in lightweight runner environments that do not require Google GenAI dependencies.</p>
 <hr />
 <h3 id="_call_llm_openrouter"><code>_call_llm_openrouter()</code></h3>
-<p><strong>Visibility</strong>: Private
+<p><strong>Visibility</strong>: Private<br />
 <strong>Signature</strong>: <code>def _call_llm_openrouter(prompt: str, thinking_level: str | None = None) -&gt; str:</code></p>
-<p><strong>Description</strong>: Dispatches inference requests to OpenRouter's unified endpoint by delegating directly to <code>call_openrouter()</code> in <a href="../llm_openrouter.py/">llm_openrouter.py</a>.</p>
+<p><strong>Description</strong>: Dispatches inference calls to <a href="../llm_openrouter.py/">utils/llm_openrouter.py</a>. Unlike standard generic providers, OpenRouter leverages dedicated pricing, credit checks, model routing, and token handling logic managed within its own driver.</p>
 <p><strong>Parameters</strong>:
-* <code>prompt</code> (<code>str</code>): Input text prompt.
-* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning configuration passed to the OpenRouter adapter. Defaults to <code>None</code>.</p>
+* <code>prompt</code> (<code>str</code>): Prompt text to transmit to the OpenRouter gateway.
+* <code>thinking_level</code> (<code>str | None</code>, optional): Reasoning configuration passed through to OpenRouter models. Defaults to <code>None</code>.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: Model completion output text.</p>
+* <code>str</code>: Text response received from OpenRouter.</p>
+<p><strong>Raises</strong>:
+* <code>Exception</code>: Propagates API errors and network timeouts encountered within <code>call_openrouter</code>.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Implementation from utils/call_llm.py</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_openrouter</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_openrouter</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_openrouter</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="k">return</span> <span class="n">call_openrouter</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_openrouter</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">utils.llm_openrouter</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_openrouter</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="k">return</span> <span class="n">call_openrouter</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">thinking_level</span><span class="o">=</span><span class="n">thinking_level</span><span class="p">)</span>
 </code></pre></div>
-This helper delegates requests directly to <code>call_openrouter()</code> in <a href="../llm_openrouter.py/">llm_openrouter.py</a>. OpenRouter routes requests through standard HTTP endpoints, so no optional vendor SDKs are required.</p>
+This wrapper routes calls through <code>call_openrouter</code> to apply OpenRouter-specific headers (such as HTTP-Referer and X-Title) and custom token accounting.</p>
 <hr />
 <h2 id="data-structures">Data Structures</h2>
-<h3 id="cache-store-schema-llm_cache_v2json">Cache Store Schema (<code>llm_cache_v2.json</code>)</h3>
-<p>Persistent JSON map storing generated text completions indexed by deterministic SHA-256 cache keys.</p>
+<h3 id="module-level-variables-and-constants">Module-Level Variables and Constants</h3>
+<p>The file defines several persistent caching constants and singleton tracking structures:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Type</th>
 <th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>key</code> <em>(Dictionary Key)</em></td>
+<td style="text-align: left;"><code>cache_file</code></td>
 <td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">64-character hexadecimal SHA-256 hash derived from the provider, model, normalized thinking level, and input prompt.</td>
+<td style="text-align: left;">Default disk filename for v2 cache entries (<code>"llm_cache_v2.json"</code>).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>value</code> <em>(Dictionary Value)</em></td>
+<td style="text-align: left;"><code>LEGACY_CACHE_FILE</code></td>
 <td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">The complete text response generated by the model for the associated cache key.</td>
+<td style="text-align: left;">Filename used by pre-v2 cache versions (<code>"llm_cache.json"</code>), maintained for disk warning checks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>_cache</code></td>
+<td style="text-align: left;"><code>dict \| None</code></td>
+<td style="text-align: left;">In-memory singleton caching parsed response mappings from disk.</td>
 </tr>
 </tbody>
 </table>
+<h3 id="disk-cache-schema-llm_cache_v2json">Disk Cache Schema (<code>llm_cache_v2.json</code>)</h3>
+<p>The v2 cache structure is serialized directly to JSON on disk and held in memory within <code>_cache</code>. It maps SHA-256 hash keys to response strings:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field / Key</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>&lt;sha256_hash&gt;</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Key generated by <code>_cache_key()</code>. Represents the hexadecimal hash of <code>provider\|model\|thinking_level\n&lt;prompt&gt;</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;value&gt;</code></td>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">Exact string response returned by the LLM completion API.</td>
+</tr>
+</tbody>
+</table>
+<p><em>Example Schema Record</em>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">"a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0"</span><span class="p">:</span><span class="w"> </span><span class="s2">"# Architectural Documentation\n\nThis module implements..."</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">"8a2f4c9e81b6730d12e847cbb6509f7a3f81e223b5d681c20e405a7612f0e42a"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Here is the summary of the requested module..."</span>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="p">}</span>
-</code></pre></div>
-<hr />
-<h3 id="openai-compatible-completion-request-schema">OpenAI-Compatible Completion Request Schema</h3>
-<p>Internal dictionary structure passed to generic HTTP provider endpoints via <code>requests.post</code>.</p>
+</code></pre></div></p>
+<h3 id="generic-provider-json-request-payload">Generic Provider JSON Request Payload</h3>
+<p>The dictionary structure constructed inside <code>_call_llm_provider()</code> passed as <code>json=payload</code> to <code>/v1/chat/completions</code>:</p>
 <table>
 <thead>
 <tr>
@@ -2919,154 +2934,62 @@ This helper delegates requests directly to <code>call_openrouter()</code> in <a 
 <tr>
 <td style="text-align: left;"><code>model</code></td>
 <td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">Model identifier string (e.g., <code>qwen2.5-coder:32b</code>).</td>
+<td style="text-align: left;">Model identifier string resolved from <code>&lt;provider&gt;_MODEL</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>messages</code></td>
 <td style="text-align: left;"><code>list[dict[str, str]]</code></td>
-<td style="text-align: left;">List of chat messages containing role and content pairs. For standard prompts, this is a single <code>{"role": "user", "content": prompt}</code> entry.</td>
+<td style="text-align: left;">Message list formatted with <code>[{"role": "user", "content": prompt}]</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>temperature</code></td>
-<td style="text-align: left;"><code>float</code></td>
-<td style="text-align: left;">Sampling temperature controlling randomness (defaults to <code>0.7</code>; set to <code>1.0</code> for reasoning models; omitted entirely for models that reject sampling params).</td>
+<td style="text-align: left;"><code>float</code> (optional)</td>
+<td style="text-align: left;">Sampling temperature, set to <code>0.7</code> by default or <code>1.0</code> for reasoning models; omitted if <code>rejects_sampling_params(model)</code> is true.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>think</code></td>
-<td style="text-align: left;"><code>str</code> <em>(optional)</em></td>
-<td style="text-align: left;">Reasoning effort string for Ollama endpoints (<code>"low"</code>, <code>"medium"</code>, or <code>"high"</code>).</td>
+<td style="text-align: left;"><code>str</code> (optional)</td>
+<td style="text-align: left;">Clamped reasoning level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>) injected when provider is <code>"OLLAMA"</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>reasoning_effort</code></td>
-<td style="text-align: left;"><code>str</code> <em>(optional)</em></td>
-<td style="text-align: left;">Standardized reasoning parameter mirrored alongside <code>think</code> for Ollama models.</td>
-</tr>
-</tbody>
-</table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"deepseek-r1:14b"</span><span class="p">,</span>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nt">"messages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">      </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">      </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Identify the primary abstractions in this codebase."</span>
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span><span class="p">],</span>
-<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">  </span><span class="nt">"temperature"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">  </span><span class="nt">"think"</span><span class="p">:</span><span class="w"> </span><span class="s2">"medium"</span><span class="p">,</span>
-<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">  </span><span class="nt">"reasoning_effort"</span><span class="p">:</span><span class="w"> </span><span class="s2">"medium"</span>
-<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="p">}</span>
-</code></pre></div>
-<hr />
-<h3 id="generic-provider-completion-response-schema">Generic Provider Completion Response Schema</h3>
-<p>Expected JSON dictionary structure returned by OpenAI-compatible HTTP providers.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Field</th>
-<th style="text-align: left;">Type</th>
-<th style="text-align: left;">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>choices</code></td>
-<td style="text-align: left;"><code>list[dict]</code></td>
-<td style="text-align: left;">List of completion choices returned by the model.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>choices[].message.content</code></td>
-<td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">Generated response text string.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>choices[].finish_reason</code></td>
-<td style="text-align: left;"><code>str</code></td>
-<td style="text-align: left;">Reason why generation stopped (e.g., <code>"stop"</code>, <code>"length"</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>usage</code></td>
-<td style="text-align: left;"><code>dict</code> <em>(optional)</em></td>
-<td style="text-align: left;">Token accounting details returned by the server.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>usage.prompt_tokens</code></td>
-<td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Number of tokens consumed by the input prompt.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>usage.completion_tokens</code></td>
-<td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Number of tokens generated in the response.</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="re-exported-configuration-symbols">Re-exported Configuration Symbols</h3>
-<p><code>call_llm.py</code> re-exports the following symbols from <a href="../llm_config.py/">llm_config.py</a> to maintain backward compatibility:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Symbol</th>
-<th style="text-align: left;">Type</th>
-<th style="text-align: left;">Original Definition Location</th>
-<th style="text-align: left;">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>GEMINI_THINKING_BUDGETS</code></td>
-<td style="text-align: left;"><code>dict[str, int]</code></td>
-<td style="text-align: left;"><a href="../llm_config.py/">llm_config.py</a></td>
-<td style="text-align: left;">Maps abstract thinking level keys (<code>low</code>, <code>medium</code>, <code>high</code>, <code>max</code>) to Gemini token budget numbers.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>get_model_context_length</code></td>
-<td style="text-align: left;"><code>Callable[[str], int]</code></td>
-<td style="text-align: left;"><a href="../llm_config.py/">llm_config.py</a></td>
-<td style="text-align: left;">Resolves maximum input context windows for supported model names.</td>
+<td style="text-align: left;"><code>str</code> (optional)</td>
+<td style="text-align: left;">Standardized reasoning effort injected alongside <code>think</code> for Ollama reasoning models.</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="error-handling">Error Handling</h2>
-<p><code>call_llm.py</code> uses specific error handling strategies across multiple layers, including network calls, JSON deserialization, model refusals, and disk I/O:</p>
-<ul>
+<p>The module employs defensive handling for network instability, malformed API responses, provider rejections, and caching failures:</p>
+<ol>
 <li>
-<p><strong>Model Refusal Caching &amp; Short-Circuiting</strong>:
-  When a provider rejects a prompt (e.g., safety violations or content policy triggers), downstream adapters raise an <code>LLMRefusalError</code> (defined in <a href="../llm_common.py/">llm_common.py</a>). <code>call_llm()</code> intercepts this exception:
-  <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">except</span> <span class="n">LLMRefusalError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="o">.</span><span class="n">retryable</span><span class="p">:</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>        <span class="n">remember_refusal</span><span class="p">(</span><span class="n">refusal_key</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="k">raise</span>
-</code></pre></div>
-  If <code>e.retryable</code> is false, <code>remember_refusal()</code> records the refusal key in memory. On subsequent retries within the same process run, <code>previous_refusal(refusal_key)</code> catches the failure and re-raises the error before any network request is sent.</p>
+<p><strong>Atomic Cache Failure Trapping</strong>:
+   In <code>load_cache()</code> and <code>save_cache()</code>, file I/O operations are wrapped in <code>try...except (OSError, json.JSONDecodeError, TypeError)</code>. If corrupt data is loaded or disk storage cannot be written, warning events (<code>WARN_CACHE_LOAD_FAIL</code>, <code>WARN_CACHE_SAVE_FAIL</code>) are dispatched to the logging pipeline, and execution continues without crashing the pipeline.</p>
 </li>
 <li>
-<p><strong>Cache Read/Write Resilience</strong>:
-  In <code>load_cache()</code>, missing cache files (<code>FileNotFoundError</code>) are handled by initializing a clean dictionary without logging warnings. Syntax or OS read errors (<code>json.JSONDecodeError</code>, <code>OSError</code>) emit <code>WARN_CACHE_LOAD_FAIL</code> warnings and fall back to an empty dictionary, ensuring cache corruption does not crash the application. In <code>save_cache()</code>, file writes target <code>.tmp</code> files first, and any <code>OSError</code> or <code>TypeError</code> triggers a <code>WARN_CACHE_SAVE_FAIL</code> event rather than terminating execution.</p>
+<p><strong>Non-Retryable Refusal Memorization</strong>:
+   When a provider driver raises an <code>LLMRefusalError</code>, the system checks <code>e.retryable</code>. If <code>False</code>, the refusal is stored in-memory using <code>remember_refusal(refusal_key, e)</code> from <a href="../llm_common.py/">utils/llm_common.py</a>. Subsequent calls with the identical prompt and model setup match <code>previous_refusal(refusal_key)</code> and immediately re-raise the error, skipping network transport.</p>
 </li>
 <li>
-<p><strong>Truncated Response Caching Exclusion</strong>:
-  Incomplete responses caused by model token limits are wrapped in <code>TruncatedResponse</code> instances. In <code>call_llm()</code>, responses with <code>getattr(response_text, "truncated", False) == True</code> or empty bodies are explicitly excluded from cache writes. This ensures truncated output is not saved to disk and replayed on subsequent runs.</p>
+<p><strong>HTTP and Content Validation in Generic Provider Calls</strong>:
+   <code>_call_llm_provider()</code> executes <code>response.raise_for_status()</code> to catch HTTP status errors before attempting JSON parsing. If the upstream provider sends non-JSON content (e.g., HTML cloud proxy error pages), <code>requests.exceptions.JSONDecodeError</code> triggers a <code>WARN_INVALID_JSON</code> emission with a 200-character preview. Furthermore, if a 200 OK response omits the <code>choices</code> attribute, a <code>RuntimeError</code> is raised after emitting <code>WARN_API_NO_CHOICES</code>.</p>
 </li>
 <li>
-<p><strong>HTTP Transport and Response Validation</strong>:
-  In <code>_call_llm_provider()</code>, network requests are guarded against transport and protocol errors. Non-200 HTTP responses raise <code>requests.exceptions.HTTPError</code> via <code>raise_for_status()</code>, capturing upstream API error details where available. Malformed JSON payloads trigger <code>WARN_INVALID_JSON</code> and raise clean <code>ValueError</code> exceptions. Missing <code>choices</code> arrays in 200 OK responses (e.g., provider-level rate-limit envelopes) emit <code>WARN_API_NO_CHOICES</code> and raise explicit <code>RuntimeError</code> instances.</p>
+<p><strong>Truncated Response Shielding</strong>:
+   If a generic model run stops due to context length limits (<code>finish_reason == "length"</code>), the returned string is wrapped in <code>TruncatedResponse(text)</code>. <code>call_llm()</code> verifies <code>getattr(response_text, "truncated", False)</code> and suppresses cache writes for truncated responses, guaranteeing incomplete responses are never cached or replayed.</p>
 </li>
-</ul>
+</ol>
 <hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../__init__.py/"><strong>init</strong>.py</a> — The parent namespace initializer for the utilities module.</li>
-<li><a href="../llm_common.py/">llm_common.py</a> — Shared refusal models (<code>LLMRefusalError</code>), token accounting (<code>record_usage</code>), and response wrappers (<code>TruncatedResponse</code>).</li>
-<li><a href="../llm_config.py/">llm_config.py</a> — Provider settings resolution, authentication verifications, sampling flags, and reasoning budget tables.</li>
-<li><a href="../llm_gemini.py/">llm_gemini.py</a> — Concrete Google Gemini adapter invoked by <code>_call_llm_gemini</code>.</li>
-<li><a href="../llm_anthropic.py/">llm_anthropic.py</a> — Concrete Anthropic Claude adapter invoked by <code>_call_llm_anthropic</code>.</li>
-<li><a href="../llm_openrouter.py/">llm_openrouter.py</a> — Concrete OpenRouter adapter invoked by <code>_call_llm_openrouter</code>.</li>
-<li><a href="../output.py/">output.py</a> — Unified console and log file telemetry emission system (<code>emit</code>, <code>emit_raw</code>).</li>
-<li><a href="../thinking.py/">thinking.py</a> — Reasoning parameter validation and budget clamping helpers (<code>clamp_level</code>).</li>
-<li><a href="../token_utils.py/">token_utils.py</a> — Token counting utilities for preflight prompt telemetry.</li>
-<li><a href="../../nodes.py/">nodes.py</a> — Pipeline graph execution nodes that invoke <code>call_llm()</code> during documentation synthesis.</li>
+<li><a href="../llm_config.py/">utils/llm_config.py</a> — Manages environment variable discovery, provider credential validation, and model context limits.</li>
+<li><a href="../llm_common.py/">utils/llm_common.py</a> — Defines <code>LLMRefusalError</code>, refusal tracking structures, <code>record_usage</code>, and the <code>TruncatedResponse</code> class.</li>
+<li><a href="../llm_anthropic.py/">utils/llm_anthropic.py</a> — Implements native Anthropic Messages API client integrations and thinking budget controls.</li>
+<li><a href="../llm_gemini.py/">utils/llm_gemini.py</a> — Implements native Google GenAI SDK calls and reasoning effort mappings.</li>
+<li><a href="../llm_openrouter.py/">utils/llm_openrouter.py</a> — Handles OpenRouter API routing, credits checks, and generation requests.</li>
+<li><a href="../token_utils.py/">utils/token_utils.py</a> — Provides prompt token estimation prior to LLM dispatch.</li>
+<li><a href="../output.py/">utils/output.py</a> — Manages console event emissions, localized strings, and debug logging.</li>
+<li><a href="../thinking.py/">utils/thinking.py</a> — Provides <code>clamp_level</code> to normalize reasoning levels for various providers.</li>
 </ul>
 
 
