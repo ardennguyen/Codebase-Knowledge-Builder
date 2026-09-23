@@ -60,7 +60,7 @@
     
     
   <meta name="panzoom-theme" content="material">
-<meta name="panzoom-data" content='{"selectors": [".mermaid", ".d2", ".mermaid-raw"], "initial_zoom_level": 1.0}'> </head>
+<meta name="panzoom-data" content='{"selectors": [".mermaid-raw", ".mermaid", ".d2"], "initial_zoom_level": 1.0}'> </head>
   
   
     
@@ -307,8 +307,6 @@
       
         
       
-        
-      
     
     
     
@@ -391,7 +389,7 @@
   <span class="md-ellipsis">
     
   
-    Pipeline Orchestration
+    Workflow Orchestration
   
 
     
@@ -407,7 +405,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Pipeline Orchestration
+    Workflow Orchestration
   
 
           </label>
@@ -534,7 +532,7 @@
   <span class="md-ellipsis">
     
   
-    Codebase Ingestion & Processing
+    Repository Ingestion
   
 
     
@@ -550,7 +548,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Codebase Ingestion & Processing
+    Repository Ingestion
   
 
           </label>
@@ -620,34 +618,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exclude_patterns.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    exclude_patterns.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../crawl_local_files.py/" class="md-nav__link">
         
   
@@ -684,6 +654,34 @@
     
   
     crawl_github_files.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exclude_patterns.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    exclude_patterns.py
   
 
     
@@ -827,7 +825,7 @@
   <span class="md-ellipsis">
     
   
-    Inference & Token Management
+    Gateway & Token Management
   
 
     
@@ -843,7 +841,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Inference & Token Management
+    Gateway & Token Management
   
 
           </label>
@@ -859,6 +857,8 @@
   
     
     
+      
+        
       
         
       
@@ -1111,6 +1111,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#usage_step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usage_step()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current_step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        current_step()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#record_usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1133,10 +1155,54 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#record_estimate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record_estimate()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage_snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usage_snapshot()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage_delta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usage_delta()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#get_usage_summary" class="md-nav__link">
     <span class="md-ellipsis">
       
         get_usage_summary()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_step_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_step_summary()
       
     </span>
   </a>
@@ -1183,10 +1249,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_refused" class="md-nav__link">
+  <a href="#_new_entry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        _refused
+        _new_entry()
       
     </span>
   </a>
@@ -1194,21 +1260,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_usage" class="md-nav__link">
+  <a href="#_public" class="md-nav__link">
     <span class="md-ellipsis">
       
-        _usage
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_warned" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _warned
+        _public()
       
     </span>
   </a>
@@ -1233,10 +1288,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#usagerecord-schema" class="md-nav__link">
+  <a href="#internal-ledger-entry-_new_entry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        UsageRecord Schema
+        Internal Ledger Entry (_new_entry)
       
     </span>
   </a>
@@ -1244,10 +1299,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#refusalmemo-schema" class="md-nav__link">
+  <a href="#public-summary-entry-_public" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RefusalMemo Schema
+        Public Summary Entry (_public)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-snapshot-and-delta-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Snapshot and Delta Mapping
       
     </span>
   </a>
@@ -1267,6 +1333,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#non-retryable-refusal-memoization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Retryable Refusal Memoization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#truncation-signaling-without-disk-poisoning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Truncation Signaling without Disk Poisoning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpriced-and-unmeasured-safety-fallbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unpriced and Unmeasured Safety Fallbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1346,6 +1451,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts.py/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    prompts.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1391,7 +1524,7 @@
   <span class="md-ellipsis">
     
   
-    Provider Drivers
+    Provider Adapters
   
 
     
@@ -1407,7 +1540,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Provider Drivers
+    Provider Adapters
   
 
           </label>
@@ -1605,7 +1738,7 @@
   <span class="md-ellipsis">
     
   
-    Documentation Synthesis
+    Documentation & Output
   
 
     
@@ -1621,7 +1754,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Documentation Synthesis
+    Documentation & Output
   
 
           </label>
@@ -1635,6 +1768,8 @@
   
     
     
+      
+        
       
         
       
@@ -1687,34 +1822,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../prompts.py/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    prompts.py
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../mkdocs.py/" class="md-nav__link">
         
   
@@ -1735,126 +1842,6 @@
   
 
               
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Output & Localization
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Output & Localization
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_6_1" id="__nav_3_6_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    utils
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_6_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    utils
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -2040,6 +2027,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#usage_step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usage_step()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current_step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        current_step()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#record_usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2062,10 +2071,54 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#record_estimate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record_estimate()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage_snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usage_snapshot()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage_delta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usage_delta()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#get_usage_summary" class="md-nav__link">
     <span class="md-ellipsis">
       
         get_usage_summary()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_step_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_step_summary()
       
     </span>
   </a>
@@ -2112,10 +2165,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_refused" class="md-nav__link">
+  <a href="#_new_entry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        _refused
+        _new_entry()
       
     </span>
   </a>
@@ -2123,21 +2176,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_usage" class="md-nav__link">
+  <a href="#_public" class="md-nav__link">
     <span class="md-ellipsis">
       
-        _usage
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_warned" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _warned
+        _public()
       
     </span>
   </a>
@@ -2162,10 +2204,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#usagerecord-schema" class="md-nav__link">
+  <a href="#internal-ledger-entry-_new_entry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        UsageRecord Schema
+        Internal Ledger Entry (_new_entry)
       
     </span>
   </a>
@@ -2173,10 +2215,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#refusalmemo-schema" class="md-nav__link">
+  <a href="#public-summary-entry-_public" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RefusalMemo Schema
+        Public Summary Entry (_public)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-snapshot-and-delta-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Snapshot and Delta Mapping
       
     </span>
   </a>
@@ -2196,6 +2249,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#non-retryable-refusal-memoization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Retryable Refusal Memoization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#truncation-signaling-without-disk-poisoning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Truncation Signaling without Disk Poisoning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpriced-and-unmeasured-safety-fallbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unpriced and Unmeasured Safety Fallbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2231,9 +2323,8 @@
 <blockquote>
 <p><strong>Source:</strong> <code>utils/llm_common.py</code></p>
 </blockquote>
-<h2 id="technical-overview">Technical Overview</h2>
-<p>Building upon the vendor-specific transport and parsing mechanics established in <a href="../llm_anthropic.py/">llm_anthropic.py</a>, the <code>llm_common.py</code> module defines the shared, provider-agnostic domain layer for the entire inference pipeline. It operates as a zero-dependency foundational component that explicitly avoids importing third-party provider SDKs (<code>anthropic</code>, <code>google-genai</code>, <code>openai</code>). By establishing uniform domain representations for incomplete generations, provider rejections, runtime deduplication, and financial telemetry, it isolates the high-level orchestration workflows in <a href="../call_llm.py/">call_llm.py</a> from the underlying provider implementations.</p>
-<p>The primary architectural role of <code>llm_common.py</code> is to manage stateful inference invariants across multi-step execution graphs. It provides a circuit-breaking refusal memoization mechanism (<code>_refused</code>) that prevents wasteful network retries against models that deterministically decline prompts due to safety, moderation, or policy violations. Furthermore, it defines custom string subtype semantics (<code>TruncatedResponse</code>) to intercept length-truncated completions before they can contaminate the disk-backed cache in <a href="../call_llm.py/">call_llm.py</a>, while simultaneously offering a centralized session ledger (<code>_usage</code>) to record token volumes, thinking token allocations, prompt cache interactions, and accumulated operational costs.</p>
+<p>Following the implementation of provider-specific transport engines such as <a href="../llm_anthropic.py/">llm_anthropic.py</a>, <code>llm_common.py</code> serves as the shared, provider-neutral architectural foundation across all LLM backends in the system. It eliminates vendor lock-in and dependency bloat by relying exclusively on Python standard library modules (<code>contextlib</code>, <code>contextvars</code>, <code>hashlib</code>), purposefully avoiding imports from vendor SDKs such as <code>google-genai</code> or <code>anthropic</code>.</p>
+<p>The module acts as the centralized accounting, memoization, and signaling layer for the entire inference pipeline. It maintains thread-safe and asynchronous task-safe step attribution using context variables, aggregates dual-ledger token and cost metrics across both providers and workflow execution steps, and persists deterministic request refusals to short-circuit wasteful API retries. Furthermore, it defines custom response markers and exception primitives that govern cache invalidation and retry semantics throughout upstream orchestration engines.</p>
 <div class="panzoom-box" data-key="alt" id="panzoom0" oncontextmenu="return false;">
     
     <nav class="panzoom-nav">
@@ -2261,35 +2352,34 @@
 </button>
     </nav>
     <pre class="mermaid-raw"><code>flowchart TD
-    callLLM["call_llm Invocation"] --&gt; entryCheck
-
-    subgraph SubRefusal["Refusal Memoization Check"]
-        entryCheck["request_key: Hash scope and prompt"] --&gt; checkMemo{"previous_refusal exists?"}
-        checkMemo -- Yes --&gt; abortEarly["Re-raise cached LLMRefusalError"]
-        checkMemo -- No --&gt; execDriver["Dispatch to Provider Driver"]
+    subgraph RequestContext["Execution Context and Memoization"]
+        stepInit["usage_step(step)"] --&gt; keyGen["request_key(provider, model, effort, prompt)"]
+        keyGen --&gt; checkMemo{"previous_refusal(key)?"}
     end
 
-    subgraph SubExecution["Provider Execution and Error Handling"]
-        execDriver --&gt; evalResult{"Evaluate Completion State"}
-        evalResult -- Safety Declination --&gt; raiseRefusal["Raise LLMRefusalError"]
-        evalResult -- Max Tokens Hit --&gt; wrapTrunc["Wrap in TruncatedResponse"]
-        evalResult -- Success --&gt; returnText["Return Clean String"]
-        raiseRefusal --&gt; checkRetryable{"Is error retryable?"}
-        checkRetryable -- No --&gt; remember["remember_refusal in _refused"]
-        checkRetryable -- Yes --&gt; bypassMemo["Bypass Refusal Memo"]
+    subgraph ProviderExecution["Inference and Signal Dispatch"]
+        checkMemo -- "Cached Decline" --&gt; raiseCached["Raise cached LLMRefusalError"]
+        checkMemo -- "No Refusal" --&gt; invokeProvider["Dispatch request to Provider"]
+        invokeProvider --&gt; evaluateOutcome{"Evaluate API Outcome"}
+        evaluateOutcome -- "Refusal Declined" --&gt; recordRefusal["remember_refusal(key, error)"]
+        recordRefusal --&gt; trackRefusal["count_event(provider, 'refusals')"]
+        evaluateOutcome -- "Context Cutoff" --&gt; wrapTruncated["Wrap TruncatedResponse(text)"]
+        wrapTruncated --&gt; trackTrunc["count_event(provider, 'truncations')"]
+        evaluateOutcome -- "Success" --&gt; recordSuccess["record_usage(provider, model, ...)"]
     end
 
-    subgraph SubLedger["Telemetry and Accounting"]
-        returnText --&gt; recUsage["record_usage input, output, cost"]
-        wrapTrunc --&gt; countTrunc["count_event truncations"]
-        remember --&gt; countRefusal["count_event refusals"]
-        recUsage --&gt; getSummary["get_usage_summary aggregation"]
-        countTrunc --&gt; getSummary
-        countRefusal --&gt; getSummary
+    subgraph LedgerAccounting["Ledger Accounting and Telemetry"]
+        recordSuccess --&gt; updateLedger["Update provider and step ledgers"]
+        trackRefusal --&gt; updateLedger
+        trackTrunc --&gt; updateLedger
+        updateLedger --&gt; snapshotCapture["usage_snapshot() and usage_delta()"]
+        snapshotCapture --&gt; reportSummary["get_usage_summary() and get_step_summary()"]
     end
 
     classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;
-    class callLLM,entryCheck,execDriver,recUsage entryNode</code></pre> 
+    class stepInit entryNode;
+    class invokeProvider entryNode;
+    class updateLedger entryNode;</code></pre> 
     <div class="panzoom-info-box panzoom-info-box-bottom panzoom-hidden">
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
@@ -2298,286 +2388,417 @@ Hold "Alt" / "Option" to enable pan &amp; zoom
 Hold "Alt" / "Option" to enable pan &amp; zoom
 </div>
 </div>
+<hr />
+<h2 id="technical-overview">Technical Overview</h2>
+<p><code>llm_common.py</code> implements four core operational capabilities required across all model interactions:</p>
+<ol>
+<li><strong>Refusal Memoization</strong>: Large language models may decline requests due to safety guidelines, content filtering, or recitation checks. When an endpoint returns a deterministic, non-retryable refusal (such as a Claude policy refusal), continuing to retry the request within pipeline loops consumes rate limits and incurs billing penalties. <code>llm_common.py</code> maintains an in-memory SHA-256 digest mapping of refused requests via <code>_refused</code>, allowing subsequent attempts to immediately raise a cached <code>LLMRefusalError</code> without performing network I/O.</li>
+<li><strong>Dual-Ledger Token and Cost Tracking</strong>: In-flight token consumption is categorized simultaneously across two dimensions: the LLM provider (e.g., Anthropic, Gemini, OpenRouter) and the workflow execution step (e.g., <code>identify_abstractions</code>, <code>order_chapters</code>). By utilizing a <code>contextvars.ContextVar</code> (<code>_current_step</code>), calls made deep within helper functions are automatically attributed to the active pipeline phase without requiring explicit parameter threading. The ledger tracks input, output, internal thinking tokens, prompt cache reads/writes, invocation counts, and micro-dollar API costs.</li>
+<li><strong>Execution Diagnostics and Warning De-duplication</strong>: To prevent repetitive standard error output during long-running batch migrations or parallel node evaluations, the module provides a tuple-based deduplication mechanism (<code>warn_once</code>) that suppresses duplicate operational warnings.</li>
+<li><strong>Flow Control Signaling</strong>: The module provides custom data structures such as <code>TruncatedResponse</code> to flag outputs that exceeded model token ceilings. This signals to downstream cache handlers that the response must not be written to disk, and informs orchestrator nodes that regeneration or context escalation is necessary.</li>
+</ol>
+<hr />
 <h2 id="public-api">Public API</h2>
 <h3 id="truncatedresponse"><code>TruncatedResponse</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>class TruncatedResponse(str):</code></p>
-<p><strong>Description</strong>: A specialized string subclass that tags model responses truncated by output token limits or context window boundaries. It preserves standard string behavior across serialization and downstream logging operations while exposing a sentinel <code>truncated = True</code> attribute. Higher-level orchestration layers, specifically <code>call_llm</code> and <code>parse_yaml_response</code>, inspect this boolean attribute to bypass persistent disk caching and signal upstream node retries.</p>
-<p><strong>Attributes</strong>:
-* <code>truncated</code> (<code>bool</code>): Sentinel flag, always set to <code>True</code>, identifying the output buffer as incomplete.</p>
+<p><strong>Description</strong>: A specialized string subclass used to represent LLM generation text that was cut short by context length ceilings or <code>max_tokens</code> limits. By attaching the class attribute <code>truncated = True</code>, callers can treat the object as a regular string for logging while upstream orchestrators (such as <code>call_llm.py</code> or response parsers) can inspect the boolean flag to reject partial YAML/JSON schemas, bypass the on-disk LLM response cache, and trigger workflow retry policies.</p>
+<p><strong>Parameters</strong>:
+* Inherits standard <code>str</code> instantiation parameters.</p>
+<p><strong>Returns</strong>:
+* <code>TruncatedResponse</code>: An immutable string instance with <code>.truncated</code> set to <code>True</code>.</p>
+<p><strong>Raises</strong>:
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TruncatedResponse</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""Response text from a reply that was cut off; call_llm returns it but never caches it."""</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">truncated</span> <span class="o">=</span> <span class="kc">True</span>
 </code></pre></div>
-The implementation derives directly from native <code>str</code> without mutating base string memory layouts. Because instances pass standard string type checks throughout the Python runtime, intermediate formatters can safely inspect, print, or measure the truncated payload without raising type errors. Upstream orchestrators use <code>getattr(response, "truncated", False)</code> to selectively invalidate the run from the persistence cache, ensuring that defective, half-formed YAML blocks or code generations are forced through subsequent re-sampling passes.</p>
+The <code>TruncatedResponse</code> type provides transparent interoperability with standard string operations, allowing logging and text inspection without type coercion. However, because <code>call_llm.py</code> explicitly inspects <code>isinstance(response, TruncatedResponse)</code> or checks <code>getattr(response, "truncated", False)</code>, responses wrapped in this class are prevented from poisoning the long-term cache (<code>llm_cache_v2.json</code>). Downstream parsers that encounter an unclosed JSON or YAML document utilize this flag to differentiate between malformed model syntax and hard token cutoffs.</p>
 <hr />
 <h3 id="llmrefusalerror"><code>LLMRefusalError</code></h3>
-<p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>class LLMRefusalError(RuntimeError): def __init__(self, model: str, category: str | None, provider: str = "ANTHROPIC", retryable: bool = False):</code></p>
-<p><strong>Description</strong>: Domain exception raised when an LLM provider declines to generate a completion due to content moderation filters, safety guardrails, or recitation protections. It encapsulates the originating provider, model identifier, refusal classification category, and a criticality flag (<code>retryable</code>). This flag differentiates between deterministic prompt declines (such as system-level policy blocks that must never be re-sent) and stochastic candidate blocks (such as mid-generation recitation triggers that may succeed upon re-sampling).</p>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>class LLMRefusalError(RuntimeError):</code></p>
+<p><strong>Description</strong>: Exception raised when a provider declines to answer a prompt due to policy enforcement, safety filtering, moderation violations, or recitation barriers. It carries operational metadata indicating the offending model, the specific refusal category, the originating provider, and a crucial <code>retryable</code> boolean flag.</p>
 <p><strong>Parameters</strong>:
-* <code>model</code> (<code>str</code>): The specific model identifier that issued the refusal (e.g., <code>"claude-3-7-sonnet-20250219"</code>).
-* <code>category</code> (<code>str | None</code>): The provider's safety category code or rejection reason (e.g., <code>"safety"</code>, <code>"recitation"</code>, <code>"content_filter"</code>).
-* <code>provider</code> (<code>str</code>): The identifier of the rejecting vendor platform. Defaults to <code>"ANTHROPIC"</code>.
-* <code>retryable</code> (<code>bool</code>): Indicates whether repeating the inference request with alternative sampling parameters could succeed. Defaults to <code>False</code>.</p>
+* <code>model</code> (<code>str</code>): The identifier of the model that refused the request.
+* <code>category</code> (<code>str | None</code>): The refusal reason reported by the provider (e.g., <code>SAFETY</code>, <code>RECITATION</code>, <code>content_filter</code>, or <code>None</code>).
+* <code>provider</code> (<code>str</code>, optional): The canonical provider name (defaults to <code>"ANTHROPIC"</code>).
+* <code>retryable</code> (<code>bool</code>, optional): Indicates whether a fresh generation attempt could bypass the refusal. Defaults to <code>False</code>.</p>
 <p><strong>Returns</strong>:
-* <code>LLMRefusalError</code>: Instantiated exception object with formatted diagnostic details.</p>
+* <code>LLMRefusalError</code>: Instantiated runtime exception.</p>
 <p><strong>Raises</strong>:
-* N/A: Instantiation does not raise errors.</p>
+* None during instantiation.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLMRefusalError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Raised when the provider (and any configured fallback) declines a request.</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">"""Raised when the provider (and any configured fallback) declines a request."""</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="sd">    retryable=False: the same request is declined again (Claude refusal, blocked prompt,</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    prohibited content) — call_llm remembers it and does not re-send it on node retries.</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">    retryable=True: an output-side block that a new sample can pass (Gemini RECITATION / OTHER /</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">    SAFETY on the candidate, OpenRouter content_filter) — node retries re-sample normally.</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">    """</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="n">retryable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="n">provider</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">retryable</span> <span class="o">=</span> <span class="n">retryable</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2"> model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> declined the request (category=</span><span class="si">{</span><span class="n">category</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'unknown'</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ANTHROPIC"</span><span class="p">,</span> <span class="n">retryable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="n">provider</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">retryable</span> <span class="o">=</span> <span class="n">retryable</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2"> model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2"> declined the request (category=</span><span class="si">{</span><span class="n">category</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'unknown'</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 </code></pre></div>
-The constructor structures diagnostic messages uniformly across diverse provider payloads, converting ambiguous vendor error codes into a standardized runtime exception. Downstream dispatchers evaluate the instance's <code>retryable</code> property to modulate retry loops. If <code>retryable</code> evaluates to <code>False</code>, the refusal is committed to the module's internal lookup table, short-circuiting identical subsequent requests before invoking network sockets.</p>
+When <code>retryable</code> is <code>False</code>, the refusal is deterministic (for example, a system prompt containing prohibited strings), indicating that re-submitting the identical payload will produce another refusal. The calling harness registers these errors in <code>llm_common</code>'s memoization dictionary to prevent repeated rate limit consumption. Conversely, when <code>retryable</code> is set to <code>True</code> (such as Gemini non-deterministic recitation blocks or output-side candidate safety filters), pipeline retry mechanisms are allowed to resample from the model.</p>
 <hr />
 <h3 id="request_key"><code>request_key()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def request_key(provider: str, model: str, thinking_level: str | None, prompt: str) -&gt; str:</code></p>
-<p><strong>Description</strong>: Generates a deterministic SHA-256 hexadecimal hash identifying an inference request. The key is composed of a scoped header containing the provider name, the model string, and the normalized reasoning effort level, followed by the exact prompt payload. This hash serves as the primary indexing key for refusal tracking and cache deduplication.</p>
+<p><strong>Description</strong>: Generates a deterministic SHA-256 hash identifying a specific LLM invocation configuration and input payload. This hash serves as the lookup key in the refusal cache.</p>
 <p><strong>Parameters</strong>:
-* <code>provider</code> (<code>str</code>): The upstream inference provider (e.g., <code>"ANTHROPIC"</code>, <code>"GEMINI"</code>, <code>"OPENROUTER"</code>).
-* <code>model</code> (<code>str</code>): The target model name string.
-* <code>thinking_level</code> (<code>str | None</code>): The configured reasoning intensity (e.g., <code>"low"</code>, <code>"medium"</code>, <code>"high"</code>), or <code>None</code> if operating without reasoning tokens.
-* <code>prompt</code> (<code>str</code>): The complete serialized prompt string passed to the driver.</p>
+* <code>provider</code> (<code>str</code>): The model host or gateway name (e.g., <code>GEMINI</code>, <code>ANTHROPIC</code>, <code>OPENROUTER</code>).
+* <code>model</code> (<code>str</code>): The specific model identifier (e.g., <code>claude-3-7-sonnet-20250219</code>).
+* <code>thinking_level</code> (<code>str | None</code>): The configured reasoning budget or effort level (e.g., <code>low</code>, <code>medium</code>, <code>high</code>, or <code>None</code>).
+* <code>prompt</code> (<code>str</code>): The complete serialized prompt text sent to the model.</p>
 <p><strong>Returns</strong>:
-* <code>str</code>: A 64-character lowercase SHA-256 hexadecimal digest representing the request signature.</p>
+* <code>str</code>: A 64-character hexadecimal SHA-256 digest.</p>
 <p><strong>Raises</strong>:
-* N/A.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">request_key</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">thinking_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">scope</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">provider</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="p">(</span><span class="n">thinking_level</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'default'</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">((</span><span class="n">scope</span> <span class="o">+</span> <span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 </code></pre></div>
-The implementation uses a delimiter-separated scope prefix (<code>provider|model|thinking_level\n</code>) to ensure that identical prompt strings routed to different models or distinct reasoning budgets yield collision-free digests. The resulting string is encoded into UTF-8 before being passed to <code>hashlib.sha256</code>. This mechanism provides an identical hash output across diverse operating systems and process lifecycles.</p>
+The hashing strategy incorporates the provider, model, normalized thinking level, and prompt into a single scoped string before computing the SHA-256 digest. By converting <code>thinking_level</code> to lowercase and falling back to <code>"default"</code>, variations in parameter casing are normalized. This ensures that memoized refusals are accurately bound to identical runtime configurations, preventing false cache hits across differing models or reasoning depths.</p>
 <hr />
 <h3 id="remember_refusal"><code>remember_refusal()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def remember_refusal(key: str, error: LLMRefusalError) -&gt; None:</code></p>
-<p><strong>Description</strong>: Registers an encountered non-retryable <code>LLMRefusalError</code> into the module-level refusal registry (<code>_refused</code>), binding the error object to the request's deterministic SHA-256 hash.</p>
+<p><strong>Description</strong>: Stores an <code>LLMRefusalError</code> instance in the internal process-level refusal registry keyed by its request hash digest.</p>
 <p><strong>Parameters</strong>:
-* <code>key</code> (<code>str</code>): The hexadecimal request digest computed via <code>request_key()</code>.
-* <code>error</code> (<code>LLMRefusalError</code>): The refusal error instance capturing the failure context.</p>
+* <code>key</code> (<code>str</code>): The 64-character SHA-256 string generated by <code>request_key()</code>.
+* <code>error</code> (<code>LLMRefusalError</code>): The refusal exception instance to record.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-* N/A.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">remember_refusal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">LLMRefusalError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">_refused</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
 </code></pre></div>
-This function populates the private global dictionary <code>_refused</code> to provide process-level memorization of declined inference attempts. When synthesis nodes attempt retries following a fatal safety refusal, registering the error through this function allows the caller to break out of cascading execution cycles immediately. The stored error retains its original stack context, failure model, and safety categories for subsequent inspection.</p>
+This function populates the private <code>_refused</code> dictionary. It is invoked by calling gateways (e.g., <code>call_llm.py</code>) immediately upon trapping a non-retryable refusal from any downstream provider adapter. Storing the complete exception instance ensures that the original error context, category, and provider details are preserved for subsequent lookup.</p>
 <hr />
 <h3 id="previous_refusal"><code>previous_refusal()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def previous_refusal(key: str) -&gt; LLMRefusalError | None:</code></p>
-<p><strong>Description</strong>: Queries the module-level refusal registry for a previously recorded <code>LLMRefusalError</code> matching the provided request hash.</p>
+<p><strong>Description</strong>: Queries the process-level refusal registry to check if an identical request configuration has previously resulted in a refusal.</p>
 <p><strong>Parameters</strong>:
-* <code>key</code> (<code>str</code>): The hexadecimal request digest computed via <code>request_key()</code>.</p>
+* <code>key</code> (<code>str</code>): The 64-character SHA-256 string generated by <code>request_key()</code>.</p>
 <p><strong>Returns</strong>:
-* <code>LLMRefusalError | None</code>: The cached refusal error if previously recorded; otherwise <code>None</code>.</p>
+* <code>LLMRefusalError | None</code>: The cached refusal exception if a prior decline exists; otherwise <code>None</code>.</p>
 <p><strong>Raises</strong>:
-* N/A.</p>
+* None.</p>
 <p><strong>Example</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">previous_refusal</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMRefusalError</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">return</span> <span class="n">_refused</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 </code></pre></div>
-The retrieval helper executes an $O(1)$ dictionary lookup against the <code>_refused</code> table. Orchestrators in <code>call_llm</code> evaluate this lookup before calculating token bounds or initiating network requests. If an error is returned, the orchestrator immediately raises the memorized exception, preventing unnecessary network traffic, API quota consumption, and unneeded billing on inputs that will reliably trigger safety filters.</p>
+Before dispatching a network call to any provider, orchestrators pass the request key through this function. If an <code>LLMRefusalError</code> is returned, the caller re-raises it immediately. This prevents unnecessary network round-trips and protects API quota when downstream pipeline nodes execute automated retry attempts on deterministic failures.</p>
+<hr />
+<h3 id="usage_step"><code>usage_step()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def usage_step(step: str | None):</code></p>
+<p><strong>Description</strong>: A context manager that scopes all token usage and event logging executed within its context block to a named workflow pipeline step.</p>
+<p><strong>Parameters</strong>:
+* <code>step</code> (<code>str | None</code>): The identifier of the workflow step (e.g., <code>identify_abstractions</code>, <code>order_chapters</code>, <code>group_modules</code>). If <code>None</code> or empty, defaults to <code>"other"</code>.</p>
+<p><strong>Returns</strong>:
+* Context manager generator yielding execution control.</p>
+<p><strong>Raises</strong>:
+* None directly; preserves and propagates exceptions raised within the wrapped block.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">usage_step</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="sd">"""Attribute every record_usage / count_event inside the block to `step`."""</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">token</span> <span class="o">=</span> <span class="n">_current_step</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">step</span> <span class="ow">or</span> <span class="s2">"other"</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="k">yield</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">finally</span><span class="p">:</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">_current_step</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+</code></pre></div>
+The context manager leverages Python's <code>contextvars.ContextVar</code> to manage step context. When entering the block, it assigns the step identifier to <code>_current_step</code> and stores the resulting reset token. Inside the <code>finally</code> block, it restores the previous context variable state using <code>_current_step.reset(token)</code>. This structure guarantees accurate step attribution even across deeply nested generator flows, exception bubbles, or asynchronous task boundaries.</p>
+<hr />
+<h3 id="current_step"><code>current_step()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def current_step() -&gt; str:</code></p>
+<p><strong>Description</strong>: Retrieves the active workflow step identifier from the execution context.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>str</code>: The active step name set by the surrounding <code>usage_step()</code> context, or <code>"other"</code> if called outside of a scoped block.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">current_step</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="k">return</span> <span class="n">_current_step</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+</code></pre></div>
+This utility function inspects <code>_current_step</code> to allow accounting functions (such as <code>record_usage</code>, <code>count_event</code>, and <code>record_estimate</code>) to automatically determine which workflow subtotal should be credited without requiring callers to pass the step name down the call stack.</p>
 <hr />
 <h3 id="record_usage"><code>record_usage()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
-<strong>Signature</strong>: <code>def record_usage(provider: str, model: str, *, input_tokens: int = 0, output_tokens: int = 0, thinking_tokens: int = 0, cache_read: int = 0, cache_write: int = 0, cost: float | None = None) -&gt; None:</code></p>
-<p><strong>Description</strong>: Records token volumes, prompt cache mechanics, and operational expenses for a completed inference call into the global usage ledger (<code>_usage</code>). It aggregates metrics per provider, tracks unique models utilized, and updates cost flags based on pricing availability.</p>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">record_usage</span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">input_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">output_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">thinking_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="n">cache_read</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">cache_write</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="n">measured</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</code></pre></div></p>
+<p><strong>Description</strong>: Accumulates token consumption, cache performance metrics, and financial costs for an API request into both the provider-level ledger and the current step ledger.</p>
 <p><strong>Parameters</strong>:
-* <code>provider</code> (<code>str</code>): The provider identifier (e.g., <code>"GEMINI"</code>, <code>"ANTHROPIC"</code>).
-* <code>model</code> (<code>str</code>): The specific model used for the completion.
-* <code>input_tokens</code> (<code>int</code>): Count of prompt/input tokens processed. Defaults to <code>0</code>.
-* <code>output_tokens</code> (<code>int</code>): Count of total output tokens generated, including thinking tokens. Defaults to <code>0</code>.
-* <code>thinking_tokens</code> (<code>int</code>): Subset of output tokens dedicated to internal model reasoning. Defaults to <code>0</code>.
-* <code>cache_read</code> (<code>int</code>): Count of input tokens read from the provider's prompt cache. Defaults to <code>0</code>.
-* <code>cache_write</code> (<code>int</code>): Count of input tokens written to create new prompt cache entries. Defaults to <code>0</code>.
-* <code>cost</code> (<code>float | None</code>): Financial cost in USD for the transaction. If passed as <code>None</code>, marks the provider's overall cost as uncomputable. Defaults to <code>None</code>.</p>
+* <code>provider</code> (<code>str</code>): Target provider name (e.g., <code>"GEMINI"</code>, <code>"ANTHROPIC"</code>).
+* <code>model</code> (<code>str</code>): Target model name. If non-empty, it is registered in the entry's model tracking set.
+* <code>input_tokens</code> (<code>int</code>, optional): Total prompt tokens counted by the provider, including cached tokens. Defaults to <code>0</code>.
+* <code>output_tokens</code> (<code>int</code>, optional): Total output tokens returned, including reasoning/thinking tokens. Defaults to <code>0</code>.
+* <code>thinking_tokens</code> (<code>int</code>, optional): Explicit reasoning or thinking tokens reported by the provider. Defaults to <code>0</code>.
+* <code>cache_read</code> (<code>int</code>, optional): Subset of prompt tokens retrieved from provider-side prompt cache. Defaults to <code>0</code>.
+* <code>cache_write</code> (<code>int</code>, optional): Subset of prompt tokens written to provider-side prompt cache. Defaults to <code>0</code>.
+* <code>cost</code> (<code>float | None</code>, optional): Financial cost of the call in USD. If <code>None</code>, the call is marked as unpriced.
+* <code>measured</code> (<code>bool</code>, optional): Whether the provider returned verified usage metrics. When <code>False</code>, increments <code>unmeasured_calls</code>. Defaults to <code>True</code>.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-* N/A.</p>
+* None.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">record_usage</span><span class="p">(</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">input_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">output_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">thinking_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">cache_read</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">cache_write</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="sd">"""Accumulate one call. `output_tokens` includes thinking; `thinking_tokens` is the reported subset.</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="sd">    `cost` is USD; None means the price is unknown for this model (summary shows n/a)."""</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_usage</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>        <span class="n">provider</span><span class="p">,</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="p">{</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>            <span class="s2">"models"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>            <span class="s2">"calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>            <span class="s2">"input"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>            <span class="s2">"output"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>            <span class="s2">"thinking"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>            <span class="s2">"cache_read"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>            <span class="s2">"cache_write"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>            <span class="s2">"cost"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>            <span class="s2">"cost_known"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>            <span class="s2">"refusals"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>            <span class="s2">"fallbacks"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>            <span class="s2">"truncations"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>        <span class="p">},</span>
-<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>    <span class="p">)</span>
-<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>    <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
-<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"calls"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"input"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">input_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
-<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"output"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">output_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
-<a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"thinking"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">thinking_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
-<a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_read"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cache_read</span> <span class="ow">or</span> <span class="mi">0</span>
-<a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a>    <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_write"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cache_write</span> <span class="ow">or</span> <span class="mi">0</span>
-<a id="__codelineno-5-39" name="__codelineno-5-39" href="#__codelineno-5-39"></a>    <span class="k">if</span> <span class="n">cost</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-5-40" name="__codelineno-5-40" href="#__codelineno-5-40"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"cost_known"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-<a id="__codelineno-5-41" name="__codelineno-5-41" href="#__codelineno-5-41"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-5-42" name="__codelineno-5-42" href="#__codelineno-5-42"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"cost"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cost</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">record_usage</span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">input_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">output_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">thinking_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">cache_read</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="n">cache_write</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="n">measured</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_usage</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">_new_entry</span><span class="p">()),</span> <span class="n">_steps</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">current_step</span><span class="p">(),</span> <span class="n">_new_entry</span><span class="p">())):</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>        <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>            <span class="n">entry</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"calls"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">measured</span><span class="p">:</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>            <span class="n">entry</span><span class="p">[</span><span class="s2">"unmeasured_calls"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"input"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">input_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"output"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">output_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"thinking"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">thinking_tokens</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_read"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cache_read</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_write"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cache_write</span> <span class="ow">or</span> <span class="mi">0</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>        <span class="k">if</span> <span class="n">cost</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>            <span class="n">entry</span><span class="p">[</span><span class="s2">"unpriced_calls"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>            <span class="n">entry</span><span class="p">[</span><span class="s2">"cost"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cost</span>
 </code></pre></div>
-The implementation uses <code>dict.setdefault</code> to initialize zeroed usage buckets on the first call for a given provider. Integer token metrics defensively fall back to <code>0</code> if passed falsy or <code>None</code> values. When tracking costs, if any call for a model lacks price metadata (<code>cost is None</code>), the ledger sets <code>cost_known</code> to <code>False</code>, signaling downstream reporting routines in <a href="../output.py/">output.py</a> to render costs as unknown (<code>n/a</code>) rather than misleadingly incomplete figures.</p>
+<code>record_usage</code> updates two distinct tracking dictionaries simultaneously: <code>_usage</code> (partitioned by provider) and <code>_steps</code> (partitioned by the active context step). Safe integer coercion via <code>or 0</code> ensures that <code>None</code> values passed by upstream provider adapters do not cause <code>TypeError</code> exceptions during arithmetic accumulation. If <code>cost</code> is <code>None</code>, the <code>unpriced_calls</code> counter is incremented, signaling to downstream reporting summaries that the financial total represents an incomplete minimum lower bound.</p>
 <hr />
 <h3 id="count_event"><code>count_event()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def count_event(provider: str, event: str) -&gt; None:</code></p>
-<p><strong>Description</strong>: Increments discrete operational anomaly counters (<code>"refusals"</code>, <code>"fallbacks"</code>, or <code>"truncations"</code>) for a specified provider entry within the global usage ledger.</p>
+<p><strong>Description</strong>: Increments designated lifecycle event counters (<code>"refusals"</code>, <code>"fallbacks"</code>, or <code>"truncations"</code>) for both the provider and the active execution step.</p>
 <p><strong>Parameters</strong>:
-* <code>provider</code> (<code>str</code>): The target provider key in the usage ledger.
-* <code>event</code> (<code>str</code>): The metric counter to increment; expected to be one of <code>"refusals"</code>, <code>"fallbacks"</code>, or <code>"truncations"</code>.</p>
+* <code>provider</code> (<code>str</code>): Target provider name.
+* <code>event</code> (<code>str</code>): The metric key to increment. Must be one of <code>"refusals"</code>, <code>"fallbacks"</code>, or <code>"truncations"</code>.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-* <code>KeyError</code>: If <code>event</code> does not match an existing key in the ledger entry template.</p>
+* <code>KeyError</code>: If <code>event</code> is not a valid key defined in <code>_new_entry()</code>.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_event</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="sd">"""Increment 'refusals' | 'fallbacks' | 'truncations' for a provider."""</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_usage</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">provider</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="p">{</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>            <span class="s2">"models"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>            <span class="s2">"calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="s2">"input"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="s2">"output"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>            <span class="s2">"thinking"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="s2">"cache_read"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="s2">"cache_write"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>            <span class="s2">"cost"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>            <span class="s2">"cost_known"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>            <span class="s2">"refusals"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>            <span class="s2">"fallbacks"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>            <span class="s2">"truncations"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>        <span class="p">},</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>    <span class="p">)</span>
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    <span class="n">entry</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">count_event</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="sd">"""Increment 'refusals' | 'fallbacks' | 'truncations' for a provider (and the current step)."""</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">_usage</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">_new_entry</span><span class="p">())[</span><span class="n">event</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">_steps</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">current_step</span><span class="p">(),</span> <span class="n">_new_entry</span><span class="p">())[</span><span class="n">event</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 </code></pre></div>
-This function maintains parity between token volume reporting and pipeline operational health. By sharing the initialization structure with <code>record_usage()</code>, it allows events to be recorded before any tokens have been successfully generated—such as during immediate prompt rejections or connection fallback events. Upstream adapters call this helper whenever fallback headers are disabled, responses are truncated at context limits, or refusals are intercepted.</p>
+This function provides a lightweight telemetry interface for tracking runtime occurrences that do not produce standard token responses. For example, when <code>llm_anthropic.py</code> recovers from a context limit error by activating server-side fallback flags, or when <code>call_llm.py</code> encounters a model truncation, invoking <code>count_event()</code> ensures these events are tracked across both provider summaries and pipeline step reports.</p>
+<hr />
+<h3 id="record_estimate"><code>record_estimate()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def record_estimate(step: str, estimated_input: int, *, cache_hit: bool = False) -&gt; None:</code></p>
+<p><strong>Description</strong>: Records pre-flight token estimates or local cache hit events for a given workflow step.</p>
+<p><strong>Parameters</strong>:
+* <code>step</code> (<code>str</code>): The name of the pipeline step being measured.
+* <code>estimated_input</code> (<code>int</code>): The locally calculated input token estimate (e.g., derived via <code>tiktoken</code>).
+* <code>cache_hit</code> (<code>bool</code>, optional): Indicates whether the request was satisfied by the local cache (<code>llm_cache_v2.json</code>) without making a network call. Defaults to <code>False</code>.</p>
+<p><strong>Returns</strong>:
+* <code>None</code></p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">record_estimate</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">estimated_input</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cache_hit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="sd">"""Add call_llm's input estimate for a call (billed or served from the LLM cache) to a step."""</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_steps</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">step</span> <span class="ow">or</span> <span class="s2">"other"</span><span class="p">,</span> <span class="n">_new_entry</span><span class="p">())</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="k">if</span> <span class="n">cache_hit</span><span class="p">:</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_hits"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="n">entry</span><span class="p">[</span><span class="s2">"estimated_input"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">estimated_input</span> <span class="ow">or</span> <span class="mi">0</span>
+</code></pre></div>
+This function enables token budgeting calibration. When a request is served entirely from the local cache, incrementing <code>cache_hits</code> ensures the step summary accounts for avoided API requests. When a network call is required, accumulating <code>estimated_input</code> allows the system to evaluate estimation drift against the actual provider-billed <code>input</code> metrics.</p>
+<hr />
+<h3 id="usage_snapshot"><code>usage_snapshot()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def usage_snapshot(provider: str) -&gt; dict:</code></p>
+<p><strong>Description</strong>: Creates a point-in-time copy of a provider's numeric usage counters, omitting non-scalar values such as model sets.</p>
+<p><strong>Parameters</strong>:
+* <code>provider</code> (<code>str</code>): The provider whose metrics should be captured.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A dictionary mapping metric names to their current integer or float values.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">usage_snapshot</span><span class="p">(</span><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="sd">"""Copy of a provider's running totals (diff two snapshots to get one call's usage)."""</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">entry</span> <span class="o">=</span> <span class="n">_usage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">"models"</span><span class="p">}</span> <span class="k">if</span> <span class="n">entry</span> <span class="k">else</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_new_entry</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">"models"</span><span class="p">}</span>
+</code></pre></div>
+By excluding the <code>"models"</code> set, <code>usage_snapshot()</code> returns a snapshot of purely numeric fields. This dictionary is designed to be passed into <code>usage_delta()</code> to isolate the specific token usage and cost incurred during a single network call.</p>
+<hr />
+<h3 id="usage_delta"><code>usage_delta()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def usage_delta(before: dict, after: dict) -&gt; dict:</code></p>
+<p><strong>Description</strong>: Computes the difference between two usage snapshot dictionaries.</p>
+<p><strong>Parameters</strong>:
+* <code>before</code> (<code>dict</code>): The baseline snapshot taken before executing the operation.
+* <code>after</code> (<code>dict</code>): The snapshot taken after completing the operation.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A dictionary containing the net change (<code>after[k] - before[k]</code>) for every counter key.</p>
+<p><strong>Raises</strong>:
+* <code>KeyError</code>: If a key present in <code>after</code> is missing from <code>before</code> and lacks a fallback default.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">usage_delta</span><span class="p">(</span><span class="n">before</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">after</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">before</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">after</span><span class="p">}</span>
+</code></pre></div>
+This utility calculates exact per-call resource consumption. Because client SDKs and streaming interfaces may execute internal retries or multi-segment reasoning loops, calculating the delta across cumulative snapshots reliably captures total consumption, regardless of internal transport behavior.</p>
 <hr />
 <h3 id="get_usage_summary"><code>get_usage_summary()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def get_usage_summary() -&gt; dict:</code></p>
-<p><strong>Description</strong>: Generates a consolidated summary of token allocations, costs, and operational events for all providers that processed at least one call during the execution run. Transforms internal sets of model names into lexicographically sorted lists.</p>
+<p><strong>Description</strong>: Compiles a summary dictionary of usage statistics for every provider that executed at least one API call during the current process run.</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
-* <code>dict</code>: A dictionary mapping provider names to shallow-copied usage records with sorted <code>"models"</code> lists, omitting inactive providers.</p>
+* <code>dict</code>: A mapping of provider names to public summary dictionaries (see <a href="#data-structures">Data Structures</a>).</p>
 <p><strong>Raises</strong>:
-* N/A.</p>
+* None.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_usage_summary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="sd">"""{provider: totals} for every provider that made at least one call this run."""</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">provider</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]))</span> <span class="k">for</span> <span class="n">provider</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">_usage</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"calls"</span><span class="p">]}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_usage_summary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="sd">"""{provider: totals} for every provider that made at least one call this run."""</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">provider</span><span class="p">:</span> <span class="n">_public</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">_usage</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"calls"</span><span class="p">]}</span>
 </code></pre></div>
-The summary pipeline uses a dictionary comprehension that filters out uncalled providers (<code>if entry["calls"]</code>). It creates a decoupled copy of the internal accumulator using <code>dict(entry, ...)</code>, explicitly converting the internal <code>set</code> of model names into a deterministically sorted <code>list</code>. This transformation guarantees stable rendering when generating tables or serialized CLI output summaries.</p>
+Providers that were configured or initialized but made no API requests (<code>entry["calls"] == 0</code>) are filtered out of the summary. For active providers, internal entries are converted to public representations using <code>_public()</code>, sorting model sets into lists and determining price completeness flags.</p>
+<hr />
+<h3 id="get_step_summary"><code>get_step_summary()</code></h3>
+<p><strong>Visibility</strong>: Public
+<strong>Signature</strong>: <code>def get_step_summary() -&gt; dict:</code></p>
+<p><strong>Description</strong>: Compiles a summary dictionary of usage statistics partitioned by workflow step, ordered by first appearance.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A mapping of step identifiers to public summary dictionaries (see <a href="#data-structures">Data Structures</a>).</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_step_summary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="sd">"""{step: totals} in first-use order, including steps answered only from the LLM cache."""</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="k">return</span> <span class="p">{</span><span class="n">step</span><span class="p">:</span> <span class="n">_public</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">_steps</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"calls"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"cache_hits"</span><span class="p">]}</span>
+</code></pre></div>
+<code>get_step_summary()</code> retains insertion ordering based on when steps were first registered during execution. Unlike provider summaries, steps are included if they made direct API calls or were satisfied by local cache hits (<code>entry["calls"] or entry["cache_hits"]</code>). This ensures that cached steps are accurately reflected in end-of-run execution metrics.</p>
 <hr />
 <h3 id="reset_usage"><code>reset_usage()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def reset_usage() -&gt; None:</code></p>
-<p><strong>Description</strong>: Resets all in-memory usage ledgers and refusal caches, returning the module to an uninitialized state. Primarily intended for automated test suites and isolated execution resets.</p>
+<p><strong>Description</strong>: Clears all internal tracking state, resetting provider ledgers, step breakdowns, and the refusal cache.</p>
 <p><strong>Parameters</strong>:
 * None.</p>
 <p><strong>Returns</strong>:
 * <code>None</code></p>
 <p><strong>Raises</strong>:
-* N/A.</p>
+* None.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">reset_usage</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">_usage</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">_refused</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">reset_usage</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="n">_usage</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">_steps</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">_refused</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 </code></pre></div>
-The helper invokes <code>.clear()</code> on both the <code>_usage</code> ledger and <code>_refused</code> map in-place. This guarantees that subsequent pipeline executions within the same Python process boundary do not retain dirty telemetry or memorized refusals from previous test runs.</p>
+This function resets state between independent test suites or workflow executions within long-lived processes. It purges the <code>_usage</code>, <code>_steps</code>, and <code>_refused</code> dictionaries. Note that <code>_warned</code> is preserved to prevent duplicate warnings from re-appearing across soft resets.</p>
 <hr />
 <h3 id="warn_once"><code>warn_once()</code></h3>
-<p><strong>Visibility</strong>: Public<br />
+<p><strong>Visibility</strong>: Public
 <strong>Signature</strong>: <code>def warn_once(key: str, *parts) -&gt; bool:</code></p>
-<p><strong>Description</strong>: Evaluates whether a warning signature has already been displayed during the active process run, tracking compound keys to prevent noisy CLI log duplication.</p>
+<p><strong>Description</strong>: Evaluates whether a warning identified by a composite key tuple has been emitted during the lifetime of the process.</p>
 <p><strong>Parameters</strong>:
-* <code>key</code> (<code>str</code>): The primary category or message identifier.
-* <code>*parts</code> (<code>Any</code>): Optional additional hashable values (such as model names or HTTP status codes) forming a composite warning key.</p>
+* <code>key</code> (<code>str</code>): The primary identifier or category of the warning.
+* <code>*parts</code> (<code>Any</code>): Additional elements combined with <code>key</code> to form a composite identity tuple.</p>
 <p><strong>Returns</strong>:
-* <code>bool</code>: <code>True</code> if this specific warning marker is encountered for the first time; <code>False</code> if it has already been registered.</p>
+* <code>bool</code>: <code>True</code> if this is the first time the composite key has been seen; <code>False</code> if it has already been observed.</p>
 <p><strong>Raises</strong>:
-* N/A.</p>
+* None.</p>
 <p><strong>Example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">warn_once</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="sd">"""True the first time a (key, parts) combination is seen this run."""</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">marker</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="k">if</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">_warned</span><span class="p">:</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="k">return</span> <span class="kc">False</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">_warned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="k">return</span> <span class="kc">True</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">warn_once</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="sd">"""True the first time a (key, parts) combination is seen this run."""</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="n">marker</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">)</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="k">if</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">_warned</span><span class="p">:</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>        <span class="k">return</span> <span class="kc">False</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="n">_warned</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="k">return</span> <span class="kc">True</span>
 </code></pre></div>
-The helper constructs a tuple <code>(key, *parts)</code> to serve as a composite hash in the private <code>_warned</code> set. If the marker is already present, the function returns <code>False</code>, allowing caller logging blocks to exit early. When a new marker is encountered, it is recorded in the set and returns <code>True</code>, ensuring that identical warnings (e.g., deprecated parameters, unsupported reasoning flags) are emitted only once per session.</p>
+Callers use <code>warn_once</code> within diagnostic logging branches to guard against log flooding. By checking the return value before emitting output via <code>utils.output</code>, warning messages are logged only on their initial occurrence, suppressing repetitive notices across batch processing loops.</p>
+<hr />
 <h2 id="internal-helpers">Internal Helpers</h2>
-<p>The <code>utils/llm_common.py</code> module maintains three internal, process-scoped data containers to track runtime state without exposing mutable data structures directly to external modules.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># ---------------------------------------------------------------------------</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># Refused-request memo: a declined prompt is declined again, so PocketFlow retries</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># must not re-send it (wasted rate limit, and billed partial output on mid-stream declines).</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># ---------------------------------------------------------------------------</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">_refused</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># ---------------------------------------------------------------------------</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Usage ledger (one per process; a run is sequential)</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1"># ---------------------------------------------------------------------------</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">_usage</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># ---------------------------------------------------------------------------</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="c1"># De-duplicated warnings</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="c1"># ---------------------------------------------------------------------------</span>
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="n">_warned</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<h3 id="_new_entry"><code>_new_entry()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _new_entry() -&gt; dict:</code></p>
+<p><strong>Description</strong>: Factory function that creates and returns a zero-initialized usage ledger entry dictionary.</p>
+<p><strong>Parameters</strong>:
+* None.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A dictionary containing baseline metric counters and an empty model tracking set.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_new_entry</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>        <span class="s2">"models"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>        <span class="s2">"calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>        <span class="s2">"input"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>        <span class="s2">"output"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        <span class="s2">"thinking"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="s2">"cache_read"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="s2">"cache_write"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="s2">"cost"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="s2">"unpriced_calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>        <span class="s2">"unmeasured_calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>        <span class="s2">"refusals"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>        <span class="s2">"fallbacks"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>        <span class="s2">"truncations"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>        <span class="s2">"estimated_input"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>        <span class="s2">"cache_hits"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>    <span class="p">}</span>
 </code></pre></div>
-<h3 id="_refused"><code>_refused</code></h3>
-<p>A process-level dictionary (<code>dict[str, LLMRefusalError]</code>) that maps SHA-256 request signatures generated by <code>request_key()</code> to their corresponding <code>LLMRefusalError</code> instances. It acts as an in-memory cache to prevent repetitive, non-retryable API calls. External modules access this dictionary exclusively through <code>remember_refusal()</code>, <code>previous_refusal()</code>, and <code>reset_usage()</code>.</p>
-<h3 id="_usage"><code>_usage</code></h3>
-<p>A process-level dictionary (<code>dict[str, dict[str, Any]]</code>) that aggregates operational statistics and token accounting across all active LLM providers. Each entry stores call counts, token usage, cost data, and error metrics. State modifications and reads are restricted to <code>record_usage()</code>, <code>count_event()</code>, <code>get_usage_summary()</code>, and <code>reset_usage()</code>.</p>
-<h3 id="_warned"><code>_warned</code></h3>
-<p>A process-level set (<code>set[tuple[str, ...]]</code>) containing composite warning markers. It records unique tuples passed to <code>warn_once()</code> to deduplicate warning messages in CLI logs throughout the life of the process.</p>
+This helper defines the structural schema for both the provider ledger (<code>_usage</code>) and the workflow step ledger (<code>_steps</code>). Initializing <code>models</code> as an empty set ensures deduplicated tracking of all model variants encountered by a provider or pipeline phase.</p>
+<hr />
+<h3 id="_public"><code>_public()</code></h3>
+<p><strong>Visibility</strong>: Private
+<strong>Signature</strong>: <code>def _public(entry: dict) -&gt; dict:</code></p>
+<p><strong>Description</strong>: Formats an internal ledger entry dictionary into an external summary representation suitable for serialization and telemetry reporting.</p>
+<p><strong>Parameters</strong>:
+* <code>entry</code> (<code>dict</code>): An internal ledger entry created via <code>_new_entry()</code>.</p>
+<p><strong>Returns</strong>:
+* <code>dict</code>: A copy of <code>entry</code> with <code>"models"</code> converted from a <code>set</code> to a sorted <code>list</code>, and a computed <code>"cost_known"</code> boolean indicating whether all calls were priced.</p>
+<p><strong>Raises</strong>:
+* None.</p>
+<p><strong>Example</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_public</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]),</span> <span class="n">cost_known</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">"unpriced_calls"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+Internal ledger entries use Python <code>set</code> objects to track unique model identifiers, which cannot be directly serialized to JSON. <code>_public</code> transforms this set into a sorted list of strings. It also computes <code>cost_known</code>, which evaluates to <code>True</code> only when <code>unpriced_calls == 0</code>, signaling whether the accumulated <code>cost</code> represents a complete total or an incomplete estimate.</p>
+<hr />
 <h2 id="data-structures">Data Structures</h2>
-<h3 id="usagerecord-schema"><code>UsageRecord</code> Schema</h3>
-<p>The internal dictionary structure maintained for each provider inside the <code>_usage</code> ledger, and exposed in shallow-copied form via <code>get_usage_summary()</code>.</p>
+<h3 id="internal-ledger-entry-_new_entry">Internal Ledger Entry (<code>_new_entry</code>)</h3>
+<p>The schema used internally to aggregate metrics within <code>_usage</code> and <code>_steps</code>.</p>
 <table>
 <thead>
 <tr>
@@ -2589,98 +2810,223 @@ The helper constructs a tuple <code>(key, *parts)</code> to serve as a composite
 <tbody>
 <tr>
 <td style="text-align: left;"><code>models</code></td>
-<td style="text-align: left;"><code>set[str]</code> (internal) / <code>list[str]</code> (summary)</td>
-<td style="text-align: left;">Unique model identifiers invoked for this provider during the run.</td>
+<td style="text-align: left;"><code>set[str]</code></td>
+<td style="text-align: left;">Set of unique model identifiers that handled requests.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>calls</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Total number of attempted inference calls dispatched.</td>
+<td style="text-align: left;">Total number of API requests dispatched.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>input</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Total count of input/prompt tokens processed.</td>
+<td style="text-align: left;">Total prompt tokens reported by the provider (cached tokens included).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>output</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Total count of output tokens generated (including thinking tokens).</td>
+<td style="text-align: left;">Total output tokens returned (including reasoning tokens).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>thinking</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Subset of output tokens dedicated to model reasoning/thinking.</td>
+<td style="text-align: left;">Subset of output tokens dedicated to internal reasoning/thinking.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>cache_read</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Prompt tokens retrieved directly from provider-side caches.</td>
+<td style="text-align: left;">Subset of prompt tokens read from provider-side prompt cache.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>cache_write</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Prompt tokens written to create new provider-side cache entries.</td>
+<td style="text-align: left;">Subset of prompt tokens written to provider-side prompt cache.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>cost</code></td>
 <td style="text-align: left;"><code>float</code></td>
-<td style="text-align: left;">Cumulative calculated cost in USD across all calls.</td>
+<td style="text-align: left;">Cumulative financial cost calculated in USD.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>cost_known</code></td>
-<td style="text-align: left;"><code>bool</code></td>
-<td style="text-align: left;">Flag indicating whether all models used have known pricing metadata (<code>False</code> if any model cost was <code>None</code>).</td>
+<td style="text-align: left;"><code>unpriced_calls</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of requests where pricing models were unavailable (<code>cost is None</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>unmeasured_calls</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Count of calls where the provider returned no token usage metrics.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>refusals</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Count of declined requests encountered for this provider.</td>
+<td style="text-align: left;">Number of times requests were rejected by provider safety or policy checks.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>fallbacks</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Count of times the provider dropped down to secondary models or disabled fallback beta headers.</td>
+<td style="text-align: left;">Number of times fallback configurations or beta overrides were invoked.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>truncations</code></td>
 <td style="text-align: left;"><code>int</code></td>
-<td style="text-align: left;">Count of model completions cut off by context or token limits.</td>
+<td style="text-align: left;">Number of times response generations reached token limits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>estimated_input</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Pre-calculated prompt token estimates derived prior to invocation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cache_hits</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Number of requests satisfied by the local cache without network calls.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="refusalmemo-schema"><code>RefusalMemo</code> Schema</h3>
-<p>The schema mapping maintained by the <code>_refused</code> dictionary for recording declined requests.</p>
+<hr />
+<h3 id="public-summary-entry-_public">Public Summary Entry (<code>_public</code>)</h3>
+<p>The transformed schema returned by <code>get_usage_summary()</code> and <code>get_step_summary()</code>.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Key</th>
-<th style="text-align: left;">Value Type</th>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Type</th>
 <th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">SHA-256 digest string (64 characters)</td>
-<td style="text-align: left;"><code>LLMRefusalError</code></td>
-<td style="text-align: left;">The captured refusal error instance, preserving model, category, provider, and retryability semantics.</td>
+<td style="text-align: left;"><code>models</code></td>
+<td style="text-align: left;"><code>list[str]</code></td>
+<td style="text-align: left;">Alphabetically sorted list of all model names used.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>calls</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total number of API requests dispatched.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>input</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total prompt tokens counted across calls.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>output</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total output tokens generated.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>thinking</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total thinking/reasoning tokens generated.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cache_read</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total prompt cache read tokens.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cache_write</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total prompt cache write tokens.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cost</code></td>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;">Cumulative calculated cost in USD.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cost_known</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>True</code> if every call was priced (<code>unpriced_calls == 0</code>); <code>False</code> otherwise.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>unpriced_calls</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Number of calls lacking explicit pricing.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>unmeasured_calls</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Number of unmeasured calls.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>refusals</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total provider refusal count.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>fallbacks</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total provider fallback count.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>truncations</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total truncated response count.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>estimated_input</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total estimated prompt tokens.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>cache_hits</code></td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">Total requests answered from the local cache.</td>
 </tr>
 </tbody>
 </table>
+<hr />
+<h3 id="usage-snapshot-and-delta-mapping">Usage Snapshot and Delta Mapping</h3>
+<p>The dictionary structure produced by <code>usage_snapshot()</code> and <code>usage_delta()</code>. Contains the same fields as the internal ledger entry, excluding the <code>"models"</code> key:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">{</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="s2">"calls"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="s2">"input"</span><span class="p">:</span> <span class="mi">1520</span><span class="p">,</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="s2">"output"</span><span class="p">:</span> <span class="mi">432</span><span class="p">,</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="s2">"thinking"</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="s2">"cache_read"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    <span class="s2">"cache_write"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    <span class="s2">"cost"</span><span class="p">:</span> <span class="mf">0.00421</span><span class="p">,</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    <span class="s2">"unpriced_calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    <span class="s2">"unmeasured_calls"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>    <span class="s2">"refusals"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    <span class="s2">"fallbacks"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    <span class="s2">"truncations"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    <span class="s2">"estimated_input"</span><span class="p">:</span> <span class="mi">1490</span><span class="p">,</span>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>    <span class="s2">"cache_hits"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
 <h2 id="error-handling">Error Handling</h2>
-<p>The module provides the foundation for error handling across the system's inference layers:</p>
-<ul>
-<li><strong>Refusal Classification</strong>: <code>LLMRefusalError</code> introduces a structured categorization for declined prompts. By dividing errors into <code>retryable=False</code> (fatal declines, policy triggers, deterministic refusals) and <code>retryable=True</code> (transient safety blocks, recitation checks on output candidates), it provides the decision logic necessary for upstream graph nodes to either resample or abandon execution paths.</li>
-<li><strong>Truncation Signatures</strong>: Rather than raising an unhandled exception upon encountering context window limits or maximum token exhaustion, the module provides <code>TruncatedResponse</code>. This string subtype allows pipelines to inspect partial completions, bypass the disk-based cache, and trigger controlled retries via higher-level handlers (such as YAML parsers).</li>
-<li><strong>Cost Incompleteness Guard</strong>: If an invoked model does not have pricing metrics available, <code>record_usage()</code> flags <code>cost_known = False</code>. This prevents the pipeline from displaying inaccurate or partially calculated cost summaries in terminal logs.</li>
-</ul>
+<h3 id="non-retryable-refusal-memoization">Non-Retryable Refusal Memoization</h3>
+<p>Deterministic provider refusals pose a risk in automated pipelines with retry policies. For instance, if an input violates safety restrictions or triggers recitation filters, naive retries will repeatedly fail, consuming rate limits and increasing latency. </p>
+<p><code>llm_common.py</code> resolves this using the following pattern:
+1. <code>call_llm.py</code> computes a hash via <code>request_key(provider, model, thinking_level, prompt)</code>.
+2. It queries <code>previous_refusal(key)</code>. If an entry exists and <code>error.retryable</code> is <code>False</code>, the cached exception is immediately raised without initiating a network request.
+3. If an endpoint rejects an active request, the provider adapter raises <code>LLMRefusalError(..., retryable=False)</code>.
+4. Upstream catch handlers invoke <code>remember_refusal(key, err)</code> and record the event via <code>count_event(provider, 'refusals')</code>.</p>
+<h3 id="truncation-signaling-without-disk-poisoning">Truncation Signaling without Disk Poisoning</h3>
+<p>When an LLM exhausts its <code>max_tokens</code> allocation or context window, returning a partially formed response can cause downstream JSON/YAML parsing errors. Rather than raising an immediate unrecoverable exception, <code>llm_common.py</code> defines <code>TruncatedResponse</code>:
+* Adapters wrap truncated output strings in <code>TruncatedResponse(raw_text)</code>.
+* <code>call_llm.py</code> inspects <code>isinstance(result, TruncatedResponse)</code> and bypasses writing the incomplete response to <code>llm_cache_v2.json</code>.
+* Downstream orchestration nodes receive the response, evaluate its <code>.truncated</code> attribute, and can trigger context window escalation or prompt compression before retrying.</p>
+<h3 id="unpriced-and-unmeasured-safety-fallbacks">Unpriced and Unmeasured Safety Fallbacks</h3>
+<p>Pricing configurations may not cover every experimental or locally hosted model (e.g., custom Ollama checkpoints). When a request's pricing cannot be resolved:
+* <code>record_usage()</code> accepts <code>cost=None</code>, tracks the call, and increments <code>unpriced_calls</code>.
+* When reporting summaries via <code>_public()</code>, <code>cost_known</code> evaluates to <code>False</code>. This warns operators that the reported cost total represents an incomplete floor rather than a definitive invoice total.
+* When endpoints return zero token metrics or omit usage headers entirely, setting <code>measured=False</code> tracks the call count while isolating the entry from token calibration metrics via <code>unmeasured_calls</code>.</p>
+<hr />
 <h2 id="see-also">See Also</h2>
 <ul>
-<li><a href="../call_llm.py/">call_llm.py</a> — Central inference dispatcher that uses <code>request_key</code>, <code>previous_refusal</code>, <code>remember_refusal</code>, and <code>TruncatedResponse</code> to govern caching and execution.</li>
-<li><a href="../llm_anthropic.py/">llm_anthropic.py</a> — Anthropic integration driver that translates API response metrics into <code>record_usage</code> and handles <code>LLMRefusalError</code> and <code>TruncatedResponse</code>.</li>
-<li><a href="../llm_gemini.py/">llm_gemini.py</a> — Google Gemini adapter that reports token usage and converts candidate safety blocks into <code>LLMRefusalError</code>.</li>
-<li><a href="../llm_openrouter.py/">llm_openrouter.py</a> — OpenRouter integration layer that reports multi-provider costs and usage to <code>record_usage</code>.</li>
-<li><a href="../output.py/">output.py</a> — Telemetry and console formatting layer that processes <code>get_usage_summary()</code> to render final execution tables.</li>
+<li><a href="../call_llm.py/">call_llm.py</a> — Central routing gateway that imports <code>TruncatedResponse</code>, <code>LLMRefusalError</code>, and ledger tracking utilities to coordinate LLM execution.</li>
+<li><a href="../llm_anthropic.py/">llm_anthropic.py</a> — Anthropic Claude provider adapter that reports token usage and manages reasoning budgets through <code>llm_common</code>.</li>
+<li><a href="../llm_gemini.py/">llm_gemini.py</a> — Google Gemini provider adapter that maps candidate safety blocks to <code>LLMRefusalError</code> and records usage metrics.</li>
+<li><a href="../llm_openrouter.py/">llm_openrouter.py</a> — OpenRouter adapter handling moderation rejections and variable pricing schemas recorded in the common ledger.</li>
+<li><a href="../token_utils.py/">token_utils.py</a> — Estimation utilities that calculate input token ratios compared against <code>record_estimate()</code>.</li>
+<li><a href="../output.py/">output.py</a> — Telemetry emitter responsible for rendering formatted usage tables generated by <code>get_usage_summary()</code> and <code>get_step_summary()</code>.</li>
 </ul>
 
 
