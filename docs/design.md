@@ -103,7 +103,7 @@ codebase_kb/
 ├── .github/
 │   ├── ci_mkdocs_config.py          # CI helper: generates mkdocs.yml and mermaid-init.js (avoids bash heredoc issues)
 │   └── workflows/
-│       ├── deploy-docs.yml          # GitHub Actions CI/CD for auto-generating & deploying API docs
+│       ├── deploy-docs.yml          # GitHub Actions CI/CD: generate & deploy API docs (gated by DOCS_DEPLOY_MODE + docs-deploy approval)
 │       └── lint.yml                 # GitHub Actions workflow for Ruff linting
 ├── utils/
 │   ├── __init__.py                  # Empty

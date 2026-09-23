@@ -15,17 +15,42 @@ on:
 permissions:
   contents: write
 
-# One deploy at a time: a push during a running deploy waits instead of racing `gh-deploy --force`
-# (and paying for the same chapters twice). Never cancel a run that is already paying for LLM calls.
-# GitHub keeps only one waiting run per group: a newer push (or dispatch) replaces a waiting one,
-# so trigger a force_rebuild dispatch while no deploy is queued.
-concurrency:
-  group: deploy-docs
-  cancel-in-progress: false
+# When does this spend LLM credit? Repository variable DOCS_DEPLOY_MODE
+# (Settings -> Secrets and variables -> Actions -> Variables):
+#   auto    a push to main waits for approval in the "docs-deploy" environment, then deploys
+#   manual  (also when unset) pushes do nothing; only "Run workflow" (workflow_dispatch) deploys
+#   off     nothing runs, not even "Run workflow"
+# Before setting auto, give the "docs-deploy" environment a required reviewer
+# (Settings -> Environments). GitHub creates a referenced environment without protection
+# rules, so without a reviewer, push runs would deploy immediately.
 
 jobs:
-  build-and-deploy:
+  approve:
+    # Push runs park here until approved (or rejected); waiting is not billed and times out after 30 days.
+    if: github.event_name == 'push' && vars.DOCS_DEPLOY_MODE == 'auto'
     runs-on: ubuntu-latest
+    environment: docs-deploy
+    # Only the newest push waits for approval: a newer push cancels an older approval that is still waiting.
+    concurrency:
+      group: docs-approval
+      cancel-in-progress: true
+    steps:
+      - run: echo "Docs deploy approved for ${{ github.sha }}"
+
+  build-and-deploy:
+    needs: approve
+    # Push: only once approved. Run workflow: directly, unless DOCS_DEPLOY_MODE is off.
+    # !cancelled() lets the job run when approve was skipped (dispatch) instead of skipping with it.
+    if: >-
+      ${{ !cancelled() && (needs.approve.result == 'success'
+      || (github.event_name == 'workflow_dispatch' && vars.DOCS_DEPLOY_MODE != 'off')) }}
+    runs-on: ubuntu-latest
+    # One deploy at a time: an approved push during a running deploy waits instead of racing
+    # `gh-deploy --force` (and paying for the same chapters twice). Never cancel a run that is already
+    # paying for LLM calls. GitHub keeps one waiting run per group; a newer one replaces it.
+    concurrency:
+      group: deploy-docs
+      cancel-in-progress: false
     # Generous cap (~5x the longest incremental run) so a stalled LLM stream cannot hold the job for 6 h
     timeout-minutes: 180
     steps:

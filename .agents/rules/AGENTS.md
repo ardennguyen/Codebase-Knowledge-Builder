@@ -152,8 +152,21 @@ Select-String -Path "*.py","utils/*.py" -Pattern '"([A-Z_]+)"' -AllMatches |
 ## 5. CI/CD Architecture
 
 ### Workflows
-- `.github/workflows/deploy-docs.yml` — Auto-generates API docs on push to `main`
+- `.github/workflows/deploy-docs.yml` — Generates and deploys the API docs; when it runs is gated (see "Deploy Gating" below)
 - `.github/workflows/lint.yml` — Runs `ruff check .` and `ruff format --check .` on Python 3.12 with ruff pinned to the `.pre-commit-config.yaml` rev (change both together)
+
+### Deploy Gating (LLM spend)
+Repository variable `DOCS_DEPLOY_MODE` (Settings → Secrets and variables → Actions → Variables) decides when `deploy-docs.yml` spends LLM credit:
+
+| Mode | Push to `main` | "Run workflow" (`workflow_dispatch`) |
+|---|---|---|
+| `auto` | `approve` job waits for approval in the `docs-deploy` environment, then `build-and-deploy` runs; rejected → skipped | runs directly |
+| `manual` (also when unset) | nothing runs | runs directly |
+| `off` | nothing runs | nothing runs |
+
+- The `docs-deploy` environment must have a **required reviewer** (Settings → Environments) before the mode is set to `auto`: GitHub auto-creates a referenced environment without protection rules, so push runs would otherwise deploy immediately.
+- `approve` has its own concurrency group (`docs-approval`, `cancel-in-progress: true`): only the newest push waits for approval. Waiting is not billed and expires after 30 days.
+- Agents: pushing still requires explicit user approval (Section 7); the gate is the safety net for pushes made outside an agent session.
 
 ### CI Doc Generation Pipeline
 1. **Setup:** Python 3.12 (`actions/setup-python` with `cache: pip`), `pip install -r requirements.txt`
@@ -170,7 +183,7 @@ Select-String -Path "*.py","utils/*.py" -Pattern '"([A-Z_]+)"' -AllMatches |
 - `nav_snippet.yml` must use 2-space indent to align with the base nav.
 - `docs/index.md` is "Home". Generated `api/index.md` is the API Reference section landing page (requires `navigation.indexes` in Material features).
 - Manual dispatch input `force_rebuild` can trigger a full rebuild.
-- The workflow runs in the `deploy-docs` concurrency group (`cancel-in-progress: false`: never kill a run that is paying for LLM calls) with `timeout-minutes: 180`. GitHub keeps only one waiting run per group, so a newer push replaces a waiting one (including a queued `force_rebuild` dispatch).
+- `build-and-deploy` runs in the `deploy-docs` concurrency group (`cancel-in-progress: false`: never kill a run that is paying for LLM calls) with `timeout-minutes: 180`. GitHub keeps only one waiting job per group, so a newer approved push or dispatch replaces a waiting one (including a queued `force_rebuild` dispatch).
 
 ---
 
