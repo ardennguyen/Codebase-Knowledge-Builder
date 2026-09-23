@@ -4,23 +4,26 @@ All Claude-specific request/response handling lives here so call_llm.py stays a
 thin provider dispatcher. The anthropic SDK is imported lazily by call_llm.py,
 so users of other providers do not need it installed.
 
-Behavior (tuned for Claude Opus 5.5, works for every current Claude model):
-- Thinking: adaptive thinking is always on for Opus 5.5 / Fable; depth is
-  controlled with output_config.effort (low | medium | high | xhigh | max).
-  Pre-4.6 models (e.g. Haiku 4.5) fall back to a budget_tokens mapping.
+Behavior (tuned for the Claude 5 family — default Sonnet 5 — and works for every Claude
+model from 4.6, plus Haiku 4.5):
+- Thinking: the Claude 5 family thinks adaptively by default (always on for Opus 5.5 /
+  Fable); depth is controlled with output_config.effort (low | medium | high | xhigh | max;
+  Sonnet 5 defaults to high, Opus 5.5 to medium). Pre-4.6 models (e.g. Haiku 4.5) fall back
+  to a budget_tokens mapping.
 - Streaming: every request streams, so large max_tokens (thinking + reply,
   up to 128K) never hit HTTP timeouts.
 - max_tokens: sized per effort level (thinking counts toward it; same table as
   token_utils.input_token_budget) and clamped so prompt + output fits the context window.
 - Refusals: server-side fallbacks (beta) are opted in by default for models
-  with safety classifiers; a remaining refusal raises LLMRefusalError.
+  with safety classifiers (Opus 5.x, Fable 5.x — not Sonnet 5); a remaining refusal
+  raises LLMRefusalError.
 - Truncation: stop_reason == "max_tokens" retries once at the largest budget that fits;
   a still-truncated reply is returned as TruncatedResponse, which call_llm never caches.
 - Usage: per-call usage is logged and accumulated for an end-of-run cost summary.
 
 Environment variables:
 - ANTHROPIC_API_KEY            (or ANTHROPIC_AUTH_TOKEN / `ant auth login` profile)
-- ANTHROPIC_MODEL              default: claude-opus-5-5
+- ANTHROPIC_MODEL              default: claude-sonnet-5
 - ANTHROPIC_BASE_URL           optional (read by the SDK)
 - ANTHROPIC_FALLBACKS          "default" (default) | "off" | comma-separated model IDs
 - ANTHROPIC_MAX_OUTPUT_TOKENS  optional hard cap for max_tokens (also caps the truncation retry)

@@ -20,7 +20,8 @@ load_dotenv()
 # re-parsing the (potentially hundreds of MB) JSON file on every call_llm().
 # Keys are sha256(provider | model | thinking level | prompt): responses are scoped to
 # the model that produced them, and full prompts are no longer stored on disk.
-# LEGACY_CACHE_FILE (prompt-keyed, pre-v2) is never read; --cleanup removes both.
+# LEGACY_CACHE_FILE (prompt-keyed, pre-v2) is never read: notice_legacy_cache() points out a
+# leftover copy at startup, and --cleanup removes both files.
 cache_file = "llm_cache_v2.json"
 LEGACY_CACHE_FILE = "llm_cache.json"
 _cache = None
@@ -61,6 +62,17 @@ def save_cache(cache):
 
         emit("WARN_CACHE_SAVE_FAIL")
         emit_raw("WARNING", f"Cache save error: {e}", dest="LOG")
+
+
+def notice_legacy_cache() -> None:
+    """Point out a leftover pre-v2 cache file: it is never read, so it only takes disk space."""
+    try:
+        size = os.path.getsize(LEGACY_CACHE_FILE)
+    except OSError:
+        return
+    from utils.output import emit
+
+    emit("CACHE_LEGACY_FOUND", file=LEGACY_CACHE_FILE, size=f"{size / 1_048_576:,.1f}", current=cache_file)
 
 
 def _cache_key(prompt: str, provider: str, model: str, thinking_level: str | None) -> str:
@@ -214,7 +226,8 @@ def _call_llm_openrouter(prompt: str, thinking_level: str | None = None) -> str:
     return call_openrouter(prompt, thinking_level=thinking_level)
 
 
-# By default, we use Google Gemini 3.7 flash, as it shows great performance for code understanding
+# Provider and model come from resolve_llm_settings(): LLM_PROVIDER, or Gemini when only Gemini
+# credentials are set (default gemini-3.8-flash; Claude defaults to claude-sonnet-5).
 def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None) -> str:
     from utils.output import emit, emit_raw
     from utils.token_utils import count_tokens
@@ -293,6 +306,7 @@ if __name__ == "__main__":
     # Same preflight as main.py: SDK installed, credentials present (API key / `ant auth login` / Vertex ADC).
     if not check_llm_auth():
         sys.exit(1)
+    notice_legacy_cache()
 
     test_prompt = "Hello, how are you?"
 

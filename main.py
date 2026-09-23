@@ -7,6 +7,7 @@ import dotenv
 
 # Import the function that creates the flow
 from flow import create_tutorial_flow
+from utils.call_llm import LEGACY_CACHE_FILE, cache_file, notice_legacy_cache
 from utils.exclude_patterns import DEFAULT_EXCLUDE_PATTERNS
 from utils.llm_config import check_llm_auth, describe_thinking_support, resolve_llm_settings
 from utils.output import configure_logging, emit, emit_raw, get, translate_missing_strings
@@ -309,7 +310,7 @@ def _run_cleanup():
     """Clean up cache files and log directory."""
     emit("CLEANUP_START")
 
-    for cache_path in ["llm_cache_v2.json", "llm_cache_v2.json.tmp", "llm_cache.json"]:
+    for cache_path in [cache_file, f"{cache_file}.tmp", LEGACY_CACHE_FILE]:
         if os.path.exists(cache_path):
             try:
                 os.remove(cache_path)
@@ -374,10 +375,11 @@ def main():
     if not args.dir and not args.repo:
         parser.error("one of the arguments --repo --dir --cleanup is required")
 
-    # Fail fast (with setup instructions) before crawling if Claude cannot authenticate
+    # Fail fast (with setup instructions) before crawling if the configured provider cannot authenticate
     if not check_llm_auth():
         sys.exit(1)
     translate_missing_strings()
+    notice_legacy_cache()
 
     # Get GitHub token from argument or environment variable if using repo
     github_token = None

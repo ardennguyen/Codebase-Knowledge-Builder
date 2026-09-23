@@ -20,9 +20,9 @@ import time
 
 import requests
 
-DEFAULT_GEMINI_MODEL = "gemini-3.7-flash"
+DEFAULT_GEMINI_MODEL = "gemini-3.8-flash"
 DEFAULT_GEMINI_LOCATION = "global"  # Vertex: Gemini 3.x is served from global / us / eu, not us-central1
-DEFAULT_ANTHROPIC_MODEL = "claude-opus-5-5"
+DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-5"
 DEFAULT_ANTHROPIC_ENDPOINT = "https://api.anthropic.com"
 DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api"
 
@@ -176,7 +176,7 @@ def gemini_thinking_mode(model: str) -> tuple[str, object]:
 
 
 def gemini_model_id(model: str) -> str:
-    """'models/gemini-3.7-flash' / 'publishers/google/models/gemini-3.7-flash' → 'gemini-3.7-flash'."""
+    """'models/gemini-3.8-flash' / 'publishers/google/models/gemini-3.8-flash' → 'gemini-3.8-flash'."""
     return (model or "").strip().lower().rsplit("/", 1)[-1]
 
 
@@ -233,7 +233,7 @@ def get_llm_provider() -> str | None:
 
     Explicit LLM_PROVIDER wins; otherwise Gemini credentials select GEMINI (legacy default).
     ANTHROPIC is never auto-selected: ANTHROPIC_API_KEY is often exported globally for other
-    tools (e.g. Claude Code), and a silent switch to a paid Opus run would be surprising.
+    tools (e.g. Claude Code), and a silent switch to a paid Claude run would be surprising.
     """
     provider = os.getenv("LLM_PROVIDER")
     if provider:

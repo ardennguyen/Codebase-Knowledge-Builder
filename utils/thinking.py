@@ -10,7 +10,7 @@ built once in main.py from:
 
 `auto` (the default profile) resolves to `balanced` on providers whose thinking the project
 maps per model — ANTHROPIC, GEMINI and OPENROUTER: current models there think by default
-(Claude Opus 5.5, Gemini 3.x) and explicit per-node effort is the main quality/cost lever —
+(Claude 5 family, Gemini 3.x) and explicit per-node effort is the main quality/cost lever —
 and to `off` (model defaults) elsewhere (OLLAMA and other OpenAI-compatible endpoints).
 
 Levels are provider-neutral; each provider maps or clamps them with clamp_level():
@@ -50,8 +50,9 @@ MODE_NODES = {
 # Base per-node levels. Reasoning-heavy synthesis (identify/reduce abstractions) gets the
 # most effort; relationship analysis only feeds the summary, diagram and ordering, so it
 # sits one level lower; long-form generation gets enough to plan accurately; mechanical
-# transforms stay low. Opus 5.5 at medium already beats Opus 5 at high on knowledge work,
-# and chapter writing runs N times, so shipped profiles stop at high. xhigh/max appear
+# transforms stay low. Current Claude 5 models already do strong work at medium (Opus 5.5 at
+# medium beats Opus 5 at high on knowledge work), and chapter writing runs N times, so
+# shipped profiles stop at high. xhigh/max appear
 # only in the explicit `max` profile (use it when you have measured a gain).
 _PROFILES = {
     "economy": {

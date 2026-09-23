@@ -21,7 +21,7 @@
    > **Note:** CLI output language matches the `--language` flag. String translations are stored in `utils/strings.csv` and auto-translated via LLM for missing languages.
 
 3. Set up LLM by copying `.env.sample` to `.env` and providing credentials. By default, you can use the AI Studio key for Gemini by setting the `GEMINI_API_KEY` environment variable (or `GEMINI_PROJECT_ID` for Vertex AI). If you want to use another LLM, you can set the `LLM_PROVIDER` environment variable (e.g. `OPENROUTER`), and then set the model, url, and API key (e.g. `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). If using Ollama, set `LLM_PROVIDER=OLLAMA` and the base url (e.g. `OLLAMA_BASE_URL=http://localhost:11434`) — the API key can be omitted.
-   To use Claude natively, set `LLM_PROVIDER=ANTHROPIC` (required — Claude is never auto-selected from `ANTHROPIC_API_KEY` alone) and `ANTHROPIC_API_KEY` (the model defaults to `claude-opus-5-5`; override with `ANTHROPIC_MODEL`). Claude runs with adaptive thinking, a per-node effort plan (`--thinking-profile balanced` by default), streaming, automatic refusal fallbacks (`ANTHROPIC_FALLBACKS`), and prints a token/cost summary at the end of the run. See `.env.sample` for the optional `ANTHROPIC_*` settings.
+   To use Claude natively, set `LLM_PROVIDER=ANTHROPIC` (required — Claude is never auto-selected from `ANTHROPIC_API_KEY` alone) and `ANTHROPIC_API_KEY` (the model defaults to `claude-sonnet-5`; override with `ANTHROPIC_MODEL`, e.g. `claude-opus-5-5`). Claude runs with adaptive thinking, a per-node effort plan (`--thinking-profile balanced` by default), streaming, automatic refusal fallbacks on Opus and Fable 5.x (`ANTHROPIC_FALLBACKS`), and prints a token/cost summary at the end of the run. See `.env.sample` for the optional `ANTHROPIC_*` settings.
 
    **Claude without an API key (`ant auth login`):** instead of `ANTHROPIC_API_KEY`, you can sign in with Anthropic's `ant` CLI. Usage is billed to the API organization and workspace you pick at login (not a Claude.ai Pro/Max plan; Claude Code's own `/login` can't be reused).
    1. Install `ant`:
@@ -117,13 +117,13 @@ python main.py --repo https://github.com/user/repo --mode advanced --thinking-le
 # Tutorial from GitHub repo with file filters
 python main.py --repo https://github.com/user/repo --include "*.py" --exclude "tests/*"
 
-# Claude Opus 5.5 (LLM_PROVIDER=ANTHROPIC): best-quality API reference, extra effort on every reference page
+# Claude (LLM_PROVIDER=ANTHROPIC, Sonnet 5 by default): best-quality API reference, extra effort on every reference page
 python main.py --dir /path/to/project --mode api-reference --mkdocs --thinking-profile quality --thinking-override write_chapters=xhigh
 
-# Claude Opus 5.5: architecture deep-dive with maximum effort on abstraction discovery
+# Claude Opus 5.5 (ANTHROPIC_MODEL=claude-opus-5-5): architecture deep-dive with maximum effort on abstraction discovery
 python main.py --dir /path/to/project --mode advanced --thinking-override identify_abstractions=max
 
-# Claude Opus 5.5 on a budget: economy profile, but keep chapter writing at medium
+# Claude Sonnet 5 on a budget: economy profile, but keep chapter writing at medium
 python main.py --dir /path/to/project --mode tutorial --thinking-profile economy --thinking-override write_chapters=medium
 ```
 
@@ -190,7 +190,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
    > **Ghi chú:** Ngôn ngữ hiển thị trên terminal khớp với cờ `--language`. Bản dịch chuỗi được lưu trong `utils/strings.csv` và tự động dịch qua LLM cho các ngôn ngữ chưa có.
 
 3. Thiết lập LLM bằng cách sao chép `.env.sample` thành `.env` và cung cấp thông tin xác thực. Theo mặc định, bạn có thể sử dụng khóa API AI Studio cho Gemini bằng cách cài đặt biến môi trường `GEMINI_API_KEY` (hoặc `GEMINI_PROJECT_ID` cho Vertex AI). Nếu bạn muốn sử dụng LLM khác, bạn có thể thiết lập biến `LLM_PROVIDER` (ví dụ: `OPENROUTER`), và sau đó thiết lập model, url và khóa API (ví dụ: `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). Nếu dùng Ollama, thiết lập `LLM_PROVIDER=OLLAMA` và base url (ví dụ: `OLLAMA_BASE_URL=http://localhost:11434`) — có thể bỏ qua API key.
-   Để dùng Claude trực tiếp, thiết lập `LLM_PROVIDER=ANTHROPIC` (bắt buộc — Claude không bao giờ được tự chọn chỉ từ `ANTHROPIC_API_KEY`) và `ANTHROPIC_API_KEY` (model mặc định là `claude-opus-5-5`; đổi bằng `ANTHROPIC_MODEL`). Claude chạy với adaptive thinking, kế hoạch nỗ lực theo từng node (mặc định `--thinking-profile balanced`), streaming, tự động fallback khi bị từ chối (`ANTHROPIC_FALLBACKS`), và in tổng kết token/chi phí khi kết thúc. Xem `.env.sample` để biết các thiết lập `ANTHROPIC_*` tùy chọn.
+   Để dùng Claude trực tiếp, thiết lập `LLM_PROVIDER=ANTHROPIC` (bắt buộc — Claude không bao giờ được tự chọn chỉ từ `ANTHROPIC_API_KEY`) và `ANTHROPIC_API_KEY` (model mặc định là `claude-sonnet-5`; đổi bằng `ANTHROPIC_MODEL`, ví dụ `claude-opus-5-5`). Claude chạy với adaptive thinking, kế hoạch nỗ lực theo từng node (mặc định `--thinking-profile balanced`), streaming, tự động fallback khi bị từ chối với Opus và Fable 5.x (`ANTHROPIC_FALLBACKS`), và in tổng kết token/chi phí khi kết thúc. Xem `.env.sample` để biết các thiết lập `ANTHROPIC_*` tùy chọn.
 
    **Dùng Claude không cần API key (`ant auth login`):** thay cho `ANTHROPIC_API_KEY`, bạn có thể đăng nhập bằng CLI `ant` của Anthropic. Chi phí được tính vào tổ chức và workspace API bạn chọn khi đăng nhập (không phải gói Claude.ai Pro/Max; không dùng lại được `/login` của Claude Code).
    1. Cài `ant`:
@@ -286,13 +286,13 @@ python main.py --repo https://github.com/user/repo --mode advanced --thinking-le
 # Tutorial từ kho GitHub với bộ lọc tệp
 python main.py --repo https://github.com/user/repo --include "*.py" --exclude "tests/*"
 
-# Claude Opus 5.5 (LLM_PROVIDER=ANTHROPIC): API reference chất lượng cao nhất, thêm nỗ lực cho mọi trang tham chiếu
+# Claude (LLM_PROVIDER=ANTHROPIC, mặc định Sonnet 5): API reference chất lượng cao nhất, thêm nỗ lực cho mọi trang tham chiếu
 python main.py --dir /path/to/project --mode api-reference --mkdocs --thinking-profile quality --thinking-override write_chapters=xhigh
 
-# Claude Opus 5.5: phân tích kiến trúc chuyên sâu với nỗ lực tối đa cho bước tìm abstraction
+# Claude Opus 5.5 (ANTHROPIC_MODEL=claude-opus-5-5): phân tích kiến trúc chuyên sâu với nỗ lực tối đa cho bước tìm abstraction
 python main.py --dir /path/to/project --mode advanced --thinking-override identify_abstractions=max
 
-# Claude Opus 5.5 tiết kiệm: hồ sơ economy nhưng giữ bước viết chương ở mức medium
+# Claude Sonnet 5 tiết kiệm: hồ sơ economy nhưng giữ bước viết chương ở mức medium
 python main.py --dir /path/to/project --mode tutorial --thinking-profile economy --thinking-override write_chapters=medium
 ```
 

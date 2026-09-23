@@ -222,10 +222,10 @@ mkdocs-panzoom-plugin>=0.2.0
 # Vertex location: Gemini 3.x is served from global / us / eu (3.1 Pro and 3 Flash: global only), not us-central1.
 # Regional endpoints cost about 10% more than global.
 # GEMINI_LOCATION = global
-# Gemini 3.1+ models: gemini-3.8-flash, gemini-3.7-flash (default), gemini-3.6-flash, gemini-3.5-flash,
+# Gemini 3.1+ models: gemini-3.8-flash (default), gemini-3.7-flash, gemini-3.6-flash, gemini-3.5-flash,
 #   gemini-3.5-flash-lite, gemini-3.1-flash-lite, gemini-3.1-pro-preview, gemini-3.8-flash-cyber (Vertex, allowlisted);
 #   aliases gemini-flash-latest / gemini-pro-latest also work. 2.5 models use thinking budgets.
-# GEMINI_MODEL = gemini-3.7-flash
+# GEMINI_MODEL = gemini-3.8-flash
 # Output cap incl. thinking; default per thinking level, max 65,536:
 # GEMINI_MAX_OUTPUT_TOKENS = 65536
 # Total deadline per request in seconds (covers the whole streamed reply, so keep it generous):
@@ -242,8 +242,9 @@ mkdocs-panzoom-plugin>=0.2.0
 #      or with Go 1.25+: go install github.com/anthropics/anthropic-cli/cmd/ant@latest
 #   2. ant auth login      (browser: pick your organization + workspace; billed to that API org)
 #   3. ant auth status     (main.py and utils/call_llm.py run this check automatically)
-# Claude 4.6+ (adaptive thinking + effort) and Haiku 4.5 (thinking budgets) are supported:
-# ANTHROPIC_MODEL = claude-opus-5-5
+# Claude 4.6+ (adaptive thinking + effort) and Haiku 4.5 (thinking budgets) are supported.
+# Default claude-sonnet-5; set e.g. claude-opus-5-5 for Opus 5.5 (higher price):
+# ANTHROPIC_MODEL = claude-sonnet-5
 # Optional: gateway/proxy base URL, or an OAuth bearer token instead of the API key
 # ANTHROPIC_BASE_URL = https://api.anthropic.com
 # ANTHROPIC_AUTH_TOKEN = <YOUR_ANTHROPIC_AUTH_TOKEN>
@@ -304,10 +305,10 @@ def get_llm_provider() -> str | None:
     return None   # ANTHROPIC is never auto-selected: ANTHROPIC_API_KEY is often exported for other tools
 
 def resolve_llm_settings() -> tuple[str, str, str, str]:   # (provider, model_name, endpoint_url, api_key)
-    # GEMINI    → GEMINI_MODEL (default gemini-3.7-flash), "generativelanguage.googleapis.com", GEMINI_API_KEY
+    # GEMINI    → GEMINI_MODEL (default gemini-3.8-flash), "generativelanguage.googleapis.com", GEMINI_API_KEY
     # GEMINI (Vertex, GEMINI_PROJECT_ID set) → endpoint "aiplatform.googleapis.com" (global),
     #             "aiplatform.{us|eu}.rep.googleapis.com" (multi-region) or "{loc}-aiplatform.googleapis.com", api_key ""
-    # ANTHROPIC → ANTHROPIC_MODEL (default claude-opus-5-5), ANTHROPIC_BASE_URL or "https://api.anthropic.com", ANTHROPIC_API_KEY
+    # ANTHROPIC → ANTHROPIC_MODEL (default claude-sonnet-5), ANTHROPIC_BASE_URL or "https://api.anthropic.com", ANTHROPIC_API_KEY
     # OPENROUTER → OPENROUTER_MODEL, OPENROUTER_BASE_URL (trailing "/v1" stripped) or "https://openrouter.ai/api", OPENROUTER_API_KEY
     # other     → {P}_MODEL / {P}_BASE_URL / {P}_API_KEY ("unknown" when unset)
     # none      → ("UNKNOWN", "unknown", "unknown", "")
@@ -907,7 +908,7 @@ def call_llm(prompt, use_cache=True, thinking_level=None) -> str:
 > Notes for AI: This function has multiple critical subsystems. Implement ALL of them.
 
 **Disk Caching (in-memory singleton):**
-- Cache file: `llm_cache_v2.json`, key = `sha256(f"{provider}|{model}|{thinking_level or 'default'}\n{prompt}")` — responses are scoped to the model and thinking level that produced them (switching providers never returns another model's answer), and full prompts are no longer stored on disk. The legacy prompt-keyed `llm_cache.json` is never read; `--cleanup` removes both.
+- Cache file: `llm_cache_v2.json`, key = `sha256(f"{provider}|{model}|{thinking_level or 'default'}\n{prompt}")` — responses are scoped to the model and thinking level that produced them (switching providers never returns another model's answer), and full prompts are no longer stored on disk. The legacy prompt-keyed `llm_cache.json` is never read: `notice_legacy_cache()` (called by `main()` and the self-test after the credential preflight) emits `CACHE_LEGACY_FOUND` with its size when a leftover copy exists, and `--cleanup` removes both files.
 - Writes go to `llm_cache_v2.json.tmp` then `os.replace()` (atomic — an interrupted run never truncates the cache). Empty responses and truncated ones (`TruncatedResponse`, i.e. `response.truncated is True`) are never cached.
 - Loaded once into `_cache` module-level dict on first `load_cache()` call; subsequent reads are pure dict lookups (avoids re-parsing hundreds of MB of JSON on every call)
 - Writes update the in-memory dict and flush to disk immediately (safety: each new entry persisted right away)
@@ -2084,7 +2085,7 @@ If you find yourself writing the same block of code (≥3 lines) in 2+ nodes, ex
 | `_validate_thinking_args` | `(args, invalid_overrides) -> None` | — | Emits `ERROR_THINKING_OVERRIDE` (exit 1), `WARN_THINKING_OVERRIDE_UNUSED` (override names a node not in `thinking.MODE_NODES[mode]`), and `WARN_THINKING_LEVEL_OVERRIDES_PROFILE` — after `init_output()` |
 | `detect_llm_config` | `(args) -> tuple[str, str, str, str, int]` | `(provider, model_name, endpoint_url, api_key, context_length)` | `resolve_llm_settings()` + context length |
 | `display_config` | `(args, mode, provider, model_name, endpoint_url, context_length, log_file, thinking_profile, thinking_plan) -> None` | — | Emits all `CFG_*` strings to console |
-| (startup order) | — | — | `parse_arguments` → `resolve_thinking_plan` → `init_output(auto_translate=False)` → `_check_quoting_errors` / `_validate_thinking_args` → standalone `--cleanup` → `check_anthropic_auth()` (exit 1 on failure) → `translate_missing_strings()` → mode/project resolution → flow. Translation is an LLM call, so it runs only after arguments and credentials are checked. |
+| (startup order) | — | — | `parse_arguments` → `resolve_thinking_plan` → `init_output(auto_translate=False)` → `_check_quoting_errors` / `_validate_thinking_args` → standalone `--cleanup` → `check_llm_auth()` (exit 1 on failure) → `translate_missing_strings()` → `notice_legacy_cache()` → mode/project resolution → flow. Translation is an LLM call, so it runs only after arguments and credentials are checked. |
 | `_emit_usage_summary` | `() -> None` | — | In `finally`: one `LLM_USAGE_SUMMARY` per provider used (`llm_common.get_usage_summary()`: calls, input/output/thinking/cache tokens, refusals, fallbacks, truncations, est. cost or `CFG_VALUE_UNKNOWN`) |
 | `_run_cleanup` | `() -> None` | — | Removes `llm_cache_v2.json` (+ `.tmp`), legacy `llm_cache.json`, and the `logs/` directory |
 
@@ -2139,7 +2140,7 @@ Profiles (`auto` = `balanced` on ANTHROPIC, GEMINI and OPENROUTER (`thinking.PRO
 | group_modules | low | medium | high | high |
 | translate_strings | low | low | medium | medium |
 
-Rationale: reasoning-heavy synthesis (identify/reduce) gets the most effort; relationship analysis only feeds the summary, diagram and ordering; chapter writing runs N times (hundreds in api-reference), so shipped profiles stop at `high` — Opus 5.5 at `medium` already beats Opus 5 at `high` on knowledge work. `xhigh`/`max` only in the explicit `max` profile (use when a gain has been measured).
+Rationale: reasoning-heavy synthesis (identify/reduce) gets the most effort; relationship analysis only feeds the summary, diagram and ordering; chapter writing runs N times (hundreds in api-reference), so shipped profiles stop at `high` — current Claude 5 models already do strong work at `medium` (Opus 5.5 at `medium` beats Opus 5 at `high` on knowledge work). `xhigh`/`max` only in the explicit `max` profile (use when a gain has been measured).
 
 Per-mode adjustments: economy → `write_chapters=medium` for advanced (design-rationale chapters, at most `max_abstraction_num` calls). `MODE_NODES` lists which nodes can run per mode (api-reference: `filter_files`, `write_chapters`, `chapter_summary`, `group_modules`, `translate_strings`; other modes: the analysis nodes + `write_chapters`, `chapter_summary`, `translate_strings`) — used for the config display and `WARN_THINKING_OVERRIDE_UNUSED`.
 
@@ -2147,9 +2148,9 @@ Provider mapping of a level: ANTHROPIC → `output_config.effort` (xhigh → hig
 
 ### `call_anthropic(prompt, thinking_level=None) -> str` (`utils/llm_anthropic.py`)
 
-- **Model:** `ANTHROPIC_MODEL`, default `claude-opus-5-5` (1M context, 128K output). Limits from the Models API (`client.models.retrieve(model)` → `max_input_tokens`, `max_tokens`), cached per process; offline fallback 1M/128K (Haiku 4.5: 200K/64K) with `WARN_ANTHROPIC_MODEL_LOOKUP`.
-- **Thinking:** adaptive-thinking models (Opus 5.x, Sonnet 5, Fable/Mythos, Opus 4.6–4.8, Sonnet 4.6) get `thinking={"type": "adaptive"}` and, when a level is set, `output_config={"effort": level}` (`minimal` → `low`). With no level (model default), `thinking` is omitted on Opus/Sonnet 4.6–4.8, where omission means no thinking; Opus/Sonnet 5.x, Fable and Mythos think adaptively either way. Claude Opus 5.5 cannot disable thinking and defaults to `medium`, so the plan sets effort explicitly. With `--debug`, `display="summarized"` and the summaries are written to the log file only.
-- **Never sent:** `temperature`/`top_p`/`top_k`, assistant prefill, `budget_tokens` on adaptive models (all 400 on Opus 5.5).
+- **Model:** `ANTHROPIC_MODEL`, default `claude-sonnet-5` (1M context, 128K output; `claude-opus-5-5` for Opus 5.5). Limits from the Models API (`client.models.retrieve(model)` → `max_input_tokens`, `max_tokens`), cached per process; offline fallback 1M/128K (Haiku 4.5: 200K/64K) with `WARN_ANTHROPIC_MODEL_LOOKUP`.
+- **Thinking:** adaptive-thinking models (Opus 5.x, Sonnet 5, Fable/Mythos, Opus 4.6–4.8, Sonnet 4.6) get `thinking={"type": "adaptive"}` and, when a level is set, `output_config={"effort": level}` (`minimal` → `low`). With no level (model default), `thinking` is omitted on Opus/Sonnet 4.6–4.8, where omission means no thinking; Opus/Sonnet 5.x, Fable and Mythos think adaptively either way. Sonnet 5 (the default) thinks adaptively unless told otherwise and defaults to effort `high`; Opus 5.5 cannot disable thinking and defaults to `medium` — so the plan sets effort explicitly. With `--debug`, `display="summarized"` and the summaries are written to the log file only.
+- **Never sent:** `temperature`/`top_p`/`top_k`, assistant prefill, `budget_tokens` on adaptive models (all 400 on Opus 5.5; Sonnet 5 rejects `enabled` budget thinking and non-default sampling values).
 - **max_tokens** (thinking counts toward it): `llm_config.anthropic_planned_output(model, level)` — adaptive models: `ANTHROPIC_MAX_TOKENS_BY_EFFORT` (minimal/low 32K, medium/high/None 64K, xhigh 96K, max 128K); Haiku 4.5 and older: `ANTHROPIC_BUDGET_BY_LEVEL` + 16K for the reply. `input_token_budget` reserves the same value. Level → effort normalization (`llm_config.anthropic_effort`) is shared too. `ANTHROPIC_MAX_OUTPUT_TOKENS` is a hard cap: planned max_tokens = min(table, cap), and the truncation retry never exceeds it. Ceiling = min(model output cap, `context − count_tokens(prompt) − ANTHROPIC_CONTEXT_MARGIN (2,000)`, cap), min 4,096; `WARN_ANTHROPIC_OUTPUT_CLAMPED` only when the ceiling is < 90% of the plan. The prompt is tokenized once per call.
 - **Streaming:** every request uses `messages.stream(...)` + `get_final_message()` (large max_tokens never hit HTTP timeouts).
 - **Refusal fallbacks:** `ANTHROPIC_FALLBACKS=default` (Opus 5.x and Fable 5.x only) → beta `server-side-fallback-2026-07-01` + `extra_body={"fallbacks": "default"}` on `client.beta.messages.stream`; a comma-separated model list (any model, e.g. Mythos 5.1) → beta `server-side-fallback-2026-06-01` + `[{"model": ...}]`; `off` disables. A fallback-served answer emits `WARN_ANTHROPIC_FALLBACK_SERVED`. Cost with fallbacks sums `usage.iterations`, each at its own model's price; an attempt with 0 output tokens (declined before output) is unbilled.
