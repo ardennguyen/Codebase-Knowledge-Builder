@@ -165,7 +165,7 @@ Repository variable `DOCS_DEPLOY_MODE` (Settings → Secrets and variables → A
 | `off` | nothing runs | nothing runs |
 
 - The `docs-deploy` environment must have a **required reviewer** (Settings → Environments) before the mode is set to `auto`: GitHub auto-creates a referenced environment without protection rules, so push runs would otherwise deploy immediately.
-- `approve` has its own concurrency group (`docs-approval`, `cancel-in-progress: true`): only the newest push waits for approval. Waiting is not billed and expires after 30 days.
+- `approve` has its own concurrency group (`docs-approval`, `cancel-in-progress: true`): only the newest push waits for approval (a newer push cancels an older waiting one). Waiting is not billed and expires after 30 days. Once approved, the newer deploy also cancels one still running (see CI Rules).
 - Agents: pushing still requires explicit user approval (Section 7); the gate is the safety net for pushes made outside an agent session.
 
 ### CI Doc Generation Pipeline
@@ -183,7 +183,7 @@ Repository variable `DOCS_DEPLOY_MODE` (Settings → Secrets and variables → A
 - `nav_snippet.yml` must use 2-space indent to align with the base nav.
 - `docs/index.md` is "Home". Generated `api/index.md` is the API Reference section landing page (requires `navigation.indexes` in Material features).
 - Manual dispatch input `force_rebuild` can trigger a full rebuild.
-- `build-and-deploy` runs in the `deploy-docs` concurrency group (`cancel-in-progress: false`: never kill a run that is paying for LLM calls) with `timeout-minutes: 180`. GitHub keeps only one waiting job per group, so a newer approved push or dispatch replaces a waiting one (including a queued `force_rebuild` dispatch).
+- `build-and-deploy` runs in the `deploy-docs` concurrency group with `cancel-in-progress: true` (newest wins: a newer approved push or dispatch cancels the deploy in progress, so an older commit never overwrites the site) and `timeout-minutes: 180`. The group is job-level on purpose: a run whose deploy is skipped (manual/off, rejected, superseded approval) never cancels a running deploy. Cost: a cancelled run loses what it generated so far (pages and cache are saved only after generation), so the new run pays for those chapters again — don't approve a new run mid-deploy unless you want to replace it, and don't start a `force_rebuild` dispatch while a deploy you want to keep is running.
 
 ---
 

@@ -45,12 +45,14 @@ jobs:
       ${{ !cancelled() && (needs.approve.result == 'success'
       || (github.event_name == 'workflow_dispatch' && vars.DOCS_DEPLOY_MODE != 'off')) }}
     runs-on: ubuntu-latest
-    # One deploy at a time: an approved push during a running deploy waits instead of racing
-    # `gh-deploy --force` (and paying for the same chapters twice). Never cancel a run that is already
-    # paying for LLM calls. GitHub keeps one waiting run per group; a newer one replaces it.
+    # Newest wins: once a newer run's deploy starts (push approved, or "Run workflow"), it cancels the one
+    # in progress, so an older commit never overwrites the site and there is no `gh-deploy --force` race.
+    # Job-level on purpose: a push whose deploy is skipped (manual/off, rejected) never cancels anything.
+    # Cost: a cancelled run loses what it generated so far (pages and cache are saved only after
+    # generation), so the new run pays for those chapters again.
     concurrency:
       group: deploy-docs
-      cancel-in-progress: false
+      cancel-in-progress: true
     # Generous cap (~5x the longest incremental run) so a stalled LLM stream cannot hold the job for 6 h
     timeout-minutes: 180
     steps:
