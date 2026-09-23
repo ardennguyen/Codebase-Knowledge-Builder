@@ -90,10 +90,10 @@ Read all 26 prompt files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `p
 | Column | Description |
 |---|---|
 | `STRING_KEY` | Unique key used in `emit("KEY")` / `get("KEY")` calls |
-| `LEVEL` | `INFO`, `SUCCESS`, `WARNING`, `ERROR`, `DEBUG`, `HEADER` — controls ANSI styling |
-| `DEST` | `STDOUT`, `BOTH` (stdout + log), or `LOG` — controls where output goes |
-| `EN` | English template string with `{placeholder}` variables |
-| Remaining columns | Language translations (auto-filled by LLM via `translate_strings.md`) |
+| `LEVEL` | `PROGRESS`, `SUCCESS`, `WARNING`, `ERROR`, `INFO`, `DEBUG`, `FILE_WRITE`, `UI` (generated-doc strings, never printed) — controls ANSI styling (`COLORS` in `utils/output.py`; a level missing from `COLORS`, like the self-test's `RESULT`, prints unstyled) |
+| `DEST` | `STDOUT`, `BOTH` (stdout + log), `LOG`, or debug-gated `DBOTH` (with `--debug` → `BOTH`, else `LOG`) / `DSTDOUT` (with `--debug` → `STDOUT`, else `LOG`) — controls where output goes |
+| `english` | English template string with `{placeholder}` variables |
+| Remaining columns | Language translations (`vietnamese`, `chinese`, …; auto-filled by LLM via `translate_strings.md`) |
 
 ### `emit()` / `get()` Contract
 - `emit(key, **kwargs)` — looks up `key` in `strings.csv`, formats with `kwargs`, prints to stdout/log with ANSI styling based on LEVEL
@@ -153,20 +153,24 @@ Select-String -Path "*.py","utils/*.py" -Pattern '"([A-Z_]+)"' -AllMatches |
 
 ### Workflows
 - `.github/workflows/deploy-docs.yml` — Auto-generates API docs on push to `main`
-- `.github/workflows/lint.yml` — Runs `ruff check .` and `ruff format --check .`
+- `.github/workflows/lint.yml` — Runs `ruff check .` and `ruff format --check .` on Python 3.12 with ruff pinned to the `.pre-commit-config.yaml` rev (change both together)
 
 ### CI Doc Generation Pipeline
-1. **Prompt change detection:** `git diff "$BEFORE" HEAD --name-only | grep -q 'prompts/'` → sets `--force-rebuild`
-2. **Doc cache:** `actions/cache@v6` caches `.doc_cache_manifest.json` and `output/.../docs/api/`
-3. **Config generation:** `python3 .github/ci_mkdocs_config.py` generates `mkdocs.yml` and `mermaid-init.js`
-4. **Nav merge:** `sed '1d'` strips first line of `nav_snippet.yml` and appends to base nav
-5. **Deploy:** `mkdocs gh-deploy --force`
+1. **Setup:** Python 3.12 (`actions/setup-python` with `cache: pip`), `pip install -r requirements.txt`
+2. **Doc cache restore (rolling):** `actions/cache/restore@v6` restores the newest `.doc_cache_manifest.json` + `output/.../docs/api/` (`restore-keys: doc-cache-`). Invalidation is per chapter in code (md5 of the generation signature — incl. the `draft_chapters` template digest — plus the source), so there is no prompt-change detection step
+3. **Generate:** `main.py --mode api-reference --mkdocs --incremental --no-cache ...` (`--force-rebuild` only from the manual `force_rebuild` input); stale `docs/api/` pages are pruned by the generator
+4. **Doc cache save:** `actions/cache/save@v6` under `doc-cache-${{ github.run_id }}-${{ github.run_attempt }}` right after Generate, so a failure in the deploy steps keeps the paid-for pages
+5. **Config generation:** `python3 .github/ci_mkdocs_config.py` generates `mkdocs.yml` and `mermaid-init.js`
+6. **Nav merge:** `sed '1d'` strips first line of `nav_snippet.yml` and appends to base nav
+7. **Deploy:** `mkdocs gh-deploy --force`
 
 ### CI Rules
 - Do NOT use bash heredocs for YAML generation — they silently break indentation. Use `ci_mkdocs_config.py` instead.
+- `ci_mkdocs_config.py` `MKDOCS_YML` / `MERMAID_INIT_JS` are copies of `build_mkdocs_config` / `MERMAID_INIT_JS` in `utils/mkdocs.py` — change both together.
 - `nav_snippet.yml` must use 2-space indent to align with the base nav.
 - `docs/index.md` is "Home". Generated `api/index.md` is the API Reference section landing page (requires `navigation.indexes` in Material features).
 - Manual dispatch input `force_rebuild` can trigger a full rebuild.
+- The workflow runs in the `deploy-docs` concurrency group (`cancel-in-progress: false`: never kill a run that is paying for LLM calls) with `timeout-minutes: 180`. GitHub keeps only one waiting run per group, so a newer push replaces a waiting one (including a queued `force_rebuild` dispatch).
 
 ---
 
@@ -209,7 +213,7 @@ If a new feature or bug fix changes any of these, update `docs/design.md`:
 - New language support → Section 12
 - Changed retry config → Section 13
 - New prompt template or prompt rule → Section 14
-- New MkDocs feature → Section 9 + `.github/workflows/deploy-docs.yml`
+- New MkDocs feature → Section 9 + `.github/ci_mkdocs_config.py` (`MKDOCS_YML` / `MERMAID_INIT_JS`, the CI copies of `utils/mkdocs.py`); `.github/workflows/deploy-docs.yml` only if CI steps change; new plugin dependencies → `requirements.txt`
 - New CLI output string → `utils/strings.csv` + use `emit()` in code
 - New output level or styling → Section 9 (`utils/output.py`)
 

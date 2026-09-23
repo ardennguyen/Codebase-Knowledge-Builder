@@ -12,8 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # Same version as the pre-commit hook (.pre-commit-config.yaml rev), so CI and local formatting agree
       - name: Install Ruff
-        run: pip install ruff
+        run: pip install ruff==0.16.4
 
       - name: Ruff Check (lint)
         run: ruff check .

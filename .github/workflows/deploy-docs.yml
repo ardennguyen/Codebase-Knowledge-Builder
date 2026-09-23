@@ -15,9 +15,19 @@ on:
 permissions:
   contents: write
 
+# One deploy at a time: a push during a running deploy waits instead of racing `gh-deploy --force`
+# (and paying for the same chapters twice). Never cancel a run that is already paying for LLM calls.
+# GitHub keeps only one waiting run per group: a newer push (or dispatch) replaces a waiting one,
+# so trigger a force_rebuild dispatch while no deploy is queued.
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # Generous cap (~5x the longest incremental run) so a stalled LLM stream cannot hold the job for 6 h
+    timeout-minutes: 180
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -27,34 +37,22 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.10"
+          python-version: "3.12"
+          cache: pip
 
       - name: Install Dependencies
-        run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install mkdocs-panzoom-plugin
+        run: pip install -r requirements.txt
 
-      - name: Detect prompt changes
-        id: prompts
-        run: |
-          BEFORE="${{ github.event.before }}"
-          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            BEFORE="HEAD~1"
-          fi
-          if git diff "$BEFORE" HEAD --name-only 2>/dev/null | grep -q 'prompts/'; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "📝 Prompt templates changed — will force rebuild"
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Cache Documentation and Manifest
-        uses: actions/cache@v6
+      # Rolling cache: restore the newest manifest + pages, save the updated ones under a new key.
+      # Invalidation is per chapter in the code (md5 of generation signature + source), so prompt,
+      # model, thinking or source changes need no cache-key or force-rebuild logic here.
+      - name: Restore Documentation and Manifest
+        uses: actions/cache/restore@v6
         with:
           path: |
             output/Codebase-Knowledge-Builder/.doc_cache_manifest.json
             output/Codebase-Knowledge-Builder/docs/api/
-          key: doc-cache-${{ hashFiles('nodes.py', 'flow.py', 'main.py', 'utils/*.py', 'pocketflow.py', 'prompts/**') }}
+          key: doc-cache-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             doc-cache-
 
@@ -70,11 +68,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           FORCE_FLAG=""
-          if [[ "${{ inputs.force_rebuild }}" == "true" ]] || [[ "${{ steps.prompts.outputs.changed }}" == "true" ]]; then
+          if [[ "${{ inputs.force_rebuild }}" == "true" ]]; then
             FORCE_FLAG="--force-rebuild"
-            echo "🔄 Force rebuild: prompt templates changed or manual trigger"
+            echo "🔄 Force rebuild: manual trigger"
           fi
           python main.py --dir . --name Codebase-Knowledge-Builder --mode api-reference --mkdocs --incremental --no-cache --thinking-profile quality --debug $FORCE_FLAG
+
+      # Saved right after generation, so a failure in the deploy steps below keeps the paid-for pages
+      - name: Save Documentation and Manifest
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            output/Codebase-Knowledge-Builder/.doc_cache_manifest.json
+            output/Codebase-Knowledge-Builder/docs/api/
+          key: doc-cache-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Setup base mkdocs.yml and copy original docs
         run: |
