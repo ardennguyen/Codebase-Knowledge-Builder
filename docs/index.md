@@ -54,7 +54,7 @@ Ever stared at a new codebase feeling completely lost? This project analyzes Git
     - Interactive pan/zoom on Mermaid diagrams (`mkdocs-panzoom-plugin`).
     - Custom Mermaid rendering with pan & zoom support.
     - LLM-assisted sidebar grouping for `api-reference` mode (6+ modules auto-clustered into semantic sections).
-    - Section index landing page (`api/index.md`) with grouped module table.
+    - Section index landing page (`api/index.md`) with grouped module table and one-line module descriptions; in `api-reference` mode also an architecture overview (sections and their dependencies) and a module dependency graph, both from the same grouping call. Tutorial/advanced/SDK landing pages show the project summary and relationship diagram.
     - Run `cd output/<ProjectName> && mkdocs serve` to preview locally (requires `pip install mkdocs-material mkdocs-panzoom-plugin`).
 - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference).
 - `--force-rebuild` - Clear incremental cache and regenerate all chapters from scratch (use with --incremental).

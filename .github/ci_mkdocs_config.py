@@ -33,6 +33,7 @@ theme:
 plugins:
   - search
   - panzoom:
+      full_screen: true
       include_selectors:
         - ".mermaid-raw"
       exclude_selectors:

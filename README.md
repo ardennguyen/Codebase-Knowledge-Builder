@@ -84,7 +84,7 @@
       - Interactive pan/zoom on Mermaid diagrams (`mkdocs-panzoom-plugin`).
       - Custom Mermaid rendering with pan & zoom support.
       - LLM-assisted sidebar grouping for `api-reference` mode (6+ modules auto-clustered into semantic sections).
-      - Section index landing page (`api/index.md`) with grouped module table.
+      - Section index landing page (`api/index.md`) with grouped module table and one-line module descriptions; in `api-reference` mode also an architecture overview (sections and their dependencies) and a module dependency graph, both from the same grouping call. Tutorial/advanced/SDK landing pages show the project summary and relationship diagram.
       - Run `cd output/<ProjectName> && mkdocs serve` to preview locally (requires `pip install mkdocs-material mkdocs-panzoom-plugin`).
     - `--incremental` - Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference).
     - `--force-rebuild` - Clear incremental cache and regenerate all chapters from scratch (use with --incremental).
@@ -265,7 +265,7 @@ Codebase Knowledge Builder © 2026 Arden Nguyen Duc Huy is licensed under [CC BY
       - Thu phóng và kéo thả tương tác trên biểu đồ Mermaid (`mkdocs-panzoom-plugin`).
       - Hiển thị Mermaid tùy chỉnh với hỗ trợ kéo & thu phóng.
       - Nhóm sidebar tự động bằng LLM cho chế độ `api-reference` (từ 6 module trở lên tự phân nhóm theo ngữ nghĩa).
-      - Trang chỉ mục nhóm module (`api/index.md`) với bảng phân loại.
+      - Trang chỉ mục nhóm module (`api/index.md`) với bảng phân loại và mô tả ngắn cho từng module; ở chế độ `api-reference` có thêm tổng quan kiến trúc (các nhóm và phụ thuộc giữa chúng) cùng sơ đồ phụ thuộc giữa các module, đều lấy từ cùng một lần gọi phân nhóm. Trang chỉ mục của chế độ tutorial/advanced/SDK hiển thị tóm tắt dự án và sơ đồ quan hệ.
       - Chạy `cd output/<TênDựÁn> && mkdocs serve` để xem trước cục bộ (yêu cầu `pip install mkdocs-material mkdocs-panzoom-plugin`).
     - `--incremental` - Kích hoạt bộ nhớ đệm MD5 gia tăng để tiết kiệm tối đa token trong các lần chạy lặp lại bằng cách bỏ qua các tệp không thay đổi (Chỉ hỗ trợ khi dùng `--mode api-reference`).
     - `--force-rebuild` - Xóa bộ nhớ đệm gia tăng và tạo lại toàn bộ các chương từ đầu (dùng kèm với `--incremental`).

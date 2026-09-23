@@ -28,7 +28,7 @@ title: "Architecture & Design"
         - A link to `full_content.md` at the bottom.
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
     - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
-    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table; tutorial/advanced/sdk also show the project summary and relationship diagram), and `nav_snippet.yml` next to `mkdocs.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode; kept out of `docs/` so it is not published). `docs/api/` is generator-owned: `.md` pages that belong to no current chapter (removed/renamed modules, earlier runs in another mode) are deleted at the end of each run.
+    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table and one-line module descriptions; api-reference adds an architecture overview and a module dependency graph from the grouping call, tutorial/advanced/sdk show the project summary and relationship diagram), and `nav_snippet.yml` next to `mkdocs.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode; kept out of `docs/` so it is not published). `docs/api/` is generator-owned: `.md` pages that belong to no current chapter (removed/renamed modules, earlier runs in another mode) are deleted at the end of each run.
     - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of each module's source files plus a generation signature (mode, language, provider, model, `write_chapters` thinking level, `draft_chapters` template digest) to skip regeneration of unchanged modules across runs. Entries are keyed by the module's source path, rebuilt from the current run's chapters (removed modules drop out) and saved only after the pages are written.
 
 ## 2. Flow Design
@@ -154,7 +154,7 @@ codebase_kb/
 │   │   ├── order_chapters.md
 │   │   └── draft_chapters.md
 │   └── common/                      # Shared prompts used across modes
-│       ├── group_modules.md         # LLM-assisted sidebar nav grouping
+│       ├── group_modules.md         # LLM-assisted sidebar nav grouping + module descriptions and dependencies (api/index.md)
 │       └── translate_strings.md     # LLM-assisted translation prompt
 └── docs/
     ├── design.md                    # THIS FILE
@@ -1055,7 +1055,15 @@ def parse_yaml_response(response) -> Any:
 ```
 - Extracts and parses YAML from an LLM response fenced in ` ```yaml ` blocks
 - Uses split-based extraction, not regex
-- Used by: MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper, CombineTutorial (7 nodes)
+- Used by: MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper (6 nodes); `parse_grouping_response` wraps it for CombineTutorial
+
+#### `parse_grouping_response`
+```python
+def parse_grouping_response(response) -> Any:
+```
+- Parses the `group_modules.md` reply (`sections` + `descriptions` + `dependencies`) via `parse_yaml_response`
+- When the full block is invalid YAML (typically one malformed description), parses each top-level block (`sections:`, `descriptions:`, `dependencies:`) on its own and keeps the ones that parse, so one bad description costs neither the grouped sidebar nor the dependencies. Raises when `sections` cannot be recovered, for truncated replies, and for replies without a ```` ```yaml ```` block
+- Used by: `write_mkdocs_output` (CombineTutorial nav grouping)
 
 #### `build_code_file_filter_prompt`
 ```python
@@ -1117,7 +1125,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
 - Used by `write_mkdocs_output` to generate a ready-to-use `mkdocs.yml`
 - Includes Material theme, code copy, syntax highlighting, and mermaid diagram support
 - **Mermaid fence:** `pymdownx.superfences` custom fence `mermaid` with class `mermaid-raw` and `format: fence_div_format`, so each diagram is `<div class="mermaid-raw">…source…</div>`. It must be a DIV: the panzoom plugin's `zoompan.js` only activates on DIV/IMG elements.
-- **Panzoom:** `include_selectors: ['.mermaid-raw']` plus `exclude_selectors: ['.mermaid']`. The plugin's built-in `.mermaid` selector regex also matches `class="mermaid-raw"` and would wrap every diagram in a second, dead panzoom box.
+- **Panzoom:** `full_screen: true` (a maximize button on every diagram; wide ones such as the index module graph are readable only at full width), `include_selectors: ['.mermaid-raw']` plus `exclude_selectors: ['.mermaid']`. The plugin's built-in `.mermaid` selector regex also matches `class="mermaid-raw"` and would wrap every diagram in a second, dead panzoom box.
 - Merges the generated `nav_snippet` into the config's nav section; `include_home=True` (always passed by `write_mkdocs_output`) adds `- "<UI_HOME>": index.md`, the Home label translated like the rest of the nav (`get("UI_HOME")`, quoted with `yaml_str`)
 - Output file can be used directly with `mkdocs serve` or `mkdocs build`
 - **Must be kept in sync** with `.github/ci_mkdocs_config.py` `MKDOCS_YML` (theme, plugins, markdown_extensions, extra_javascript). The CI copy differs only in `site_name`, `site_url` and its fixed Home / Architecture & Design nav entries.
@@ -1144,15 +1152,37 @@ def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: 
 - `--mkdocs`: `original_path + ".md"` when the abstraction has an `original_path` (api-reference), else the sanitized lowercase name (`"LLM Call"` → `llm_call.md`); standalone: `NN_` prefix (`01_llm_call.md`)
 - Collisions (case-insensitive) with another chapter or with the generated `index.md` get a numeric suffix (`index_2.md`, `llm_call_2.md`), so a chapter named "Index" can no longer overwrite the `api/index.md` landing page. MkDocs builds `README.md` as its directory's index page, so `README.md` is compared as `<dir>/index.md` (a top-level extensionless `README` source becomes `README_2.md`)
 
-#### `strip_summary_header` / `summary_description` / `md_link_text`
+#### `strip_summary_header` / `clip_sentences` / `table_cell_text` / `summary_description` / `md_link_text`
 ```python
 def strip_summary_header(summary: str) -> str
-def summary_description(summary: str, limit: int = 200) -> str
+def clip_sentences(text: str, limit: int) -> str
+def table_cell_text(text: str) -> str
+def summary_description(summary: str, limit: int = 300) -> str
 def md_link_text(text: str) -> str
 ```
 - `strip_summary_header`: drops the `"<Chapter> N — name:"` first line that WriteChapters puts on each chapter summary. Used for the grouping prompt's module list, for index descriptions, and by WriteChapters to re-head cached summaries with the current chapter number
-- `summary_description`: one-line table cell: header and the leading `(1) **Component Scope …**:` label removed (requires a `(1)`/`1.` marker, label ≤ 60 chars, ASCII or full-width `：` colon, so prose such as "1 file handles…" or a URL colon is never mistaken for the label), whitespace collapsed, `|` → `—`, capped at `limit` characters
+- `clip_sentences`: collapses whitespace and keeps **whole sentences** up to `limit` characters. Sentence ends are `. ! ?` before whitespace and CJK `。！？` with or without it (CJK text has no spaces); a whole-word abbreviation (`e.g.`, `i.e.`, `vs.`, `etc.`, `cf.`, `approx.`, `incl.`, `resp.`, `no.`, `fig.`) never ends a sentence. A first sentence longer than `limit` is cut at a word boundary (CJK: at `limit`) with `…`, closing a code span it would leave open — cells never stop mid-word or with a dangling backtick
+- `table_cell_text`: escapes `|` as `\|` for a table cell, except inside code spans (the tables extension already ignores pipes there, so `str | None` stays intact)
+- `summary_description`: **fallback** description (used when the grouping reply has none, and for the flat index). Real summaries arrive as a 4-point brief, often wrapped in a preamble ("Here is a structured technical brief …:") with the points as headings (`### (1) Component Scope & Responsibility`) or inline labels (`(1) **Component Scope & Responsibility**: …`). It keeps only point (1) (markers matched as `(1)`…`(2)` at line start, else `1.`/`1)`), then: an inline label (`_SUMMARY_LABEL_RE`: optional `#>*_` prefix, `(1)`/`1.` marker, label ≤ 80 chars, ASCII or full-width `：` colon) is removed; a first line that is only a label (no sentence punctuation) is dropped; otherwise only the bare marker is removed. Without markers, a short first line ending in `:`/`：` is dropped as a preamble (any language). Result: `table_cell_text(clip_sentences(…, limit))`
 - `md_link_text`: backslash-escapes `\ ` `` ` `` `* _ [ ] |` so link text like `__init__.py` renders literally instead of as bold `init`
+
+#### `module_name_lookup` / `grouping_extras`
+```python
+def module_name_lookup(chapter_files: list) -> dict
+def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]
+```
+- `module_name_lookup`: every name the LLM may use for a module → its `module_name` (exact `module_name`, `original_path`, and the bare basename when unique)
+- `grouping_extras`: validated extras of the `group_modules.md` reply → `({module_name: description}, {module_name: [module_name, …]})`. Unknown names, self-dependencies, duplicates and non-string values are dropped; a single string target is accepted, and a `[{from, to}]` list form is tolerated. Descriptions: `table_cell_text(clip_sentences(…, 400))`
+
+#### `build_section_map` / `build_module_graph`
+```python
+def build_section_map(sections: list, dependencies: dict, max_listed: int = 8) -> tuple[str, bool, bool]
+def build_module_graph(sections: list, dependencies: dict, chapter_files: list) -> tuple[str, int]
+```
+- Deterministic Mermaid sources for `api/index.md`, built from the grouped sections plus `grouping_extras` dependencies (no extra LLM call). Top-level sections own their children's modules; a module listed twice belongs to its first section
+- `build_section_map` (**Architecture Overview**): `flowchart TD`, one node `S{i}` per top-level section labelled `name<br/>module, module, …` (first `max_listed`, then `UI_MORE`), an arrow `S{a} --> S{b}` when a module in *a* uses one in *b*. Sections with ≥ 2 incoming arrows get `classDef entryNode`. Returns `(source, has_arrows, has_hubs)` so the caption explains only what is drawn; `("", False, False)` for fewer than two sections
+- `build_module_graph` (**Module Dependencies**): `flowchart LR` (measured narrower than TD for grouped graphs), one `subgraph G{i}` box per top-level section, one node `M{i}` per module, `M{a} --> M{b}` per dependency. **Hub folding:** modules used by at least `max(5, modules // 4)` others (logging, config, shared types — 41 of 60 arrows in this repo) get `entryNode`, a `UI_USED_BY` ("used by N modules") label line and no incoming arrows. Returns `(source, hub_threshold)` (threshold `0` without hubs); `("", 0)` without dependencies or above `_MODULE_GRAPH_MAX_MODULES` (80) modules
+- Labels go through `_mermaid_label`: whitespace collapsed and Mermaid's special characters written as entity codes (`#` → `#35;` first, then `"` → `#quot;`, `` ` `` → `#96;`, `<` → `#lt;`, `>` → `#gt;`). A label opening with a backtick would start a markdown string and break the whole diagram, `<…>` would be stripped by the sanitizer and `#…;` decoded as an entity. The builders add their `<br/>` separators after escaping. Node ids are synthetic (`S0`, `G0`, `M0`), so module names such as `end` or `subgraph` never act as keywords
 
 #### `build_grouped_nav`
 ```python
@@ -1180,12 +1210,12 @@ def prune_sections(sections: list, chapter_files: list) -> list:
 
 #### `build_index_sections`
 ```python
-def build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3, summaries: dict | None = None):
+def build_index_sections(lines: list, sections: list, chapter_files: list, level: int = 3, summaries: dict | None = None, descriptions: dict | None = None):
 ```
 - Recursively builds markdown sections with module tables for `api/index.md`
 - Each section gets a heading (`###`, `####`, etc.) and a `| Chapter | Description |` table
 - **Module names:** Chapter column displays `mod_name` (bare, or `dir/name` when disambiguated), escaped with `md_link_text` — directory context is provided by the section heading
-- **Descriptions:** `summaries` maps `module_name` → chapter summary (header stripped). When `description` starts with `"Internal API reference"` (the generic DeterministicFileMapper description), the summary is used instead; both go through `summary_description`
+- **Descriptions:** `descriptions` (module_name → one-line description from the grouping reply) first. Otherwise `summary_description` of the chapter summary (`summaries`, header stripped) when `description` is the generic DeterministicFileMapper text (`"Internal API reference …"`), else of `description`
 - **Link paths:** Uses `match['filename']` directly (e.g., `utils/call_llm.py.md`) — NOT prefixed with `api/` since `index.md` is already at `docs/api/index.md`
 
 #### `normalize_chapter_links`
@@ -1209,7 +1239,8 @@ def split_frontmatter(text: str) -> tuple[str, bool]:
 def write_mkdocs_output(output_path, prep_res, chapter_files):
 ```
 - Orchestrates all MkDocs output: nav grouping, mkdocs.yml, homepage redirect, section index, nav_snippet.yml, link normalization, chapter files, and stale-page pruning
-- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`. The parsed sections go through `prune_sections` before use
+- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`. The reply is parsed with `parse_grouping_response`; its sections go through `prune_sections`, its `descriptions` / `dependencies` through `grouping_extras` (both reset to `{}` when grouping fails)
+- **Grouped `api/index.md` layout:** title + count line → `## UI_ARCH_OVERVIEW` with the `build_section_map` diagram and, when it has arrows, an italic `UI_SECTION_MAP_NOTE` caption (+ `UI_SECTION_MAP_HUBS` when a section is outlined) → `## UI_CHAPTER_INDEX` section tables (`build_index_sections(…, descriptions=…)`) → `## UI_MODULE_DEPENDENCIES` with the `build_module_graph` diagram and a `UI_MODULE_GRAPH_NOTE` caption (+ `UI_MODULE_GRAPH_HUBS` when hubs were folded). Each diagram is omitted when its builder returns `""`
 - The flat index (no grouping) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description. For tutorial/advanced/sdk it also places `prep_res["overview"]` (project summary, source line, relationship Mermaid diagram — the same block as the standalone `index.md`) between the count line and the chapter index
 - Writes `nav_snippet.yml` next to `mkdocs.yml` (output root), not in `docs/`: MkDocs copies every non-Markdown file in `docs_dir` into the site, so it used to be published at the site root. A leftover `docs/nav_snippet.yml` from older runs is removed
 - Ends with `prune_stale_pages(api_docs_path, chapter_files)`: deletes every `.md` under `docs/api/` that is neither `index.md` nor a current chapter file (matched by file identity, `os.stat` device + inode, so a case-only rename on a case-insensitive filesystem never deletes the page just written), emitting `MKDOCS_PRUNED_STALE`, and removes directories left empty. MkDocs publishes every page in `docs_dir` even when the nav no longer lists it, so without this, pages of removed modules stayed live and searchable (and CI's cache restored them every run)
@@ -1729,7 +1760,7 @@ def parse_yaml_response(response):
 | ReduceAbstractions | list | `name`, `description`, `files` | ⚠ `files` not `file_indices` |
 | AnalyzeRelationships | dict | `summary`, `relationships[].from_abstraction`, `.to_abstraction`, `.label` | |
 | OrderChapters | list | Top-level int list | `[0, 3, 1, ...]` |
-| CombineTutorial | dict | `sections[].name`, `.modules[]`, `.children[]` | Nested nav grouping via `group_modules.md` |
+| CombineTutorial | dict | `sections[].name`, `.modules[]`, `.children[]`; `descriptions` (`{module: str}`), `dependencies` (`{module: [module]}`) | Nested nav grouping, index descriptions and index diagrams via `group_modules.md` (`parse_grouping_response`, `grouping_extras`) |
 
 ### Index Validation
 ```python
@@ -1780,6 +1811,9 @@ All user-facing strings (CLI output, generated UI labels) are externalized to `u
 | `UI_CHAPTER` | Chapter | Individual chapter prefix |
 | `UI_FULL_CONTENT` | Full Content | Full content link label |
 | `UI_HOME` | Home | MkDocs nav label of the site's `index.md` |
+| `UI_ARCH_OVERVIEW` / `UI_MODULE_DEPENDENCIES` | Architecture Overview / Module Dependencies | `api/index.md` diagram headings (grouped api-reference index) |
+| `UI_SECTION_MAP_NOTE` / `UI_SECTION_MAP_HUBS` / `UI_MODULE_GRAPH_NOTE` / `UI_MODULE_GRAPH_HUBS` | "Arrows point from …" / "… outlined in red …" | Captions under the two index diagrams; the `*_HUBS` sentence only when something is outlined (`UI_MODULE_GRAPH_HUBS` takes `{count}`) |
+| `UI_USED_BY` / `UI_MORE` | used by {count} modules / +{count} more | Hub-module label in the module graph / overflow in section-map node labels |
 
 **Usage in code:**
 ```python
@@ -1900,7 +1934,9 @@ with open(template_path, "r", encoding="utf-8-sig") as f:
 ### Common Prompts (`prompts/common/`)
 Shared prompts that are NOT mode-specific. Loaded directly by path, not via `load_prompt_template()`.
 
-#### `group_modules.md` — LLM Nav Grouping
+#### `group_modules.md` — LLM Nav Grouping, Module Descriptions and Dependencies
+One call (api-reference, 6+ modules) returns the sidebar grouping **and** the data for the `api/index.md` description column and diagrams, so the index needs no extra LLM call. Rules in the prompt: every module in exactly one section; one description per module (1–2 complete sentences, ≤ 40 words, responsibility + key mechanism, no preamble / headings / labels, identifiers in backticks); dependencies = other listed modules a module directly uses (imports, calls, instantiates, reads config/data from), exact names only, no self-dependencies.
+
 **Template variables:**
 | Variable | Source | Description |
 |---|---|---|
@@ -1908,9 +1944,9 @@ Shared prompts that are NOT mode-specific. Loaded directly by path, not via `loa
 | `{module_count}` | `len(chapter_files)` | Number of documented modules |
 | `{module_list}` | Built from chapter_files + chapter_summaries | `- module_name: summary` per module |
 | `{directory_tree}` | `shared["directory_tree"]` | Project directory tree string |
-| `{language_note}` | Conditional on `shared["language"]` | `"Section names MUST be in {language}."` or empty |
+| `{language_note}` | Conditional on `shared["language"]` | `"Section names and module descriptions MUST be in {language}."` or empty |
 
-**Expected YAML response:**
+**Expected YAML response** (descriptions as `>-` folded scalars so quotes, colons and `#` inside them never break parsing; `parse_grouping_response` still salvages the sections if they do):
 ```yaml
 sections:
   - name: "Section Name"
@@ -1919,6 +1955,16 @@ sections:
     children:
       - name: "Child Section"
         modules: ["module_name_3"]
+descriptions:
+  "module_name_1": >-
+    Loads and validates the project settings and exposes them through `get_config()`.
+  "module_name_2": >-
+    One or two sentences about module_name_2.
+  "module_name_3": >-
+    One or two sentences about module_name_3.
+dependencies:
+  "module_name_1": ["module_name_2"]
+  "module_name_3": ["module_name_1", "module_name_2"]
 ```
 
 #### `translate_strings.md` — LLM String Translation
@@ -2175,6 +2221,15 @@ Used by: write_mkdocs_output (1 caller each)
 def prune_sections(sections: list, chapter_files: list) -> list:
 def prune_stale_pages(api_docs_path, chapter_files):
 ```
+
+#### `grouping_extras` / `build_section_map` / `build_module_graph` — `utils/mkdocs.py`
+Used by: write_mkdocs_output (grouped api-reference index)
+```python
+def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]:
+def build_section_map(sections: list, dependencies: dict, max_listed: int = 8) -> tuple[str, bool, bool]:
+def build_module_graph(sections: list, dependencies: dict, chapter_files: list) -> tuple[str, int]:
+```
+Descriptions and dependencies come from the existing grouping call; both diagrams are built deterministically from them.
 
 ### Anti-Patterns to Avoid
 

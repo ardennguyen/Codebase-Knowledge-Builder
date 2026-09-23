@@ -15,7 +15,7 @@ import yaml
 
 from utils.call_llm import call_llm
 from utils.output import emit, emit_raw, get
-from utils.prompts import parse_yaml_response
+from utils.prompts import parse_grouping_response
 from utils.token_utils import log_token_estimation
 
 # ---------------------------------------------------------------------------
@@ -42,7 +42,8 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
       Material's Mermaid color overrides so diagrams use Mermaid's default theme).
       The fence renders as <div class="mermaid-raw"> because panzoom only activates on DIV/IMG.
     - Panzoom plugin for interactive Mermaid diagram zoom/pan ('.mermaid' excluded: the
-      plugin's default '.mermaid' selector also matches 'mermaid-raw' and double-wraps diagrams)
+      plugin's default '.mermaid' selector also matches 'mermaid-raw' and double-wraps diagrams),
+      with a full-screen button for wide diagrams such as the api/index.md module graph
     - Navigation from the generated nav_snippet
     - Optional theme language for UI localization (Search, Table of Contents, etc.)
 
@@ -79,6 +80,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
         f"plugins:\n"
         f"  - search\n"
         f"  - panzoom:\n"
+        f"      full_screen: true\n"
         f"      include_selectors:\n"
         f"        - '.mermaid-raw'\n"
         f"      exclude_selectors:\n"
@@ -156,9 +158,20 @@ def build_mermaid_init_js() -> str:
 
 _FRONTMATTER_RE = re.compile(r"^-{3}[ \t]*\n(.*?\n)(?:\.{3}|-{3})[ \t]*\n", re.DOTALL)  # same block MkDocs' meta parser reads
 _SUMMARY_HEADER_RE = re.compile(r"^.+ \d+ — .+:$")
-# "(1) **Label**:", "**(1) Label:**", "1. Label:" — ASCII or full-width colon (CJK summaries)
-_SUMMARY_LABEL_RE = re.compile(r"^\W{0,3}\(?1[.)]\W{0,3}[^:\uff1a\n]{1,60}[:\uff1a]\**\s*")
+# "(1) **Label**:", "**(1) Label:**", "### (1) Label:", "1. Label:" — ASCII or full-width colon (CJK summaries)
+_SUMMARY_LABEL_RE = re.compile(r"^[\s#>*_]*\(?1[.)]\W{0,3}[^:\uff1a\n]{1,80}[:\uff1a]\**\s*")
+_POINT_MARKER_RE = re.compile(r"^[\s#>*_]*\(?1[.)][\s*_]*")  # the bare "(1)" / "### (1)" / "**1." marker
 _MD_ESCAPE_RE = re.compile(r"([\\`*_\[\]|])")
+# A numbered brief point at line start: "(1)", "### (1)", "**(1)" (what the summary prompt asks for), else "1." / "1)"
+_POINT_PAREN_RE = re.compile(r"(?m)^[ \t#>*_]*\(([1-4])\)")
+_POINT_PLAIN_RE = re.compile(r"(?m)^[ \t#>*_]*([1-4])[.)]\s")
+# Sentence ends: ". ! ?" before whitespace, CJK "\u3002\uff01\uff1f" with or without it (CJK text has no spaces)
+_CJK_STOPS = ("\u3002", "\uff01", "\uff1f")
+_SENTENCE_END_RE = re.compile(r"(?<=[.!?])\s+|(?<=[\u3002\uff01\uff1f])\s*")
+_ABBREVIATIONS = ("e.g.", "i.e.", "vs.", "etc.", "cf.", "approx.", "incl.", "resp.", "no.", "fig.")
+_CODE_SPAN_RE = re.compile(r"(`+)(?!`).+?(?<!`)\1(?!`)")
+_ENTRY_NODE_CLASSDEF = "    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5"
+_MODULE_GRAPH_MAX_MODULES = 80  # beyond this a module-level graph is unreadable; the section map still shows
 
 
 def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: bool) -> dict:
@@ -220,22 +233,284 @@ def strip_summary_header(summary: str) -> str:
     return summary.strip()
 
 
-def summary_description(summary: str, limit: int = 200) -> str:
-    """One-line table-cell description from a chapter summary.
+def _sentences(text: str):
+    """Yield the sentences of *text*; an abbreviation such as "e.g." or "vs." does not end one."""
+    start = 0
+    for match in _SENTENCE_END_RE.finditer(text):
+        piece = text[start : match.start()]
+        if not piece or _ends_with_abbreviation(piece):
+            continue
+        yield piece
+        start = match.end()
+    if text[start:]:
+        yield text[start:]
 
-    Removes the chapter header line and the leading ``(1) **Component Scope ...**:`` label,
-    collapses whitespace, replaces pipes (they would split the table row) and caps the length.
+
+def _ends_with_abbreviation(piece: str) -> bool:
+    """True when *piece* ends with a whole-word abbreviation ("… e.g." but not "… piano.")."""
+    lower = piece.lower()
+    for abbreviation in _ABBREVIATIONS:
+        if lower.endswith(abbreviation):
+            before = lower[: -len(abbreviation)][-1:]
+            if not before or not before.isalnum():
+                return True
+    return False
+
+
+def _is_prose(text: str) -> bool:
+    """True when *text* holds sentence punctuation, i.e. is prose rather than a bare label line."""
+    stripped = text.rstrip("*_ ")
+    return any(mark in text for mark in (". ", "! ", "? ", *_CJK_STOPS)) or stripped.endswith((".", "!", "?"))
+
+
+def clip_sentences(text: str, limit: int) -> str:
+    """Collapse whitespace and keep whole sentences up to *limit* characters.
+
+    A first sentence longer than *limit* is cut at a word boundary (for text without spaces, such as
+    CJK, at *limit*) and ends with "…" (closing a code span it would otherwise leave open), so a cell
+    never stops mid-word or with a dangling backtick.
     """
-    text = _SUMMARY_LABEL_RE.sub("", strip_summary_header(summary), count=1)
-    text = " ".join(text.split()).replace("|", "—")
-    if len(text) > limit:
-        text = text[: limit - 3].rstrip() + "..."
-    return text
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    clipped = ""
+    for sentence in _sentences(text):
+        separator = "" if not clipped or clipped.endswith(_CJK_STOPS) else " "
+        candidate = f"{clipped}{separator}{sentence}"
+        if len(candidate) > limit:
+            break
+        clipped = candidate
+    if not clipped:
+        clipped = text[:limit].rsplit(" ", 1)[0].rstrip(",;:—\u2013- ")
+        if clipped.count("`") % 2:
+            clipped += "`"
+        clipped += "…"
+    return clipped
+
+
+def table_cell_text(text: str) -> str:
+    """Escape ``|`` for a Markdown table cell, except inside code spans (the tables extension already
+    ignores pipes there, so ``str | None`` stays intact)."""
+    parts, position = [], 0
+    for match in _CODE_SPAN_RE.finditer(text):
+        parts.append(text[position : match.start()].replace("|", "\\|"))
+        parts.append(match.group(0))
+        position = match.end()
+    parts.append(text[position:].replace("|", "\\|"))
+    return "".join(parts)
+
+
+def summary_description(summary: str, limit: int = 300) -> str:
+    """Fallback table-cell description from a chapter summary (when the grouping reply has none).
+
+    Summaries are 4-point briefs, often wrapped in a preamble ("Here is a structured technical brief
+    ...:") with the points as headings ("### (1) Component Scope & Responsibility") or inline labels
+    ("(1) **Component Scope & Responsibility**: ..."). This keeps only point (1) without its marker and
+    label and returns whole sentences up to *limit* characters, made safe for a table cell.
+    """
+    text = strip_summary_header(summary)
+    points = [m for m in _POINT_PAREN_RE.finditer(text) if m.group(1) in ("1", "2")]
+    if not points:
+        points = [m for m in _POINT_PLAIN_RE.finditer(text) if m.group(1) in ("1", "2")]
+    if points and points[0].group(1) == "1":
+        end = next((m.start() for m in points[1:] if m.group(1) == "2"), len(text))
+        text = text[points[0].start() : end].strip()
+        first, sep, rest = text.partition("\n")
+        if _SUMMARY_LABEL_RE.match(first):
+            text = _SUMMARY_LABEL_RE.sub("", text, count=1)  # inline "(1) **Label**: substance"
+        elif sep and rest.strip() and not _is_prose(_POINT_MARKER_RE.sub("", first, count=1)):
+            text = rest  # the first line is only the label: "### (1) Component Scope & Responsibility"
+        else:
+            text = _POINT_MARKER_RE.sub("", text, count=1)  # "(1) The module ..." without a label
+    else:
+        first, sep, rest = text.partition("\n")
+        if sep and rest.strip() and len(first) <= 120 and first.rstrip().endswith((":", "\uff1a")):
+            text = rest  # a preamble line in any language: "Here is ...:", "Dưới đây là ...:"
+    return table_cell_text(clip_sentences(text, limit))
 
 
 def md_link_text(text: str) -> str:
     """Escape Markdown metacharacters so names like ``__init__.py`` render literally as link text."""
     return _MD_ESCAPE_RE.sub(r"\\\1", " ".join(str(text).split()))
+
+
+# ---------------------------------------------------------------------------
+# Grouping reply extras (descriptions, dependencies) and index diagrams
+# ---------------------------------------------------------------------------
+
+
+def module_name_lookup(chapter_files: list) -> dict:
+    """Map every name an LLM may use for a module to its ``module_name``.
+
+    Accepts the exact ``module_name``, the ``original_path`` and, when unique, the bare basename.
+    """
+    lookup = {}
+    basename_counts = Counter(os.path.basename(cf.get("original_path") or cf["module_name"]) for cf in chapter_files)
+    for cf in chapter_files:
+        name = cf["module_name"]
+        lookup[name] = name
+        if cf.get("original_path"):
+            lookup.setdefault(cf["original_path"], name)
+        basename = os.path.basename(cf.get("original_path") or name)
+        if basename_counts[basename] == 1:
+            lookup.setdefault(basename, name)
+    return lookup
+
+
+def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]:
+    """Validated ``descriptions`` and ``dependencies`` from a group_modules.md reply.
+
+    Returns ``({module_name: description}, {module_name: [module_name, ...]})``. Unknown names, self
+    dependencies, duplicates and non-string values are dropped; descriptions are cleaned for a table
+    cell (whole sentences, at most 400 characters, pipes replaced).
+    """
+    descriptions, dependencies = {}, {}
+    if not isinstance(parsed, dict):
+        return descriptions, dependencies
+    lookup = module_name_lookup(chapter_files)
+
+    raw_descriptions = parsed.get("descriptions")
+    if isinstance(raw_descriptions, dict):
+        for key, text in raw_descriptions.items():
+            name = lookup.get(str(key).strip())
+            if name and isinstance(text, str) and text.strip():
+                descriptions[name] = table_cell_text(clip_sentences(text, 400))
+
+    raw_dependencies = parsed.get("dependencies")
+    if isinstance(raw_dependencies, dict):
+        pairs = list(raw_dependencies.items())
+    elif isinstance(raw_dependencies, list):  # tolerate [{from: a, to: [b]}]
+        pairs = [(item.get("from"), item.get("to")) for item in raw_dependencies if isinstance(item, dict)]
+    else:
+        pairs = []
+    for key, targets in pairs:
+        source = lookup.get(str(key).strip())
+        if not source:
+            continue
+        if isinstance(targets, str):
+            targets = [targets]
+        if not isinstance(targets, list):
+            continue
+        resolved = dependencies.setdefault(source, [])
+        for target in targets:
+            name = lookup.get(str(target).strip())
+            if name and name != source and name not in resolved:
+                resolved.append(name)
+        if not resolved:
+            del dependencies[source]
+    return descriptions, dependencies
+
+
+def _section_members(sections: list) -> list[tuple[str, list]]:
+    """``[(top-level section name, [module_name, ...])]``, children folded into their top-level section;
+    a module listed in several sections belongs to the first."""
+    owned = set()
+
+    def modules_of(section):
+        found = list(section.get("modules", []))
+        for child in section.get("children", []):
+            found += modules_of(child)
+        return found
+
+    groups = []
+    for section in sections:
+        members = []
+        for name in modules_of(section):
+            if name not in owned:
+                owned.add(name)
+                members.append(name)
+        groups.append((section["name"], members))
+    return groups
+
+
+def _mermaid_label(text) -> str:
+    """Text for a quoted Mermaid label, with Mermaid's special characters as entity codes.
+
+    A label opening with a backtick starts a markdown string and breaks the whole diagram; "<...>" is
+    stripped by the sanitizer and "#...;" decoded as an entity. "#" is escaped first so the other codes
+    are not escaped twice. Callers add their own "<br/>" separators after escaping.
+    """
+    text = " ".join(str(text).split())
+    for char, code in (("#", "#35;"), ('"', "#quot;"), ("`", "#96;"), ("<", "#lt;"), (">", "#gt;")):
+        text = text.replace(char, code)
+    return text
+
+
+def build_section_map(sections: list, dependencies: dict, max_listed: int = 8) -> tuple[str, bool, bool]:
+    """Mermaid source for the api/index.md architecture overview: one node per top-level nav section
+    listing its modules, an arrow A --> B when a module in A uses one in B.
+
+    Sections that other sections depend on most (2+ incoming) get the ``entryNode`` class. Returns
+    ``(source, has_arrows, has_hubs)`` so the caption only explains what is drawn; ``("", False, False)``
+    for fewer than two sections.
+    """
+    groups = _section_members(sections)
+    if len(groups) < 2:
+        return "", False, False
+    owner = {name: index for index, (_, members) in enumerate(groups) for name in members}
+    edges = sorted(
+        {
+            (owner[source], owner[target])
+            for source, targets in dependencies.items()
+            for target in targets
+            if source in owner and target in owner and owner[source] != owner[target]
+        }
+    )
+    lines = ["flowchart TD"]
+    for index, (name, members) in enumerate(groups):
+        listed = ", ".join(members[:max_listed])
+        if len(members) > max_listed:
+            listed += f", {get('UI_MORE', count=len(members) - max_listed)}"
+        lines.append(f'    S{index}["{_mermaid_label(name)}<br/>{_mermaid_label(listed)}"]')
+    lines.extend(f"    S{source} --> S{target}" for source, target in edges)
+    incoming = Counter(target for _, target in edges)
+    hubs = [f"S{index}" for index in range(len(groups)) if incoming[index] >= 2]
+    if hubs:
+        lines.append(_ENTRY_NODE_CLASSDEF)
+        lines.append(f"    class {','.join(hubs)} entryNode")
+    return "\n".join(lines), bool(edges), bool(hubs)
+
+
+def build_module_graph(sections: list, dependencies: dict, chapter_files: list) -> tuple[str, int]:
+    """Mermaid source for the api/index.md module dependency graph: one box per top-level nav section,
+    one node per module, an arrow A --> B when module A uses module B.
+
+    Hub modules, used by at least ``max(5, modules // 4)`` others (typically logging, config and shared
+    types), would pull a fan of arrows across the whole graph. They get the ``entryNode`` class and a
+    "used by N modules" label instead of their incoming arrows. Returns ``(source, hub_threshold)``;
+    the threshold is 0 when no module is a hub. Returns ``("", 0)`` without dependencies or above
+    ``_MODULE_GRAPH_MAX_MODULES`` modules (unreadable).
+    """
+    if not dependencies or len(chapter_files) > _MODULE_GRAPH_MAX_MODULES:
+        return "", 0
+    ids = {cf["module_name"]: f"M{index}" for index, cf in enumerate(chapter_files)}
+    edges = [(source, target) for source, targets in dependencies.items() for target in targets if source in ids and target in ids]
+    incoming = Counter(target for _, target in edges)
+    threshold = max(5, len(chapter_files) // 4)
+    hubs = {name for name in ids if incoming[name] >= threshold}
+
+    def node(name):
+        label = _mermaid_label(name)
+        if name in hubs:
+            label += f"<br/>{_mermaid_label(get('UI_USED_BY', count=incoming[name]))}"
+        return f'{ids[name]}["{label}"]'
+
+    lines = ["flowchart LR"]
+    placed = set()
+    for index, (name, members) in enumerate(_section_members(sections)):
+        members = [m for m in members if m in ids]
+        if not members:
+            continue
+        lines.append(f'    subgraph G{index}["{_mermaid_label(name)}"]')
+        lines.extend(f"        {node(m)}" for m in members)
+        lines.append("    end")
+        placed.update(members)
+    lines.extend(f"    {node(name)}" for name in ids if name not in placed)
+    lines.extend(f"    {ids[source]} --> {ids[target]}" for source, target in edges if target not in hubs)
+    if hubs:
+        lines.append(_ENTRY_NODE_CLASSDEF)
+        lines.append(f"    class {','.join(ids[name] for name in ids if name in hubs)} entryNode")
+    return "\n".join(lines), (threshold if hubs else 0)
 
 
 def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
@@ -328,13 +603,15 @@ def prune_sections(sections: list, chapter_files: list) -> list:
 # ---------------------------------------------------------------------------
 
 
-def build_index_sections(lines, sections, chapter_files, level=3, summaries=None):
+def build_index_sections(lines, sections, chapter_files, level=3, summaries=None, descriptions=None):
     """Recursively build index.md sections with module tables.
 
-    *summaries* maps module_name → chapter summary. It replaces the generic DeterministicFileMapper
-    description ("Internal API reference for ...") in the description column.
+    Description column: *descriptions* (module_name → one-line description from the grouping reply)
+    first; otherwise, for the generic DeterministicFileMapper description ("Internal API reference
+    for ..."), ``summary_description`` of *summaries* (module_name → chapter summary).
     """
     summaries = summaries or {}
+    descriptions = descriptions or {}
     heading = "#" * level
     for section in sections:
         lines.append(f"{heading} {section['name']}")
@@ -347,11 +624,12 @@ def build_index_sections(lines, sections, chapter_files, level=3, summaries=None
                 if match:
                     desc = match["description"]
                     if desc.startswith("Internal API reference"):
-                        desc = summaries.get(mod_name) or ""
-                    lines.append(f"| [{md_link_text(mod_name)}]({match['filename']}) | {summary_description(desc)} |")
+                        desc = summaries.get(mod_name) or desc
+                    cell = descriptions.get(mod_name) or summary_description(desc)
+                    lines.append(f"| [{md_link_text(mod_name)}]({match['filename']}) | {cell} |")
             lines.append("")
         for child in section.get("children", []):
-            build_index_sections(lines, [child], chapter_files, level + 1, summaries)
+            build_index_sections(lines, [child], chapter_files, level + 1, summaries, descriptions)
 
 
 def normalize_chapter_links(chapter_files):
@@ -431,7 +709,9 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     summary_by_module = {cf["module_name"]: summary for cf, summary in zip(chapter_files, summaries, strict=True) if summary}
 
     # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
+    # The same reply also carries one-line module descriptions and module dependencies (index page)
     sections = None
+    descriptions, dependencies = {}, {}
     emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
     if mode == "api-reference" and len(chapter_files) > 5:
         try:
@@ -445,7 +725,7 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
                 group_template = f.read()
 
             language = prep_res.get("language", "english")
-            language_note = f"Section names MUST be in {language}." if language.lower() != "english" else ""
+            language_note = f"Section names and module descriptions MUST be in {language}." if language.lower() != "english" else ""
 
             group_prompt = group_template.format(
                 project_name=project_name,
@@ -461,11 +741,18 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             group_response = call_llm(
                 group_prompt, use_cache=prep_res.get("use_cache", True), thinking_level=prep_res.get("thinking_level"), step="group_modules"
             )
-            parsed = parse_yaml_response(group_response)
+            parsed = parse_grouping_response(group_response)
             sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
             if isinstance(sections, list):
                 # Drop unknown module names and the sections they leave empty (null nav entries break mkdocs build)
                 sections = prune_sections(sections, chapter_files)
+            descriptions, dependencies = grouping_extras(parsed, chapter_files)
+            emit_raw(
+                "DEBUG",
+                f"NAV GROUPING EXTRAS | descriptions={len(descriptions)}/{len(chapter_files)} "
+                f"| modules_with_dependencies={len(dependencies)} | edges={sum(len(t) for t in dependencies.values())}",
+                dest="LOG",
+            )
 
             if sections:
                 # Validate: ensure all modules are covered
@@ -488,6 +775,7 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             emit_raw("ERROR", f"LLM grouping failed: {e}\n{traceback.format_exc()}", dest="LOG")
             nav_snippet = prep_res["nav_snippet"]
             sections = None
+            descriptions, dependencies = {}, {}
     else:
         nav_snippet = prep_res["nav_snippet"]
 
@@ -550,10 +838,22 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             "",
             f"{mode_label} — **{project_name}** — **{len(chapter_files)}** {chapters_label}.",
             "",
-            f"## {chapter_index_label}",
-            "",
         ]
-        build_index_sections(index_lines, sections, chapter_files, summaries=summary_by_module)
+        # Architecture overview (section map) above the tables, full module dependency graph below them
+        section_map, map_has_arrows, map_has_hubs = build_section_map(sections, dependencies)
+        if section_map:
+            index_lines += [f"## {get('UI_ARCH_OVERVIEW')}", "", "```mermaid", section_map, "```", ""]
+            if map_has_arrows:  # no caption when there is nothing to explain (e.g. the reply had no dependencies)
+                note = get("UI_SECTION_MAP_NOTE") + (" " + get("UI_SECTION_MAP_HUBS") if map_has_hubs else "")
+                index_lines += [f"*{note}*", ""]
+        index_lines += [f"## {chapter_index_label}", ""]
+        build_index_sections(index_lines, sections, chapter_files, summaries=summary_by_module, descriptions=descriptions)
+        module_graph, hub_threshold = build_module_graph(sections, dependencies, chapter_files)
+        if module_graph:
+            note = get("UI_MODULE_GRAPH_NOTE")
+            if hub_threshold:
+                note += " " + get("UI_MODULE_GRAPH_HUBS", count=hub_threshold)
+            index_lines += [f"## {get('UI_MODULE_DEPENDENCIES')}", "", "```mermaid", module_graph, "```", "", f"*{note}*", ""]
         index_content = "\n".join(index_lines)
     else:
         # Build a rich flat index with module listing table

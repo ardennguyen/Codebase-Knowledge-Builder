@@ -3,7 +3,7 @@ Reusable prompt and response helpers.
 
 Contains:
 - Prompt template loaders (load_prompt_template)
-- LLM response parsers (parse_yaml_response)
+- LLM response parsers (parse_yaml_response, parse_grouping_response)
 - Inline prompt builders for nodes that don't load from prompts/{mode}/ templates
 """
 
@@ -55,6 +55,33 @@ def parse_yaml_response(response):
         return yaml.safe_load(yaml_str)
     except Exception as e:
         raise ValueError(f"Failed to parse YAML: {e}") from e
+
+
+def parse_grouping_response(response):
+    """Parse the group_modules.md reply (sections + descriptions + dependencies).
+
+    When the whole block is not valid YAML, each top-level block (``sections:``, ``descriptions:``,
+    ``dependencies:``) is parsed on its own and the ones that parse are kept, so one malformed
+    description costs neither the grouped sidebar nor the dependencies. Raises when ``sections`` cannot
+    be recovered, and for truncated replies.
+    """
+    try:
+        return parse_yaml_response(response)
+    except ValueError:
+        if getattr(response, "truncated", False) or "```yaml" not in response:
+            raise
+        yaml_str = response.split("```yaml", 1)[1].split("```", 1)[0]
+        parsed = {}
+        for chunk in re.split(r"(?m)^(?=(?:sections|descriptions|dependencies)\s*:)", yaml_str):
+            try:
+                part = yaml.safe_load(chunk)
+            except Exception:
+                continue
+            if isinstance(part, dict):
+                parsed.update(part)
+        if not isinstance(parsed.get("sections"), list):
+            raise ValueError("Failed to parse YAML: no sections list in the grouping reply") from None
+        return parsed
 
 
 def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
