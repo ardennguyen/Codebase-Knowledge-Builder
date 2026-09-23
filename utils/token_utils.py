@@ -1,41 +1,30 @@
 import logging
-import os
 
 import tiktoken
 
-from utils.llm_config import get_model_context_length
+from utils.llm_config import (
+    CONTEXT_MARGIN,
+    context_output_reserve,
+    get_model_context_length,
+    get_token_ratio,
+    resolve_llm_settings,
+)
 from utils.output import emit
 
 # Get the shared logger from call_llm module
 logger = logging.getLogger("llm_logger")
 
-
-def create_token_counter():
-    """Create a token counting function using tiktoken with char-count fallback."""
-    try:
-        enc = tiktoken.get_encoding("cl100k_base")
-        return lambda text: len(enc.encode(text, disallowed_special=()))
-    except Exception:
-        from utils.output import emit_raw
-
-        emit_raw("WARNING", "Tiktoken initialization failed, falling back to char count / 4", dest="LOG")
-        return lambda text: len(text) // 4
+# Output tokens reserved on providers that do not size output (OLLAMA / other endpoints): 5%, clamped.
+MIN_OUTPUT_RESERVE = 8_192
+MAX_OUTPUT_RESERVE = 64_000
 
 
 def resolve_max_tokens(shared):
-    """Resolve max_tokens from shared store or auto-detect from provider env vars."""
+    """Resolve max_tokens from shared store or auto-detect from the active provider."""
     max_tokens = shared.get("max_tokens")
     if max_tokens is not None:
         return max_tokens
-    provider = os.environ.get("LLM_PROVIDER")
-    if provider == "GEMINI" or not provider:
-        endpoint = "https://generativelanguage.googleapis.com"
-        model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
-        api_key = os.getenv("GEMINI_API_KEY", "")
-    else:
-        endpoint = os.environ.get(f"{provider}_BASE_URL", "")
-        model_name = os.environ.get(f"{provider}_MODEL", "")
-        api_key = os.environ.get(f"{provider}_API_KEY", "")
+    _, model_name, endpoint, api_key = resolve_llm_settings()
     max_tokens_val = get_model_context_length(endpoint, model_name, api_key)
     from utils.output import emit_raw
 
@@ -43,8 +32,27 @@ def resolve_max_tokens(shared):
     return max_tokens_val
 
 
-# Lazy-loaded tiktoken encoding (singleton)
+def input_token_budget(max_tokens: int, thinking_level: str | None = None) -> int:
+    """Largest prompt size (in count_tokens() units) that still leaves room for the response.
+
+    On ANTHROPIC and OPENROUTER the context window holds prompt + output: reserve exactly what the
+    provider module will request for this thinking level (llm_config.context_output_reserve —
+    thinking tokens count toward output) plus the same flat margin, so a prompt packed to this budget
+    still gets its planned output. GEMINI's input limit is separate from its output limit, so only the
+    margin is reserved. Elsewhere (OLLAMA, or an OpenRouter model missing from the catalog) reserve 5%
+    (min 8K, max 64K) — identical to the historical 95% rule on 1M-token models.
+    """
+    planned = context_output_reserve(thinking_level)
+    if planned is not None:
+        reserve = planned + CONTEXT_MARGIN
+    else:
+        reserve = min(max(int(max_tokens * 0.05), MIN_OUTPUT_RESERVE), MAX_OUTPUT_RESERVE)
+    return max(max_tokens - reserve, max_tokens // 2)
+
+
+# Lazy-loaded tiktoken encoding and model token ratio (singletons)
 _encoding = None
+_token_ratio = None
 
 
 def _get_encoding():
@@ -57,14 +65,25 @@ def _get_encoding():
     return _encoding
 
 
-def count_tokens(text: str) -> int:
-    """Count tokens using tiktoken, with fallback to chars/4."""
+def count_tokens_raw(text: str) -> int:
+    """Count tokens with tiktoken (cl100k_base), with fallback to chars/4. No model calibration."""
     if not text:
         return 0
     enc = _get_encoding()
     if enc:
         return len(enc.encode(text, disallowed_special=()))
     return len(text) // 4
+
+
+def count_tokens(text: str) -> int:
+    """Estimate tokens for the active model: tiktoken count x llm_config.get_token_ratio() (per model family)."""
+    global _token_ratio
+    raw = count_tokens_raw(text)
+    if not raw:
+        return 0
+    if _token_ratio is None:
+        _token_ratio = get_token_ratio()
+    return int(raw * _token_ratio) if _token_ratio != 1.0 else raw
 
 
 def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int, token_usage: dict | None = None) -> None:

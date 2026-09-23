@@ -4,6 +4,7 @@ Consolidates all MkDocs-related logic that was previously scattered across
 nodes.py (CombineTutorial static methods) and utils/prompts.py.
 """
 
+import json
 import os
 import re
 import traceback
@@ -17,6 +18,15 @@ from utils.token_utils import log_token_estimation
 # ---------------------------------------------------------------------------
 # MkDocs config builders (moved from utils/prompts.py)
 # ---------------------------------------------------------------------------
+
+
+def yaml_str(value) -> str:
+    """Quote a scalar for hand-built YAML (nav labels, section names, titles).
+
+    JSON string literals are valid YAML double-quoted scalars, so names containing
+    apostrophes, colons, brackets or a leading @ never break mkdocs.yml or frontmatter.
+    """
+    return json.dumps(str(value).strip(), ensure_ascii=False)
 
 
 def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True, lang_code: str = "") -> str:
@@ -44,7 +54,7 @@ def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True
     lang_line = f"  language: {lang_code}\n" if lang_code else ""
 
     return (
-        f"site_name: '{site_name}'\n"
+        f"site_name: {yaml_str(site_name)}\n"
         f"theme:\n"
         f"  name: material\n"
         f"{lang_line}"
@@ -144,7 +154,7 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
     lines = []
     pad = " " * indent
     for section in sections:
-        lines.append(f"{pad}- {section['name']}:")
+        lines.append(f"{pad}- {yaml_str(section['name'])}:")
         if "children" in section:
             lines.extend(build_grouped_nav(section["children"], chapter_files, indent + 2))
 
@@ -167,17 +177,17 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
             for dir_path in sorted(dir_groups.keys()):
                 if dir_path:
                     # Non-root: add directory sub-layer with bare module names
-                    lines.append(f"{pad}  - {dir_path}:")
+                    lines.append(f"{pad}  - {yaml_str(dir_path)}:")
                     for mod_name, match in dir_groups[dir_path]:
-                        lines.append(f"{pad}    - '{mod_name}': 'api/{match['filename']}'")
+                        lines.append(f"{pad}    - {yaml_str(mod_name)}: {yaml_str('api/' + match['filename'])}")
                 else:
                     # Root files: flat (no sub-layer)
                     for mod_name, match in dir_groups[dir_path]:
-                        lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
+                        lines.append(f"{pad}  - {yaml_str(mod_name)}: {yaml_str('api/' + match['filename'])}")
         else:
             # All root files → flat list
             for _dir_path, mod_name, match in matched:
-                lines.append(f"{pad}  - '{mod_name}': 'api/{match['filename']}'")
+                lines.append(f"{pad}  - {yaml_str(mod_name)}: {yaml_str('api/' + match['filename'])}")
 
     return lines
 

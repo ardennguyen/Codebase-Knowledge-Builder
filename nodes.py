@@ -12,7 +12,8 @@ from utils.call_llm import call_llm
 from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
 from utils.files import build_directory_tree, get_content_for_indices
-from utils.mkdocs import write_mkdocs_output, write_standalone_output
+from utils.llm_config import resolve_llm_settings
+from utils.mkdocs import write_mkdocs_output, write_standalone_output, yaml_str
 from utils.output import emit, emit_raw, get
 
 
@@ -42,7 +43,8 @@ from utils.prompts import (
     parse_file_index,
     parse_yaml_response,
 )
-from utils.token_utils import count_tokens, log_token_estimation, resolve_max_tokens
+from utils.thinking import resolve_thinking_level
+from utils.token_utils import count_tokens, input_token_budget, log_token_estimation, resolve_max_tokens
 
 
 class DeterministicFileMapper(Node):
@@ -54,7 +56,7 @@ class DeterministicFileMapper(Node):
 
         prompt = build_code_file_filter_prompt(project_name, file_listing)
         emit_raw("DEBUG", f"DeterministicFileMapper prep | {len(files_data)} candidate files for filtering", dest="LOG")
-        return prompt, shared.get("use_cache", True), shared.get("thinking_level", None), shared.get("max_tokens", 100000)
+        return prompt, shared.get("use_cache", True), resolve_thinking_level(shared, "filter_files"), shared.get("max_tokens", 100000)
 
     @safe_exec
     def exec(self, prep_res):
@@ -150,8 +152,13 @@ class ContextRouter(Node):
             total_tokens += tokens
             file_token_map.append(tokens)
 
-        # --- Effective limit = safety margin minus overhead ---
-        safety_limit = int(max_tokens * 0.95)
+        # --- Effective limit = context minus output reserve minus overhead ---
+        # Reserve output for whichever consumer of this budget thinks more: IdentifyAbstractions
+        # (direct route) or MapAbstractions (each batch is packed to effective_limit).
+        safety_limit = min(
+            input_token_budget(max_tokens, resolve_thinking_level(shared, "identify_abstractions")),
+            input_token_budget(max_tokens, resolve_thinking_level(shared, "map_abstractions")),
+        )
         effective_limit = safety_limit - prompt_overhead
         force_batch = shared.get("force_batch", False)
 
@@ -200,7 +207,7 @@ class ContextRouter(Node):
         )
 
     def exec(self, prep_res):
-        route, files_data, effective_limit, batch_size, file_token_map, _count_tokens, directory_tree = prep_res
+        route, files_data, effective_limit, batch_size, file_token_map, _count_tokens, _directory_tree = prep_res
         emit_raw(
             "DEBUG",
             f"NODE EXEC | node=ContextRouter | action=route_decision | route={route} | files={len(files_data)} | effective_limit={effective_limit:,}",
@@ -248,20 +255,18 @@ class ContextRouter(Node):
             for i, p, _c in batch:
                 emit("BATCH_FILE_ITEM", index=i, path=p)
 
-        # Store directory tree for later use
-        self._directory_tree = directory_tree
-
         return batches
 
     def post(self, shared, prep_res, exec_res):
         emit_raw("DEBUG", f"ContextRouter post | route={'batch' if isinstance(exec_res, list) else exec_res}", dest="LOG")
+        # Store the directory tree built during prep() for EVERY route: draft_chapters and
+        # group_modules prompts read shared["directory_tree"] on direct/deterministic routes too.
+        shared["directory_tree"] = prep_res[-1]
         if exec_res == "direct":
             return "direct"
         if exec_res == "deterministic":
             return "deterministic"
         shared["file_batches"] = exec_res
-        # Reuse directory tree built during prep()
-        shared["directory_tree"] = getattr(self, "_directory_tree", build_directory_tree(shared["files"]))
         return "batch"
 
 
@@ -274,7 +279,7 @@ class MapAbstractions(BatchNode):
                 "project_name": shared["project_name"],
                 "language": shared.get("language", "english"),
                 "use_cache": shared.get("use_cache", True),
-                "thinking_level": shared.get("thinking_level", None),
+                "thinking_level": resolve_thinking_level(shared, "map_abstractions"),
                 "advanced_mode": shared.get("advanced_mode", False),
                 "max_tokens": shared.get("max_tokens", 100000),
                 "directory_tree": shared.get("directory_tree", ""),
@@ -351,7 +356,7 @@ class ReduceAbstractions(Node):
             shared.get("language", "english"),
             shared.get("use_cache", True),
             shared.get("max_abstraction_num", 10),
-            shared.get("thinking_level", None),
+            resolve_thinking_level(shared, "reduce_abstractions"),
             shared.get("advanced_mode", False),
             shared.get("max_tokens", 100000),
             shared.get("mode", "tutorial"),
@@ -413,7 +418,7 @@ class FetchRepo(Node):
         if not project_name:
             # Basic name derivation from URL or directory
             if repo_url:
-                project_name = repo_url.split("/")[-1].replace(".git", "")
+                project_name = repo_url.rstrip("/").split("/")[-1].removesuffix(".git")
             else:
                 project_name = os.path.basename(os.path.abspath(local_dir))
             shared["project_name"] = project_name
@@ -481,14 +486,14 @@ class IdentifyAbstractions(Node):
         language = shared.get("language", "english")  # Get language
         use_cache = shared.get("use_cache", True)  # Get use_cache flag, default to True
         max_abstraction_num = shared.get("max_abstraction_num", 10)  # Get max_abstraction_num, default to 10
-        thinking_level = shared.get("thinking_level", None)
+        thinking_level = resolve_thinking_level(shared, "identify_abstractions")
 
         # Helper to create context from files, respecting limits (basic example)
         def create_llm_context(files_data):
             # Retrieve max tokens limit
             max_tokens = resolve_max_tokens(shared)
 
-            safety_limit = int(max_tokens * 0.95)
+            safety_limit = input_token_budget(max_tokens, thinking_level)
 
             context = ""
             current_tokens = 0
@@ -638,30 +643,30 @@ class AnalyzeRelationships(Node):
         project_name = shared["project_name"]  # Get project name
         language = shared.get("language", "english")  # Get language
         use_cache = shared.get("use_cache", True)  # Get use_cache flag, default to True
-        thinking_level = shared.get("thinking_level", None)
+        thinking_level = resolve_thinking_level(shared, "analyze_relationships")
 
         # Get the actual number of abstractions directly
         num_abstractions = len(abstractions)
 
         # Create context with abstraction names, indices, descriptions, and relevant file snippets
-        context = "Identified Abstractions:\\n"
+        context = "Identified Abstractions:\n"
         all_relevant_indices = set()
         abstraction_info_for_prompt = []
         for i, abstr in enumerate(abstractions):
             # Use 'files' which contains indices directly
             file_indices_str = ", ".join(map(str, abstr["files"]))
             # Abstraction name and description might be translated already
-            info_line = f"- Index {i}: {abstr['name']} (Relevant file indices: [{file_indices_str}])\\n  Description: {abstr['description']}"
-            context += info_line + "\\n"
+            info_line = f"- Index {i}: {abstr['name']} (Relevant file indices: [{file_indices_str}])\n  Description: {abstr['description']}"
+            context += info_line + "\n"
             abstraction_info_for_prompt.append(f"{i} # {abstr['name']}")  # Use potentially translated name here too
             all_relevant_indices.update(abstr["files"])
 
-        context += "\\nRelevant File Snippets (per abstraction, budget-aware):\\n"
+        context += "\nRelevant File Snippets (per abstraction, budget-aware):\n"
         # Dynamically include as many files as possible per abstraction.
         # Budget is split EVENLY across abstractions so later ones aren't starved.
         # Unused budget from one abstraction rolls over to the next.
         max_tokens = shared.get("max_tokens", 100000)
-        safety_limit = int(max_tokens * 0.95)
+        safety_limit = input_token_budget(max_tokens, thinking_level)
         prompt_overhead = 2000  # approximate tokens for prompt template + response
 
         current_tokens = count_tokens(context)
@@ -676,7 +681,7 @@ class AnalyzeRelationships(Node):
             for idx in abstr["files"]:
                 if 0 <= idx < len(files_data):
                     path, file_content = files_data[idx]
-                    entry = f"\\n--- File: {idx} # {path} ---\\n{file_content}\\n"
+                    entry = f"\n--- File: {idx} # {path} ---\n{file_content}\n"
                     sized.append((idx, path, file_content, count_tokens(entry)))
             # Sort largest first (most architecturally significant)
             sized.sort(key=lambda x: x[3], reverse=True)
@@ -729,15 +734,15 @@ class AnalyzeRelationships(Node):
         for i, abstr in enumerate(abstractions):
             included_files, remaining_files, _ = abstr_results[i]
             if included_files or remaining_files:
-                context += f"\\n--- Abstraction {i}: {abstr['name']} ---\\n"
+                context += f"\n--- Abstraction {i}: {abstr['name']} ---\n"
                 for idx, path, file_content, _tokens in included_files:
                     if file_content is not None:
-                        context += f"\\n--- File: {idx} # {path} ---\\n{file_content}\\n"
+                        context += f"\n--- File: {idx} # {path} ---\n{file_content}\n"
                     else:
-                        context += f"  (File {idx} # {path} -- already shown above)\\n"
+                        context += f"  (File {idx} # {path} -- already shown above)\n"
                 if remaining_files:
                     rest_list = ", ".join(f"{idx} # {p}" for idx, p, _c, _t in remaining_files)
-                    context += f"  Other files (path only, budget exhausted): {rest_list}\\n"
+                    context += f"  Other files (path only, budget exhausted): {rest_list}\n"
 
         emit_raw(
             "DEBUG",
@@ -869,7 +874,7 @@ class OrderChapters(Node):
         project_name = shared["project_name"]  # Get project name
         language = shared.get("language", "english")  # Get language
         use_cache = shared.get("use_cache", True)  # Get use_cache flag, default to True
-        thinking_level = shared.get("thinking_level", None)
+        thinking_level = resolve_thinking_level(shared, "order_chapters")
 
         # Prepare context for the LLM
         abstraction_info_for_prompt = []
@@ -986,7 +991,15 @@ class WriteChapters(BatchNode):
         files_data = shared["files"]  # List of (path, content) tuples
         language = shared.get("language", "english")
         use_cache = shared.get("use_cache", True)  # Get use_cache flag, default to True
-        thinking_level = shared.get("thinking_level", None)
+        thinking_level = resolve_thinking_level(shared, "write_chapters")
+        summary_thinking_level = resolve_thinking_level(shared, "chapter_summary")
+
+        # Incremental cache signature: everything besides the source files that changes a page.
+        # A different model, effort, language, mode or draft_chapters template regenerates it.
+        mode = shared.get("mode", "tutorial")
+        provider, model_name, _, _ = resolve_llm_settings()
+        template_digest = hashlib.md5(load_prompt_template("draft_chapters", mode=mode).encode("utf-8")).hexdigest()
+        generation_signature = f"{mode}|{language}|{provider}|{model_name}|{thinking_level or 'default'}|{template_digest}"
 
         # Get already written chapters to provide context
         # We store them temporarily during the batch run, not in shared memory yet
@@ -1065,6 +1078,8 @@ class WriteChapters(BatchNode):
                         "language": language,  # Add language for multi-language support
                         "use_cache": use_cache,  # Pass use_cache flag
                         "thinking_level": thinking_level,
+                        "summary_thinking_level": summary_thinking_level,
+                        "generation_signature": generation_signature,
                         "advanced_mode": shared.get("advanced_mode", False),
                         "mode": shared.get("mode", "tutorial"),
                         "mkdocs": shared.get("mkdocs", False),
@@ -1091,6 +1106,7 @@ class WriteChapters(BatchNode):
         language = item.get("language", "english")
         use_cache = item.get("use_cache", True)  # Read use_cache from item
         thinking_level = item.get("thinking_level", None)
+        summary_thinking_level = item.get("summary_thinking_level", thinking_level)
         item.get("advanced_mode", False)
         mode = item.get("mode", "tutorial")
         is_mkdocs = item.get("mkdocs", False)
@@ -1109,6 +1125,7 @@ class WriteChapters(BatchNode):
         current_hash = None
         if incremental and output_dir:
             hasher = hashlib.md5()
+            hasher.update(item.get("generation_signature", "").encode("utf-8"))
             hasher.update(file_context_str.encode("utf-8"))
             current_hash = hasher.hexdigest()
 
@@ -1175,7 +1192,7 @@ class WriteChapters(BatchNode):
                                     dest="LOG",
                                 )
                                 chapter_summary = call_llm(
-                                    summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level
+                                    summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=summary_thinking_level
                                 )
                                 summary_response_tokens = count_tokens(chapter_summary)
                                 self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
@@ -1285,6 +1302,12 @@ class WriteChapters(BatchNode):
         emit("LLM_CALL_WRITE_CHAPTER", chapter_num=chapter_num, name=abstraction_name.strip())
         log_token_estimation(self.__class__.__name__, prompt, max_tokens, token_usage=token_usage)
         chapter_content = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        if not chapter_content.strip():
+            raise ValueError(f"Empty chapter response for '{abstraction_name.strip()}'")
+        if getattr(chapter_content, "truncated", False):
+            # Keep the partial page for this run, but leave it out of the incremental manifest
+            # so the next --incremental run regenerates it.
+            current_hash = None
 
         # Log response token count
         response_tokens = count_tokens(chapter_content)
@@ -1326,7 +1349,7 @@ class WriteChapters(BatchNode):
             f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}",
             dest="LOG",
         )
-        chapter_summary = call_llm(summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+        chapter_summary = call_llm(summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=summary_thinking_level)
         summary_response_tokens = count_tokens(chapter_summary)
         self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
         emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"{summary_response_tokens:,}")
@@ -1338,6 +1361,20 @@ class WriteChapters(BatchNode):
 
         summary_entry = f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}"
         return {"content": chapter_content, "hash": current_hash, "name": abstraction_name, "summary": summary_entry}
+
+    def exec_fallback(self, item, exc):
+        """Keep the run alive when one chapter still fails after all retries.
+
+        Returns a placeholder page with no manifest hash (regenerated on the next run) and a
+        placeholder summary, so chapter_summaries stays aligned with the chapter list.
+        """
+        name = item["abstraction_details"]["name"]
+        chapter_num = item["chapter_num"]
+        emit("WARN_CHAPTER_FALLBACK", chapter_num=chapter_num, name=name.strip(), error=exc)
+        notice = get("UI_CHAPTER_UNAVAILABLE")
+        summary = f"{get('UI_CHAPTER')} {chapter_num} — {name.strip()}:\n{notice}"
+        self.chapter_summaries.append(summary)
+        return {"content": f"# {name.strip()}\n\n{notice}\n", "hash": None, "name": name, "summary": summary}
 
     def post(self, shared, prep_res, exec_res_list):
 
@@ -1364,6 +1401,10 @@ class WriteChapters(BatchNode):
                         "hash": res["hash"],
                         "summary": res.get("summary", ""),
                     }
+                elif res.get("name"):
+                    # Truncated or placeholder page: drop any older entry so a matching
+                    # hash can never serve this page from cache on a later run.
+                    manifest.pop(res["name"], None)
 
             with open(manifest_path, "w", encoding="utf-8") as f:
                 json.dump(manifest, f, indent=2)
@@ -1459,7 +1500,7 @@ class CombineTutorial(Node):
 
                     # Inject YAML Frontmatter
                     chapter_content = chapters_content[i]
-                    frontmatter = f"---\ntitle: {abstraction_name}\nsidebar_position: {i + 1}\n---\n\n"
+                    frontmatter = f"---\ntitle: {yaml_str(abstraction_name)}\nsidebar_position: {i + 1}\n---\n\n"
 
                     if not chapter_content.startswith("---"):
                         chapter_content = frontmatter + chapter_content
@@ -1497,17 +1538,17 @@ class CombineTutorial(Node):
                 for dir_path in sorted(dir_groups.keys()):
                     if dir_path:
                         # Non-root: add directory sub-layer with bare module names
-                        nav_lines.append(f"    - {dir_path}:")
+                        nav_lines.append(f"    - {yaml_str(dir_path)}:")
                         for nav_label, filename in dir_groups[dir_path]:
-                            nav_lines.append(f"      - '{nav_label}': 'api/{filename}'")
+                            nav_lines.append(f"      - {yaml_str(nav_label)}: {yaml_str('api/' + filename)}")
                     else:
                         # Root files: flat (no sub-layer)
                         for nav_label, filename in dir_groups[dir_path]:
-                            nav_lines.append(f"    - '{nav_label}': 'api/{filename}'")
+                            nav_lines.append(f"    - {yaml_str(nav_label)}: {yaml_str('api/' + filename)}")
             else:
                 # All root files → flat list
                 for _dir_prefix, nav_label, filename in nav_items:
-                    nav_lines.append(f"    - '{nav_label}': 'api/{filename}'")
+                    nav_lines.append(f"    - {yaml_str(nav_label)}: {yaml_str('api/' + filename)}")
             mode = shared.get("mode", "tutorial")
             nav_section = {
                 "tutorial": get("UI_MODE_TUTORIAL"),
@@ -1531,7 +1572,7 @@ class CombineTutorial(Node):
                 "directory_tree": shared.get("directory_tree", ""),
                 "language": shared.get("language", "english"),
                 "use_cache": shared.get("use_cache", True),
-                "thinking_level": shared.get("thinking_level"),
+                "thinking_level": resolve_thinking_level(shared, "group_modules"),
                 "max_tokens": shared.get("max_tokens", 100000),
             }
         # Traditional tutorial mode

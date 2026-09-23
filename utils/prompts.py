@@ -46,6 +46,10 @@ def load_prompt_template(template_name, advanced_mode=False, mode=None):
 
 def parse_yaml_response(response):
     """Extract and parse YAML from an LLM response fenced in ```yaml blocks."""
+    # A reply cut off at max tokens (llm_common.TruncatedResponse) can still contain a parseable
+    # fenced prefix that silently drops items — raise so the node retries instead.
+    if getattr(response, "truncated", False):
+        raise ValueError("LLM response was truncated before the YAML block completed")
     try:
         yaml_str = response.strip().split("```yaml")[1].split("```")[0].strip()
         return yaml.safe_load(yaml_str)

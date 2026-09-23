@@ -17,7 +17,7 @@ title: "Architecture & Design"
 - A publicly accessible GitHub repository URL or a local directory path.
 - A project name (optional, will be derived from the URL/directory if not provided).
 - Desired language for the tutorial (optional, defaults to English).
-- Advanced configurations: documentation style (`--mode`, `--advanced`), token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--thinking-level`, `--max-abstractions`), caching (`--no-cache`), output format (`--mkdocs`, `--incremental`, `--force-rebuild`), file filtering (`-i`/`--include`, `-e`/`--exclude`, `-s`/`--max-size`), output directory (`-o`/`--output`), GitHub token (`-t`/`--token`), debugging (`--debug`), and execution cleanup (`--cleanup`).
+- Advanced configurations: documentation style (`--mode`, `--advanced`), token scaling (`--max-tokens`, `--batch`, `--force-batch`), prompting (`--thinking-level`, `--thinking-profile`, `--thinking-override`, `--max-abstractions`), caching (`--no-cache`), output format (`--mkdocs`, `--incremental`, `--force-rebuild`), file filtering (`-i`/`--include`, `-e`/`--exclude`, `-s`/`--max-size`), output directory (`-o`/`--output`), GitHub token (`-t`/`--token`), debugging (`--debug`), and execution cleanup (`--cleanup`).
 
 **Output:**
 - A directory named after the project containing:
@@ -29,7 +29,7 @@ title: "Architecture & Design"
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
     - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
     - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table), and `docs/nav_snippet.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode).
-    - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of source files to skip regeneration of unchanged modules across runs.
+    - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of each module's source files plus a generation signature (mode, language, provider, model, `write_chapters` thinking level, `draft_chapters` template digest) to skip regeneration of unchanged modules across runs.
 
 ## 2. Flow Design
 
@@ -106,18 +106,23 @@ codebase_kb/
 │       └── lint.yml                 # GitHub Actions workflow for Ruff linting
 ├── utils/
 │   ├── __init__.py                  # Empty
-│   ├── call_llm.py                  # Multi-provider LLM wrapper with caching
+│   ├── call_llm.py                  # Multi-provider LLM dispatcher with model-scoped caching
 │   ├── crawl_github_files.py        # GitHub API crawler
 │   ├── crawl_local_files.py         # Local directory crawler
 │   ├── exclude_patterns.py          # Centralized definition of DEFAULT_EXCLUDE_PATTERNS
 │   ├── files.py                     # File and content helpers (build_directory_tree, get_content_for_indices)
 │   ├── i18n.py                      # Auto-translation of missing UI strings via LLM
-│   ├── llm_config.py                # LLM provider detection and model context length resolution
+│   ├── llm_anthropic.py             # Native Anthropic (Claude) provider: adaptive thinking/effort, streaming, refusal fallbacks, usage
+│   ├── llm_common.py                # SDK-free shared LLM helpers: TruncatedResponse, LLMRefusalError, refusal memo, usage ledger, warn_once
+│   ├── llm_gemini.py                # Native Gemini provider (google-genai): per-model thinking_level / budget, streaming, finish reasons, usage
+│   ├── llm_openrouter.py            # OpenRouter provider (requests, SSE): catalog-driven reasoning.effort, max_tokens, temperature, usage
+│   ├── llm_config.py                # LLM provider/settings resolution (resolve_llm_settings), context length, token ratio
 │   ├── mkdocs.py                    # MkDocs output generation (config, nav, index, links, chapter writing)
 │   ├── output.py                    # Centralized CLI output & logging utility (emit/get/emit_raw)
 │   ├── prompts.py                   # Prompt template loaders, YAML parsers, inline prompt builders
 │   ├── strings.csv                  # Externalized string table (STRING_KEY, LEVEL, DEST, 12 languages)
-│   └── token_utils.py               # Token counting, estimation, and context window resolution
+│   ├── thinking.py                  # Per-node thinking effort profiles ("thinking flows") and plan resolution
+│   └── token_utils.py               # Token counting (model-calibrated), input budgets, context window resolution
 ├── prompts/
 │   ├── tutorial/                    # Beginner-friendly prompt templates
 │   │   ├── identify_abstractions.md
@@ -188,6 +193,7 @@ requests>=2.34.2
 gitpython>=3.1.59
 google-cloud-aiplatform>=1.164.0
 google-genai>=2.18.1
+anthropic>=1.8.0
 python-dotenv>=1.2.3
 pathspec>=1.1.1
 tiktoken>=0.8.0
@@ -203,73 +209,131 @@ mkdocs-panzoom-plugin>=0.2.0
 ```ini
 # Provider Selection
 # LLM_PROVIDER = OPENROUTER
+# Notes go on their own comment lines: text after a value (without " # ") becomes part of the value.
 
 # GitHub Token (Optional, for avoiding rate limits when crawling public repos)
 # GITHUB_TOKEN = <YOUR_GITHUB_TOKEN>
 
-# --- Gemini (Default if no LLM_PROVIDER is set) ---
-# GEMINI_PROJECT_ID = <YOUR_GEMINI_PROJECT_ID>
+# --- Gemini (Default if no LLM_PROVIDER is set) — needs google-genai >= 1.56 (pip install -r requirements.txt) ---
+# AI Studio key (https://aistudio.google.com/apikey):
 # GEMINI_API_KEY = <YOUR_GEMINI_API_KEY>
+# OR Vertex AI (Application Default Credentials: gcloud auth application-default login):
+# GEMINI_PROJECT_ID = <YOUR_GEMINI_PROJECT_ID>
+# Vertex location: Gemini 3.x is served from global / us / eu (3.1 Pro and 3 Flash: global only), not us-central1.
+# Regional endpoints cost about 10% more than global.
+# GEMINI_LOCATION = global
+# Gemini 3.1+ models: gemini-3.8-flash, gemini-3.7-flash (default), gemini-3.6-flash, gemini-3.5-flash,
+#   gemini-3.5-flash-lite, gemini-3.1-flash-lite, gemini-3.1-pro-preview, gemini-3.8-flash-cyber (Vertex, allowlisted);
+#   aliases gemini-flash-latest / gemini-pro-latest also work. 2.5 models use thinking budgets.
+# GEMINI_MODEL = gemini-3.7-flash
+# Output cap incl. thinking; default per thinking level, max 65,536:
+# GEMINI_MAX_OUTPUT_TOKENS = 65536
+# Total deadline per request in seconds (covers the whole streamed reply, so keep it generous):
+# GEMINI_TIMEOUT_SECONDS = 1800
+# tiktoken -> Gemini token multiplier (see observed_token_ratio in debug logs):
+# GEMINI_TOKEN_RATIO = 1.0
 
-# --- OpenRouter ---
-# OPENROUTER_BASE_URL = https://openrouter.ai/api
+# --- Anthropic (Claude) — requires LLM_PROVIDER=ANTHROPIC (never auto-selected from ANTHROPIC_API_KEY) ---
+# LLM_PROVIDER = ANTHROPIC
+# Auth — EITHER an API key:
+# ANTHROPIC_API_KEY = <YOUR_ANTHROPIC_API_KEY>
+# OR log in with the ant CLI (no key; leave ANTHROPIC_API_KEY unset — a non-empty key overrides the login):
+#   1. install ant: Windows: winget install Anthropic.Ant | macOS: brew install anthropics/tap/ant | Linux: https://github.com/anthropics/anthropic-cli/releases
+#      or with Go 1.25+: go install github.com/anthropics/anthropic-cli/cmd/ant@latest
+#   2. ant auth login      (browser: pick your organization + workspace; billed to that API org)
+#   3. ant auth status     (main.py and utils/call_llm.py run this check automatically)
+# Claude 4.6+ (adaptive thinking + effort) and Haiku 4.5 (thinking budgets) are supported:
+# ANTHROPIC_MODEL = claude-opus-5-5
+# Optional: gateway/proxy base URL, or an OAuth bearer token instead of the API key
+# ANTHROPIC_BASE_URL = https://api.anthropic.com
+# ANTHROPIC_AUTH_TOKEN = <YOUR_ANTHROPIC_AUTH_TOKEN>
+# Refusal fallbacks: default (Opus 5.x / Fable 5.x: server picks the fallback model) | off |
+#   comma-separated model IDs (any model, e.g. for Mythos 5.1)
+# ANTHROPIC_FALLBACKS = default
+# ANTHROPIC_MAX_OUTPUT_TOKENS = 64000
+# ANTHROPIC_PROMPT_CACHE = off
+# tiktoken -> Claude token multiplier used for context budgeting (see observed_token_ratio in debug logs);
+#   default 1.4 for Opus 4.7+ tokenizer models, 1.2 for 4.6 and older:
+# ANTHROPIC_TOKEN_RATIO = 1.4
+
+# --- OpenRouter (key: https://openrouter.ai/settings/keys) — reasoning/limits come from the model catalog ---
+# LLM_PROVIDER = OPENROUTER
 # OPENROUTER_API_KEY = <YOUR_OPENROUTER_API_KEY>
+# Default https://openrouter.ai/api (a trailing /v1 is accepted). Another OpenAI-compatible host with an
+#   OpenRouter-style /v1/models catalog also works; the key is then optional.
+# OPENROUTER_BASE_URL = https://openrouter.ai/api
 # OPENROUTER_MODEL = anthropic/claude-sonnet-4.6
-# OPENROUTER_MODEL = google/gemini-3.7-flash
-# OPENROUTER_MODEL = qwen/qwen3.8-max
+# OPENROUTER_MODEL = anthropic/claude-opus-4.6
+# OPENROUTER_MODEL = google/gemini-3.1-pro-preview
+# OPENROUTER_MODEL = qwen/qwen3.8-flash
+# Output cap incl. reasoning; default per thinking level (omitted for models missing from the catalog):
+# OPENROUTER_MAX_OUTPUT_TOKENS = 64000
+# Max silence between streamed events in seconds:
+# OPENROUTER_TIMEOUT_SECONDS = 300
+# Only for non-reasoning requests on models that accept it:
+# OPENROUTER_TEMPERATURE = 0.7
+# App attribution (HTTP-Referer header); default: this project's GitHub repository:
+# OPENROUTER_APP_URL = https://github.com/ardennguyen/Codebase-Knowledge-Builder
 
 # --- Ollama ---
 # OLLAMA_BASE_URL = http://localhost:11434
 # OLLAMA_MODEL = llama3
+
+# --- General ---
+# tiktoken multiplier for other providers:
+# LLM_TOKEN_RATIO = 1.0
+# LOG_DIR = logs
 ```
 
+> `python-dotenv` keeps text after an unquoted value unless it is preceded by `" #"`, so notes live on their
+> own comment lines — never append `(note)` after a value.
+
 ### Provider Resolution Logic
+
+`utils/llm_config.resolve_llm_settings()` is the **single source of truth** — `main.detect_llm_config`,
+`token_utils.resolve_max_tokens` and `call_llm` all call it. Do not re-implement provider detection elsewhere.
+
 ```python
-provider = os.environ.get("LLM_PROVIDER")
-if provider:
-    model_name = os.environ.get(f"{provider}_MODEL", "unknown")
-    endpoint_url = os.environ.get(f"{provider}_BASE_URL", "unknown")
-    api_key = os.environ.get(f"{provider}_API_KEY", "")
-else:
-    if os.environ.get("GEMINI_PROJECT_ID") or os.environ.get("GEMINI_API_KEY"):
-        provider = "GEMINI"
-        model_name = os.environ.get("GEMINI_MODEL", "gemini-3.7-flash")
-        endpoint_url = "generativelanguage.googleapis.com"
-        api_key = os.environ.get("GEMINI_API_KEY", "")
-    else:
-        provider = "UNKNOWN"
-        model_name = "unknown"
-        endpoint_url = "unknown"
-        api_key = ""
+def get_llm_provider() -> str | None:
+    provider = os.getenv("LLM_PROVIDER")
+    if provider:
+        return provider.strip().upper()          # explicit wins (normalized to upper case)
+    if os.getenv("GEMINI_PROJECT_ID") or os.getenv("GEMINI_API_KEY"):
+        return "GEMINI"                          # legacy default
+    return None   # ANTHROPIC is never auto-selected: ANTHROPIC_API_KEY is often exported for other tools
+
+def resolve_llm_settings() -> tuple[str, str, str, str]:   # (provider, model_name, endpoint_url, api_key)
+    # GEMINI    → GEMINI_MODEL (default gemini-3.7-flash), "generativelanguage.googleapis.com", GEMINI_API_KEY
+    # GEMINI (Vertex, GEMINI_PROJECT_ID set) → endpoint "aiplatform.googleapis.com" (global),
+    #             "aiplatform.{us|eu}.rep.googleapis.com" (multi-region) or "{loc}-aiplatform.googleapis.com", api_key ""
+    # ANTHROPIC → ANTHROPIC_MODEL (default claude-opus-5-5), ANTHROPIC_BASE_URL or "https://api.anthropic.com", ANTHROPIC_API_KEY
+    # OPENROUTER → OPENROUTER_MODEL, OPENROUTER_BASE_URL (trailing "/v1" stripped) or "https://openrouter.ai/api", OPENROUTER_API_KEY
+    # other     → {P}_MODEL / {P}_BASE_URL / {P}_API_KEY ("unknown" when unset)
+    # none      → ("UNKNOWN", "unknown", "unknown", "")
 ```
 
 ### Gemini Client Initialization (Vertex AI vs API Key)
 
-> Notes for AI: The Gemini provider supports TWO authentication modes. You MUST implement both.
+> Notes for AI: The Gemini provider supports TWO authentication modes. You MUST implement both. The client
+> lives in `utils/llm_gemini._get_client()` (the only google-genai importer); see Section 17.
 
 ```python
-# In _call_llm_gemini():
+http_options = types.HttpOptions(
+    timeout=_timeout_ms(),   # GEMINI_TIMEOUT_SECONDS (default 1800) → ms; total deadline for the whole stream
+    retry_options=types.HttpRetryOptions(attempts=2, http_status_codes=[408, 429, 500, 502, 503, 504]),
+)
 if os.getenv("GEMINI_PROJECT_ID"):
-    client = genai.Client(
-        vertexai=True,
-        project=os.getenv("GEMINI_PROJECT_ID"),
-        location=os.getenv("GEMINI_LOCATION", "us-central1")
-    )
+    client = genai.Client(vertexai=True, project=os.getenv("GEMINI_PROJECT_ID"),
+                          location=gemini_location(),   # GEMINI_LOCATION, default "global"
+                          http_options=http_options)
 elif os.getenv("GEMINI_API_KEY"):
-    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    # vertexai=False explicitly, so GOOGLE_GENAI_USE_VERTEXAI in the environment cannot reroute the key
+    client = genai.Client(vertexai=False, api_key=os.getenv("GEMINI_API_KEY"), http_options=http_options)
 else:
     raise ValueError("Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment")
 ```
 
-### `.env.sample` Additional Variables
-```ini
-# Gemini Vertex AI (alternative to API key)
-# GEMINI_PROJECT_ID = <YOUR_GCP_PROJECT_ID>
-# GEMINI_LOCATION = us-central1
-
-# Directory for log files (default: logs). Used by main.py and utils/output.py.
-# LOG_DIR = logs
-```
+`LOG_DIR` (default `logs`) is read by `main.py` and `utils/output.py`.
 
 ## 6. CLI Arguments & Startup Display
 
@@ -291,7 +355,9 @@ else:
 | `--no-cache` | `store_true` | `False` | Disable LLM response caching (default: caching enabled). |
 | `--cleanup` | `store_true` | `False` | Clean up logs and cache files. Can be used standalone or after a run. |
 | `--max-abstractions` | `int` | `10` | Maximum number of abstractions to identify (default: 10). |
-| `--thinking-level` | `str` | `None` | Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults. |
+| `--thinking-level` | `str` (`_thinking_level_arg`, lower-cased) | `None` | Global thinking effort for EVERY LLM call: `minimal`, `low`, `medium`, `high`, `xhigh`, `max`; `default` or empty = model default. Overrides `--thinking-profile`. Mapped per provider (Section 17). |
+| `--thinking-profile` | `str` (choices, lower-cased) | `"auto"` | Per-node effort profile: `auto`, `off`, `economy`, `balanced`, `quality`, `max`. `auto` = `balanced` on `ANTHROPIC`, `GEMINI` and `OPENROUTER` (`utils/thinking.PROFILED_PROVIDERS`), `off` (model defaults) elsewhere. |
+| `--thinking-override` | `nargs="+"` (`NODE=LEVEL`) | `None` | Per-node overrides, highest precedence (e.g. `write_chapters=high`). NODE ∈ `utils/thinking.NODE_KEYS`. |
 | `--max-tokens` | `int` | `None` | Maximum number of tokens for the context window (default: fetched dynamically). |
 | `--mode` | `str` | `"tutorial"` | Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial). |
 | `--advanced` | `store_true` | `False` | Legacy flag: equivalent to --mode advanced. |
@@ -304,7 +370,7 @@ else:
 
 ### Startup Config Display
 ```python
-def display_config(args, mode, provider, model_name, endpoint_url, context_length, log_file):
+def display_config(args, mode, provider, model_name, endpoint_url, context_length, log_file, thinking_profile, thinking_plan):
     """Emit all configuration values to the console."""
     emit("START_GENERATION", source=args.repo or args.dir, language=args.language.capitalize())
     emit("CFG_HEADER")
@@ -313,6 +379,9 @@ def display_config(args, mode, provider, model_name, endpoint_url, context_lengt
     emit("CFG_AI_MODEL", value=model_name)
     emit("CFG_CONTEXT_LENGTH", value=f"{context_length:,}")
     emit("CFG_THINKING_LEVEL", value=args.thinking_level or "None")
+    emit("CFG_THINKING_PROFILE", value=thinking_profile)          # resolved: balanced / off / global / ...
+    if any(thinking_plan.values()):
+        emit("CFG_THINKING_PLAN", value=describe_plan(thinking_plan, mode))  # node=level for nodes that run in this mode
     emit("CFG_BATCH_SIZE", value=f"{args.batch}")
     _enabled = get("CFG_VALUE_ENABLED")
     _disabled = get("CFG_VALUE_DISABLED")
@@ -346,6 +415,10 @@ These checks run in `main()` after `parse_args()`. All use `emit()` for bilingua
 | `--max-abstractions` with `--mode api-reference` | WARNING | Warn user (flag ignored at runtime) | `WARN_MAX_ABS_API_REF` |
 | `--incremental` with `--mode` != `api-reference` | WARNING | Clear flag, warn user | `WARN_INCREMENTAL_API_ONLY` |
 | `--exclude`/`--include` value contains embedded CLI flag | ERROR | `sys.exit(1)` | `ERROR_QUOTING` |
+| `--thinking-override` value not `NODE=LEVEL` with a known NODE/LEVEL | ERROR | `sys.exit(1)` | `ERROR_THINKING_OVERRIDE` |
+| `--thinking-level` with an explicit `--thinking-profile` (not `auto`) | WARNING | Global level wins, warn user | `WARN_THINKING_LEVEL_OVERRIDES_PROFILE` |
+| `--thinking-override` for a node the mode never calls (`thinking.MODE_NODES`) | WARNING | Keep going, warn user | `WARN_THINKING_OVERRIDE_UNUSED` |
+| `LLM_PROVIDER=ANTHROPIC` and `check_anthropic_auth()` fails (no `anthropic` package; or no key and no active `ant` login) | ERROR | Print setup instructions, `sys.exit(1)` before crawling | `ERROR_ANTHROPIC_SDK_MISSING` / `ERROR_ANTHROPIC_NO_CREDENTIALS` / `ERROR_ANTHROPIC_NOT_LOGGED_IN` + `ANTHROPIC_AUTH_HELP_*` |
 
 Note: `--repo`/`--dir` exclusivity is handled by `argparse.add_mutually_exclusive_group()` (built-in argparse error). The quoting error check in `_check_quoting_errors(parser, args)` dynamically extracts all registered flags (both `--long` and `-short`) from the argparse parser — no hardcoded flag list to maintain.
 
@@ -373,6 +446,11 @@ DEFAULT_EXCLUDE_PATTERNS = {
 
     # 3. Environments, Dependencies & Lockfiles
     "venv/*", ".venv/*", "env/*", ".env", ".env.*",
+    # Secrets at any depth — never sent to an LLM provider or written to the cache
+    "*/.env", "*/.env.*", "*.pem", "*.key", "*.p12", "*.pfx", "*.jks", "*.keystore",
+    "id_rsa", "id_rsa.*", "*/id_rsa", "*/id_rsa.*",          # SSH keys, anchored to the basename
+    "id_ecdsa", "id_ecdsa.*", "*/id_ecdsa", "*/id_ecdsa.*",
+    "id_ed25519", "id_ed25519.*", "*/id_ed25519", "*/id_ed25519.*",
     "node_modules/*", "bower_components/*", "jspm_packages/*",
     "vendor/*", "packages/*",
     "*.lock", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "poetry.lock", "mix.lock", "Pipfile.lock",
@@ -411,7 +489,7 @@ shared = {
     # --- Set by main.py from CLI args ---
     "repo_url": args.repo,                    # str | None
     "local_dir": args.dir,                    # str | None
-    "project_name": args.name,                # str | None (FetchRepo derives if None)
+    "project_name": project_name,             # str — resolved once by resolve_mode_and_project() (repo basename without .git, or dir basename) so logs, --force-rebuild and output agree; FetchRepo derives the same way only if None
     "github_token": github_token,             # str | None
     "output_dir": args.output,                # str, default "output"
     "include_patterns": include_set,          # set[str]
@@ -420,7 +498,8 @@ shared = {
     "language": args.language,                 # str, default "english"
     "use_cache": not args.no_cache,           # bool, default True
     "max_abstraction_num": args.max_abstractions,  # int, default 10
-    "thinking_level": args.thinking_level,    # str | None
+    "thinking_level": args.thinking_level,    # str | None — global level (legacy); nodes read thinking_plan via resolve_thinking_level()
+    "thinking_plan": thinking_plan,           # dict[str, str | None] — per-node levels keyed by utils/thinking.NODE_KEYS (Section 17)
     "max_tokens": args.max_tokens,            # int | None (auto-detected later)
     "mode": mode,                             # str: "tutorial", "advanced", "api-reference", or "sdk"
     "mkdocs": args.mkdocs,                    # bool, default False
@@ -446,7 +525,7 @@ shared = {
 |---|---|---|---|
 | `mapped_abstractions` | `MapAbstractions` (batch path) | `list[dict]` | Per-batch abstraction results |
 | `file_batches` | `ContextRouter` (batch path) | `list[list[tuple]]` | File batches with global indices |
-| `directory_tree` | `ContextRouter` (batch path) | `str` | Full directory tree string |
+| `directory_tree` | `ContextRouter.post()` (every route) | `str` | Full directory tree string (read by draft_chapters and group_modules prompts) |
 | `chapter_summaries` | `WriteChapters.post()` | `list[str]` | Per-chapter summaries for LLM nav grouping |
 
 ### Data Transformations Between Nodes
@@ -827,65 +906,41 @@ def call_llm(prompt, use_cache=True, thinking_level=None) -> str:
 > Notes for AI: This function has multiple critical subsystems. Implement ALL of them.
 
 **Disk Caching (in-memory singleton):**
-- Cache file: `llm_cache.json`, key = exact prompt string
+- Cache file: `llm_cache_v2.json`, key = `sha256(f"{provider}|{model}|{thinking_level or 'default'}\n{prompt}")` — responses are scoped to the model and thinking level that produced them (switching providers never returns another model's answer), and full prompts are no longer stored on disk. The legacy prompt-keyed `llm_cache.json` is never read; `--cleanup` removes both.
+- Writes go to `llm_cache_v2.json.tmp` then `os.replace()` (atomic — an interrupted run never truncates the cache). Empty responses and truncated ones (`TruncatedResponse`, i.e. `response.truncated is True`) are never cached.
 - Loaded once into `_cache` module-level dict on first `load_cache()` call; subsequent reads are pure dict lookups (avoids re-parsing hundreds of MB of JSON on every call)
 - Writes update the in-memory dict and flush to disk immediately (safety: each new entry persisted right away)
 ```python
-if use_cache:
+if use_cache and response_text and not getattr(response_text, "truncated", False):
     cache = load_cache()  # Returns in-memory singleton
-    cache[prompt] = response_text
-    save_cache(cache)     # Updates singleton + writes to disk
+    cache[_cache_key(prompt, provider, model, thinking_level)] = response_text
+    save_cache(cache)     # Updates singleton + atomic write to disk
 ```
 
 **Provider Routing:**
-- `get_llm_provider()` reads `LLM_PROVIDER` env var; falls back to `"GEMINI"` if `GEMINI_PROJECT_ID` or `GEMINI_API_KEY` exists
-- `provider == "GEMINI"` → calls `_call_llm_gemini()`
-- Otherwise → calls `_call_llm_provider()` (generic OpenAI-compatible)
+- `resolve_llm_settings()` (Section 5) determines provider + model
+- `provider == "GEMINI"` → `_call_llm_gemini()` → `utils.llm_gemini.call_gemini()` (Section 17)
+- `provider == "ANTHROPIC"` → `_call_llm_anthropic()` → `utils.llm_anthropic.call_anthropic()` (Section 17)
+- `provider == "OPENROUTER"` → `_call_llm_openrouter()` → `utils.llm_openrouter.call_openrouter()` (Section 17)
+- Otherwise (OLLAMA, other OpenAI-compatible endpoints) → `_call_llm_provider()`
+- Provider SDKs are imported lazily; a missing SDK raises a clear `ImportError` (the preflight normally catches it first).
 
-**`_call_llm_gemini(prompt, thinking_level=None)` — Gemini-specific:**
-```python
-# Authentication — MUST support both modes:
-if os.getenv("GEMINI_PROJECT_ID"):
-    client = genai.Client(vertexai=True, project=os.getenv("GEMINI_PROJECT_ID"),
-                          location=os.getenv("GEMINI_LOCATION", "us-central1"))
-elif os.getenv("GEMINI_API_KEY"):
-    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+**Refused requests are not re-sent:** a deterministic decline (`LLMRefusalError` with `retryable=False` — Claude refusal, a blocked Gemini prompt or PROHIBITED_CONTENT / BLOCKLIST / SPII stop, an OpenRouter refusal, policy block or HTTP 403 moderation) is remembered under `llm_common.request_key(provider, model, level, prompt)`; a node retry raises the same error without another API call. Sampling-dependent stops (`retryable=True` — Gemini SAFETY / RECITATION / LANGUAGE / OTHER on the candidate, OpenRouter `content_filter` / safety / recitation) are not remembered, so the node retry re-samples (`WARN_LLM_BLOCKED_RETRYABLE`).
 
-# Thinking budget mapping:
-budget_map = {"low": 1024, "medium": 4096, "high": 8192}
-if thinking_level:
-    thinking_config = types.ThinkingConfig(include_thoughts=True,
-                                           thinking_budget=budget_map.get(thinking_level.lower(), 4096))
-    kwargs["config"] = types.GenerateContentConfig(thinking_config=thinking_config)
+**Thinking level mapping** (levels are provider-neutral: `minimal`, `low`, `medium`, `high`, `xhigh`, `max` — `utils/thinking.THINKING_LEVELS`; each provider clamps with `thinking.clamp_level(level, supported)` → nearest supported level, ties → lower). Per-provider rules: Section 17.
 
-# CRITICAL — Thought part filtering (avoids 'thought_signature' warnings):
-if response.candidates and response.candidates[0].content.parts:
-    text_parts = [part.text for part in response.candidates[0].content.parts if part.text is not None]
-    return "".join(text_parts)
-return ""
-```
-
-**`_call_llm_provider(prompt, thinking_level=None)` — OpenAI-compatible REST:**
-- URL: `{base_url}/v1/chat/completions`, timeout `(10, 300)`
+**`_call_llm_provider(prompt, thinking_level=None)` — generic OpenAI-compatible REST (OLLAMA, others):**
+- URL: `{base_url}/v1/chat/completions`, timeout `(10, 300)`; HTTP status is checked before parsing JSON
 - Dynamic env var resolution: `{provider}_MODEL`, `{provider}_BASE_URL`, `{provider}_API_KEY`
-- Default temperature: `0.7`
-
-**OpenRouter Reasoning Detection:**
-```python
-if provider == "OPENROUTER" and thinking_level:
-    model_info = _get_openrouter_model_info(model)  # Queries /api/v1/models, cached
-    if model_info and "reasoning" in model_info:
-        supported_efforts = model_info["reasoning"].get("supported_efforts", [])
-        if thinking_level.lower() in supported_efforts:
-            payload["reasoning"] = {"effort": thinking_level.lower()}
-            payload["temperature"] = 1.0  # MUST override to 1.0 when reasoning enabled
-```
+- Default temperature: `0.7` — omitted for models that reject sampling parameters (`rejects_sampling_params()`: Claude Opus 4.7+, Opus/Sonnet 5, Fable, Mythos, Gemini 3.x)
+- A 200 body without `choices` raises `RuntimeError`; `finish_reason == "length"` returns a `TruncatedResponse`
 
 **Ollama Think Mode:**
 ```python
 elif provider == "OLLAMA" and thinking_level:
-    payload["think"] = thinking_level.lower()
-    payload["reasoning_effort"] = thinking_level.lower()
+    effort = _clamp_level(thinking_level.lower(), ["low", "medium", "high"]) or "medium"   # xhigh/max → high
+    payload["think"] = effort
+    payload["reasoning_effort"] = effort
     payload["temperature"] = 1.0  # MUST override to 1.0
 ```
 
@@ -894,16 +949,32 @@ elif provider == "OLLAMA" and thinking_level:
 ### `get_model_context_length`
 ```python
 def get_model_context_length(endpoint_url, model_name, api_key) -> int:
-    # Returns 1,000,000 for Gemini models
-    # Queries OpenRouter /api/v1/models for OpenRouter models
+    # ANTHROPIC: Anthropic Models API max_input_tokens (llm_anthropic.get_model_limits; offline fallback 1M, Haiku 4.5 200K)
+    # OPENROUTER (checked before any 'gemini' name heuristic): catalog top_provider.context_length, else context_length
+    # GEMINI: llm_gemini.get_model_limits — models.get input_token_limit on AI Studio; static 1,048,576 on Vertex / without SDK
     # Default fallback: 100,000
 ```
 
 ### `count_tokens`
 ```python
+def count_tokens_raw(text: str) -> int:
+    # tiktoken cl100k_base count (lazy singleton); fallback len(text) // 4; 0 for empty text
+
 def count_tokens(text: str) -> int:
-    # Returns token count using lazy-loaded tiktoken singleton
-    # Fallback: len(text) // 4 if tiktoken unavailable
+    # count_tokens_raw(text) x get_token_ratio(), cached on first call. Claude (native or claude-* gateway IDs):
+    # ANTHROPIC_TOKEN_RATIO, default 1.4 for the Opus 4.7+ tokenizer and 1.2 for 4.6 and older (tiktoken
+    # undercounts Claude, more on code). Gemini (native or gemini-* IDs): GEMINI_TOKEN_RATIO (1.0). Others: LLM_TOKEN_RATIO (1.0).
+
+def input_token_budget(max_tokens: int, thinking_level: str | None = None) -> int:
+    # Largest prompt that still leaves room for the response in the context window.
+    # ANTHROPIC / OPENROUTER: max_tokens - (llm_config.context_output_reserve(thinking_level) + CONTEXT_MARGIN) — exactly
+    #   what the provider module requests (anthropic_planned_output: per-effort table on adaptive models, budget_tokens + 16K
+    #   on Haiku 4.5; openrouter_output_budget), so a budget-packed prompt still gets its planned output.
+    # GEMINI: max_tokens - CONTEXT_MARGIN (input and output limits are separate).
+    # Others (OLLAMA, generic, an OpenRouter model missing from the catalog): max_tokens - clamp(5%, 8,192, 64,000).
+    # Never below max_tokens // 2.
+    # Callers pass the consuming node's level: ContextRouter (min over identify_abstractions and map_abstractions — the
+    #   budget sizes both the direct-route prompt and every map batch), IdentifyAbstractions, AnalyzeRelationships.
 ```
 - Uses `tiktoken.get_encoding('cl100k_base')` via module-level singleton (`_get_encoding()`)
 - Returns 0 for empty/None text
@@ -983,6 +1054,14 @@ def get_content_for_indices(files_data, indices) -> dict:
 ### `utils/mkdocs.py` — MkDocs Output Generation
 
 All MkDocs-related logic: config generation, nav building, index/homepage creation, link normalization, and chapter file writing.
+
+#### `yaml_str`
+```python
+def yaml_str(value) -> str:
+    return json.dumps(str(value).strip(), ensure_ascii=False)
+```
+- Quotes every hand-built YAML scalar (nav labels, section/directory names, frontmatter `title`, `site_name`). JSON strings are valid YAML double-quoted scalars, so names with apostrophes, colons, `[`/`@` prefixes (e.g. French abstraction names, `[slug].tsx`) never break `mkdocs.yml`, `nav_snippet.yml` or page frontmatter.
+- Used by `build_mkdocs_config`, `build_grouped_nav`, and `CombineTutorial` (flat nav + frontmatter).
 
 #### `build_mkdocs_config`
 ```python
@@ -1087,7 +1166,7 @@ When `chapter_summaries` from shared store is empty (e.g., if summary generation
 
 **Initialization:**
 ```python
-def init(language="english", use_cache=True, thinking_level=None, debug=False):
+def init(language="english", use_cache=True, thinking_level=None, debug=False, auto_translate=True):
     """Load utils/strings.csv, set language, auto-translate missing strings via LLM.
     Must be called from main() after argument parsing, before any emit() calls.
     Note: `_language` stores capitalized form (e.g., "Vietnamese") for display/LLM prompts. `_lang_col` stores lowercase (e.g., "vietnamese") for CSV column lookups.
@@ -1111,6 +1190,9 @@ def emit_raw(level, text, dest="BOTH"):
 def get(key, **kwargs):
     """Return raw translated string without printing/logging.
     Use for UI strings embedded in generated markdown (index.md headings, etc.)."""
+
+def is_debug() -> bool:
+    """True when --debug is active (gates verbose diagnostics outside output.py, e.g. Claude thinking summaries)."""
 
 def configure_logging(project_name="project", mode="tutorial"):
     """Configure file-based logging. Creates logs/{project}_{mode}_{timestamp}.log.
@@ -1142,7 +1224,7 @@ def configure_logging(project_name="project", mode="tutorial"):
 > **Design principle:** LEVEL controls **color**, DEST controls **visibility**. To make a string debug-only, set its DEST to `DBOTH` or `DSTDOUT` — never change its LEVEL to `DEBUG` just for gating (that would lose the intended color).
 
 **Auto-translation flow:**
-1. On `init(language, use_cache=True, thinking_level=None, debug=False)`, load `utils/strings.csv` with `csv.DictReader`.
+1. On `init(language, use_cache=True, thinking_level=None, debug=False, auto_translate=True)`, reconfigure non-TTY stdout/stderr to UTF-8 (`_ensure_utf8_streams()`: on Windows a piped stream otherwise uses cp1252 and non-English output raises `UnicodeEncodeError`), then load `utils/strings.csv` with `csv.DictReader`.
 2. For each row, try: language column → English fallback.
 3. If any strings fell back to English (no translation found), batch-translate via LLM using `prompts/common/translate_strings.md`. `use_cache` and `thinking_level` are forwarded to the LLM call.
 4. Write translations directly back into `utils/strings.csv` using `_write_translations_to_csv()` with `utf-8-sig` encoding (BOM for Excel compatibility).
@@ -1245,7 +1327,7 @@ return {
 }
 ```
 **`exec()` validation:** Raises `ValueError("No matching files found...")` if 0 files crawled.
-**Project name derivation:** `repo_url.split("/")[-1].replace(".git", "")` if URL, else `os.path.basename(os.path.abspath(local_dir))`
+**Project name derivation:** normally resolved by `main.resolve_mode_and_project()` and passed in `shared["project_name"]`. If it is `None` (library use), FetchRepo derives it the same way: `repo_url.rstrip("/").split("/")[-1].removesuffix(".git")` for a URL, else `os.path.basename(os.path.abspath(local_dir))`.
 **`post()` writes:** `shared["files"] = exec_res` (list of tuples). Returns `None`.
 
 #### ContextRouter
@@ -1254,7 +1336,7 @@ No LLM call. Routes to `"direct"` or `"batch"`. Writes `shared["max_tokens"]`, `
 **ContextRouter Algorithm:**
 1. Auto-detect `max_tokens` from provider if not set; write to `shared["max_tokens"]`
 2. Measure prompt overhead = max(template_tokens across ALL 4 mode subdirs × 3 template types: `identify_abstractions.md`, `map_abstractions.md`, `draft_chapters.md`) + directory_tree_tokens + chapter_listing_tokens (estimated as `"N. basename (doc: path.md)"` per file)
-3. `safety_limit = int(max_tokens * 0.95)`; `effective_limit = safety_limit - prompt_overhead`
+3. `safety_limit = min(input_token_budget(max_tokens, <identify_abstractions level>), input_token_budget(max_tokens, <map_abstractions level>))`; `effective_limit = safety_limit - prompt_overhead`
 4. Count total file content tokens using `f"--- File Index {i}: {path} ---\n{content}\n\n"` per file
 5. If `total_tokens > effective_limit` OR `force_batch`:
    - Group files by `os.path.dirname(path)` — NEVER mix directories
@@ -1277,16 +1359,19 @@ other_dir/
 \033[92m    - [{i}] {path}\033[0m
 ```
 
-**`prep()` return:** 8-element `tuple`
+**`prep()` return:** 7-element `tuple` — `directory_tree` MUST stay the last element (`post()` reads `prep_res[-1]`)
 ```python
+# Deterministic route (api-reference):
+return ("deterministic", files_data, effective_limit, batch_size, None, None, directory_tree)
 # Direct route:
-return ("direct", files_data, effective_limit, batch_size, None, None, directory_tree, False)
+return ("direct", files_data, effective_limit, batch_size, None, None, directory_tree)
 # Batch route:
-return ("batch", files_data, effective_limit, batch_size, file_token_map, count_tokens, directory_tree, debug)
+return ("batch", files_data, effective_limit, batch_size, file_token_map, count_tokens, directory_tree)
 ```
 **`post()` writes and return:**
-- Direct: returns `"direct"` (does NOT write `file_batches` or `directory_tree` to shared)
-- Batch: writes `shared["file_batches"] = exec_res`, `shared["directory_tree"]`, returns `"batch"`
+- Every route: writes `shared["directory_tree"] = prep_res[-1]` (draft_chapters and group_modules prompts read it)
+- Direct / deterministic: returns `"direct"` / `"deterministic"`
+- Batch: also writes `shared["file_batches"] = exec_res`, returns `"batch"`
 
 #### IdentifyAbstractions
 Template: `prompts/{mode}/identify_abstractions.md`
@@ -1306,7 +1391,7 @@ Template: `prompts/{mode}/identify_abstractions.md`
 **Writes:** `shared["abstractions"] = [{"name": ..., "description": ..., "files": [int, ...]}, ...]`
 
 **`prep()` return:** 11-element `tuple` — `(context, directory_tree, total_files_count, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, mode)`
-**Context truncation:** If total tokens exceed `int(max_tokens * 0.95)`, truncates at that file index with a warning print.
+**Context truncation:** If total tokens exceed `input_token_budget(max_tokens, thinking_level)`, truncates at that file index with a warning.
 **Range parsing:** `"0-3"` expands to `[0, 1, 2, 3]` via `range(start, end+1)`, NOT "takes first number".
 **`post()` return:** `None`
 
@@ -1454,10 +1539,12 @@ filename = f"{i+1:02d}_{safe_name}.md"
 1. `self.chapters_written_so_far` accumulates FULL chapter content for output files and incremental cache
 2. `self.chapter_summaries` accumulates LLM-generated technical briefs for cross-chapter context
 3. After each chapter is written, `build_chapter_summary_prompt()` generates a summary prompt
-4. An LLM call (follows run's `thinking_level` and `use_cache` settings) produces a structured brief (4 points × 3-5 sentences)
+4. An LLM call (uses the plan's `chapter_summary` level and the run's `use_cache` setting) produces a structured brief (4 points × 3-5 sentences)
 5. Summary is stored as `"Chapter N — Name:\n{summary}"` in `self.chapter_summaries`
 6. Subsequent chapters receive a sliding window of `self.chapter_summaries` capped at 50% of context window as `previous_chapters_summary` (drops oldest summaries first when budget exceeded)
-7. **Incremental mode (`--incremental`)**: summaries are persisted in `.doc_cache_manifest.json` alongside content hashes. On cache hits, summaries are loaded from manifest (zero LLM calls). Old manifest format (hash-only strings) is auto-detected and migrated.
+7. **Incremental mode (`--incremental`)**: summaries are persisted in `.doc_cache_manifest.json` alongside content hashes. The hash is `md5(generation_signature + file_context_str)`, where `generation_signature = f"{mode}|{language}|{provider}|{model}|{write_chapters level}|{md5(draft_chapters template)}"` is computed once in `prep()` — switching model, effort, language or template regenerates pages (a one-time full rebuild after upgrading). On cache hits, summaries are loaded from manifest (zero LLM calls). Old manifest format (hash-only strings) is auto-detected and migrated.
+7a. An empty chapter response raises `ValueError` (node retry). A truncated response (`TruncatedResponse`) is kept for this run but gets `hash=None`; `post()` then **removes** any older manifest entry for that module (`manifest.pop(name)`), so no stale hash can serve the partial page and the next incremental run regenerates it.
+7b. `exec_fallback(item, exc)`: when a chapter still fails after all retries, emit `WARN_CHAPTER_FALLBACK` and return a placeholder page (`# {name}` + `UI_CHAPTER_UNAVAILABLE`) with `hash=None` and a placeholder summary appended to `chapter_summaries` (keeps summaries aligned with chapter files). The run completes instead of discarding every chapter already generated.
 8. CLI output: `\033[96m[Summarizing] Chapter N for cross-chapter context (X tokens)...\033[0m` → `\033[96m[Summary Done] Chapter N: X tokens\033[0m` (cyan)
 9. Log: `CHAPTER SUMMARY START | chapter=N | prompt_tokens=X` → `CHAPTER SUMMARY DONE | chapter=N | summary_tokens=X`
 
@@ -1525,6 +1612,8 @@ full_content_lines.append(f'<a id="chapter-{i+1}"></a>\n')
 > Notes for AI: LLM responses are unpredictable. The parser must handle multiple formats.
 
 ### Extraction Pattern
+
+`parse_yaml_response()` first raises `ValueError` when the response is a `TruncatedResponse` (`response.truncated is True`): a reply cut off at max_tokens can still contain a parseable fenced prefix that silently drops items, so the node retries instead.
 
 The `parse_yaml_response()` helper uses the split-based approach (primary implementation):
 ```python
@@ -1632,6 +1721,19 @@ ui = {
 | DeterministicFileMapper | 5 | 20 |
 | CombineTutorial | 0 (default) | 0 |
 
+### Anthropic Provider Errors
+
+- The anthropic SDK retries connection errors, 408, 409, 429 and 5xx itself (`max_retries=3`); PocketFlow node retries sit on top.
+- `stop_reason == "refusal"` (after any server-side fallback) → `WARN_ANTHROPIC_REFUSAL` + `LLMRefusalError` (deterministic: node retries re-raise it without a new request; WriteChapters falls back to a placeholder page, other nodes stop).
+- `stop_reason == "max_tokens"` → one internal retry at the largest allowed budget (`WARN_ANTHROPIC_TRUNCATED_RETRY`); if still truncated (or `model_context_window_exceeded`), `WARN_ANTHROPIC_TRUNCATED` and the partial text is returned as `TruncatedResponse` — never cached, so later runs regenerate it.
+- A 400 that rejects the fallback feature itself (the `server-side-fallback-*` beta header, or `fallbacks: "default"` for this model/account) disables fallbacks for the rest of the run (`WARN_ANTHROPIC_FALLBACK_DISABLED`) and the request is resent without them. Other 400s — including a bad model list in `ANTHROPIC_FALLBACKS` — propagate.
+
+### Gemini / OpenRouter Provider Errors
+
+- **Gemini:** SDK `HttpRetryOptions(attempts=2)` retries 408/429/5xx once; `GEMINI_TIMEOUT_SECONDS` (default 1800) is the total per-request deadline, covering the whole stream. `MAX_TOKENS` → `WARN_LLM_TRUNCATED` + `TruncatedResponse`. A blocked prompt (`prompt_feedback.block_reason`) and `PROHIBITED_CONTENT` / `BLOCKLIST` / `SPII` / `IMAGE_*` finish reasons → `WARN_LLM_REFUSAL` + `LLMRefusalError` (deterministic). `SAFETY` / `RECITATION` / `LANGUAGE` / `OTHER` on the candidate → `WARN_LLM_BLOCKED_RETRYABLE` + `LLMRefusalError(retryable=True)`. A 400 that rejects the thinking config → `WARN_GEMINI_THINKING_REJECTED`, resend without it (model remembered for the run). Other `ClientError` / `ServerError` propagate.
+- **OpenRouter:** up to 3 attempts on connection errors and 408/429/502/503/524/529, honoring `Retry-After` (capped 60 s). HTTP 403 whose error is a refusal / `content_policy_violation` / moderation (`metadata.reasons` / `flagged_input`) → `LLMRefusalError`; other 4xx/5xx → `RuntimeError` with the provider's message. `finish_reason` `length` → `TruncatedResponse`; a `refusal` delta or a native `refusal` / `prohibited_content` / `blocklist` / `spii` → `LLMRefusalError`; `content_filter` or native `safety` / `recitation` → `LLMRefusalError(retryable=True)`; `error` (finish reason, choice error, or a mid-stream `error` chunk) and a stream that ends without any `finish_reason` (dropped connection, empty body) → `RuntimeError`.
+- Deterministic refusals from every provider are remembered and not re-sent on node retries; retryable blocks are re-sampled (Section 9).
+
 ### LLM Cache-on-Retry Pattern
 ```python
 result = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
@@ -1676,7 +1778,7 @@ except ValueError as e:
 ### Cleanup Logic
 ```python
 if args.cleanup:
-    # Remove llm_cache.json
+    # Remove llm_cache_v2.json (+ .tmp) and the legacy llm_cache.json
     # Remove logs/ directory via shutil.rmtree
 ```
 
@@ -1893,36 +1995,32 @@ def parse_yaml_response(response):
 ```
 **Used by:** MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper, CombineTutorial (7 nodes)
 
-#### `create_token_counter` — `utils/token_utils.py`
-Creates a token counting function using tiktoken with char-count fallback.
+#### `count_tokens` / `input_token_budget` — `utils/token_utils.py`
+`count_tokens(text)` is the model-calibrated estimate (tiktoken × `get_token_ratio()`); `input_token_budget(max_tokens, thinking_level)`
+is the prompt budget after reserving room for the response (Section 9).
 ```python
-def create_token_counter():
-    """Create a token counting function using tiktoken with char-count fallback."""
-    try:
-        enc = tiktoken.get_encoding("cl100k_base")
-        return lambda text: len(enc.encode(text, disallowed_special=()))
-    except Exception:
-        return lambda text: len(text) // 4
+safety_limit = input_token_budget(max_tokens, thinking_level)
+tokens = count_tokens(entry)
 ```
-**Used by:** ContextRouter, IdentifyAbstractions, AnalyzeRelationships (3 nodes)
+**Used by:** ContextRouter, IdentifyAbstractions, AnalyzeRelationships (budgets); every node (analytics)
+
+#### `resolve_thinking_level` — `utils/thinking.py`
+Returns the thinking level for one LLM call site from `shared["thinking_plan"]` (Section 17).
+```python
+thinking_level = resolve_thinking_level(shared, "identify_abstractions")
+call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+```
+**Used by:** every node that calls `call_llm()` (10 call sites)
 
 #### `resolve_max_tokens` — `utils/token_utils.py`
 Resolves max_tokens from shared store or auto-detects from provider environment variables.
 ```python
 def resolve_max_tokens(shared):
-    """Resolve max_tokens from shared store or auto-detect from provider env vars."""
+    """Resolve max_tokens from shared store or auto-detect from the active provider."""
     max_tokens = shared.get("max_tokens")
     if max_tokens is not None:
         return max_tokens
-    provider = os.environ.get("LLM_PROVIDER")
-    if provider == "GEMINI" or not provider:
-        endpoint = "https://generativelanguage.googleapis.com"
-        model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
-        api_key = os.getenv("GEMINI_API_KEY", "")
-    else:
-        endpoint = os.environ.get(f"{provider}_BASE_URL", "")
-        model_name = os.environ.get(f"{provider}_MODEL", "")
-        api_key = os.environ.get(f"{provider}_API_KEY", "")
+    _, model_name, endpoint, api_key = resolve_llm_settings()
     return get_model_context_length(endpoint, model_name, api_key)
 ```
 **Used by:** ContextRouter, IdentifyAbstractions (2 nodes)
@@ -1962,8 +2060,10 @@ Orchestrate all output writing: MkDocs mode (nav, config, index, chapters) or st
 |---|---|
 | `prompt_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", ...)` inline in every node | `prompt_template = load_prompt_template("identify_abstractions", advanced_mode)` |
 | `yaml_str = response.strip().split("```yaml")[1]...` repeated 5× | `data = parse_yaml_response(response)` |
-| `try: enc = tiktoken.get_encoding(...)` in 3 different methods | `count_tokens = create_token_counter()` |
-| `provider = os.environ.get("LLM_PROVIDER")` + if/else in 2 nodes | `max_tokens = resolve_max_tokens(shared)` |
+| `try: enc = tiktoken.get_encoding(...)` in 3 different methods | `tokens = count_tokens(text)` (model-calibrated) |
+| `provider = os.environ.get("LLM_PROVIDER")` + if/else in 2 nodes | `provider, model, endpoint, key = resolve_llm_settings()` / `max_tokens = resolve_max_tokens(shared)` |
+| `safety_limit = int(max_tokens * 0.95)` | `safety_limit = input_token_budget(max_tokens, thinking_level)` |
+| `thinking_level = shared.get("thinking_level")` in a node | `thinking_level = resolve_thinking_level(shared, "<node_key>")` |
 | Redefining `import re` inside functions when it's already imported at the top | Use the top-level import |
 
 ### When to Create New Helpers
@@ -1978,10 +2078,14 @@ If you find yourself writing the same block of code (≥3 lines) in 2+ nodes, ex
 |---|---|---|---|
 | `parse_arguments` | `() -> tuple[ArgumentParser, Namespace]` | `(parser, args)` | All argparse setup; returns parser (for `.error()`) and parsed args |
 | `resolve_mode_and_project` | `(args) -> tuple[str, str]` | `(mode, project_name)` | Handles `--advanced` legacy flag, derives project name from args |
-| `build_shared_store` | `(args, github_token, mode) -> dict` | shared dict | Constructs the shared store dictionary passed between PocketFlow nodes |
-| `detect_llm_config` | `(args) -> tuple[str, str, str, str, int]` | `(provider, model_name, endpoint_url, api_key, context_length)` | Detects LLM provider from env vars, calculates context length |
-| `display_config` | `(args, mode, provider, model_name, endpoint_url, context_length, log_file) -> None` | — | Emits all `CFG_*` strings to console |
-| `_run_cleanup` | `() -> None` | — | Removes `llm_cache.json` and `logs/` directory |
+| `build_shared_store` | `(args, github_token, mode, thinking_plan, project_name) -> dict` | shared dict | Constructs the shared store dictionary passed between PocketFlow nodes |
+| `resolve_thinking_plan` | `(args) -> tuple[str, dict, list[str]]` | `(profile, thinking_plan, invalid_overrides)` | Pure (no `emit`), runs before `init_output()` so string translation uses the plan's `translate_strings` level |
+| `_validate_thinking_args` | `(args, invalid_overrides) -> None` | — | Emits `ERROR_THINKING_OVERRIDE` (exit 1), `WARN_THINKING_OVERRIDE_UNUSED` (override names a node not in `thinking.MODE_NODES[mode]`), and `WARN_THINKING_LEVEL_OVERRIDES_PROFILE` — after `init_output()` |
+| `detect_llm_config` | `(args) -> tuple[str, str, str, str, int]` | `(provider, model_name, endpoint_url, api_key, context_length)` | `resolve_llm_settings()` + context length |
+| `display_config` | `(args, mode, provider, model_name, endpoint_url, context_length, log_file, thinking_profile, thinking_plan) -> None` | — | Emits all `CFG_*` strings to console |
+| (startup order) | — | — | `parse_arguments` → `resolve_thinking_plan` → `init_output(auto_translate=False)` → `_check_quoting_errors` / `_validate_thinking_args` → standalone `--cleanup` → `check_anthropic_auth()` (exit 1 on failure) → `translate_missing_strings()` → mode/project resolution → flow. Translation is an LLM call, so it runs only after arguments and credentials are checked. |
+| `_emit_usage_summary` | `(provider) -> None` | — | In `finally`: one `LLM_USAGE_SUMMARY` per provider used (`llm_common.get_usage_summary()`: calls, input/output/thinking/cache tokens, refusals, fallbacks, truncations, est. cost or `CFG_VALUE_UNKNOWN`) |
+| `_run_cleanup` | `() -> None` | — | Removes `llm_cache_v2.json` (+ `.tmp`), legacy `llm_cache.json`, and the `logs/` directory |
 
 ### Depth-First File Ordering (api-reference mode)
 
@@ -1995,3 +2099,133 @@ shared["chapter_order"] = sorted(
 ```
 
 This ordering is **language-agnostic** — it works for any codebase (Python, C#, C++, Java, etc.) because it exploits the universal convention that utility files live in deeper directories.
+
+## 17. LLM Providers & Thinking Flows
+
+> Notes for AI: `utils/llm_anthropic.py` is the ONLY file that imports the anthropic SDK. `utils/thinking.py` is the ONLY place that defines per-node effort. Nodes never hard-code a thinking level.
+
+### Thinking Plan (`utils/thinking.py`)
+
+Every LLM call site has a NODE key. `main.resolve_thinking_plan()` builds `shared["thinking_plan"]` once:
+`--thinking-override NODE=LEVEL` > `--thinking-level LEVEL` (all nodes) > `--thinking-profile` table (+ per-mode adjustments).
+Nodes read their level with `resolve_thinking_level(shared, "<node_key>")` (falls back to `shared["thinking_level"]` when no plan exists).
+
+| NODE key | Call site | Workload |
+|---|---|---|
+| `filter_files` | `DeterministicFileMapper` | Mechanical classification (api-reference) |
+| `map_abstractions` | `MapAbstractions` (per batch) | Extraction |
+| `reduce_abstractions` | `ReduceAbstractions` | Reasoning-heavy synthesis |
+| `identify_abstractions` | `IdentifyAbstractions` | Reasoning-heavy synthesis |
+| `analyze_relationships` | `AnalyzeRelationships` | Reasoning-heavy synthesis |
+| `order_chapters` | `OrderChapters` | Planning |
+| `write_chapters` | `WriteChapters` (per chapter) | Long-form generation |
+| `chapter_summary` | `WriteChapters` (per chapter, `summary_thinking_level`) | Mechanical summary |
+| `group_modules` | `CombineTutorial` → `write_mkdocs_output` nav grouping | Light structuring |
+| `translate_strings` | `utils/i18n.auto_translate` (via `init_output`) | Mechanical translation |
+
+Profiles (`auto` = `balanced` on ANTHROPIC, GEMINI and OPENROUTER (`thinking.PROFILED_PROVIDERS`), `off` elsewhere; `off` = every node `None` → model default):
+
+| NODE | economy | balanced | quality | max |
+|---|---|---|---|---|
+| filter_files | low | low | medium | medium |
+| map_abstractions | low | medium | high | xhigh |
+| reduce_abstractions | medium | high | high | max |
+| identify_abstractions | medium | high | high | max |
+| analyze_relationships | low | medium | high | xhigh |
+| order_chapters | low | medium | high | high |
+| write_chapters | low | medium | high | xhigh |
+| chapter_summary | low | low | medium | medium |
+| group_modules | low | medium | high | high |
+| translate_strings | low | low | medium | medium |
+
+Rationale: reasoning-heavy synthesis (identify/reduce) gets the most effort; relationship analysis only feeds the summary, diagram and ordering; chapter writing runs N times (hundreds in api-reference), so shipped profiles stop at `high` — Opus 5.5 at `medium` already beats Opus 5 at `high` on knowledge work. `xhigh`/`max` only in the explicit `max` profile (use when a gain has been measured).
+
+Per-mode adjustments: economy → `write_chapters=medium` for advanced (design-rationale chapters, at most `max_abstraction_num` calls). `MODE_NODES` lists which nodes can run per mode (api-reference: `filter_files`, `write_chapters`, `chapter_summary`, `group_modules`, `translate_strings`; other modes: the analysis nodes + `write_chapters`, `chapter_summary`, `translate_strings`) — used for the config display and `WARN_THINKING_OVERRIDE_UNUSED`.
+
+Provider mapping of a level: ANTHROPIC → `output_config.effort` (xhigh → high on the 4.6 family; pre-4.6 models such as Haiku 4.5 → `budget_tokens` 2,048 / 8,192 / 16,384 / 24,576 / 32,000); GEMINI 3.x → `thinking_level` (per-model set, `llm_config.GEMINI_THINKING_LEVELS`), Gemini 2.5 → `thinking_budget` (`GEMINI_THINKING_BUDGETS` clamped to `GEMINI_BUDGET_RANGES`); OPENROUTER → `reasoning.effort` clamped to the catalog's `supported_efforts`, or `reasoning.max_tokens` for budget-only models; OLLAMA → low/medium/high. The startup display shows it as `CFG_THINKING_SUPPORT` (`llm_config.describe_thinking_support`).
+
+### `call_anthropic(prompt, thinking_level=None) -> str` (`utils/llm_anthropic.py`)
+
+- **Model:** `ANTHROPIC_MODEL`, default `claude-opus-5-5` (1M context, 128K output). Limits from the Models API (`client.models.retrieve(model)` → `max_input_tokens`, `max_tokens`), cached per process; offline fallback 1M/128K (Haiku 4.5: 200K/64K) with `WARN_ANTHROPIC_MODEL_LOOKUP`.
+- **Thinking:** adaptive-thinking models (Opus 5.x, Sonnet 5, Fable/Mythos, Opus 4.6–4.8, Sonnet 4.6) get `thinking={"type": "adaptive"}` and, when a level is set, `output_config={"effort": level}` (`minimal` → `low`). With no level (model default), `thinking` is omitted on Opus/Sonnet 4.6–4.8, where omission means no thinking; Opus/Sonnet 5.x, Fable and Mythos think adaptively either way. Claude Opus 5.5 cannot disable thinking and defaults to `medium`, so the plan sets effort explicitly. With `--debug`, `display="summarized"` and the summaries are written to the log file only.
+- **Never sent:** `temperature`/`top_p`/`top_k`, assistant prefill, `budget_tokens` on adaptive models (all 400 on Opus 5.5).
+- **max_tokens** (thinking counts toward it): `llm_config.anthropic_planned_output(model, level)` — adaptive models: `ANTHROPIC_MAX_TOKENS_BY_EFFORT` (minimal/low 32K, medium/high/None 64K, xhigh 96K, max 128K); Haiku 4.5 and older: `ANTHROPIC_BUDGET_BY_LEVEL` + 16K for the reply. `input_token_budget` reserves the same value. Level → effort normalization (`llm_config.anthropic_effort`) is shared too. `ANTHROPIC_MAX_OUTPUT_TOKENS` is a hard cap: planned max_tokens = min(table, cap), and the truncation retry never exceeds it. Ceiling = min(model output cap, `context − count_tokens(prompt) − ANTHROPIC_CONTEXT_MARGIN (2,000)`, cap), min 4,096; `WARN_ANTHROPIC_OUTPUT_CLAMPED` only when the ceiling is < 90% of the plan. The prompt is tokenized once per call.
+- **Streaming:** every request uses `messages.stream(...)` + `get_final_message()` (large max_tokens never hit HTTP timeouts).
+- **Refusal fallbacks:** `ANTHROPIC_FALLBACKS=default` (Opus 5.x and Fable 5.x only) → beta `server-side-fallback-2026-07-01` + `extra_body={"fallbacks": "default"}` on `client.beta.messages.stream`; a comma-separated model list (any model, e.g. Mythos 5.1) → beta `server-side-fallback-2026-06-01` + `[{"model": ...}]`; `off` disables. A fallback-served answer emits `WARN_ANTHROPIC_FALLBACK_SERVED`. Cost with fallbacks sums `usage.iterations`, each at its own model's price; an attempt with 0 output tokens (declined before output) is unbilled.
+- **Prompt caching:** `ANTHROPIC_PROMPT_CACHE=on` adds top-level `cache_control={"type": "ephemeral"}`. Off by default: templates start with per-call content (chapter name, batch files), so only exact retries share a prefix — the 1.25× write cost is not repaid on single-shot calls.
+- **Response:** text = concatenated `text` blocks (thinking/fallback blocks ignored). A reply that ends with `max_tokens` / `model_context_window_exceeded` is returned as `TruncatedResponse` (a `str` subclass with `truncated = True`), which `call_llm` never caches. Refusal / truncation handling: Section 13.
+- **Usage:** per call, `ANTHROPIC USAGE | ...` (tokens, cache, est. cost, `observed_token_ratio` = billed input ÷ tiktoken count — use it to tune `ANTHROPIC_TOKEN_RATIO`) goes to the log; totals are emitted after the flow as `LLM_USAGE_SUMMARY`. Prices (USD/MTok in/out/cache-read) live in `_PRICING`; 5-minute cache writes = 1.25× input.
+
+### Credentials & preflight (`utils/llm_config.check_anthropic_auth`)
+
+The anthropic SDK (zero-arg `anthropic.Anthropic()`) resolves credentials itself: `ANTHROPIC_API_KEY` → `ANTHROPIC_AUTH_TOKEN` → the `ant auth login` profile (`ANTHROPIC_PROFILE` or the active one, stored under `ANTHROPIC_CONFIG_DIR`, default `%APPDATA%\Anthropic` on Windows / `~/.config/anthropic` elsewhere) → Workload Identity Federation. Empty variables count as unset. For OAuth profiles the SDK merges its `oauth-2025-04-20` beta header with ours (fallback beta), so `betas=[...]` is safe.
+
+`check_anthropic_auth() -> bool` (SDK-free; returns True for every other provider) runs before any LLM call in both entry points — `main()` (after argument validation, before `translate_missing_strings()` and the flow) and the `utils/call_llm.py` self-test (after `init_output`):
+
+| Step | Condition | Result |
+|---|---|---|
+| 1 | `anthropic` package not importable | `ERROR_ANTHROPIC_SDK_MISSING` (pip install -r requirements.txt) → False |
+| 2 | `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` non-empty (both → `WARN_ANTHROPIC_KEY_AND_TOKEN`) | `ANTHROPIC_AUTH_OK` → True |
+| 3 | Federation vars (`ANTHROPIC_FEDERATION_RULE_ID`, `_ORGANIZATION_ID`, `_SERVICE_ACCOUNT_ID` + `_IDENTITY_TOKEN[_FILE]`) | `ANTHROPIC_AUTH_OK` → True |
+| 4 | `ant` on PATH | run `ant auth status` (30 s timeout, empty key vars removed from its env). Its exit code is not a health signal, so `parse_ant_auth_status()` reads the `(active)` rows of the `Credentials` / `Workspace` sections (token prefixes redacted). Active credential → `ANTHROPIC_AUTH_OK` (source + workspace) → True; none → `ERROR_ANTHROPIC_NOT_LOGGED_IN` + the (redacted) status output + help → False; subprocess error/timeout → `WARN_ANTHROPIC_AUTH_UNVERIFIED` → True |
+| 5 | `ant` not on PATH | stored `credentials/*.json` in the config dir → `WARN_ANTHROPIC_ANT_MISSING_LOGIN_FOUND` → True; otherwise `ERROR_ANTHROPIC_NO_CREDENTIALS` + help (incl. OS-specific `ANTHROPIC_AUTH_HELP_INSTALL_ANT_{WIN,MAC,LINUX}`: `winget install Anthropic.Ant` / `brew install anthropics/tap/ant` / release packages, each with a `go install` or zip fallback) → False |
+
+Help lines: `ANTHROPIC_AUTH_HELP_HEADER`, `_KEY` (API key from platform.claude.com/settings/keys), `_INSTALL_ANT_*` (only when ant is missing), `_LOGIN` (`ant auth login` / `ant auth status`), `_NOTE` (leave the key unset; billed to the API org, not a Claude.ai plan). Interactive login is for your own machine; CI uses `ANTHROPIC_API_KEY` or federation.
+
+`utils/call_llm.py` adds the repo root to `sys.path` when run as a script, so the self-test works as both `python utils/call_llm.py` and `python -m utils.call_llm`.
+
+### `call_gemini(prompt, thinking_level=None) -> str` (`utils/llm_gemini.py`)
+
+The only module that imports google-genai (>= 1.56: `thinking_level` MINIMAL/MEDIUM; 1.51 had LOW/HIGH only; older SDKs reject the field).
+
+| Model (prefix, longest wins) | Thinking control | Levels | Default when omitted |
+|---|---|---|---|
+| gemini-3.8-flash, gemini-3.7-flash | `thinking_level` | low, medium, high (MINIMAL errors) | medium |
+| gemini-3.6-flash, gemini-3.5-flash(-lite) | `thinking_level` | minimal, low, medium, high | medium (Flash-Lite: minimal) |
+| gemini-3.1-pro(-preview) | `thinking_level` | low, medium, high (cannot turn off) | high |
+| gemini-3.1-flash-lite, gemini-3-flash | `thinking_level` | minimal, low, medium, high | minimal / high |
+| other gemini-3.x, `gemini-flash-latest` / `gemini-pro-latest`, newer families | `thinking_level` | low, medium, high | — |
+| gemini-2.5-pro / -flash / -flash-lite | `thinking_budget` | 128-32,768 / 1-24,576 / 512-24,576 | dynamic |
+| gemini-1.x / 2.0, other 2.5 variants, non-Gemini ids | none (`WARN_THINKING_NOT_SUPPORTED`) | — | — |
+
+Model ids are normalized first (`llm_config.gemini_model_id`: `models/…` and `publishers/google/models/…` prefixes stripped, lower-cased).
+
+- `thinking_level` and `thinking_budget` are never sent together (400). Levels outside the set clamp (`WARN_THINKING_LEVEL_CLAMPED`, once per model+level); `xhigh`/`max` → `high`. No level → no `thinking_config` (model default). `include_thoughts=True` only with `--debug` (summaries go to the log).
+- `max_output_tokens` = `llm_config.gemini_output_budget(level, output_limit)`: minimal/low 32,768, else 65,536 (the 3.x / 2.5 output limit, thinking included), capped by `GEMINI_MAX_OUTPUT_TOKENS`. Gemini's input and output limits are separate, so output is not reduced for large prompts and `input_token_budget` reserves only `CONTEXT_MARGIN`.
+- Limits: `models.get` (`input_token_limit`, `output_token_limit`) on AI Studio, cached; Vertex AI (SDK maps no limits) and failures → `GEMINI_DEFAULT_LIMITS` (1,048,576 / 65,536; `WARN_GEMINI_MODEL_LOOKUP`).
+- One client per process: `HttpOptions(timeout=GEMINI_TIMEOUT_SECONDS×1000 ms (default 1800 s, total deadline), retry_options=HttpRetryOptions(attempts=2, 408/429/5xx))`; Vertex via `vertexai=True, project, location=GEMINI_LOCATION` (default `global` — Gemini 3.x is not served from `us-central1`); AI Studio via `vertexai=False, api_key`.
+- Requests stream (`generate_content_stream`): text = non-thought parts; `prompt_feedback` from the first chunk; the last `usage_metadata` and `finish_reason` win. Never sends temperature/top_p/top_k (deprecated on 3.x).
+- Usage: input = `prompt_token_count` (incl. cached), output = candidates + thoughts (thinking is billed as output), cost from `_PRICING` (standard prices, AI Studio = Vertex global; >200K-prompt tier for Pro; 3.6–3.8 Flash at the introductory `_INTRO_PRICING` through 2026-12-31; Vertex regional endpoints +10%; unknown models → cost n/a).
+- Retired ids (`GEMINI_RETIRED_MODELS`: id → (replacement, still aliased on AI Studio)): gemini-3-pro-preview on AI Studio → `WARN_GEMINI_MODEL_RETIRED` (served by 3.1 Pro Preview); on Vertex, and gemini-3.1-flash-lite-preview anywhere → `ERROR_GEMINI_MODEL_RETIRED` (preflight fails).
+- Vertex locations per model (`GEMINI_VERTEX_LOCATIONS`, longest prefix): 3.1 Pro / 3 Flash / 3 Pro → global; 3.8 Flash Cyber → global, us; 3.5 Flash → any (also single regions); other 3.x → global, us, eu. `us` / `eu` use the `aiplatform.{us|eu}.rep.googleapis.com` endpoints.
+
+### `call_openrouter(prompt, thinking_level=None) -> str` (`utils/llm_openrouter.py`)
+
+Catalog-driven (`llm_config.openrouter_model_info`: exact id, `canonical_slug`, a dated canonical slug only (`anthropic/claude-4.6-opus` → `…-20260205`; looser prefixes are not matched), routing suffixes `:nitro`/`:floor`/`:online`/…, `~…-latest` aliases via `alias_target`). The catalog is fetched from `{OPENROUTER_BASE_URL}/v1/models` and cached on success; after a failure callers get None and the fetch is retried after a 60 s cooldown (`WARN_OPENROUTER_CATALOG_UNAVAILABLE` once). Family checks (`rejects_sampling_params`, `get_token_ratio`) resolve aliases through the catalog, and `_normalize_claude_id` maps version-first ids (`claude-4.7-opus` → `claude-opus-4-7`).
+
+| Catalog `reasoning` | Request |
+|---|---|
+| `supported_efforts` list | `reasoning.effort` = level clamped to the list (never `none`; `WARN_THINKING_LEVEL_CLAMPED` once) |
+| `supported_efforts` key missing + `supports_max_tokens` (e.g. Qwen 3.8 Flash) | `reasoning.max_tokens` = 1,024 / 2,048 / 8,192 / 16,384 / 24,576 / 32,000 for minimal…max (kept below `max_tokens`) |
+| `supported_efforts` null / key missing otherwise (e.g. Claude Haiku 4.5, Gemini 2.5) | `reasoning.effort` = level (OpenRouter converts to a budget) |
+| no `reasoning` and not in `supported_parameters` | no reasoning (`WARN_THINKING_NOT_SUPPORTED` once) |
+| model not in catalog / catalog unavailable | `reasoning.effort` = level (unverified) |
+
+- `reasoning.exclude = not --debug` (reasoning is billed either way; with `--debug` it is logged).
+- `max_tokens`: `openrouter_output_budget(model, level)` (shared per-effort table capped by `top_provider.max_completion_tokens`, 32K when that is unknown, and `OPENROUTER_MAX_OUTPUT_TOKENS`), clamped to `context − prompt − CONTEXT_MARGIN` (min 4,096). Omitted for a model missing from the catalog unless `OPENROUTER_MAX_OUTPUT_TOKENS` is set.
+- `temperature` (`OPENROUTER_TEMPERATURE`, default 0.7) only when: no reasoning requested, not `rejects_sampling_params(model)` (Claude 4.7+/5.x, Gemini 3.x), `temperature` in `supported_parameters`, and the model is neither `mandatory` nor `default_enabled` reasoning.
+- SSE streaming (`stream: true`; lines split as bytes and decoded per line — `str.splitlines()` would break JSON containing U+2028; `:`-prefixed keep-alive lines skipped; read timeout `OPENROUTER_TIMEOUT_SECONDS` between events). A proxy that answers with one `application/json` body is parsed as a single chunk. Headers `Authorization: Bearer` (when a key is set), `HTTP-Referer` (`OPENROUTER_APP_URL`, default the project repository), `X-OpenRouter-Title` and legacy `X-Title`.
+- Usage from the final chunk: prompt / completion (incl. reasoning) / `completion_tokens_details.reasoning_tokens` / `prompt_tokens_details.cached_tokens`/`cache_write_tokens` / `cost` (USD, authoritative; with BYOK, `cost_details.upstream_inference_cost` is added).
+- Claude 4.6+ through OpenRouter: effort → Anthropic `output_config.effort` (xhigh → high on 4.6, minimal → low); Gemini 3.x: effort → `thinkingLevel`.
+
+### Shared helpers (`utils/llm_common.py`, SDK-free)
+
+`TruncatedResponse(str)` (`truncated = True`), `LLMRefusalError(model, category, provider, retryable=False)`, the refusal memo (`request_key`, `remember_refusal`, `previous_refusal`), the usage ledger (`record_usage(provider, model, *, input_tokens, output_tokens, thinking_tokens, cache_read, cache_write, cost)`, `count_event(provider, "refusals"|"fallbacks"|"truncations")`, `get_usage_summary()`), and `warn_once(key, *parts)`. `llm_anthropic` re-exports `TruncatedResponse` / `LLMRefusalError`.
+
+### Preflight for every provider (`utils/llm_config.check_llm_auth`)
+
+Called by `main()` and the `utils/call_llm.py` self-test before any LLM call; returns False (after printing instructions) when the run cannot work:
+- ANTHROPIC → `check_anthropic_auth()` (above).
+- GEMINI → `check_gemini_config()`: google-genai installed (`ERROR_GEMINI_SDK_MISSING`) and >= 1.56 (`ERROR_GEMINI_SDK_OUTDATED`); retired model → `WARN_GEMINI_MODEL_RETIRED` (AI Studio alias) or `ERROR_GEMINI_MODEL_RETIRED` → False; Vertex: location not in `gemini_vertex_locations(model)` → `WARN_GEMINI_LOCATION` (lists the allowed locations), `google.auth.default()` must succeed (`ERROR_GEMINI_VERTEX_CREDENTIALS`: `gcloud auth application-default login`); else `GEMINI_API_KEY` required (`ERROR_GEMINI_NO_CREDENTIALS`). Success → `LLM_AUTH_OK`.
+- OPENROUTER → `check_openrouter_config()`: `OPENROUTER_API_KEY` when the base URL is an openrouter.ai host (`ERROR_OPENROUTER_NO_KEY`), `OPENROUTER_MODEL` (`ERROR_OPENROUTER_NO_MODEL`); a catalog that cannot load → `WARN_OPENROUTER_CATALOG_UNAVAILABLE` (with the URL and error, e.g. a 404 from a proxy without `/v1/models`); a model missing from a loaded catalog → `WARN_OPENROUTER_MODEL_UNKNOWN` (continues). Success → `LLM_AUTH_OK`.
+- Other providers → True.

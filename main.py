@@ -8,8 +8,19 @@ import dotenv
 # Import the function that creates the flow
 from flow import create_tutorial_flow
 from utils.exclude_patterns import DEFAULT_EXCLUDE_PATTERNS
-from utils.output import configure_logging, emit, get
+from utils.llm_config import check_llm_auth, describe_thinking_support, resolve_llm_settings
+from utils.output import configure_logging, emit, emit_raw, get, translate_missing_strings
 from utils.output import init as init_output
+from utils.thinking import (
+    MODE_NODES,
+    NODE_KEYS,
+    THINKING_LEVELS,
+    THINKING_PROFILES,
+    build_thinking_plan,
+    describe_plan,
+    parse_overrides,
+    resolve_profile_name,
+)
 
 dotenv.load_dotenv()
 
@@ -18,6 +29,16 @@ DEFAULT_INCLUDE_PATTERNS = {"*"}
 
 
 # --- Argument Parsing ---
+def _thinking_level_arg(value):
+    """argparse type for --thinking-level: a level from THINKING_LEVELS; '' or 'default' → None (model default)."""
+    level = value.strip().lower()
+    if level in ("", "default"):
+        return None
+    if level not in THINKING_LEVELS:
+        raise argparse.ArgumentTypeError(f"invalid choice: {value!r} (choose from {', '.join(THINKING_LEVELS)}, default)")
+    return level
+
+
 def parse_arguments():
     """Parse and return command-line arguments."""
     parser = argparse.ArgumentParser(description="Generate a tutorial for a GitHub codebase or local directory.")
@@ -49,7 +70,26 @@ def parse_arguments():
     parser.add_argument(
         "--thinking-level",
         default=None,
-        help="Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.",
+        type=_thinking_level_arg,
+        metavar="{" + ",".join(THINKING_LEVELS) + "}",
+        help="Global thinking effort for EVERY LLM call. Overrides --thinking-profile. 'default' (or empty) = model default. "
+        "Mapped per provider: Anthropic effort (thinking budget on Haiku 4.5), Gemini thinking_level (3.x) / thinking budget (2.5), "
+        "OpenRouter reasoning effort or budget, Ollama reasoning effort (clamped to what the model supports).",
+    )
+    parser.add_argument(
+        "--thinking-profile",
+        default="auto",
+        type=str.lower,
+        choices=THINKING_PROFILES,
+        help="Per-node thinking effort profile (default: auto = balanced on ANTHROPIC, GEMINI and OPENROUTER, off elsewhere). "
+        "economy/balanced/quality/max give reasoning-heavy nodes (abstractions, relationships) more effort than "
+        "mechanical ones (summaries, translation), adjusted per --mode. off = model defaults.",
+    )
+    parser.add_argument(
+        "--thinking-override",
+        nargs="+",
+        metavar="NODE=LEVEL",
+        help=f"Per-node thinking level overrides, highest precedence (e.g., write_chapters=high identify_abstractions=xhigh). NODE: {', '.join(NODE_KEYS)}.",
     )
     # Add max_tokens parameter
     parser.add_argument(
@@ -132,14 +172,14 @@ def resolve_mode_and_project(args):
         if args.dir:
             project_name = os.path.basename(os.path.abspath(args.dir))
         elif args.repo:
-            project_name = args.repo.rstrip("/").split("/")[-1]
+            project_name = args.repo.rstrip("/").split("/")[-1].removesuffix(".git")
         else:
             project_name = "project"
     return mode, project_name
 
 
 # --- Shared Store Construction ---
-def build_shared_store(args, github_token, mode):
+def build_shared_store(args, github_token, mode, thinking_plan, project_name):
     """Construct the shared store dictionary passed between PocketFlow nodes.
 
     Returns:
@@ -148,7 +188,7 @@ def build_shared_store(args, github_token, mode):
     return {
         "repo_url": args.repo,
         "local_dir": args.dir,
-        "project_name": args.name,  # Can be None, FetchRepo will derive it
+        "project_name": project_name,  # Resolved once in main so logs, --force-rebuild and output agree
         "github_token": github_token,
         "output_dir": args.output,  # Base directory for CombineTutorial output
         # Include/exclude patterns and max file size
@@ -161,8 +201,9 @@ def build_shared_store(args, github_token, mode):
         "use_cache": not args.no_cache,
         # Max abstractions
         "max_abstraction_num": args.max_abstractions,
-        # LLM reasoning capabilities
+        # LLM reasoning capabilities: global level (legacy) + per-node plan (utils/thinking.py)
         "thinking_level": args.thinking_level,
+        "thinking_plan": thinking_plan,
         # Max tokens override
         "max_tokens": args.max_tokens,
         # Mode, mkdocs, and incremental
@@ -194,30 +235,43 @@ def detect_llm_config(args):
     """
     from utils.llm_config import get_model_context_length
 
-    provider = os.environ.get("LLM_PROVIDER")
-    if provider:
-        model_name = os.environ.get(f"{provider}_MODEL", "unknown")
-        endpoint_url = os.environ.get(f"{provider}_BASE_URL", "unknown")
-        api_key = os.environ.get(f"{provider}_API_KEY", "")
-    else:
-        # Fallback to Gemini if neither provider is explicitly set but it's used
-        if os.environ.get("GEMINI_PROJECT_ID") or os.environ.get("GEMINI_API_KEY"):
-            provider = "GEMINI"
-            model_name = os.environ.get("GEMINI_MODEL", "gemini-3.7-flash")
-            endpoint_url = "generativelanguage.googleapis.com"
-            api_key = os.environ.get("GEMINI_API_KEY", "")
-        else:
-            provider = "UNKNOWN"
-            model_name = "unknown"
-            endpoint_url = "unknown"
-            api_key = ""
-
+    provider, model_name, endpoint_url, api_key = resolve_llm_settings()
     context_length = args.max_tokens or get_model_context_length(endpoint_url, model_name, api_key)
     return provider, model_name, endpoint_url, api_key, context_length
 
 
+# --- Thinking Plan Resolution ---
+def resolve_thinking_plan(args):
+    """Build the per-node thinking plan from --thinking-override / --thinking-level / --thinking-profile.
+
+    Pure (no emit): runs before init_output(). Validation messages come from _validate_thinking_args().
+
+    Returns:
+        tuple[str, dict, list[str]]: (resolved profile name, {node_key: level | None}, invalid override strings)
+    """
+    mode = "advanced" if args.advanced else args.mode
+    overrides, invalid = parse_overrides(args.thinking_override)
+    profile = "global" if args.thinking_level else resolve_profile_name(args.thinking_profile, resolve_llm_settings()[0])
+    return profile, build_thinking_plan(profile, mode, args.thinking_level, overrides), invalid
+
+
+def _validate_thinking_args(args, invalid_overrides):
+    """Report malformed --thinking-override values (fatal), overrides for nodes the mode never runs,
+    and --thinking-level/--thinking-profile conflicts."""
+    if invalid_overrides:
+        emit("ERROR_THINKING_OVERRIDE", value=", ".join(invalid_overrides), nodes=", ".join(NODE_KEYS), levels=", ".join(THINKING_LEVELS))
+        sys.exit(1)
+    mode = "advanced" if args.advanced else args.mode
+    overrides, _ = parse_overrides(args.thinking_override)
+    unused = [node for node in overrides if node not in MODE_NODES[mode]]
+    if unused:
+        emit("WARN_THINKING_OVERRIDE_UNUSED", nodes=", ".join(unused), mode=mode, active=", ".join(MODE_NODES[mode]))
+    if args.thinking_level and args.thinking_profile != "auto":
+        emit("WARN_THINKING_LEVEL_OVERRIDES_PROFILE", level=args.thinking_level, profile=args.thinking_profile)
+
+
 # --- Configuration Display ---
-def display_config(args, mode, provider, model_name, endpoint_url, context_length, log_file):
+def display_config(args, mode, provider, model_name, endpoint_url, context_length, log_file, thinking_profile, thinking_plan):
     """Emit all configuration values to the console."""
     emit("START_GENERATION", source=args.repo or args.dir, language=args.language.capitalize())
     emit("CFG_HEADER")
@@ -226,6 +280,10 @@ def display_config(args, mode, provider, model_name, endpoint_url, context_lengt
     emit("CFG_AI_MODEL", value=model_name)
     emit("CFG_CONTEXT_LENGTH", value=f"{context_length:,}")
     emit("CFG_THINKING_LEVEL", value=args.thinking_level or "None")
+    emit("CFG_THINKING_PROFILE", value=thinking_profile)
+    if any(thinking_plan.values()):
+        emit("CFG_THINKING_PLAN", value=describe_plan(thinking_plan, mode))
+    emit("CFG_THINKING_SUPPORT", value=describe_thinking_support(provider, model_name))
     emit("CFG_BATCH_SIZE", value=f"{args.batch}")
     _enabled = get("CFG_VALUE_ENABLED")
     _disabled = get("CFG_VALUE_DISABLED")
@@ -251,7 +309,7 @@ def _run_cleanup():
     """Clean up cache files and log directory."""
     emit("CLEANUP_START")
 
-    for cache_path in ["llm_cache.json"]:
+    for cache_path in ["llm_cache_v2.json", "llm_cache_v2.json.tmp", "llm_cache.json"]:
         if os.path.exists(cache_path):
             try:
                 os.remove(cache_path)
@@ -268,16 +326,44 @@ def _run_cleanup():
             emit("CLEANUP_FAILED", path=log_dir, error=e)
 
 
+# --- LLM Usage Summary ---
+def _emit_usage_summary(provider):
+    """Emit accumulated token usage and estimated cost for every provider used this run."""
+    from utils.llm_common import get_usage_summary
+
+    for name, usage in get_usage_summary().items():
+        emit(
+            "LLM_USAGE_SUMMARY",
+            provider=name,
+            models=", ".join(usage["models"]) or "-",
+            calls=f"{usage['calls']:,}",
+            input=f"{usage['input']:,}",
+            output=f"{usage['output']:,}",
+            thinking=f"{usage['thinking']:,}",
+            cache_read=f"{usage['cache_read']:,}",
+            cache_write=f"{usage['cache_write']:,}",
+            cost=f"${usage['cost']:.2f}" if usage["cost_known"] else get("CFG_VALUE_UNKNOWN"),
+            refusals=usage["refusals"],
+            fallbacks=usage["fallbacks"],
+            truncations=usage["truncations"],
+        )
+
+
 # --- Main Orchestrator ---
 def main():
     parser, args = parse_arguments()
+    # Resolved silently before init_output(): string translation itself uses the plan's translate_strings level.
+    thinking_profile, thinking_plan, invalid_overrides = resolve_thinking_plan(args)
+    # Translation of missing strings is an LLM call: deferred until arguments and credentials are checked.
     init_output(
         language=args.language,
         use_cache=not args.no_cache,
-        thinking_level=args.thinking_level,
+        thinking_level=thinking_plan["translate_strings"],
         debug=args.debug,
+        auto_translate=False,
     )
     _check_quoting_errors(parser, args)
+    _validate_thinking_args(args, invalid_overrides)
 
     # Handle standalone --cleanup (no --dir or --repo)
     if args.cleanup and not args.dir and not args.repo:
@@ -287,6 +373,11 @@ def main():
     # Require --dir or --repo for generation
     if not args.dir and not args.repo:
         parser.error("one of the arguments --repo --dir --cleanup is required")
+
+    # Fail fast (with setup instructions) before crawling if Claude cannot authenticate
+    if not check_llm_auth():
+        sys.exit(1)
+    translate_missing_strings()
 
     # Get GitHub token from argument or environment variable if using repo
     github_token = None
@@ -324,10 +415,10 @@ def main():
         emit("WARN_FORCE_BATCH_API_REF")
         args.force_batch = False
 
-    shared = build_shared_store(args, github_token, mode)
+    shared = build_shared_store(args, github_token, mode, thinking_plan, project_name)
     provider, model_name, endpoint_url, _, context_length = detect_llm_config(args)
     log_file = configure_logging(project_name=project_name, mode=mode)
-    display_config(args, mode, provider, model_name, endpoint_url, context_length, log_file)
+    display_config(args, mode, provider, model_name, endpoint_url, context_length, log_file, thinking_profile, thinking_plan)
 
     # Create and run the flow
     tutorial_flow = create_tutorial_flow()
@@ -340,6 +431,11 @@ def main():
     finally:
         from utils.output import shutdown
 
+        # Report spend even when the run fails — failed runs are often the expensive ones.
+        try:
+            _emit_usage_summary(provider)
+        except Exception as e:
+            emit_raw("WARNING", f"Usage summary failed: {e}", dest="LOG")
         shutdown()
 
 

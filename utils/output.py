@@ -15,6 +15,7 @@ Usage:
 
 import csv
 import os
+import sys
 from datetime import datetime
 
 # ---------------------------------------------------------------------------
@@ -45,7 +46,7 @@ _thinking_level = None
 _debug = False
 
 
-def init(language="english", use_cache=True, thinking_level=None, debug=False):
+def init(language="english", use_cache=True, thinking_level=None, debug=False, auto_translate=True):
     """Initialize the output system: load strings.csv, set language, auto-translate missing.
 
     Must be called from main() after parsing CLI arguments but before any emit() calls.
@@ -54,6 +55,9 @@ def init(language="english", use_cache=True, thinking_level=None, debug=False):
         language: Target language name (e.g., "Vietnamese").
         use_cache: Whether LLM caching is enabled (passed to translation calls).
         thinking_level: LLM thinking level (passed to translation calls).
+        auto_translate: Translate missing strings now. main() passes False and calls
+            translate_missing_strings() after argument validation and the LLM auth preflight,
+            because translation is itself an LLM call.
     """
     global _language, _lang_col, _csv_path, _use_cache, _thinking_level, _debug
     _language = language.capitalize()
@@ -62,7 +66,14 @@ def init(language="english", use_cache=True, thinking_level=None, debug=False):
     _use_cache = use_cache
     _thinking_level = thinking_level
     _debug = debug
+    _ensure_utf8_streams()
     _load_strings()
+    if auto_translate:
+        _auto_translate()
+
+
+def translate_missing_strings():
+    """Auto-translate strings missing for the configured language (LLM call); see init(auto_translate=False)."""
     _auto_translate()
 
 
@@ -121,6 +132,11 @@ def emit_raw(level, text, dest="BOTH"):
         print(f"{color}{text}{reset}")
     if dest in ("BOTH", "LOG"):
         _write_log(level, text)
+
+
+def is_debug():
+    """Return True when --debug is active (used to gate verbose diagnostics outside this module)."""
+    return _debug
 
 
 def get(key, **kwargs):
@@ -193,6 +209,19 @@ def _write_log(level, text):
 # ---------------------------------------------------------------------------
 # Private helpers
 # ---------------------------------------------------------------------------
+
+
+def _ensure_utf8_streams():
+    """Write UTF-8 when stdout/stderr are piped or redirected.
+
+    On Windows a redirected stream uses the ANSI code page (e.g. cp1252) and any
+    non-English CLI string (Vietnamese, CJK, ...) raises UnicodeEncodeError. Interactive
+    consoles already use UTF-8 (PEP 528), so only non-TTY streams are reconfigured.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        encoding = (getattr(stream, "encoding", "") or "").lower().replace("-", "")
+        if hasattr(stream, "reconfigure") and encoding != "utf8" and not stream.isatty():
+            stream.reconfigure(encoding="utf-8", errors="replace")
 
 
 def _format_safe(template, kwargs):

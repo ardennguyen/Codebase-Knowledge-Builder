@@ -18,7 +18,7 @@ Ever stared at a new codebase feeling completely lost? This project analyzes Git
    pip install -r requirements.txt
    ```
 
-3. Set up LLM by copying `.env.sample` to `.env` and providing credentials. Native Gemini: set `GEMINI_API_KEY` (or `GEMINI_PROJECT_ID` for Vertex AI). OpenRouter: set `LLM_PROVIDER=OPENROUTER` and `OPENROUTER_API_KEY`. Ollama: set `LLM_PROVIDER=OLLAMA` and `OLLAMA_BASE_URL=http://localhost:11434`.
+3. Set up LLM by copying `.env.sample` to `.env` and providing credentials. Native Gemini: set `GEMINI_API_KEY` (or `GEMINI_PROJECT_ID` for Vertex AI). OpenRouter: set `LLM_PROVIDER=OPENROUTER` and `OPENROUTER_API_KEY`. Ollama: set `LLM_PROVIDER=OLLAMA` and `OLLAMA_BASE_URL=http://localhost:11434`. Claude (native): set `LLM_PROVIDER=ANTHROPIC` and either `ANTHROPIC_API_KEY` or — without a key — sign in once with the `ant` CLI (`ant auth login`; install with `winget install Anthropic.Ant` on Windows, `brew install anthropics/tap/ant` on macOS, [its releases](https://github.com/anthropics/anthropic-cli/releases) on Linux, or `go install github.com/anthropics/anthropic-cli/cmd/ant@latest`). Default model `claude-opus-5-5`; optional `ANTHROPIC_*` settings in `.env.sample`. Without a key, `main.py` and `utils/call_llm.py` run `ant auth status` before any LLM call and print setup instructions if something is missing.
 
 4. Generate a complete codebase tutorial by running the main script:
     ```bash
@@ -44,7 +44,9 @@ Ever stared at a new codebase feeling completely lost? This project analyzes Git
   - CLI output language also follows `--language` (translations in `utils/strings.csv`, auto-translated for unsupported languages).
 - `--max-abstractions` - Maximum number of abstractions to identify (default: 10).
 - `--no-cache` - Disable LLM response caching (default: caching enabled).
-- `--thinking-level` - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
+- `--thinking-level` - Global thinking effort for every LLM call: `minimal`, `low`, `medium`, `high`, `xhigh`, `max` (`default` = model default). Overrides `--thinking-profile`. Mapped per provider (Anthropic effort — a thinking budget on Haiku 4.5; Gemini `thinking_level` on 3.x, thinking budget on 2.5; OpenRouter reasoning effort or budget; Ollama reasoning effort — clamped to what the model supports).
+- `--thinking-profile` - Per-node effort profile: `auto` (default: `balanced` on `ANTHROPIC`, `GEMINI` and `OPENROUTER`, model defaults elsewhere), `off`, `economy`, `balanced`, `quality`, `max`. Abstraction discovery gets the most effort, chapter writing and ordering a moderate amount, and mechanical steps (summaries, translation, file filtering) the least; shipped profiles stop at `high` except `max`. The effective per-node plan is printed at startup (`Thinking Plan:`).
+- `--thinking-override` - Per-node overrides, e.g. `--thinking-override write_chapters=high identify_abstractions=xhigh`. Nodes: `filter_files`, `map_abstractions`, `reduce_abstractions`, `identify_abstractions`, `analyze_relationships`, `order_chapters`, `write_chapters`, `chapter_summary`, `group_modules`, `translate_strings`.
 - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically).
 - `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial).
 - `--advanced` - Legacy flag: equivalent to --mode advanced.

@@ -75,12 +75,12 @@ Read all 26 prompt files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `p
 2. **NEVER invent template variable names** — use EXACTLY what `design.md` Section 10 specifies
 3. **NEVER paraphrase prompt templates** — copy byte-for-byte
 4. **ALWAYS pass 3-4 args to `log_token_estimation`** — `(node_name, prompt, max_tokens)` required, optional `token_usage` dict for diagnostics
-5. **ALWAYS forward `thinking_level`** to `call_llm()` — it's in shared store
+5. **ALWAYS forward `thinking_level`** to `call_llm()` — resolve it per call site with `resolve_thinking_level(shared, "<node_key>")` (`utils/thinking.py`), never `shared["thinking_level"]` directly. A new LLM call site needs a NODE key in `NODE_KEYS`, `_PROFILES`, and `MODE_NODES`
 6. **ALWAYS use `self.cur_retry`** for cache-on-retry pattern — `call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)`
 7. **NEVER use `print()` directly** — use `emit()` from `utils/output.py` for all CLI output. Use `get()` for UI strings in generated markdown.
 8. **NEVER define ANSI color constants** in any file — all styling is handled by `utils/output.py` based on the LEVEL column in `utils/strings.csv`.
 9. **NEVER hardcode user-facing strings** — add them to `utils/strings.csv` and reference by STRING_KEY.
-10. **Extract common patterns to the right `utils/` module** — prompt loaders and YAML parsers go in `utils/prompts.py`, MkDocs output logic in `utils/mkdocs.py`, file/content helpers in `utils/files.py`, token utilities in `utils/token_utils.py`.
+10. **Extract common patterns to the right `utils/` module** — prompt loaders and YAML parsers go in `utils/prompts.py`, MkDocs output logic in `utils/mkdocs.py`, file/content helpers in `utils/files.py`, token utilities in `utils/token_utils.py`, provider/settings resolution in `utils/llm_config.py`, per-node thinking effort in `utils/thinking.py`, provider-neutral LLM types/usage ledger in `utils/llm_common.py`. Provider SDK code stays in its provider module: only `utils/llm_anthropic.py` imports `anthropic`, only `utils/llm_gemini.py` imports `google-genai`, and OpenRouter logic lives in `utils/llm_openrouter.py`.
 11. **Keep `main.py` modular** — argument parsing (`parse_arguments`), mode/project resolution (`resolve_mode_and_project`), shared store construction (`build_shared_store`), LLM config detection (`detect_llm_config`), and config display (`display_config`) are separate functions. `main()` is a short orchestrator (~40 lines).
 12. **Script execution on Windows** — Do NOT use `python -c "..."` for multi-line scripts. Write a `.py` file to `.agents/scratch/` and run `python .agents/scratch/script_name.py`.
 13. **File encoding** — Always pass `encoding='utf-8'` to `open()` in any helper script. Windows defaults to CP1252.

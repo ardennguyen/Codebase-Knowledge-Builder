@@ -21,6 +21,30 @@
    > **Note:** CLI output language matches the `--language` flag. String translations are stored in `utils/strings.csv` and auto-translated via LLM for missing languages.
 
 3. Set up LLM by copying `.env.sample` to `.env` and providing credentials. By default, you can use the AI Studio key for Gemini by setting the `GEMINI_API_KEY` environment variable (or `GEMINI_PROJECT_ID` for Vertex AI). If you want to use another LLM, you can set the `LLM_PROVIDER` environment variable (e.g. `OPENROUTER`), and then set the model, url, and API key (e.g. `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). If using Ollama, set `LLM_PROVIDER=OLLAMA` and the base url (e.g. `OLLAMA_BASE_URL=http://localhost:11434`) — the API key can be omitted.
+   To use Claude natively, set `LLM_PROVIDER=ANTHROPIC` (required — Claude is never auto-selected from `ANTHROPIC_API_KEY` alone) and `ANTHROPIC_API_KEY` (the model defaults to `claude-opus-5-5`; override with `ANTHROPIC_MODEL`). Claude runs with adaptive thinking, a per-node effort plan (`--thinking-profile balanced` by default), streaming, automatic refusal fallbacks (`ANTHROPIC_FALLBACKS`), and prints a token/cost summary at the end of the run. See `.env.sample` for the optional `ANTHROPIC_*` settings.
+
+   **Claude without an API key (`ant auth login`):** instead of `ANTHROPIC_API_KEY`, you can sign in with Anthropic's `ant` CLI. Usage is billed to the API organization and workspace you pick at login (not a Claude.ai Pro/Max plan; Claude Code's own `/login` can't be reused).
+   1. Install `ant`:
+      - Windows: `winget install Anthropic.Ant`, then open a new terminal (fallback: download `ant_<version>_windows_amd64.zip` from the [releases page](https://github.com/anthropics/anthropic-cli/releases) and put `ant.exe` on your `PATH`)
+      - macOS: `brew install anthropics/tap/ant`
+      - Linux: the `.tar.gz` / `.deb` / `.rpm` for your architecture from the [releases page](https://github.com/anthropics/anthropic-cli/releases)
+      - Any OS with Go 1.25+: `go install github.com/anthropics/anthropic-cli/cmd/ant@latest`
+   2. Sign in once (a browser opens; pick your organization and workspace), then confirm the login is active:
+      ```bash
+      ant auth login
+      ```
+      ```bash
+      ant auth status
+      ```
+   3. In `.env`, set `LLM_PROVIDER=ANTHROPIC` and leave `ANTHROPIC_API_KEY` unset — any non-empty key overrides the login.
+
+   **Thinking on every provider:** `--thinking-profile` (default `auto` = `balanced` on Anthropic, Gemini and OpenRouter) is mapped per model:
+   - **Gemini 3.1+** (native): `thinking_level` with the levels each model accepts (e.g. 3.7/3.8 Flash and 3.1 Pro have no `minimal`); Gemini 2.5 uses a thinking budget. Output (`max_output_tokens`, incl. thinking) is sized per level, requests stream, and truncation or safety/recitation blocks are detected (sampling-dependent blocks are retried, policy blocks are not). Vertex AI defaults to `GEMINI_LOCATION=global`; `gemini-flash-latest` / `gemini-pro-latest` aliases work. Needs `google-genai` >= 1.56.
+   - **OpenRouter** (any model): `reasoning.effort` clamped to the model's catalog `supported_efforts` (or `reasoning.max_tokens` for budget-only models), `max_tokens` from the catalog limits, streaming, and temperature only where the model accepts it — e.g. `anthropic/claude-opus-4.6`, `anthropic/claude-sonnet-4.6`, `google/gemini-3.1-pro-preview`, `qwen/qwen3.8-flash`.
+   - **Claude 4.6+** (native): adaptive thinking + effort (`xhigh` → `high` on the 4.6 family); Haiku 4.5 uses a thinking budget.
+   Every run ends with a token/cost summary (cost estimated from list prices for Claude and Gemini, reported by OpenRouter, n/a for Ollama and other endpoints), and `main.py` / `utils/call_llm.py` check the SDK and credentials of the configured provider before any LLM call.
+
+   With `LLM_PROVIDER=ANTHROPIC` and no API key, both `python main.py` and `python utils/call_llm.py` check your credentials before any LLM call (running `ant auth status`) and print what to install or run if the `anthropic` package, the `ant` CLI, or an active login is missing.
    You can use your own models. We highly recommend the latest models with thinking capabilities (Claude 3.7 with thinking, O1). You can verify that it is correctly set up by running:
    ```bash
    python utils/call_llm.py
@@ -48,7 +72,9 @@
     - `--language` - Language for the generated tutorial (default: english).
     - `--max-abstractions` - Maximum number of abstractions to identify (default: 10).
     - `--no-cache` - Disable LLM response caching (default: caching enabled).
-    - `--thinking-level` - Thinking effort level for native Gemini, OpenRouter, and Ollama reasoning models (e.g., low, medium, high). Leave empty to use model defaults.
+    - `--thinking-level` - Global thinking effort for every LLM call: `minimal`, `low`, `medium`, `high`, `xhigh`, `max` (`default` = model default). Overrides `--thinking-profile`. Mapped per provider (Anthropic effort — a thinking budget on Haiku 4.5; Gemini `thinking_level` on 3.x, thinking budget on 2.5; OpenRouter reasoning effort or budget; Ollama reasoning effort — clamped to what the model supports).
+    - `--thinking-profile` - Per-node effort profile: `auto` (default: `balanced` on `ANTHROPIC`, `GEMINI` and `OPENROUTER`, model defaults elsewhere), `off`, `economy`, `balanced`, `quality`, `max`. Abstraction discovery gets the most effort, chapter writing and ordering a moderate amount, and mechanical steps (summaries, translation, file filtering) the least; shipped profiles stop at `high` except `max`. The effective per-node plan is printed at startup (`Thinking Plan:`).
+    - `--thinking-override` - Per-node overrides, e.g. `--thinking-override write_chapters=high identify_abstractions=xhigh`. Nodes: `filter_files`, `map_abstractions`, `reduce_abstractions`, `identify_abstractions`, `analyze_relationships`, `order_chapters`, `write_chapters`, `chapter_summary`, `group_modules`, `translate_strings`.
     - `--max-tokens` - Maximum number of tokens for the context window (default: fetched dynamically).
     - `--mode` - Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial).
     - `--advanced` - Legacy flag: equivalent to --mode advanced.
@@ -90,6 +116,15 @@ python main.py --repo https://github.com/user/repo --mode advanced --thinking-le
 
 # Tutorial from GitHub repo with file filters
 python main.py --repo https://github.com/user/repo --include "*.py" --exclude "tests/*"
+
+# Claude Opus 5.5 (LLM_PROVIDER=ANTHROPIC): best-quality API reference, extra effort on every reference page
+python main.py --dir /path/to/project --mode api-reference --mkdocs --thinking-profile quality --thinking-override write_chapters=xhigh
+
+# Claude Opus 5.5: architecture deep-dive with maximum effort on abstraction discovery
+python main.py --dir /path/to/project --mode advanced --thinking-override identify_abstractions=max
+
+# Claude Opus 5.5 on a budget: economy profile, but keep chapter writing at medium
+python main.py --dir /path/to/project --mode tutorial --thinking-profile economy --thinking-override write_chapters=medium
 ```
 
 
@@ -155,6 +190,30 @@ To run this project in a Docker container, you'll need to pass your API keys as 
    > **Ghi chú:** Ngôn ngữ hiển thị trên terminal khớp với cờ `--language`. Bản dịch chuỗi được lưu trong `utils/strings.csv` và tự động dịch qua LLM cho các ngôn ngữ chưa có.
 
 3. Thiết lập LLM bằng cách sao chép `.env.sample` thành `.env` và cung cấp thông tin xác thực. Theo mặc định, bạn có thể sử dụng khóa API AI Studio cho Gemini bằng cách cài đặt biến môi trường `GEMINI_API_KEY` (hoặc `GEMINI_PROJECT_ID` cho Vertex AI). Nếu bạn muốn sử dụng LLM khác, bạn có thể thiết lập biến `LLM_PROVIDER` (ví dụ: `OPENROUTER`), và sau đó thiết lập model, url và khóa API (ví dụ: `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`,`OPENROUTER_API_KEY`). Nếu dùng Ollama, thiết lập `LLM_PROVIDER=OLLAMA` và base url (ví dụ: `OLLAMA_BASE_URL=http://localhost:11434`) — có thể bỏ qua API key.
+   Để dùng Claude trực tiếp, thiết lập `LLM_PROVIDER=ANTHROPIC` (bắt buộc — Claude không bao giờ được tự chọn chỉ từ `ANTHROPIC_API_KEY`) và `ANTHROPIC_API_KEY` (model mặc định là `claude-opus-5-5`; đổi bằng `ANTHROPIC_MODEL`). Claude chạy với adaptive thinking, kế hoạch nỗ lực theo từng node (mặc định `--thinking-profile balanced`), streaming, tự động fallback khi bị từ chối (`ANTHROPIC_FALLBACKS`), và in tổng kết token/chi phí khi kết thúc. Xem `.env.sample` để biết các thiết lập `ANTHROPIC_*` tùy chọn.
+
+   **Dùng Claude không cần API key (`ant auth login`):** thay cho `ANTHROPIC_API_KEY`, bạn có thể đăng nhập bằng CLI `ant` của Anthropic. Chi phí được tính vào tổ chức và workspace API bạn chọn khi đăng nhập (không phải gói Claude.ai Pro/Max; không dùng lại được `/login` của Claude Code).
+   1. Cài `ant`:
+      - Windows: `winget install Anthropic.Ant`, rồi mở terminal mới (dự phòng: tải `ant_<version>_windows_amd64.zip` từ [trang releases](https://github.com/anthropics/anthropic-cli/releases) và đặt `ant.exe` trong `PATH`)
+      - macOS: `brew install anthropics/tap/ant`
+      - Linux: gói `.tar.gz` / `.deb` / `.rpm` cho kiến trúc máy của bạn từ [trang releases](https://github.com/anthropics/anthropic-cli/releases)
+      - Mọi hệ điều hành có Go 1.25+: `go install github.com/anthropics/anthropic-cli/cmd/ant@latest`
+   2. Đăng nhập một lần (trình duyệt sẽ mở; chọn tổ chức và workspace), rồi kiểm tra phiên đăng nhập:
+      ```bash
+      ant auth login
+      ```
+      ```bash
+      ant auth status
+      ```
+   3. Trong `.env`, đặt `LLM_PROVIDER=ANTHROPIC` và để trống `ANTHROPIC_API_KEY` — mọi key khác rỗng sẽ ghi đè phiên đăng nhập.
+
+   **Suy nghĩ trên mọi nhà cung cấp:** `--thinking-profile` (mặc định `auto` = `balanced` với Anthropic, Gemini và OpenRouter) được ánh xạ theo từng model:
+   - **Gemini 3.1+** (gốc): `thinking_level` với các mức mà từng model chấp nhận (ví dụ 3.7/3.8 Flash và 3.1 Pro không có `minimal`); Gemini 2.5 dùng thinking budget. Đầu ra (`max_output_tokens`, gồm cả suy nghĩ) được định cỡ theo mức, yêu cầu được stream, và phát hiện bị cắt hoặc bị chặn (safety/recitation; chặn phụ thuộc lần lấy mẫu sẽ được thử lại, chặn theo chính sách thì không). Vertex AI mặc định `GEMINI_LOCATION=global`; dùng được bí danh `gemini-flash-latest` / `gemini-pro-latest`. Cần `google-genai` >= 1.56.
+   - **OpenRouter** (mọi model): `reasoning.effort` giới hạn theo `supported_efforts` trong danh mục model (hoặc `reasoning.max_tokens` với model chỉ nhận budget), `max_tokens` theo giới hạn trong danh mục, streaming, và chỉ gửi temperature khi model chấp nhận — ví dụ `anthropic/claude-opus-4.6`, `anthropic/claude-sonnet-4.6`, `google/gemini-3.1-pro-preview`, `qwen/qwen3.8-flash`.
+   - **Claude 4.6+** (gốc): adaptive thinking + effort (`xhigh` → `high` với dòng 4.6); Haiku 4.5 dùng thinking budget.
+   Mỗi lần chạy kết thúc bằng tổng kết token/chi phí (chi phí ước tính theo bảng giá với Claude và Gemini, do OpenRouter trả về, không rõ với Ollama và endpoint khác), và `main.py` / `utils/call_llm.py` kiểm tra SDK và thông tin đăng nhập của nhà cung cấp trước mọi lệnh gọi LLM.
+
+   Khi `LLM_PROVIDER=ANTHROPIC` và không có API key, cả `python main.py` lẫn `python utils/call_llm.py` đều kiểm tra thông tin đăng nhập trước mọi lệnh gọi LLM (chạy `ant auth status`) và hướng dẫn cần cài hoặc chạy gì nếu thiếu gói `anthropic`, CLI `ant`, hoặc phiên đăng nhập.
    Bạn có thể dùng model của riêng mình. Chúng tôi đặc biệt khuyến nghị các model mới nhất có khả năng suy luận (Claude 3.7 với tính năng suy luận, O1). Bạn có thể xác minh xem nó đã được thiết lập đúng hay chưa bằng cách chạy:
    ```bash
    python utils/call_llm.py
@@ -182,7 +241,9 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--language` - Ngôn ngữ cho bản hướng dẫn được tạo ra (mặc định: english).
     - `--max-abstractions` - Số lượng các khái niệm trừu tượng tối đa để xác định (mặc định: 10).
     - `--no-cache` - Vô hiệu hóa bộ nhớ cache cho phản hồi LLM (mặc định: cache được bật).
-    - `--thinking-level` - Mức độ nỗ lực suy luận cho các model Gemini, OpenRouter và Ollama (ví dụ: low, medium, high). Để trống để sử dụng mặc định của model.
+    - `--thinking-level` - Mức nỗ lực suy luận chung cho mọi lệnh gọi LLM: `minimal`, `low`, `medium`, `high`, `xhigh`, `max` (`default` = mặc định của model). Ghi đè `--thinking-profile`. Được ánh xạ theo từng nhà cung cấp (effort của Anthropic — thinking budget với Haiku 4.5; `thinking_level` của Gemini 3.x, thinking budget với 2.5; reasoning effort hoặc budget của OpenRouter; reasoning effort của Ollama — tự giới hạn theo khả năng của model).
+    - `--thinking-profile` - Hồ sơ nỗ lực theo từng node: `auto` (mặc định: `balanced` với `ANTHROPIC`, `GEMINI` và `OPENROUTER`, mặc định của model với nhà cung cấp khác), `off`, `economy`, `balanced`, `quality`, `max`. Bước tìm abstraction được nhiều nỗ lực nhất, viết chương và sắp xếp ở mức vừa, các bước cơ học (tóm tắt, dịch, lọc tệp) ít nhất; các hồ sơ mặc định dừng ở `high` (trừ `max`). Kế hoạch theo từng node được in khi khởi động (`Thinking Plan:`).
+    - `--thinking-override` - Ghi đè theo từng node, ví dụ `--thinking-override write_chapters=high identify_abstractions=xhigh`.
     - `--max-tokens` - Số lượng token tối đa cho context window (mặc định: tự động lấy từ thông tin của model).
     - `--mode` - Phong cách tài liệu cần tạo (`tutorial`, `advanced`, `api-reference`, `sdk`). Mặc định là `tutorial`.
     - `--advanced` - Cờ cũ (legacy flag). Tương đương với việc dùng `--mode advanced`.
