@@ -336,7 +336,9 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             emit("LLM_CALL_GROUPING", count=len(chapter_files))
 
             log_token_estimation("NavGrouping", group_prompt, prep_res.get("max_tokens", 100000))
-            group_response = call_llm(group_prompt, use_cache=prep_res.get("use_cache", True), thinking_level=prep_res.get("thinking_level"))
+            group_response = call_llm(
+                group_prompt, use_cache=prep_res.get("use_cache", True), thinking_level=prep_res.get("thinking_level"), step="group_modules"
+            )
             parsed = parse_yaml_response(group_response)
             sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
 

@@ -11,6 +11,7 @@ check_anthropic_auth() is the ANTHROPIC credential preflight (no SDK import).
 
 import glob
 import importlib.util
+import math
 import os
 import re
 import shutil
@@ -62,10 +63,14 @@ ANTHROPIC_THINKING_BY_DEFAULT_PREFIXES = ("claude-opus-5", "claude-sonnet-5", "c
 _NO_SAMPLING_PREFIXES = ("claude-opus-4-7", "claude-opus-4-8", "claude-opus-5", "claude-sonnet-5", "claude-fable", "claude-mythos")
 # Tokenizer introduced with Opus 4.7: ~1.0-1.35x the tokens of the 4.6-and-older tokenizer.
 _NEW_TOKENIZER_PREFIXES = ("claude-opus-4-7", "claude-opus-4-8", "claude-opus-5", "claude-sonnet-5", "claude-fable", "claude-mythos")
-# tiktoken (cl100k) → Claude token multipliers; calibrate with ANTHROPIC_TOKEN_RATIO using the
-# observed_token_ratio in the debug log.
-CLAUDE_TOKEN_RATIO_NEW_TOKENIZER = 1.4
+# tiktoken (cl100k) → Claude token multipliers (static priors). Anthropic documents ~15-20% tiktoken
+# undercount on typical text (more on code) plus ~30% more tokens from the Opus 4.7+ tokenizer, so the new
+# tokenizer sits around 1.5-1.6 on code-heavy prompts; the default errs high because an underestimate
+# overflows the context window while an overestimate only batches earlier. token_utils calibrates these
+# from provider-reported usage during a run (and between runs); ANTHROPIC_TOKEN_RATIO overrides the prior.
+CLAUDE_TOKEN_RATIO_NEW_TOKENIZER = 1.55
 CLAUDE_TOKEN_RATIO_OLD_TOKENIZER = 1.2
+TOKEN_RATIO_BOUNDS = (0.5, 3.0)
 DEFAULT_CLAUDE_TOKEN_RATIO = CLAUDE_TOKEN_RATIO_NEW_TOKENIZER
 
 # --- Gemini model families (native API; OpenRouter google/* IDs are catalog-driven) ---
@@ -332,25 +337,30 @@ def rejects_sampling_params(model_name: str) -> bool:
 
 
 def _ratio_from_env(name: str, default: float) -> float:
+    """Float env ratio clamped to TOKEN_RATIO_BOUNDS; unparsable / non-finite values use the default."""
     try:
         ratio = float(os.getenv(name, default))
     except ValueError:
         ratio = default
-    return max(ratio, 0.5)
+    if not math.isfinite(ratio):
+        ratio = default
+    low, high = TOKEN_RATIO_BOUNDS
+    return min(max(ratio, low), high)
 
 
 def get_token_ratio() -> float:
     """Multiplier from tiktoken (cl100k) counts to the active model's tokenizer.
 
     tiktoken undercounts Claude tokens (more so on code), so budgets computed with raw counts can
-    overflow the real context window. Claude: ANTHROPIC_TOKEN_RATIO, default 1.4 for the tokenizer
+    overflow the real context window. Claude: ANTHROPIC_TOKEN_RATIO, default 1.55 for the tokenizer
     introduced with Opus 4.7 and 1.2 for 4.6 and older. Gemini: GEMINI_TOKEN_RATIO (default 1.0).
-    Others: LLM_TOKEN_RATIO (default 1.0). Compare with observed_token_ratio in the debug log.
+    Others: LLM_TOKEN_RATIO (default 1.0). This is the static prior: token_utils.token_ratio() corrects it
+    with the ratio observed in provider-reported usage.
     """
     provider, model_name, _, _ = resolve_llm_settings()
     model_name = _catalog_model_id(model_name)
     if is_claude_model(provider, model_name):
-        claude_id = _normalize_claude_id(model_name) if provider != "ANTHROPIC" else model_name.lower()
+        claude_id = _normalize_claude_id(model_name)  # also handles gateway ids on the native provider
         default = CLAUDE_TOKEN_RATIO_NEW_TOKENIZER if claude_id.startswith(_NEW_TOKENIZER_PREFIXES) else CLAUDE_TOKEN_RATIO_OLD_TOKENIZER
         return max(_ratio_from_env("ANTHROPIC_TOKEN_RATIO", default), 1.0)
     if is_gemini_model(provider, model_name):
@@ -367,6 +377,11 @@ _openrouter_models_cache = None
 _openrouter_last_failure = 0.0
 _OPENROUTER_RETRY_COOLDOWN = 60.0
 _OPENROUTER_ROUTING_SUFFIXES = (":nitro", ":floor", ":online", ":thinking", ":extended", ":exacto")
+
+
+def openrouter_catalog_cached() -> bool:
+    """True once the OpenRouter catalog has loaded (catalog-derived values may then be cached)."""
+    return _openrouter_models_cache is not None
 
 
 def openrouter_catalog() -> list | None:

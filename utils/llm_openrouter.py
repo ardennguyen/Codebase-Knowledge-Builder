@@ -282,7 +282,12 @@ def _apply_chunk(out: dict, chunk: dict) -> None:
 
 
 def _record(model: str, result: dict, raw_prompt_tokens: int, desc: str, elapsed: float, generation_id: str | None) -> None:
-    usage = result["usage"] or {}
+    if not result["usage"]:
+        # No usage chunk (dropped stream, or a proxy that omits usage): a request, but unmeasured.
+        record_usage("OPENROUTER", model, cost=None, measured=False)
+        emit_raw("DEBUG", f"OPENROUTER USAGE | model={model} | no usage reported | generation_id={generation_id or 'n/a'}", dest="BOTH")
+        return
+    usage = result["usage"]
     prompt = usage.get("prompt_tokens") or 0
     completion = usage.get("completion_tokens") or 0  # includes reasoning tokens
     reasoning_tokens = (usage.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0
@@ -305,26 +310,31 @@ def _record(model: str, result: dict, raw_prompt_tokens: int, desc: str, elapsed
         cost=float(cost) if isinstance(cost, int | float) else None,
     )
     ratio = prompt / raw_prompt_tokens if raw_prompt_tokens else 0.0
+    # usage counts come from the upstream model's own tokenizer (OpenRouter usage accounting), so they
+    # calibrate like the native provider; observe_prompt_tokens skips ':online' routes (injected search
+    # results) and implausible ratios (prompt rewritten in transit).
+    from utils.token_utils import observe_prompt_tokens
+
+    observe_prompt_tokens("OPENROUTER", model, raw_prompt_tokens, prompt)
     emit_raw(
         "DEBUG",
         f"OPENROUTER USAGE | model={model} | {desc} | finish={result['finish']} (native={result['native']}) | in={prompt:,} | out={completion:,} | "
         f"reasoning={reasoning_tokens:,} | cached={cached:,} | cost={'$' + format(cost, '.4f') if isinstance(cost, int | float) else 'n/a'} | "
         f"elapsed={elapsed:.1f}s | observed_token_ratio={ratio:.2f} | generation_id={generation_id or 'n/a'}",
-        dest="LOG",
+        dest="BOTH",
     )
 
 
 def call_openrouter(prompt: str, thinking_level: str | None = None) -> str:
     """Send a single-turn prompt through OpenRouter and return the response text."""
-    from utils.llm_config import get_token_ratio
-    from utils.token_utils import count_tokens_raw
+    from utils.token_utils import count_tokens_raw, token_ratio
 
     model = get_model()
     if not model:
         raise ValueError("OPENROUTER_MODEL environment variable is required")
     api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
-    raw_tokens = count_tokens_raw(prompt)
-    payload, desc = build_payload(prompt, model, thinking_level, int(raw_tokens * get_token_ratio()))
+    raw_tokens = count_tokens_raw(prompt)  # memoized: the node already counted this prompt
+    payload, desc = build_payload(prompt, model, thinking_level, int(raw_tokens * token_ratio()))
     headers = {"Content-Type": "application/json", **_attribution_headers()}
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"

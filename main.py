@@ -22,6 +22,7 @@ from utils.thinking import (
     parse_overrides,
     resolve_profile_name,
 )
+from utils.token_utils import TOKEN_CALIBRATION_FILE, describe_token_ratio
 
 dotenv.load_dotenv()
 
@@ -285,6 +286,7 @@ def display_config(args, mode, provider, model_name, endpoint_url, context_lengt
     if any(thinking_plan.values()):
         emit("CFG_THINKING_PLAN", value=describe_plan(thinking_plan, mode))
     emit("CFG_THINKING_SUPPORT", value=describe_thinking_support(provider, model_name))
+    emit("CFG_TOKEN_RATIO", value=describe_token_ratio())
     emit("CFG_BATCH_SIZE", value=f"{args.batch}")
     _enabled = get("CFG_VALUE_ENABLED")
     _disabled = get("CFG_VALUE_DISABLED")
@@ -310,7 +312,7 @@ def _run_cleanup():
     """Clean up cache files and log directory."""
     emit("CLEANUP_START")
 
-    for cache_path in [cache_file, f"{cache_file}.tmp", LEGACY_CACHE_FILE]:
+    for cache_path in [cache_file, f"{cache_file}.tmp", LEGACY_CACHE_FILE, TOKEN_CALIBRATION_FILE, f"{TOKEN_CALIBRATION_FILE}.tmp"]:
         if os.path.exists(cache_path):
             try:
                 os.remove(cache_path)
@@ -329,8 +331,9 @@ def _run_cleanup():
 
 # --- LLM Usage Summary ---
 def _emit_usage_summary():
-    """Emit accumulated token usage and estimated cost for every provider used this run."""
-    from utils.llm_common import get_usage_summary
+    """Emit accumulated token usage and estimated cost per provider, then the per-step breakdown."""
+    from utils.llm_common import get_step_summary, get_usage_summary
+    from utils.token_utils import emit_step_usage, format_cost
 
     for name, usage in get_usage_summary().items():
         emit(
@@ -343,11 +346,16 @@ def _emit_usage_summary():
             thinking=f"{usage['thinking']:,}",
             cache_read=f"{usage['cache_read']:,}",
             cache_write=f"{usage['cache_write']:,}",
-            cost=f"${usage['cost']:.2f}" if usage["cost_known"] else get("CFG_VALUE_UNKNOWN"),
+            cost=format_cost(usage),
             refusals=usage["refusals"],
             fallbacks=usage["fallbacks"],
             truncations=usage["truncations"],
         )
+    steps = get_step_summary()
+    if steps:
+        emit("LLM_USAGE_STEPS_HEADER")
+        for step, usage in steps.items():
+            emit_step_usage("LLM_USAGE_STEP", step, usage)
 
 
 # --- Main Orchestrator ---

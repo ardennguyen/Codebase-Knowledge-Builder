@@ -28,7 +28,8 @@ Environment variables:
 - ANTHROPIC_FALLBACKS          "default" (default) | "off" | comma-separated model IDs
 - ANTHROPIC_MAX_OUTPUT_TOKENS  optional hard cap for max_tokens (also caps the truncation retry)
 - ANTHROPIC_PROMPT_CACHE       "off" (default) | "on" — top-level automatic prompt caching
-- ANTHROPIC_TOKEN_RATIO        tiktoken→Claude token multiplier for budgeting (default 1.4 for the Opus 4.7+ tokenizer, 1.2 for 4.6 and older)
+- ANTHROPIC_TOKEN_RATIO        tiktoken→Claude token multiplier for budgeting: static prior (default 1.55 for the Opus 4.7+
+                               tokenizer, 1.2 for 4.6 and older), corrected at runtime by token_utils calibration
 """
 
 import os
@@ -203,7 +204,7 @@ def _build_request(prompt: str, model: str, effort: str | None, max_tokens: int)
 def _resolve_max_tokens(prompt_tokens: int, model: str, effort: str | None) -> tuple[int, int]:
     """Return (max_tokens, ceiling): the planned budget and the largest budget allowed.
 
-    `prompt_tokens` comes from count_tokens() (already scaled by ANTHROPIC_TOKEN_RATIO).
+    `prompt_tokens` is the raw tiktoken count scaled by token_utils.token_ratio() (calibrated).
     The ceiling respects the model output cap, the context window (prompt + output +
     ANTHROPIC_CONTEXT_MARGIN — the same margin input_token_budget reserves), and
     ANTHROPIC_MAX_OUTPUT_TOKENS when set.
@@ -271,6 +272,39 @@ def _tokens(usage) -> tuple[int, int, int, int]:
     )
 
 
+def _thinking_tokens(usage) -> int:
+    details = getattr(usage, "output_tokens_details", None)
+    return getattr(details, "thinking_tokens", 0) or 0
+
+
+def _declined_before_output(message) -> bool:
+    """A refusal with no output tokens at all is not billed (the same rule as for fallback iterations)."""
+    return getattr(message, "stop_reason", None) == "refusal" and not (getattr(message.usage, "output_tokens", 0) or 0)
+
+
+def _billed_entries(message) -> list:
+    """Usage entries of the billed attempts: every usage.iterations entry with output (server-side
+    fallbacks), else the top-level usage unless the request was declined before any output."""
+    iterations = getattr(message.usage, "iterations", None) or []
+    if iterations:
+        return [entry for entry in iterations if (getattr(entry, "output_tokens", 0) or 0) > 0]
+    return [] if _declined_before_output(message) else [message.usage]
+
+
+def _billed_tokens(message) -> tuple[int, int, int, int, int]:
+    """(total input incl. cache read/write, output, cache_read, cache_write, thinking) summed over the
+    billed attempts (_billed_entries), so token totals match _message_cost."""
+    total_in = out = cache_read = cache_write = thinking = 0
+    for entry in _billed_entries(message):
+        tokens_in, tokens_out, read, write = _tokens(entry)
+        total_in += tokens_in + read + write
+        out += tokens_out
+        cache_read += read
+        cache_write += write
+        thinking += _thinking_tokens(entry)
+    return total_in, out, cache_read, cache_write, thinking
+
+
 def _message_cost(message, served_model: str) -> float | None:
     """Estimated USD cost of one response. With server-side fallbacks, usage.iterations holds the
     per-attempt usage (each billed at its own model's rate; an attempt declined before any output is
@@ -286,27 +320,50 @@ def _message_cost(message, served_model: str) -> float | None:
             known = known and cost is not None
             total += cost or 0.0
         return total if known else None
-    if message.stop_reason == "refusal" and not _extract_text(message):
+    if _declined_before_output(message):
         return 0.0  # declined before any output: not billed
     return _price(served_model, *_tokens(message.usage))
 
 
-def _record_usage(message, raw_prompt_tokens: int, effort: str | None, elapsed: float) -> None:
-    served_model = getattr(message, "model", "") or ""
-    tokens_in, tokens_out, cache_read, cache_write = _tokens(message.usage)
-    cost = _message_cost(message, served_model)
-    record_usage(
-        "ANTHROPIC", served_model, input_tokens=tokens_in, output_tokens=tokens_out, cache_read=cache_read, cache_write=cache_write, cost=cost
-    )
+def _record_usage(message, raw_prompt_tokens: int, effort: str | None, elapsed: float, model: str = "", observe: bool = True) -> None:
+    from utils.token_utils import observe_prompt_tokens
 
-    # Observed Claude/tiktoken ratio helps tune ANTHROPIC_TOKEN_RATIO for this codebase.
-    ratio = (tokens_in + cache_read + cache_write) / raw_prompt_tokens if raw_prompt_tokens else 0.0
+    served_model = getattr(message, "model", "") or ""
+    has_iterations = bool(getattr(message.usage, "iterations", None))
+    entries = _billed_entries(message)
+    if not entries:
+        record_usage("ANTHROPIC", served_model, cost=0.0, measured=False)  # declined before any output: not billed
+    # One ledger request per billed attempt (primary + fallback each billed at its own model's rate), so
+    # request counts, per-request estimate deviation and the model list stay correct.
+    for entry in entries:
+        t_in, t_out, read, write = _tokens(entry)
+        entry_model = (getattr(entry, "model", None) or served_model) if has_iterations else served_model
+        record_usage(
+            "ANTHROPIC",
+            entry_model,
+            input_tokens=t_in + read + write,
+            output_tokens=t_out,
+            thinking_tokens=_thinking_tokens(entry),
+            cache_read=read,
+            cache_write=write,
+            cost=_price(entry_model, t_in, t_out, read, write) if has_iterations else _message_cost(message, served_model),
+        )
+    total_in, tokens_out, cache_read, cache_write, thinking = _billed_tokens(message)  # totals for the debug line
+    cost = _message_cost(message, served_model)
+
+    # Observed Claude/tiktoken ratio of the attempt that produced this message (top-level usage),
+    # fed to the calibration unless another model (server-side fallback) served it.
+    tokens_in, _, read, write = _tokens(message.usage)
+    attempt_in = tokens_in + read + write
+    ratio = attempt_in / raw_prompt_tokens if raw_prompt_tokens else 0.0
+    if observe and model and not _served_by_fallback(message):
+        observe_prompt_tokens("ANTHROPIC", model, raw_prompt_tokens, attempt_in, served_model=served_model)
     emit_raw(
         "DEBUG",
         f"ANTHROPIC USAGE | model={served_model} | effort={effort or 'default'} | stop={message.stop_reason} | "
-        f"in={tokens_in:,} | out={tokens_out:,} | cache_read={cache_read:,} | cache_write={cache_write:,} | "
+        f"in={total_in:,} | out={tokens_out:,} | thinking={thinking:,} | cache_read={cache_read:,} | cache_write={cache_write:,} | "
         f"est_cost={'$' + format(cost, '.4f') if cost is not None else 'n/a'} | elapsed={elapsed:.1f}s | observed_token_ratio={ratio:.2f}",
-        dest="LOG",
+        dest="BOTH",
     )
 
 
@@ -329,13 +386,12 @@ def _extract_text(message) -> str:
 
 def call_anthropic(prompt: str, thinking_level: str | None = None) -> str:
     """Send a single-turn prompt to Claude and return the response text."""
-    from utils.llm_config import get_token_ratio
-    from utils.token_utils import count_tokens_raw
+    from utils.token_utils import count_tokens_raw, token_ratio
 
     model = get_model()
     effort = normalize_effort(model, thinking_level)
-    raw_tokens = count_tokens_raw(prompt)  # tokenize once; the scaled estimate drives the budget
-    max_tokens, ceiling = _resolve_max_tokens(int(raw_tokens * get_token_ratio()), model, effort)
+    raw_tokens = count_tokens_raw(prompt)  # memoized: the node already counted this prompt
+    max_tokens, ceiling = _resolve_max_tokens(int(raw_tokens * token_ratio()), model, effort)
     params, betas = _build_request(prompt, model, effort, max_tokens)
     emit_raw(
         "DEBUG",
@@ -350,12 +406,12 @@ def call_anthropic(prompt: str, thinking_level: str | None = None) -> str:
     if message.stop_reason == "max_tokens" and max_tokens < ceiling:
         # Thinking + reply outgrew the budget: retry once at the largest budget that fits.
         emit("WARN_ANTHROPIC_TRUNCATED_RETRY", max_tokens=f"{max_tokens:,}", cap=f"{ceiling:,}")
-        _record_usage(message, raw_tokens, effort, time.time() - start)
+        _record_usage(message, raw_tokens, effort, time.time() - start, model=model, observe=False)  # same prompt: observe once
         params, betas = _build_request(prompt, model, effort, ceiling)
         start = time.time()
         message = _send(params, betas)
 
-    _record_usage(message, raw_tokens, effort, time.time() - start)
+    _record_usage(message, raw_tokens, effort, time.time() - start, model=model)
     if is_debug():
         _log_thinking(message)
 

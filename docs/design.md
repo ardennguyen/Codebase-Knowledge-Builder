@@ -114,7 +114,7 @@ codebase_kb/
 │   ├── files.py                     # File and content helpers (build_directory_tree, get_content_for_indices)
 │   ├── i18n.py                      # Auto-translation of missing UI strings via LLM
 │   ├── llm_anthropic.py             # Native Anthropic (Claude) provider: adaptive thinking/effort, streaming, refusal fallbacks, usage
-│   ├── llm_common.py                # SDK-free shared LLM helpers: TruncatedResponse, LLMRefusalError, refusal memo, usage ledger, warn_once
+│   ├── llm_common.py                # SDK-free shared LLM helpers: TruncatedResponse, LLMRefusalError, refusal memo, usage ledger (per provider and per step), warn_once
 │   ├── llm_gemini.py                # Native Gemini provider (google-genai): per-model thinking_level / budget, streaming, finish reasons, usage
 │   ├── llm_openrouter.py            # OpenRouter provider (requests, SSE): catalog-driven reasoning.effort, max_tokens, temperature, usage
 │   ├── llm_config.py                # LLM provider/settings resolution (resolve_llm_settings), context length, token ratio
@@ -231,7 +231,7 @@ mkdocs-panzoom-plugin>=0.2.0
 # GEMINI_MAX_OUTPUT_TOKENS = 65536
 # Total deadline per request in seconds (covers the whole streamed reply, so keep it generous):
 # GEMINI_TIMEOUT_SECONDS = 1800
-# tiktoken -> Gemini token multiplier (see observed_token_ratio in debug logs):
+# tiktoken -> Gemini token multiplier (static prior; calibrated automatically from billed usage):
 # GEMINI_TOKEN_RATIO = 1.0
 
 # --- Anthropic (Claude) — requires LLM_PROVIDER=ANTHROPIC (never auto-selected from ANTHROPIC_API_KEY) ---
@@ -254,9 +254,9 @@ mkdocs-panzoom-plugin>=0.2.0
 # ANTHROPIC_FALLBACKS = default
 # ANTHROPIC_MAX_OUTPUT_TOKENS = 64000
 # ANTHROPIC_PROMPT_CACHE = off
-# tiktoken -> Claude token multiplier used for context budgeting (see observed_token_ratio in debug logs);
-#   default 1.4 for Opus 4.7+ tokenizer models, 1.2 for 4.6 and older:
-# ANTHROPIC_TOKEN_RATIO = 1.4
+# tiktoken -> Claude token multiplier used for context budgeting (static prior; calibrated automatically);
+#   default 1.55 for Opus 4.7+ tokenizer models (incl. Sonnet 5), 1.2 for 4.6 and older:
+# ANTHROPIC_TOKEN_RATIO = 1.55
 
 # --- OpenRouter (key: https://openrouter.ai/settings/keys) — reasoning/limits come from the model catalog ---
 # LLM_PROVIDER = OPENROUTER
@@ -285,6 +285,9 @@ mkdocs-panzoom-plugin>=0.2.0
 # --- General ---
 # tiktoken multiplier for other providers:
 # LLM_TOKEN_RATIO = 1.0
+# Token-ratio calibration: learns the real tiktoken -> provider ratio from billed prompt tokens per
+#   provider+model, saves it to llm_token_calibration.json for the next run (on by default):
+# TOKEN_RATIO_CALIBRATION = on
 # LOG_DIR = logs
 ```
 
@@ -385,6 +388,8 @@ def display_config(args, mode, provider, model_name, endpoint_url, context_lengt
     emit("CFG_THINKING_PROFILE", value=thinking_profile)          # resolved: balanced / off / global / ...
     if any(thinking_plan.values()):
         emit("CFG_THINKING_PLAN", value=describe_plan(thinking_plan, mode))  # node=level for nodes that run in this mode
+    emit("CFG_THINKING_SUPPORT", value=describe_thinking_support(provider, model_name))
+    emit("CFG_TOKEN_RATIO", value=describe_token_ratio())   # "1.55 (static prior ...)" or "1.61 (calibrated from 12 calls; static 1.55)"
     emit("CFG_BATCH_SIZE", value=f"{args.batch}")
     _enabled = get("CFG_VALUE_ENABLED")
     _disabled = get("CFG_VALUE_DISABLED")
@@ -902,9 +907,13 @@ return {
 
 ### `call_llm`
 ```python
-def call_llm(prompt, use_cache=True, thinking_level=None) -> str:
+def call_llm(prompt, use_cache=True, thinking_level=None, step=None) -> str:
     # Returns: LLM response content as string
+    # step: the calling node's NODE_KEYS name (utils/thinking.py) — every call site passes it; usage is
+    #   attributed to it (llm_common.usage_step) for the per-call usage line, step subtotals and summary.
 ```
+
+**Per-call usage display:** `call_llm` snapshots the provider's ledger totals before the provider call and diffs them afterwards (`llm_common.usage_snapshot` / `usage_delta`), so one call's usage includes every billed request it made (Anthropic truncation retry, resend after fallbacks were disabled), even when it raises. Only measured requests (provider-reported usage; `calls - unmeasured_calls`) are compared: it emits `LLM_CALL_USAGE` (INFO/BOTH) with billed input vs the estimate `count_tokens(prompt)` and the per-request deviation, `; N requests` inside the parentheses when more than one, output (thinking), cached input, and cost (`token_utils.format_cost`). A call that returned but whose requests carried no usage emits `LLM_CALL_USAGE_MISSING`; a failed call without measured usage prints nothing (the node retry reports the error). An LLM-cache hit emits `LLM_CALL_CACHED` ("nothing billed") and counts a cache hit for the step. The estimate is recorded per step (`llm_common.record_estimate`) — once per measured request — so steps and the summary compare like with like.
 
 > Notes for AI: This function has multiple critical subsystems. Implement ALL of them.
 
@@ -961,12 +970,41 @@ def get_model_context_length(endpoint_url, model_name, api_key) -> int:
 ### `count_tokens`
 ```python
 def count_tokens_raw(text: str) -> int:
-    # tiktoken cl100k_base count (lazy singleton); fallback len(text) // 4; 0 for empty text
+    # tiktoken cl100k_base count via encode_ordinary (lazy singleton); 0 for empty text. Memoized by content:
+    # bounded LRU (MEMO_MAX_ENTRIES) keyed on (len, hash) for texts >= MEMO_MIN_CHARS, storing ints only — the
+    # node, log_token_estimation, call_llm and the provider all count the same prompt, and only the first
+    # count encodes. If the encoding cannot load: one WARN_TIKTOKEN_UNAVAILABLE (the failure is remembered —
+    # tiktoken's download has no timeout) and a conservative ceil(UTF-8 bytes / 3) estimate.
+
+def count_tokens_raw_many(texts: list[str]) -> list[int]:
+    # Per-item raw counts; uncached items are batch-encoded (encode_ordinary_batch, up to 8 threads).
 
 def count_tokens(text: str) -> int:
-    # count_tokens_raw(text) x get_token_ratio(), cached on first call. Claude (native or claude-* gateway IDs):
-    # ANTHROPIC_TOKEN_RATIO, default 1.4 for the Opus 4.7+ tokenizer and 1.2 for 4.6 and older (tiktoken
-    # undercounts Claude, more on code). Gemini (native or gemini-* IDs): GEMINI_TOKEN_RATIO (1.0). Others: LLM_TOKEN_RATIO (1.0).
+    # count_tokens_raw(text) x token_ratio().
+def count_tokens_many(texts: list[str]) -> list[int]:
+    # count_tokens for many texts (ContextRouter's per-file pass).
+
+def token_ratio() -> float:
+    # Static prior llm_config.get_token_ratio() for the active provider|model (Claude: ANTHROPIC_TOKEN_RATIO,
+    # default 1.55 for the Opus 4.7+ tokenizer incl. Sonnet 5, 1.2 for 4.6 and older; Gemini: GEMINI_TOKEN_RATIO
+    # 1.0; others: LLM_TOKEN_RATIO 1.0; env values must be finite, clamped to [0.5, 3.0]) corrected by the
+    # calibration: effective = clamp(ema x 1.03, prior x 0.75, prior x 1.5). Until the evidence gate
+    # (>= 3 samples AND >= 150K measured raw tokens, CALIBRATION_MIN_RAW_TO_LOWER) it can only rise.
+    # Key = provider|model: Gemini ids normalized (gemini_model_id), OpenRouter aliases keyed by the catalog-
+    # resolved model (an alias that retargets never inherits the old model's ratio). An entry whose saved
+    # 'prior' differs > 2% from the current static prior is stale and ignored.
+def observe_prompt_tokens(provider, model, raw_tokens, billed_tokens, served_model=None) -> None:
+    # Called by every provider path with the provider-reported TOTAL prompt tokens (cached included) of one
+    # request. Size-weighted: a weighted mean until one full-weight sample's worth of text (50K raw), then an
+    # EMA (0.35 x min(raw / 50K, 1)) — small prompts never outweigh a large one, whatever the order. Skipped
+    # for prompts < 2K raw tokens (fixed framing dominates), raw counts from the bytes/3 fallback, responses
+    # served by another model (fallback), OpenRouter ':online' routes (search results injected in transit)
+    # and ratios outside [0.5, 3.0]. Saved atomically to TOKEN_CALIBRATION_FILE (llm_token_calibration.json,
+    # with counter "cl100k_base"; a file for another counter is ignored) and reloaded next run;
+    # TOKEN_RATIO_UPDATED when the effective ratio moves >= 2%. TOKEN_RATIO_CALIBRATION=off disables it.
+    # reset_token_calibration() for tests.
+def ratio_is_calibrated() -> bool:      # evidence gate passed for the active provider|model
+def describe_token_ratio() -> str:      # CFG_TOKEN_RATIO value (static / calibrated from N calls)
 
 def input_token_budget(max_tokens: int, thinking_level: str | None = None) -> int:
     # Largest prompt that still leaves room for the response in the context window.
@@ -975,19 +1013,22 @@ def input_token_budget(max_tokens: int, thinking_level: str | None = None) -> in
     #   on Haiku 4.5; openrouter_output_budget), so a budget-packed prompt still gets its planned output.
     # GEMINI: max_tokens - CONTEXT_MARGIN (input and output limits are separate).
     # Others (OLLAMA, generic, an OpenRouter model missing from the catalog): max_tokens - clamp(5%, 8,192, 64,000).
-    # Never below max_tokens // 2.
+    # Every provider also reserves an estimation-uncertainty share of the window: ESTIMATE_RESERVE_UNCALIBRATED
+    #   (5%) until ratio_is_calibrated(), then ESTIMATE_RESERVE_CALIBRATED (2%). Never below max_tokens // 2.
     # Callers pass the consuming node's level: ContextRouter (min over identify_abstractions and map_abstractions — the
     #   budget sizes both the direct-route prompt and every map batch), IdentifyAbstractions, AnalyzeRelationships.
 ```
 - Uses `tiktoken.get_encoding('cl100k_base')` via module-level singleton (`_get_encoding()`)
 - Returns 0 for empty/None text
-- Shared by `log_token_estimation`, `call_llm` (prompt_tokens), and `WriteChapters` (breakdown + response counting)
+- Shared by `log_token_estimation`, `call_llm` (prompt_tokens), the provider modules (max_tokens sizing), and every node's breakdown; the memo makes the repeated counts of one prompt free
+- `emit_step_usage(key, step, usage)` / `format_cost(usage)`: one per-step row (`LLM_USAGE_STEP` / `LLM_STEP_SUBTOTAL`) and the cost string (`$X.XX`, or 4 decimals below one cent; `LLM_USAGE_COST_PARTIAL` when some calls are unpriced, or `CFG_VALUE_UNKNOWN`)
 
 ### `log_token_estimation`
 ```python
 def log_token_estimation(node_name: str, prompt_content: str, max_tokens: int,
                          token_usage: dict = None) -> None:
-    # Uses emit("TOKEN_ANALYTICS", ...) for stdout and keeps logger.info() for the structured log entry.
+    # emit("TOKEN_ANALYTICS", ...) (console with --debug; always logged) plus a single-line
+    # 'NODE EXEC | node=... | prompt_tokens=... | ratio=...' record via emit_raw(..., dest="LOG").
 ```
 - Uses `count_tokens()` internally for consistent measurement
 - `token_usage` dict: optional per-component token counts. Each key is a label (e.g. `file_context`, `prev_chapters`), value is token count. Displayed as `| label=N (X%)` appended to both CLI and log output.
@@ -1200,7 +1241,9 @@ def is_debug() -> bool:
 def configure_logging(project_name="project", mode="tutorial"):
     """Configure file-based logging. Creates logs/{project}_{mode}_{timestamp}.log.
     Opens a plain file handle — no Python logging module. Log entries are timestamped
-    via _write_log(level, text) which is called by emit() and emit_raw()."""
+    via _write_log(level, text) which is called by emit() and emit_raw(). Lines written before the log
+    file opens (credential preflight, string translation) are buffered (_pending_log, at most
+    PENDING_LOG_MAX_LINES) and flushed into the file here."""
 ```
 
 **String levels and their ANSI colors:**
@@ -1337,10 +1380,10 @@ return {
 No LLM call. Routes to `"direct"` or `"batch"`. Writes `shared["max_tokens"]`, `shared["file_batches"]`, `shared["directory_tree"]`.
 
 **ContextRouter Algorithm:**
-1. Auto-detect `max_tokens` from provider if not set; write to `shared["max_tokens"]`
+1. Auto-detect `max_tokens` from provider if not set; write to `shared["max_tokens"]`; build `directory_tree`. In api-reference mode, emit `CAPACITY_API_REF_MODE` and return `"deterministic"` right away — no overhead, file-token or `effective_limit` computation (WriteChapters packs each page itself)
 2. Measure prompt overhead = max(template_tokens across ALL 4 mode subdirs × 3 template types: `identify_abstractions.md`, `map_abstractions.md`, `draft_chapters.md`) + directory_tree_tokens + chapter_listing_tokens (estimated as `"N. basename (doc: path.md)"` per file)
 3. `safety_limit = min(input_token_budget(max_tokens, <identify_abstractions level>), input_token_budget(max_tokens, <map_abstractions level>))`; `effective_limit = safety_limit - prompt_overhead`
-4. Count total file content tokens using `f"--- File Index {i}: {path} ---\n{content}\n\n"` per file
+4. Count total file content tokens using `f"--- File Index {i}: {path} ---\n{content}\n\n"` per file (`count_tokens_many`: batch-encoded, memoized for the nodes that re-count the same entries)
 5. If `total_tokens > effective_limit` OR `force_batch`:
    - Group files by `os.path.dirname(path)` — NEVER mix directories
    - Within each directory group, create batches respecting both `effective_limit` tokens AND `batch_size` file count
@@ -1364,8 +1407,8 @@ other_dir/
 
 **`prep()` return:** 7-element `tuple` — `directory_tree` MUST stay the last element (`post()` reads `prep_res[-1]`)
 ```python
-# Deterministic route (api-reference):
-return ("deterministic", files_data, effective_limit, batch_size, None, None, directory_tree)
+# Deterministic route (api-reference): no routing budget is computed, so the third slot is 0
+return ("deterministic", files_data, 0, batch_size, None, None, directory_tree)
 # Direct route:
 return ("direct", files_data, effective_limit, batch_size, None, None, directory_tree)
 # Batch route:
@@ -1393,7 +1436,7 @@ Template: `prompts/{mode}/identify_abstractions.md`
 **Index parsing:** `re.findall(r'\d+', str(idx_entry))` — handles `3`, `"3 # path.py"`, `"0-3"` range formats
 **Writes:** `shared["abstractions"] = [{"name": ..., "description": ..., "files": [int, ...]}, ...]`
 
-**`prep()` return:** 11-element `tuple` — `(context, directory_tree, total_files_count, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, mode)`
+**`prep()` return:** 12-element `tuple` — `(context, directory_tree, total_files_count, project_name, language, use_cache, max_abstraction_num, thinking_level, advanced_mode, max_tokens, mode, context_tokens)`; `context_tokens` is the sum of the per-file entry counts (entries end on a blank line, so it equals the joined count) and feeds the `file_content` breakdown without re-encoding the codebase
 **Context truncation:** If total tokens exceed `input_token_budget(max_tokens, thinking_level)`, truncates at that file index with a warning.
 **Range parsing:** `"0-3"` expands to `[0, 1, 2, 3]` via `range(start, end+1)`, NOT "takes first number".
 **`post()` return:** `None`
@@ -1528,13 +1571,14 @@ filename = f"{i+1:02d}_{safe_name}.md"
 
 **Token usage logging:** Before each LLM call, computes per-component token counts via `count_tokens()`:
 - `file_context` — source code for this abstraction's files
-- `prev_chapters` — accumulated LLM-generated summaries
+- `prev_chapters` — accumulated LLM-generated summaries: the sum of each selected summary's (memoized) count plus separators and the window note — the joined text is never re-counted, which keeps the summary window linear in the chapter count
 - `chapter_listing` — full chapter index
 - `overhead` — template + instructions + language notes
 
-**Response token logging:** After each chapter is generated, logs response token count:
-- CLI: `\033[92m[Response] Chapter N: X,XXX tokens\033[0m` (green)
+**Response token logging:** After each chapter is generated, logs the reply's text size as an estimate:
+- CLI: `DONE_WRITE_CHAPTER` / `SUMMARY_DONE` / `SUMMARY_DONE_CACHED` with `tokens="~N"` (the `~` marks an estimate; billed output incl. thinking is on the preceding `LLM_CALL_USAGE` line). A summary loaded from the manifest shows its estimated size, not a placeholder.
 - Log: `CHAPTER RESPONSE | chapter=N | name=... | response_tokens=X`
+- `post()` emits `LLM_STEP_SUBTOTAL` for `write_chapters` and `chapter_summary` (MapAbstractions does the same for `map_abstractions`).
 
 **Heading cleanup:** If response doesn't start with `# Chapter {num}`, prepend or replace first heading.
 
@@ -1739,7 +1783,7 @@ ui = {
 
 ### LLM Cache-on-Retry Pattern
 ```python
-result = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+result = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="<node_key>")
 ```
 First attempt uses cache; retries always get fresh responses.
 
@@ -1781,7 +1825,7 @@ except ValueError as e:
 ### Cleanup Logic
 ```python
 if args.cleanup:
-    # Remove llm_cache_v2.json (+ .tmp) and the legacy llm_cache.json
+    # Remove llm_cache_v2.json (+ .tmp), the legacy llm_cache.json, and llm_token_calibration.json (+ .tmp)
     # Remove logs/ directory via shutil.rmtree
 ```
 
@@ -1999,8 +2043,8 @@ def parse_yaml_response(response):
 **Used by:** MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper, CombineTutorial (7 nodes)
 
 #### `count_tokens` / `input_token_budget` — `utils/token_utils.py`
-`count_tokens(text)` is the model-calibrated estimate (tiktoken × `get_token_ratio()`); `input_token_budget(max_tokens, thinking_level)`
-is the prompt budget after reserving room for the response (Section 9).
+`count_tokens(text)` is the model-calibrated estimate (tiktoken × `token_ratio()`, memoized); `input_token_budget(max_tokens, thinking_level)`
+is the prompt budget after reserving room for the response and the estimation uncertainty (Section 9).
 ```python
 safety_limit = input_token_budget(max_tokens, thinking_level)
 tokens = count_tokens(entry)
@@ -2011,7 +2055,7 @@ tokens = count_tokens(entry)
 Returns the thinking level for one LLM call site from `shared["thinking_plan"]` (Section 17).
 ```python
 thinking_level = resolve_thinking_level(shared, "identify_abstractions")
-call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level)
+call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="identify_abstractions")
 ```
 **Used by:** every node that calls `call_llm()` (10 call sites)
 
@@ -2087,8 +2131,8 @@ If you find yourself writing the same block of code (≥3 lines) in 2+ nodes, ex
 | `detect_llm_config` | `(args) -> tuple[str, str, str, str, int]` | `(provider, model_name, endpoint_url, api_key, context_length)` | `resolve_llm_settings()` + context length |
 | `display_config` | `(args, mode, provider, model_name, endpoint_url, context_length, log_file, thinking_profile, thinking_plan) -> None` | — | Emits all `CFG_*` strings to console |
 | (startup order) | — | — | `parse_arguments` → `resolve_thinking_plan` → `init_output(auto_translate=False)` → `_check_quoting_errors` / `_validate_thinking_args` → standalone `--cleanup` → `check_llm_auth()` (exit 1 on failure) → `translate_missing_strings()` → `notice_legacy_cache()` → mode/project resolution → flow. Translation is an LLM call, so it runs only after arguments and credentials are checked. |
-| `_emit_usage_summary` | `() -> None` | — | In `finally`: one `LLM_USAGE_SUMMARY` per provider used (`llm_common.get_usage_summary()`: calls, input/output/thinking/cache tokens, refusals, fallbacks, truncations, est. cost or `CFG_VALUE_UNKNOWN`) |
-| `_run_cleanup` | `() -> None` | — | Removes `llm_cache_v2.json` (+ `.tmp`), legacy `llm_cache.json`, and the `logs/` directory |
+| `_emit_usage_summary` | `() -> None` | — | In `finally`: one `LLM_USAGE_SUMMARY` per provider used (`llm_common.get_usage_summary()`: calls, input incl. cached / cache write, output/thinking, refusals, fallbacks, truncations, cost via `token_utils.format_cost`), then `LLM_USAGE_STEPS_HEADER` and one `LLM_USAGE_STEP` row per step (`get_step_summary()`: calls, LLM-cache hits, billed vs estimated input with deviation, output/thinking, cost) |
+| `_run_cleanup` | `() -> None` | — | Removes `llm_cache_v2.json` (+ `.tmp`), legacy `llm_cache.json`, `llm_token_calibration.json` (+ `.tmp`), and the `logs/` directory |
 
 ### Depth-First File Ordering (api-reference mode)
 
@@ -2157,7 +2201,7 @@ Provider mapping of a level: ANTHROPIC → `output_config.effort` (xhigh → hig
 - **Refusal fallbacks:** `ANTHROPIC_FALLBACKS=default` (Opus 5.x and Fable 5.x only) → beta `server-side-fallback-2026-07-01` + `extra_body={"fallbacks": "default"}` on `client.beta.messages.stream`; a comma-separated model list (any model, e.g. Mythos 5.1) → beta `server-side-fallback-2026-06-01` + `[{"model": ...}]`; `off` disables. A fallback-served answer emits `WARN_ANTHROPIC_FALLBACK_SERVED`. Cost with fallbacks sums `usage.iterations`, each at its own model's price; an attempt with 0 output tokens (declined before output) is unbilled.
 - **Prompt caching:** `ANTHROPIC_PROMPT_CACHE=on` adds top-level `cache_control={"type": "ephemeral"}`. Off by default: templates start with per-call content (chapter name, batch files), so only exact retries share a prefix — the 1.25× write cost is not repaid on single-shot calls.
 - **Response:** text = concatenated `text` blocks (thinking/fallback blocks ignored). A reply that ends with `max_tokens` / `model_context_window_exceeded` is returned as `TruncatedResponse` (a `str` subclass with `truncated = True`), which `call_llm` never caches. Refusal / truncation handling: Section 13.
-- **Usage:** per call, `ANTHROPIC USAGE | ...` (tokens, cache, est. cost, `observed_token_ratio` = billed input ÷ tiktoken count — use it to tune `ANTHROPIC_TOKEN_RATIO`) goes to the log; totals are emitted after the flow as `LLM_USAGE_SUMMARY`. Prices (USD/MTok in/out/cache-read) live in `_PRICING`; 5-minute cache writes = 1.25× input.
+- **Usage:** one ledger request per billed attempt (`_billed_entries`: every `usage.iterations` entry with output under server-side fallbacks, each priced and listed under its own model; otherwise the top-level usage), recording total input (input + cache read + cache write), output, cache read/write and thinking (`usage.output_tokens_details.thinking_tokens`). A refusal with no output tokens is an unbilled decline (`_declined_before_output`, same rule for tokens and `_message_cost`): recorded as one unmeasured $0 request. `_billed_tokens` sums the billed attempts for the debug line. The attempt that produced the message (top-level usage) feeds `token_utils.observe_prompt_tokens` unless a fallback model served it; the truncation retry observes once. Per request, `ANTHROPIC USAGE | ...` (DEBUG, dest BOTH: console with --debug) shows tokens, thinking, cache, est. cost and `observed_token_ratio` (billed input ÷ tiktoken count); `call_llm` prints the per-call `LLM_CALL_USAGE` line and the totals are emitted after the flow as `LLM_USAGE_SUMMARY`. Prices (USD/MTok in/out/cache-read) live in `_PRICING`; 5-minute cache writes = 1.25× input.
 
 ### Credentials & preflight (`utils/llm_config.check_anthropic_auth`)
 
@@ -2223,7 +2267,7 @@ Catalog-driven (`llm_config.openrouter_model_info`: exact id, `canonical_slug`, 
 
 ### Shared helpers (`utils/llm_common.py`, SDK-free)
 
-`TruncatedResponse(str)` (`truncated = True`), `LLMRefusalError(model, category, provider, retryable=False)`, the refusal memo (`request_key`, `remember_refusal`, `previous_refusal`), the usage ledger (`record_usage(provider, model, *, input_tokens, output_tokens, thinking_tokens, cache_read, cache_write, cost)`, `count_event(provider, "refusals"|"fallbacks"|"truncations")`, `get_usage_summary()`), and `warn_once(key, *parts)`. `llm_anthropic` re-exports `TruncatedResponse` / `LLMRefusalError`.
+`TruncatedResponse(str)` (`truncated = True`), `LLMRefusalError(model, category, provider, retryable=False)`, the refusal memo (`request_key`, `remember_refusal`, `previous_refusal`), the usage ledger (`record_usage(provider, model, *, input_tokens, output_tokens, thinking_tokens, cache_read, cache_write, cost)` — `input_tokens` is the TOTAL prompt tokens incl. cached for every provider, cache fields are breakdowns, `cost=None` counts an unpriced call; `measured=False` (no usage reported, or an unbilled decline) counts the request in `unmeasured_calls` and keeps it out of estimate-vs-billed comparisons; totals are kept per provider and per step (`usage_step(step)` context set by `call_llm`); `count_event(provider, "refusals"|"fallbacks"|"truncations")`, `record_estimate(step, estimate, cache_hit=False)`, `usage_snapshot(provider)` / `usage_delta`, `get_usage_summary()`, `get_step_summary()` — entries expose `unpriced_calls` and `cost_known`), and `warn_once(key, *parts)`. `llm_anthropic` re-exports `TruncatedResponse` / `LLMRefusalError`.
 
 ### Preflight for every provider (`utils/llm_config.check_llm_auth`)
 

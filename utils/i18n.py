@@ -79,7 +79,14 @@ def auto_translate(lang_col, language, csv_path, use_cache, thinking_level):
         prompt = prompt_template.format(language=language, entries=entries_json)
 
         emit_raw("PROGRESS", f"[i18n] Calling LLM to translate {len(missing)} strings...")
-        response = call_llm(prompt, use_cache=use_cache, thinking_level=thinking_level)
+        from utils.token_utils import log_token_estimation, resolve_max_tokens
+
+        try:
+            context_tokens = resolve_max_tokens({})
+        except Exception:
+            context_tokens = 0
+        log_token_estimation("TranslateStrings", prompt, context_tokens)
+        response = call_llm(prompt, use_cache=use_cache, thinking_level=thinking_level, step="translate_strings")
 
         # Extract JSON from response
         json_match = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", response, re.DOTALL)
