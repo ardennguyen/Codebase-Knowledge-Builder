@@ -74,7 +74,7 @@ jobs:
             FORCE_FLAG="--force-rebuild"
             echo "🔄 Force rebuild: prompt templates changed or manual trigger"
           fi
-          python main.py --dir . --name Codebase-Knowledge-Builder --mode api-reference --mkdocs --incremental --no-cache --thinking-level high $FORCE_FLAG
+          python main.py --dir . --name Codebase-Knowledge-Builder --mode api-reference --mkdocs --incremental --no-cache --thinking-profile quality $FORCE_FLAG
 
       - name: Setup base mkdocs.yml and copy original docs
         run: |

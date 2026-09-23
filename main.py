@@ -327,7 +327,7 @@ def _run_cleanup():
 
 
 # --- LLM Usage Summary ---
-def _emit_usage_summary(provider):
+def _emit_usage_summary():
     """Emit accumulated token usage and estimated cost for every provider used this run."""
     from utils.llm_common import get_usage_summary
 
@@ -433,7 +433,7 @@ def main():
 
         # Report spend even when the run fails — failed runs are often the expensive ones.
         try:
-            _emit_usage_summary(provider)
+            _emit_usage_summary()
         except Exception as e:
             emit_raw("WARNING", f"Usage summary failed: {e}", dest="LOG")
         shutdown()

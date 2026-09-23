@@ -2085,7 +2085,7 @@ If you find yourself writing the same block of code (≥3 lines) in 2+ nodes, ex
 | `detect_llm_config` | `(args) -> tuple[str, str, str, str, int]` | `(provider, model_name, endpoint_url, api_key, context_length)` | `resolve_llm_settings()` + context length |
 | `display_config` | `(args, mode, provider, model_name, endpoint_url, context_length, log_file, thinking_profile, thinking_plan) -> None` | — | Emits all `CFG_*` strings to console |
 | (startup order) | — | — | `parse_arguments` → `resolve_thinking_plan` → `init_output(auto_translate=False)` → `_check_quoting_errors` / `_validate_thinking_args` → standalone `--cleanup` → `check_anthropic_auth()` (exit 1 on failure) → `translate_missing_strings()` → mode/project resolution → flow. Translation is an LLM call, so it runs only after arguments and credentials are checked. |
-| `_emit_usage_summary` | `(provider) -> None` | — | In `finally`: one `LLM_USAGE_SUMMARY` per provider used (`llm_common.get_usage_summary()`: calls, input/output/thinking/cache tokens, refusals, fallbacks, truncations, est. cost or `CFG_VALUE_UNKNOWN`) |
+| `_emit_usage_summary` | `() -> None` | — | In `finally`: one `LLM_USAGE_SUMMARY` per provider used (`llm_common.get_usage_summary()`: calls, input/output/thinking/cache tokens, refusals, fallbacks, truncations, est. cost or `CFG_VALUE_UNKNOWN`) |
 | `_run_cleanup` | `() -> None` | — | Removes `llm_cache_v2.json` (+ `.tmp`), legacy `llm_cache.json`, and the `logs/` directory |
 
 ### Depth-First File Ordering (api-reference mode)

@@ -243,7 +243,7 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--no-cache` - Vô hiệu hóa bộ nhớ cache cho phản hồi LLM (mặc định: cache được bật).
     - `--thinking-level` - Mức nỗ lực suy luận chung cho mọi lệnh gọi LLM: `minimal`, `low`, `medium`, `high`, `xhigh`, `max` (`default` = mặc định của model). Ghi đè `--thinking-profile`. Được ánh xạ theo từng nhà cung cấp (effort của Anthropic — thinking budget với Haiku 4.5; `thinking_level` của Gemini 3.x, thinking budget với 2.5; reasoning effort hoặc budget của OpenRouter; reasoning effort của Ollama — tự giới hạn theo khả năng của model).
     - `--thinking-profile` - Hồ sơ nỗ lực theo từng node: `auto` (mặc định: `balanced` với `ANTHROPIC`, `GEMINI` và `OPENROUTER`, mặc định của model với nhà cung cấp khác), `off`, `economy`, `balanced`, `quality`, `max`. Bước tìm abstraction được nhiều nỗ lực nhất, viết chương và sắp xếp ở mức vừa, các bước cơ học (tóm tắt, dịch, lọc tệp) ít nhất; các hồ sơ mặc định dừng ở `high` (trừ `max`). Kế hoạch theo từng node được in khi khởi động (`Thinking Plan:`).
-    - `--thinking-override` - Ghi đè theo từng node, ví dụ `--thinking-override write_chapters=high identify_abstractions=xhigh`.
+    - `--thinking-override` - Ghi đè theo từng node, ví dụ `--thinking-override write_chapters=high identify_abstractions=xhigh`. Các node: `filter_files`, `map_abstractions`, `reduce_abstractions`, `identify_abstractions`, `analyze_relationships`, `order_chapters`, `write_chapters`, `chapter_summary`, `group_modules`, `translate_strings`.
     - `--max-tokens` - Số lượng token tối đa cho context window (mặc định: tự động lấy từ thông tin của model).
     - `--mode` - Phong cách tài liệu cần tạo (`tutorial`, `advanced`, `api-reference`, `sdk`). Mặc định là `tutorial`.
     - `--advanced` - Cờ cũ (legacy flag). Tương đương với việc dùng `--mode advanced`.
@@ -261,6 +261,40 @@ To run this project in a Docker container, you'll need to pass your API keys as 
     - `--cleanup` - Dọn dẹp logs và các tệp cache. Có thể chạy độc lập hoặc sau khi tạo tài liệu.
 
 Ứng dụng sẽ thu thập dữ liệu từ kho lưu trữ, phân tích cấu trúc mã nguồn, tạo nội dung hướng dẫn bằng ngôn ngữ được chỉ định và lưu kết quả vào thư mục đầu ra (mặc định: ./output). Thư mục này bao gồm các tệp chương riêng lẻ, tệp `index.md` (có liên kết đến nội dung đầy đủ), và tệp `full_content.md` — tất cả nằm trong thư mục con mang tên dự án.
+
+### Các chế độ tài liệu
+
+| Chế độ | Đối tượng | Mô tả |
+|---|---|---|
+| `tutorial` | Người mới bắt đầu | Hướng dẫn từng bước qua các khái niệm chính, giải thích nhẹ nhàng kèm ví dụ so sánh |
+| `advanced` | Lập trình viên senior / PM | Phân tích kiến trúc chuyên sâu với chi tiết triển khai, cấu trúc dữ liệu và design pattern |
+| `api-reference` | Lập trình viên | Tài liệu API đầy đủ cho từng tệp, tách riêng phần public/internal (ánh xạ 1:1 theo tệp) |
+| `sdk` | Lập trình viên tích hợp | Tài liệu hướng SDK, tập trung vào API public, cấu hình và cách sử dụng |
+
+### Ví dụ sử dụng
+
+```bash
+# API Reference với trang MkDocs + cache gia tăng
+python main.py --dir /path/to/project --mode api-reference --mkdocs --incremental
+
+# Tài liệu SDK bằng tiếng Việt
+python main.py --dir /path/to/project --mode sdk --language Vietnamese
+
+# Chế độ advanced để review kiến trúc
+python main.py --repo https://github.com/user/repo --mode advanced --thinking-level high
+
+# Tutorial từ kho GitHub với bộ lọc tệp
+python main.py --repo https://github.com/user/repo --include "*.py" --exclude "tests/*"
+
+# Claude Opus 5.5 (LLM_PROVIDER=ANTHROPIC): API reference chất lượng cao nhất, thêm nỗ lực cho mọi trang tham chiếu
+python main.py --dir /path/to/project --mode api-reference --mkdocs --thinking-profile quality --thinking-override write_chapters=xhigh
+
+# Claude Opus 5.5: phân tích kiến trúc chuyên sâu với nỗ lực tối đa cho bước tìm abstraction
+python main.py --dir /path/to/project --mode advanced --thinking-override identify_abstractions=max
+
+# Claude Opus 5.5 tiết kiệm: hồ sơ economy nhưng giữ bước viết chương ở mức medium
+python main.py --dir /path/to/project --mode tutorial --thinking-profile economy --thinking-override write_chapters=medium
+```
 
 <details>
  
