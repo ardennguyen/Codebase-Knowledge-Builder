@@ -50,7 +50,7 @@ Read the PocketFlow framework docs in `docs/pocketflow/`:
 - [`docs/design.md`](docs/design.md) — **READ THIS ENTIRELY.** It is the single source of truth for architecture, function signatures, data flow, prompt contracts, and output formats.
 
 ### Step 3: Read Prompt Templates
-Read all 26 prompt files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `prompts/api-reference/` (6), `prompts/sdk/` (6), and `prompts/common/` (2: `group_modules.md`, `translate_strings.md`). The `{placeholder}` variables form a CONTRACT with the node code.
+Read all 27 prompt files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `prompts/api-reference/` (6), `prompts/sdk/` (6), and `prompts/common/` (3: `extract_facts.md`, `group_modules.md`, `translate_strings.md`). The `{placeholder}` variables form a CONTRACT with the node code.
 
 ---
 
@@ -172,7 +172,7 @@ Repository variable `DOCS_DEPLOY_MODE` (Settings → Secrets and variables → A
 ### CI Doc Generation Pipeline
 1. **Setup:** `Check LLM settings` (fails fast on an empty `LLM_PROVIDER` or missing provider key), Python 3.12 (`actions/setup-python` with `cache: pip`), `pip install -r requirements.txt`
 2. **Doc cache restore (rolling):** `actions/cache/restore@v6` restores the newest `.doc_cache_manifest.json` + `output/.../docs/api/` (`restore-keys: doc-cache-`). Invalidation is per chapter in code (md5 of the generation signature — incl. the `draft_chapters` template digest — plus the source), so there is no prompt-change detection step
-3. **Generate:** `main.py --mode api-reference --mkdocs --incremental --no-cache ...` (`--force-rebuild` only from the manual `force_rebuild` input); stale `docs/api/` pages are pruned by the generator
+3. **Generate:** `main.py --mode api-reference --mkdocs --incremental --no-cache ...` (`--force-rebuild` only from the manual `force_rebuild` input); stale `docs/api/` pages are pruned by the generator. ExtractFacts writes `docs/api/facts.json` (source-verified symbols and dependencies, published with the site); it is kept by the same `docs/api/` cache, so only changed files are re-extracted
 4. **Doc cache save:** `actions/cache/save@v6` under `doc-cache-${{ github.run_id }}-${{ github.run_attempt }}` right after Generate, so a failure in the deploy steps keeps the paid-for pages
 5. **Config generation:** `python3 .github/ci_mkdocs_config.py` generates `mkdocs.yml` and `mermaid-init.js`
 6. **Nav merge:** `sed '1d'` strips first line of `output/<Project>/nav_snippet.yml` (next to `mkdocs.yml`, outside `docs/` so it is not published) and appends to base nav

@@ -11,6 +11,18 @@ from pocketflow import BatchNode, Node
 from utils.call_llm import call_llm
 from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
+from utils.facts import (
+    ModuleTable,
+    build_facts_document,
+    facts_hash,
+    facts_path,
+    load_facts,
+    save_facts,
+    source_commit,
+    split_lines,
+    verify_dependencies,
+    verify_file_claims,
+)
 from utils.files import build_directory_tree, get_content_for_indices
 from utils.llm_config import resolve_llm_settings
 from utils.mkdocs import (
@@ -48,6 +60,7 @@ from utils.prompts import (
     build_chapter_summary_prompt,
     build_code_file_filter_prompt,
     load_prompt_template,
+    parse_facts_response,
     parse_file_index,
     parse_yaml_response,
 )
@@ -131,6 +144,132 @@ class DeterministicFileMapper(Node):
         return "default"
 
 
+class ExtractFacts(BatchNode):
+    """Verified per-file facts for api-reference: one call per module on its full source, each claim
+    checked against that source by utils/facts.py; the result is saved to facts.json.
+
+    A module whose facts hash (model, effort, template, path, content) is unchanged reuses the claims
+    stored in the previous facts.json, under --incremental or with the LLM cache on (--no-cache without
+    --incremental re-extracts everything). That also keeps a retried module's accepted reply: the LLM
+    cache only holds its first attempt. The output language never enters the hash: facts are quotes.
+    """
+
+    def prep(self, shared):
+        files_data = shared["files"]
+        template = load_prompt_template("extract_facts", mode="common")
+        thinking_level = resolve_thinking_level(shared, "extract_facts")
+        provider, model_name, _, _ = resolve_llm_settings()
+        signature = f"{provider}|{model_name}|{thinking_level or 'default'}|{hashlib.md5(template.encode('utf-8')).hexdigest()}"
+        self.facts_file = facts_path(shared.get("output_dir", "output"), shared["project_name"], shared.get("mkdocs", False))
+        previous = load_facts(self.facts_file) if shared.get("incremental") or shared.get("use_cache", True) else {}
+        self.best = {}  # path → (found, claims) of the best attempt so far, kept when retries do worse
+
+        items = []
+        for module in shared["abstractions"]:
+            file_path, content = files_data[module["files"][0]]
+            path = module.get("original_path") or file_path.replace(os.sep, "/")
+            item_hash = facts_hash(signature, path, content)
+            cached = previous.get(path) if isinstance(previous.get(path), dict) else {}
+            items.append(
+                {
+                    "path": path,
+                    "content": content,
+                    "facts_hash": item_hash,
+                    "cached_claims": cached.get("claims") if cached.get("facts_hash") == item_hash else None,
+                    "template": template,
+                    "project_name": shared["project_name"],
+                    "use_cache": shared.get("use_cache", True),
+                    "thinking_level": thinking_level,
+                    "max_tokens": shared.get("max_tokens", 100000),
+                }
+            )
+        emit_raw("DEBUG", f"ExtractFacts prep | modules={len(items)} | cached={sum(1 for i in items if i['cached_claims'] is not None)}", dest="LOG")
+        return items
+
+    @safe_exec
+    def exec(self, item):
+        if item["cached_claims"] is not None:
+            emit("FACTS_CACHE_HIT", name=item["path"])
+            return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": item["cached_claims"]}
+        prompt = item["template"].format(project_name=item["project_name"], file_path=item["path"], source=item["content"])
+        emit("LLM_CALL_EXTRACT_FACTS", name=item["path"])
+        log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
+        response = call_llm(
+            prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"], step="extract_facts"
+        )
+        claims = parse_facts_response(response)
+        checked = verify_file_claims(claims, item["content"])
+        emit_raw("DEBUG", f"FACTS | {item['path']} | claimed={checked['claimed']} | found={checked['found']}", dest="LOG")
+        if self.cur_retry == 0:
+            self.best.pop(item["path"], None)
+        best = self.best.get(item["path"])
+        if best is None or checked["found"] > best[0]:
+            self.best[item["path"]] = best = (checked["found"], claims)
+        # Mostly unfindable quotes mean the model paraphrased: retry uncached, then keep the best attempt's
+        # verified part rather than losing the module
+        if checked["claimed"] >= 4 and checked["found"] * 2 < checked["claimed"] and self.cur_retry < self.max_retries - 1:
+            emit("FACTS_LOW_COVERAGE", name=item["path"], found=checked["found"], claimed=checked["claimed"])
+            raise ValueError(f"only {checked['found']}/{checked['claimed']} claims found in the source")
+        return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": best[1]}
+
+    def exec_fallback(self, item, exc):
+        """The best earlier attempt if one parsed; else no facts for this module this run (no hash, so the
+        next run retries it). The flow goes on either way."""
+        emit("WARN_FACTS_FALLBACK", name=item["path"], error=exc)
+        best = self.best.get(item["path"])
+        if best is not None:
+            return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": best[1]}
+        return {"path": item["path"], "facts_hash": None, "claims": None}
+
+    def post(self, shared, prep_res, exec_res_list):
+        contents = {item["path"]: item["content"] for item in prep_res}
+        checked = {res["path"]: verify_file_claims(res["claims"], contents[res["path"]]) for res in exec_res_list if res["claims"] is not None}
+        table = ModuleTable(list(contents), {path: result["symbols"] for path, result in checked.items()}, contents)
+        resolved = verify_dependencies({path: result["dependencies"] for path, result in checked.items()}, contents, table)
+
+        modules = {}
+        for res in exec_res_list:
+            path, content = res["path"], contents[res["path"]]
+            result, deps = checked.get(path), resolved.get(path)
+            rejected = (result["rejected"] if result else []) + (deps["rejected"] if deps else [])
+            claimed = result["claimed"] if result else 0
+            modules[path] = {
+                "source_sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
+                "lines": len(split_lines(content)),
+                "symbols": result["symbols"] if result else [],
+                "depends_on": deps["depends_on"] if deps else [],
+                "used_by": [],
+                "external": deps["external"] if deps else [],
+                "config": result["config"] if result else [],
+                "errors": result["errors"] if result else [],
+                "coverage": {"claimed": claimed, "verified": claimed - len(rejected)},
+                "rejected": rejected,
+                "missed_imports": deps["missed"] if deps else [],
+                "facts_hash": res["facts_hash"],
+                "claims": res["claims"],
+            }
+        for path, entry in modules.items():
+            for edge in entry["depends_on"]:
+                modules[edge["module"]]["used_by"].append(path)
+
+        save_facts(self.facts_file, build_facts_document(shared["project_name"], source_commit(shared.get("local_dir")), modules))
+        emit("FILE_WROTE", path=self.facts_file)
+        shared["module_facts"] = modules
+        for path, entry in modules.items():
+            if entry["missed_imports"]:
+                emit("FACTS_MISSED_IMPORTS", name=path, missed=", ".join(entry["missed_imports"]))
+        emit(
+            "DONE_FACTS",
+            modules=len(modules),
+            failed=sum(1 for entry in modules.values() if entry["claims"] is None),
+            symbols=sum(len(entry["symbols"]) for entry in modules.values()),
+            edges=sum(len(entry["depends_on"]) for entry in modules.values()),
+            rejected=sum(len(entry["rejected"]) for entry in modules.values()),
+        )
+        emit_step_subtotals("extract_facts")
+        return "default"
+
+
 class ContextRouter(Node):
     def prep(self, shared):
         files_data = shared["files"]
@@ -140,7 +279,7 @@ class ContextRouter(Node):
         directory_tree = build_directory_tree(files_data)
 
         if shared.get("mode", "tutorial") == "api-reference":
-            # One chapter per file, packed by WriteChapters itself: no routing budget is needed.
+            # One chapter per file, one page call each: no routing budget is needed.
             emit("CAPACITY_API_REF_MODE")
             return ("deterministic", files_data, 0, shared.get("batch_size", 50), None, None, directory_tree)
 
@@ -1614,6 +1753,7 @@ class CombineTutorial(Node):
                 "mode": shared.get("mode", "tutorial"),
                 "overview": "" if mode == "api-reference" else overview,
                 "chapter_summaries": shared.get("chapter_summaries", []),
+                "module_facts": shared.get("module_facts") or {},  # ExtractFacts (api-reference): verified dependencies
                 "directory_tree": shared.get("directory_tree", ""),
                 "language": shared.get("language", "english"),
                 "use_cache": shared.get("use_cache", True),

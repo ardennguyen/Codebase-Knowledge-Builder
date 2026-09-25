@@ -9,6 +9,7 @@ import dotenv
 from flow import create_tutorial_flow
 from utils.call_llm import LEGACY_CACHE_FILE, cache_file, notice_legacy_cache
 from utils.exclude_patterns import DEFAULT_EXCLUDE_PATTERNS
+from utils.facts import facts_path
 from utils.llm_config import check_llm_auth, describe_thinking_support, resolve_llm_settings
 from utils.output import configure_logging, emit, emit_raw, get, translate_missing_strings
 from utils.output import init as init_output
@@ -419,6 +420,11 @@ def main():
             emit("FORCE_REBUILD_DELETED", path=manifest_path)
         else:
             emit("FORCE_REBUILD_NO_MANIFEST", path=manifest_path)
+        # The verified-facts cache (ExtractFacts) lives in facts.json: docs/api/ under --mkdocs, else next to the pages
+        for facts_file in (facts_path(output_base, project_name, True), facts_path(output_base, project_name, False)):
+            if os.path.exists(facts_file):
+                os.remove(facts_file)
+                emit("FORCE_REBUILD_DELETED_FACTS", path=facts_file)
 
     # Warn about args ignored in api-reference mode
     if mode == "api-reference" and args.force_batch:

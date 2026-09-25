@@ -5,6 +5,7 @@ from nodes import (
     CombineTutorial,
     ContextRouter,
     DeterministicFileMapper,
+    ExtractFacts,
     FetchRepo,
     IdentifyAbstractions,
     MapAbstractions,
@@ -26,6 +27,7 @@ def create_tutorial_flow():
     write_chapters = WriteChapters(max_retries=5, wait=20)
     combine_tutorial = CombineTutorial()
     deterministic_mapper = DeterministicFileMapper(max_retries=5, wait=20)
+    extract_facts = ExtractFacts(max_retries=3, wait=10)  # one small call per file; the last attempt keeps what verifies
 
     fetch_repo >> context_router
 
@@ -41,7 +43,7 @@ def create_tutorial_flow():
     analyze_relationships >> order_chapters
     order_chapters >> write_chapters
 
-    deterministic_mapper >> write_chapters
+    deterministic_mapper >> extract_facts >> write_chapters
 
     write_chapters >> combine_tutorial
 

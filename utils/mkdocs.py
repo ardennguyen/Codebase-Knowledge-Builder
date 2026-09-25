@@ -401,6 +401,26 @@ def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]:
     return descriptions, dependencies
 
 
+def modules_with_facts(module_facts: dict, chapter_files: list) -> set:
+    """``module_name`` of every chapter whose ExtractFacts run produced facts (its edges are verified, even
+    when it has none); modules whose extraction failed are left out."""
+    name_of = {cf["original_path"]: cf["module_name"] for cf in chapter_files if cf.get("original_path")}
+    return {name_of[path] for path, entry in (module_facts or {}).items() if path in name_of and entry.get("claims") is not None}
+
+
+def verified_dependencies(module_facts: dict, chapter_files: list) -> dict:
+    """``{module_name: [module_name, ...]}`` from ExtractFacts' source-verified edges; ``{}`` without facts."""
+    name_of = {cf["original_path"]: cf["module_name"] for cf in chapter_files if cf.get("original_path")}
+    dependencies = {}
+    for path, entry in (module_facts or {}).items():
+        source = name_of.get(path)
+        targets = [name_of[edge["module"]] for edge in entry.get("depends_on", []) if edge.get("module") in name_of]
+        targets = [name for name in dict.fromkeys(targets) if name != source]
+        if source and targets:
+            dependencies[source] = targets
+    return dependencies
+
+
 def _section_members(sections: list) -> list[tuple[str, list]]:
     """``[(top-level section name, [module_name, ...])]``, children folded into their top-level section;
     a module listed in several sections belongs to the first."""
@@ -743,14 +763,25 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
     # The same reply also carries one-line module descriptions and module dependencies (index page)
     sections = None
-    descriptions, dependencies = {}, {}
+    descriptions, dependencies, has_facts, inferred_sources = {}, {}, False, []
     emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
     if mode == "api-reference" and len(chapter_files) > 5:
         try:
             # Listed in directory-tree order: chapter_files is in generation order (deepest directory first),
             # which would suggest a bottom-up reading order
             listed = sorted(zip(chapter_files, summaries, strict=True), key=lambda pair: tree_order_key(pair[0]))
-            module_list = "\n".join(f"- {cf['module_name']}: {summary or cf['description']}" for cf, summary in listed)
+            # Source-verified dependencies (ExtractFacts) are shown to the model and, per module, replace the ones
+            # it infers; a module whose extraction failed keeps the reply's edges
+            module_facts = prep_res.get("module_facts") or {}
+            with_facts = modules_with_facts(module_facts, chapter_files)
+            has_facts = bool(with_facts)
+            verified = verified_dependencies(module_facts, chapter_files)
+            lines = []
+            for cf, summary in listed:
+                name = cf["module_name"]
+                uses = f" (uses: {', '.join(verified.get(name) or ['none'])})" if name in with_facts else ""
+                lines.append(f"- {name}{uses}: {summary or cf['description']}")
+            module_list = "\n".join(lines)
 
             # Load grouping prompt template
             prompt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "prompts", "common", "group_modules.md")
@@ -780,9 +811,12 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
                 # Drop unknown module names and the sections they leave empty (null nav entries break mkdocs build)
                 sections = prune_sections(sections, chapter_files)
             descriptions, dependencies = grouping_extras(parsed, chapter_files)
+            if has_facts:
+                dependencies = {source: targets for source, targets in dependencies.items() if source not in with_facts} | verified
+                inferred_sources = sorted(source for source in dependencies if source not in with_facts)
             emit_raw(
                 "DEBUG",
-                f"NAV GROUPING EXTRAS | descriptions={len(descriptions)}/{len(chapter_files)} "
+                f"NAV GROUPING EXTRAS | verified={has_facts} | descriptions={len(descriptions)}/{len(chapter_files)} "
                 f"| modules_with_dependencies={len(dependencies)} | edges={sum(len(t) for t in dependencies.values())}",
                 dest="LOG",
             )
@@ -817,7 +851,7 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             emit_raw("ERROR", f"LLM grouping failed: {e}\n{traceback.format_exc()}", dest="LOG")
             nav_snippet = prep_res["nav_snippet"]
             sections = None
-            descriptions, dependencies = {}, {}
+            descriptions, dependencies, has_facts, inferred_sources = {}, {}, False, []
     else:
         nav_snippet = prep_res["nav_snippet"]
 
@@ -895,6 +929,9 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             note = get("UI_MODULE_GRAPH_NOTE")
             if hub_threshold:
                 note += " " + get("UI_MODULE_GRAPH_HUBS", count=hub_threshold)
+            if has_facts:  # facts.json sits next to api/index.md
+                provenance = get("UI_DEPS_PARTIAL", modules=", ".join(inferred_sources)) if inferred_sources else get("UI_DEPS_VERIFIED")
+                note += f" {provenance} ([facts.json](facts.json))"
             index_lines += [f"## {get('UI_MODULE_DEPENDENCIES')}", "", "```mermaid", module_graph, "```", "", f"*{note}*", ""]
         index_content = "\n".join(index_lines)
     else:

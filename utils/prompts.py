@@ -3,7 +3,7 @@ Reusable prompt and response helpers.
 
 Contains:
 - Prompt template loaders (load_prompt_template)
-- LLM response parsers (parse_yaml_response, parse_grouping_response)
+- LLM response parsers (parse_yaml_response, parse_grouping_response, parse_facts_response)
 - Inline prompt builders for nodes that don't load from prompts/{mode}/ templates
 """
 
@@ -84,6 +84,103 @@ def parse_grouping_response(response):
         if not isinstance(parsed.get("sections"), list):
             raise ValueError("Failed to parse YAML: no sections list in the grouping reply") from None
         return parsed
+
+
+FACTS_KEYS = ("symbols", "dependencies", "config", "errors")
+# Opening fence in any case, possibly indented (under a bullet); the closing fence must sit at the same
+# indentation: quoted source lines inside the |- blocks are always indented deeper and may contain ```
+# themselves (Markdown in strings or docstrings), which would otherwise end the block early
+_FACTS_BLOCK_RE = re.compile(r"(?msi)^([ \t]*)```ya?ml[^\n]*\n(.*?)^\1```[ \t]*$")
+_FACTS_OPEN_RE = re.compile(r"(?msi)^([ \t]*)```ya?ml[^\n]*\n(.*)")
+# A quote written as a plain scalar (`signature: def run(self):`), the most common reply mistake: its colon
+# or `#` breaks the YAML. Rewritten as a |- block scalar before the lenient re-parse.
+_PLAIN_QUOTE_RE = re.compile(r"(?m)^([ \t]*(?:- )?)(signature|evidence):[ \t]+(?![|>\"'])(\S.*)$")
+
+
+def _load_strings(text: str):
+    """YAML with every scalar kept as the reply's text: ``404``, ``on``, ``3.10`` stay strings."""
+    return yaml.load(text, Loader=yaml.BaseLoader)  # BaseLoader builds only str / list / dict: safe
+
+
+def _block_quotes(text: str) -> str:
+    return _PLAIN_QUOTE_RE.sub(lambda m: f"{m[1]}{m[2]}: |-\n{' ' * (len(m[1]) + 2)}{m[3]}", text)
+
+
+def parse_facts_response(response) -> dict:
+    """Parse the extract_facts.md reply → ``{"symbols": [...], "dependencies": [...], "config": [...], "errors": [...], "unparsed": n}``.
+
+    Scalars stay strings (``yaml.BaseLoader``). When the block is not valid YAML, quotes written as plain
+    scalars are rewritten as block scalars and the block re-parsed; failing that, each list is parsed on
+    its own, and inside a broken list each item, so one malformed quote costs one fact. ``unparsed``
+    counts the items that were still lost (and list items that are not mappings), so they count as
+    claimed-but-unverified. A missing or null list becomes ``[]``. Raises for truncated replies and when
+    none of the four lists is present.
+    """
+    if getattr(response, "truncated", False):
+        raise ValueError("LLM response was truncated before the YAML block completed")
+    match = _FACTS_BLOCK_RE.search(response) or _FACTS_OPEN_RE.search(response)
+    if not match:
+        raise ValueError("Failed to parse YAML: no ```yaml block in the facts reply")
+    indent = match.group(1)
+    yaml_str = "\n".join(line.removeprefix(indent) for line in match.group(2).split("\n"))
+    unparsed = 0
+    try:
+        data = _load_strings(yaml_str)
+    except Exception:
+        try:
+            data = _load_strings(_block_quotes(yaml_str))
+        except Exception:
+            data, unparsed = _salvage_yaml_lists(_block_quotes(yaml_str), FACTS_KEYS)
+    if not isinstance(data, dict) or not any(key in data for key in FACTS_KEYS):
+        raise ValueError("Failed to parse YAML: no fact lists in the facts reply")
+    result = {}
+    for key in FACTS_KEYS:
+        items = data.get(key)
+        items = items if isinstance(items, list) else []
+        result[key] = [item for item in items if isinstance(item, dict)]
+        unparsed += len(items) - len(result[key])
+    result["unparsed"] = unparsed
+    return result
+
+
+def _salvage_yaml_lists(yaml_str: str, keys: tuple) -> tuple[dict, int]:
+    """Parse each top-level ``key:`` list of a broken YAML block on its own; a list that still fails is
+    parsed item by item (split at its own ``- `` indentation) and keeps the items that parse.
+    Returns ``(lists, number of items lost)``."""
+    names = "|".join(keys)
+    parsed, lost = {}, 0
+    for chunk in re.split(rf"(?m)^(?=(?:{names})\s*:)", yaml_str):
+        head = re.match(rf"({names})\s*:", chunk)
+        if not head:
+            continue
+        try:
+            part = _load_strings(chunk)
+        except Exception:
+            part = None
+        if isinstance(part, dict):
+            parsed.update(part)
+            continue
+        body = chunk[head.end() :]
+        first = re.search(r"(?m)^([ \t]*)- ", body)
+        if not first:
+            continue
+        indent = first.group(1)
+        items = []
+        for piece in re.split(rf"(?m)^(?={re.escape(indent)}- )", body):
+            if not piece.startswith(f"{indent}- "):
+                continue
+            text = "\n".join(line.removeprefix(indent) for line in piece.split("\n"))
+            try:
+                item = _load_strings(text)
+            except Exception:
+                lost += 1
+                continue
+            if isinstance(item, list) and item and isinstance(item[0], dict):
+                items.append(item[0])
+            else:
+                lost += 1
+        parsed[head.group(1)] = items
+    return parsed, lost
 
 
 def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:

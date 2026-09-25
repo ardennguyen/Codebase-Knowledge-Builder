@@ -26,6 +26,7 @@ THINKING_PROFILES = ("auto", "off", "economy", "balanced", "quality", "max")
 # LLM call sites, in pipeline order.
 NODE_KEYS = (
     "filter_files",  # DeterministicFileMapper — code/non-code file classification (api-reference)
+    "extract_facts",  # ExtractFacts — per-file symbols, dependencies, config, errors with source quotes (api-reference)
     "map_abstractions",  # MapAbstractions — per-batch abstraction extraction (batch route)
     "reduce_abstractions",  # ReduceAbstractions — merge partial abstractions (batch route)
     "identify_abstractions",  # IdentifyAbstractions — whole-codebase abstraction discovery (direct route)
@@ -44,7 +45,7 @@ MODE_NODES = {
     "tutorial": (*_ANALYSIS_NODES, "write_chapters", "chapter_summary", "translate_strings"),
     "advanced": (*_ANALYSIS_NODES, "write_chapters", "chapter_summary", "translate_strings"),
     "sdk": (*_ANALYSIS_NODES, "write_chapters", "chapter_summary", "translate_strings"),
-    "api-reference": ("filter_files", "write_chapters", "chapter_summary", "group_modules", "translate_strings"),
+    "api-reference": ("filter_files", "extract_facts", "write_chapters", "chapter_summary", "group_modules", "translate_strings"),
 }
 
 # Base per-node levels. Reasoning-heavy synthesis (identify/reduce abstractions) gets the
@@ -57,6 +58,7 @@ MODE_NODES = {
 _PROFILES = {
     "economy": {
         "filter_files": "low",
+        "extract_facts": "low",
         "map_abstractions": "low",
         "reduce_abstractions": "medium",
         "identify_abstractions": "medium",
@@ -69,6 +71,7 @@ _PROFILES = {
     },
     "balanced": {
         "filter_files": "low",
+        "extract_facts": "low",
         "map_abstractions": "medium",
         "reduce_abstractions": "high",
         "identify_abstractions": "high",
@@ -81,6 +84,7 @@ _PROFILES = {
     },
     "quality": {
         "filter_files": "medium",
+        "extract_facts": "medium",
         "map_abstractions": "high",
         "reduce_abstractions": "high",
         "identify_abstractions": "high",
@@ -93,6 +97,7 @@ _PROFILES = {
     },
     "max": {
         "filter_files": "medium",
+        "extract_facts": "medium",
         "map_abstractions": "xhigh",
         "reduce_abstractions": "max",
         "identify_abstractions": "max",

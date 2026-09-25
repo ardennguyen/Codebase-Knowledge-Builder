@@ -28,7 +28,7 @@ title: "Architecture & Design"
         - A link to `full_content.md` at the bottom.
     - Individual Markdown files for each chapter (`01_chapter_one.md`, `02_chapter_two.md`, etc.) detailing core abstractions in a logical order (potentially translated content).
     - A `full_content.md` (inside the project subdirectory) containing all merged chapters and a Table of Contents.
-    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table and one-line module descriptions; api-reference adds an architecture overview and a module dependency graph from the grouping call, tutorial/advanced/sdk show the project summary and relationship diagram), and `nav_snippet.yml` next to `mkdocs.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode; kept out of `docs/` so it is not published). `docs/api/` is generator-owned: `.md` pages that belong to no current chapter (removed/renamed modules, earlier runs in another mode) are deleted at the end of each run.
+    - When `--mkdocs` is used: YAML frontmatter is injected into every chapter, filenames mirror source directory structure instead of numbered prefixes, and the following MkDocs artifacts are generated: `mkdocs.yml` (Material theme config with panzoom and mermaid support), `docs/javascripts/mermaid-init.js` (custom Mermaid renderer), `docs/api/index.md` (section landing page with grouped chapter table and one-line module descriptions; api-reference adds an architecture overview and a module dependency graph whose arrows come from the source-verified facts (`facts.json`, ExtractFacts), falling back to the grouping call per module, tutorial/advanced/sdk show the project summary and relationship diagram), and `nav_snippet.yml` next to `mkdocs.yml` (sidebar navigation snippet, with LLM-assisted grouping for api-reference mode; kept out of `docs/` so it is not published). `docs/api/` is generator-owned: `.md` pages that belong to no current chapter (removed/renamed modules, earlier runs in another mode) are deleted at the end of each run.
     - When `--incremental` is used (api-reference mode only): a `.doc_cache_manifest.json` tracks MD5 hashes of each module's source files plus a generation signature (mode, language, provider, model, `write_chapters` thinking level, `draft_chapters` template digest) to skip regeneration of unchanged modules across runs. Entries are keyed by the module's source path, rebuilt from the current run's chapters (removed modules drop out) and saved only after the pages are written.
 
 ## 2. Flow Design
@@ -55,7 +55,8 @@ This project primarily uses a **Workflow** pattern with dynamic branching into a
     *   **`MapAbstractions` (BatchNode)**: Analyzes each localized directory chunk to extract partial abstractions. Each batch receives the full directory tree for cross-batch awareness.
     *   **`ReduceAbstractions`**: Merges overlapping/partial abstractions into a global list of architecture components.
 5.  **Path C: Deterministic** (api-reference mode)
-    *   **`DeterministicFileMapper`**: Bypasses LLM-based abstraction discovery entirely. Uses a lightweight LLM call to filter out non-code files (configs, UI layouts, static assets), then creates a 1:1 mapping of each code file to a documentation module. Sorts chapters by **directory depth (deepest first, then alphabetical)** so that utility/leaf files are documented before orchestration files — their summaries become available as cross-chapter context via `previous_chapters_summary`. This ordering is language-agnostic (works for Python, C#, C++, Java, etc.). Skips `AnalyzeRelationships` and `OrderChapters`, routing directly to `WriteChapters`.
+    *   **`DeterministicFileMapper`**: Bypasses LLM-based abstraction discovery entirely. Uses a lightweight LLM call to filter out non-code files (configs, UI layouts, static assets), then creates a 1:1 mapping of each code file to a documentation module. Sorts chapters by **directory depth (deepest first, then alphabetical)** so that utility/leaf files are documented before orchestration files — their summaries become available as cross-chapter context via `previous_chapters_summary`. This ordering is language-agnostic (works for Python, C#, C++, Java, etc.). Skips `AnalyzeRelationships` and `OrderChapters`, routing to `ExtractFacts`.
+    *   **`ExtractFacts` (BatchNode)**: One LLM call per module on its full source (`prompts/common/extract_facts.md`) claims the file's symbols, dependencies, config keys and errors, each with a quoted source line. `utils/facts.py` keeps a claim only when its quote is found in that file and a dependency only when the quoted line names the target module (language-agnostic: no parser). The verified facts are saved to `facts.json` (published next to the api pages) and replace the LLM-guessed dependencies of the nav grouping and the `api/index.md` diagrams. Then `WriteChapters`.
 6.  **`AnalyzeRelationships`** (Paths A & B only): Takes the unified abstractions list (from either path) and generates a high-level project summary and relationships diagram. Uses token-budget-aware file inclusion: the budget is split evenly across abstractions, with unused budget redistributed in a second pass, maximizing code context without exceeding the context window.
 7.  **`OrderChapters`** (Paths A & B only): Determines the most logical sequence to present the abstractions.
 8.  **`WriteChapters` (BatchNode)**: Iterates through the ordered abstractions and writes detailed Markdown chapters using context-aware code inclusion.
@@ -75,7 +76,8 @@ flowchart TD
     
     C --> D[OrderChapters]
     D --> E[Batch WriteChapters]
-    DFM --> E
+    DFM --> XF[Batch ExtractFacts]
+    XF --> E
     E --> F[CombineTutorial]
 ```
 
@@ -154,6 +156,7 @@ codebase_kb/
 │   │   ├── order_chapters.md
 │   │   └── draft_chapters.md
 │   └── common/                      # Shared prompts used across modes
+│       ├── extract_facts.md         # Per-file facts with source quotes (ExtractFacts, api-reference)
 │       ├── group_modules.md         # LLM-assisted sidebar nav grouping (reading order) + module descriptions and dependencies (api/index.md)
 │       └── translate_strings.md     # LLM-assisted translation prompt
 └── docs/
@@ -536,6 +539,7 @@ shared = {
 | `mapped_abstractions` | `MapAbstractions` (batch path) | `list[dict]` | Per-batch abstraction results |
 | `file_batches` | `ContextRouter` (batch path) | `list[list[tuple]]` | File batches with global indices |
 | `directory_tree` | `ContextRouter.post()` (every route) | `str` | Full directory tree string (read by draft_chapters and group_modules prompts) |
+| `module_facts` | `ExtractFacts.post()` (api-reference) | `dict[str, dict]` | Verified facts per module path (the `modules` object of `facts.json`); `CombineTutorial` passes it to `write_mkdocs_output` for the verified dependencies |
 | `chapter_summaries` | `WriteChapters.post()` | `list[str]` | Per-chapter summaries for LLM nav grouping and `api/index.md` descriptions |
 | `pending_manifest` | `WriteChapters.post()` (`--incremental` only) | `dict[str, dict]` | New incremental manifest (`{source_path: {"hash", "summary", "filename"}}`); written to `.doc_cache_manifest.json` by `CombineTutorial.post()` after the pages are on disk |
 
@@ -1056,6 +1060,7 @@ def parse_yaml_response(response) -> Any:
 - Extracts and parses YAML from an LLM response fenced in ` ```yaml ` blocks
 - Uses split-based extraction, not regex
 - Used by: MapAbstractions, ReduceAbstractions, IdentifyAbstractions, AnalyzeRelationships, OrderChapters, DeterministicFileMapper (6 nodes); `parse_grouping_response` wraps it for CombineTutorial
+- `parse_facts_response(response) -> dict` (ExtractFacts): `{"symbols", "dependencies", "config", "errors", "unparsed"}`; a missing or null list → `[]`. The opening fence may be ```` ```yaml ```` / ```` ```yml ```` in any case and indented; the block ends at a closing fence at that same indentation, because quoted source lines (always indented deeper) can contain ``` themselves. Scalars stay strings (`yaml.BaseLoader`: `404`, `on`, `3.10`). Invalid YAML → quotes written as plain scalars (`signature: def run(self):`, the most common mistake) are rewritten as `|-` block scalars and re-parsed; failing that each list is parsed on its own, a broken list item by item (`_salvage_yaml_lists`), so one malformed quote costs one fact. `unparsed` counts the items still lost plus list items that are not mappings: `verify_file_claims` counts them as claimed and rejected, so coverage and the low-coverage retry see them. Raises for truncated replies and when none of the four lists is present
 
 #### `parse_grouping_response`
 ```python
@@ -1087,6 +1092,55 @@ def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str,
   4. System integration & dependencies
 - Language-aware: prefixes with `"Write the entire summary in {language}."` for non-English
 - Summary output stored in `self.chapter_summaries[]` for cross-chapter context
+
+### `utils/facts.py` — Verified Code Facts (api-reference)
+
+Language-agnostic checks of the claims `ExtractFacts` gets from `extract_facts.md`. Nothing parses a programming language: every claim quotes the source, and a claim is kept only when code finds the quote in that file. Line numbers always come from the match, never from the LLM. Verification proves presence, not completeness. Measured on the 10-language fixture (`.agents/work/facts_fixture`, `.agents/work/facts_eval.py`, gitignored): ideal claims give 47/47 true edges and no false one; 72 of 75 adversarial dependency claims and 15 of 16 symbol claims are judged as labelled (the 4 others are deliberate: an ambiguous usage line is rejected while its import line proves the edge; two paraphrased imports are matched by tokens and stored with the real line; a member claimed without its parent but with a unique full signature is kept).
+
+```python
+def split_lines(content: str) -> list[str]
+class SourceIndex:            # one file's lines, NFC-normalized
+    def locate(self, quote, start=0, end=None) -> list[tuple[int, int, str]]
+    def excerpt(self, first: int, last: int, quote) -> tuple[str, bool]
+def verify_file_claims(claims: dict, content: str) -> dict
+class ModuleTable:            # documented modules: paths, stems, directories, owned names, contents
+    def __init__(self, paths: list[str], symbols_by_path: dict, contents: dict | None = None)
+    def normalize(self, target: str) -> tuple[list[str], str]
+    def resolve(self, target: str, source_path: str, source_words: set) -> tuple[list[str], str]
+    def used_names(self, path: str, source_path: str, source_words: set) -> set
+    def namespace_members(self, target: str, source_path: str, source_words: set) -> list[str]
+def evidence_names_module(evidence, target_path, source_path, table, how, relative_style=False, per_line=False) -> bool
+def declares_namespace(content: str, dotted: str) -> bool
+def relative_import_extensions(located: dict) -> set
+def judge_dependency(claim: dict, source_path: str, source_words: set, table: ModuleTable, relative_style: bool) -> tuple[str, list]
+def verify_dependencies(located: dict, contents: dict, table: ModuleTable) -> dict
+def scan_import_candidates(content: str, source_path: str, table: ModuleTable, relative_style: bool = False) -> set[str]
+def facts_hash(signature: str, path: str, content: str) -> str
+def source_commit(local_dir) -> str | None
+def build_facts_document(project_name: str, commit, modules: dict) -> dict
+def load_facts(path: str) -> dict
+def save_facts(path: str, document: dict) -> None
+def facts_path(output_dir: str, project_name: str, is_mkdocs: bool) -> str
+```
+- **Lines** (`split_lines`): only CR, LF and CRLF break a line, as editors and GitHub count (`str.splitlines` would also split at form feeds, NEL and U+2028 and shift every later line number). Source and quotes are NFC-normalized (models write precomposed letters; an NFD file would otherwise never match)
+- **Quote matching** (`SourceIndex.locate`), first kind that matches anywhere wins: `exact` (on one line, whitespace collapsed), `joined` (across up to 8 lines, or the quote's own line count, whitespace ignored: a model joining a parenthesized import), `tokens` (the quote's ≥ 3 identifier tokens in order within that many lines: a model writing a Go import-block line with its `import` keyword). Each kind is one `str.find` over a pre-joined text (tokens: only windows around the quote's rarest word, and none when a word is absent from the file), so 400 claims on a 20k-line file take well under a second
+- **Stored text** (`excerpt`): the real source text of the match, at most 300 characters around the quote, `truncated: true` when cut (a minified one-line file would otherwise repeat itself in every fact)
+- **Names** (`_names_in`): the name's word tokens in the matched text, in order; a name with punctuation (`operator==`, `==`, `[]`, `<>`, `valid?`) must also occur verbatim with whitespace ignored, so a wrong operator never passes
+- **Symbols** (`_verify_symbols`): parents are placed before their members. A member is searched from its parent's line to the next top-level symbol, so `prep` declared in ten classes of `nodes.py` lands on the right line; failing that, file-wide, where a match counts only when its text names the parent (a Go receiver, a C++ `Class::`) or the nearest class-like symbol declared above it is that parent (or there is none). A member signature matching several lines that no parent span tells apart is rejected; a top-level one (conditional definitions) is kept at its first line with `ambiguous_lines`
+- **Config / errors:** the evidence must be found and contain the name (`--max-size` → `max`, `size`)
+- **Owned names** (`ModuleTable`): every verified symbol except a `method` owns its module (classes, functions, constants, also inside a module or namespace; dotted declared names such as `MyApp.Accounts.User` too); a name defined in exactly one module is that module's. Method names (`get`, `to_h`) are called on objects of any type and prove nothing. `used_names` = owned names of a module that the source uses and does not define itself
+- **Dependency targets** (`ModuleTable.resolve`), the target as written in the source:
+  - relative first: `./x`, `../x` and leading-dot modules (`.models`, `..core.engine`) against the source's directory (with every extension dropped as a fallback, `./types` → `types.d.ts`); a directory gives its index file (`mod`, `index`, `__init__`, `init`, `main`, in that preference) plus the files whose names the source uses; a leading-dot module that matches nothing is external; a `./` path that matches nothing falls back to the project-wide search (shell `source ./lib.sh`, R `source()` resolve against the working directory)
+  - `normalize` strips quotes and `@/` `~/` `$/`, drops a documented extension, turns `::` `\\` `.` into `/`, drops `*` `crate` `super` `self` and parts that are not names (`{Repo, StoreError}` of a grouped import)
+  - then, longest first, suffixes of the segments against module paths (`path`; exact case, else case-insensitive; a written extension must match; of several hits, the only one in the source's own directory wins). A match that drops leading segments of a qualified target (`email.utils` for `app/utils.py`, `Data.Map` for `Utils/Map.hs`) needs corroboration: an alias sigil (`@app`, `$lib`), the module declaring the dropped namespace (`use App\Db` → `namespace App;`), or the source using the module's names; so does a bare name that matches a file outside the source's own directory and its ancestors (Go `"errors"` against `internal/store/errors.go`)
+  - against directories (`package`: the directory's index file and the modules whose names the source uses — Go packages, Java wildcard imports)
+  - the last segment as a name defined in exactly one module (`symbol`)
+  - none → `external`; several → rejected as ambiguous. An import-like claim that stays external may be a namespace import (`namespace_members`): the modules that declare that dotted namespace on a `namespace` / `package` / `module` / `defmodule` / `library` / `unit` line (`declares_namespace`) and define a name the source uses (`via: namespace`, C# `using Acme.Accounting;`)
+- **Evidence rule** (`evidence_names_module`): the located line must name the resolved module — its file stem (for a package: the directory name) next to a path/module qualifier (`.` `/` `\\` `:` quote `<` backtick before it; its extension, a closing quote or `>` right after it; an occurrence followed by another documented extension names that other file: `socket.h` is not `socket.cpp`), or as a word on an import-like line (first word, after `pub` / `public` / `static` … modifiers, in a broad cross-language list: `import`, `from`, `require*`, `include*`, `using`, `use`, `mod`, `export`, `load`, `source`, `alias`, …; for a `tokens` match that stitched several lines, on one line); or a name (plain or dotted) only that module defines and the source does not define itself; or, when the source uses one of the module's names, the module's directory by its last two segments with no other file of that directory named (`"example.com/shop/internal/store"`, `import com.acme.billing.*;` — the stdlib `"net/http"` does not name `internal/http`), or a dotted namespace the module declares on an import-like line. So `from utils.output import emit` and `#include "net/socket.h"` qualify, while a parameter `exclude_patterns=None`, an attribute `config.port` or `return config` never make an edge
+- **Relative-import convention** (`relative_import_extensions`): the file extensions whose files import this project by `./` / `../` somewhere. In files of such a language a bare name is a package (`import config from 'config'` is external even when `src/config.ts` exists): bare quoted specifiers never name a local module there, nor does the import's own binding word
+- **Recall hint** (`scan_import_candidates`): modules named on import-like lines (or Go import-block path lines) that no claim covered, reported as `missed_imports` and under `--debug`. An unverified hint that can list false candidates; never an edge
+- **`facts.json`** (`facts_path`): `docs/api/facts.json` under `--mkdocs` (published with the site; CI's `docs/api/` cache keeps it), else next to the pages. Document: `schema` (1), `project`, `commit` (`git -C <crawled dir> rev-parse HEAD`, not this tool's checkout; `null` for `--repo`), `note` (presence verified, completeness not), `modules`: per path `source_sha256`, `lines`, `symbols` (`name`, `kind`, `parent`, `visibility`, `line`, `signature`, `match`, optional `ambiguous_lines` / `truncated`), `depends_on` (`module`, `target` as written, `line`, `evidence`, `via`: `path` / `package` / `symbol` / `namespace`), `used_by`, `external`, `config`, `errors`, `coverage` (`claimed` / `verified`; items the parser could not read count as claimed), `rejected` (with reasons), `missed_imports`, `facts_hash`, `claims` (the raw reply, re-verified on every run). Written atomically (`save_facts`)
+- **Cache** (`facts_hash`): md5 of `provider|model|extract_facts level|md5(template)|path|content`. The output language is not part of it: facts are quotes. An unchanged hash reuses the stored `claims` under `--incremental` or with the LLM cache on; resolution always re-runs, so added or removed modules update every edge
 
 ### `utils/files.py` — File & Content Helpers
 
@@ -1173,6 +1227,14 @@ def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]
 ```
 - `module_name_lookup`: every name the LLM may use for a module → its `module_name` (exact `module_name`, `original_path`, and the bare basename when unique)
 - `grouping_extras`: validated extras of the `group_modules.md` reply → `({module_name: description}, {module_name: [module_name, …]})`. Unknown names, self-dependencies, duplicates and non-string values are dropped; a single string target is accepted, and a `[{from, to}]` list form is tolerated. Descriptions: `table_cell_text(clip_sentences(…, 400))`
+
+#### `verified_dependencies`
+```python
+def verified_dependencies(module_facts: dict, chapter_files: list) -> dict
+```
+- `{module_name: [module_name, …]}` from `module_facts[path]["depends_on"]` (paths mapped through `original_path`, self-edges and duplicates dropped); `{}` without facts
+- `modules_with_facts(module_facts, chapter_files) -> set`: the `module_name` of every chapter whose extraction produced facts (its edges are verified even when it has none)
+- In `write_mkdocs_output`, when any module has facts: each such module's `module_list` line becomes `- name (uses: a, b): summary`, or `(uses: none)` for a verified leaf (the prompt says to copy them and add none). Per module, the verified edges **replace** the reply's `dependencies` for the section map and the module graph; a module whose extraction failed keeps the reply's (inferred) edges. The module-graph caption adds `UI_DEPS_VERIFIED` when every drawn arrow is verified, else `UI_DEPS_PARTIAL` naming the modules whose arrows are inferred, plus a `[facts.json](facts.json)` link
 
 #### `build_section_map` / `build_module_graph`
 ```python
@@ -1621,6 +1683,21 @@ Filters non-code files (configs, UI layouts, static assets) and creates a 1:1 ma
 **`prep()` return:** 4-element `tuple` — `(prompt, use_cache, thinking_level, max_tokens)` (passes `use_cache` from shared store)
 **`post()` return:** `"default"`
 
+#### ExtractFacts (BatchNode)
+Template: `prompts/common/extract_facts.md` (`load_prompt_template("extract_facts", mode="common")`)
+
+| `.format()` kwarg | Value source |
+|---|---|
+| `project_name` | `shared["project_name"]` |
+| `file_path` | the module's `original_path` (forward slashes) |
+| `source` | the module's full file content |
+
+- **prep:** one item per `shared["abstractions"]` module (api-reference: one file each) with `path`, `content`, `facts_hash`, `cached_claims` (from the previous `facts.json` when the hash matches, under `--incremental` or with the LLM cache on; else `None`), the template, `use_cache`, `thinking_level` (`resolve_thinking_level(shared, "extract_facts")`), `max_tokens`. Reading the previous facts.json with the LLM cache on also keeps a retried module's accepted reply, which the LLM cache (first attempt only) does not hold
+- **exec:** cached claims → `FACTS_CACHE_HIT`, no call. Otherwise `LLM_CALL_EXTRACT_FACTS`, `log_token_estimation`, `call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=..., step="extract_facts")`, `parse_facts_response`, `verify_file_claims`. Each attempt's result is remembered per path (`self.best`, reset on attempt 0); with ≥ 4 claims and fewer than half found (a paraphrasing reply) it emits `FACTS_LOW_COVERAGE` and raises to retry uncached — except on the last attempt. It returns the **best** attempt's claims (most found), not the last
+- **exec_fallback:** `WARN_FACTS_FALLBACK`; the best earlier attempt if one parsed, else `{"claims": None, "facts_hash": None}`: no facts for that module this run, retried next run
+- **post:** re-verifies every module's claims, builds the `ModuleTable`, `verify_dependencies`, fills `used_by`, writes `facts.json` (`FILE_WROTE`), sets `shared["module_facts"]`, emits `FACTS_MISSED_IMPORTS` (debug) and `DONE_FACTS` (with the count of modules without facts), and the `extract_facts` step subtotal
+**`post()` return:** `"default"`
+
 #### WriteChapters (BatchNode)
 Template: `prompts/{mode}/draft_chapters.md`
 
@@ -1768,6 +1845,7 @@ def parse_yaml_response(response):
 | Node | Top-level | Per-item fields | Notes |
 |---|---|---|---|
 | DeterministicFileMapper | list | Top-level int list | File indices to keep; uses `build_code_file_filter_prompt` |
+| ExtractFacts | dict | `symbols[].name`, `.kind`, `.parent`, `.visibility`, `.signature`; `dependencies[].target`, `.evidence`; `config[].name`, `.kind`, `.evidence`; `errors[].name`, `.evidence` | `signature` / `evidence` as `\|-` block scalars, copied verbatim from the source; parsed by `parse_facts_response`, checked by `utils/facts.py` |
 | IdentifyAbstractions | list | `name`, `description`, `file_indices` | Indices: int or `"3 # path"` |
 | MapAbstractions | list | `name`, `description`, `file_indices` | Same |
 | ReduceAbstractions | list | `name`, `description`, `files` | ⚠ `files` not `file_indices` |
@@ -1862,6 +1940,7 @@ ui = {
 | OrderChapters | 5 | 20 |
 | WriteChapters | 5 | 20 |
 | DeterministicFileMapper | 5 | 20 |
+| ExtractFacts | 3 | 10 |
 | CombineTutorial | 0 (default) | 0 |
 
 ### Anthropic Provider Errors
@@ -1945,19 +2024,30 @@ with open(template_path, "r", encoding="utf-8-sig") as f:
 ```
 
 ### Common Prompts (`prompts/common/`)
-Shared prompts that are NOT mode-specific. Loaded directly by path, not via `load_prompt_template()`.
+Shared prompts that are NOT mode-specific. `group_modules.md` and `translate_strings.md` are loaded directly by path; `extract_facts.md` via `load_prompt_template("extract_facts", mode="common")`.
+
+#### `extract_facts.md` — Verified Per-File Facts (ExtractFacts)
+One call per api-reference module on its full source. The reply lists `symbols` (declarations a reader looks up: classes, interfaces, structs, enums, traits, types, functions, methods, module-level constants/exported variables; with kind, parent, visibility by the language's own rules, and the declaration line), `dependencies` (every import / include / require / use / re-export, including imports inside functions, plus same-package names used without an import; `target` is the path exactly as written, without the list of imported names: `crate::store` for `use crate::store::{Repo, Error};`, `.util` for `from . import util`; evidence for a multi-line import is the line naming the module), `config` (env vars, CLI flags, config keys read) and `errors` (types or codes raised, thrown or returned). Signatures are at most the first 3 lines of a declaration; config and error evidence must contain the name (for a key held in a constant, the line defining the constant). Every signature and evidence is a verbatim source quote in a `|-` block scalar; the prompt says code checks them and discards what is not in the file, that parameters, locals and attributes are never dependencies even when named like a module, and that facts are about this file only. The output language is never applied: facts are quotes.
+
+| Variable | Source | Description |
+|---|---|---|
+| `{project_name}` | `shared["project_name"]` | Project display name |
+| `{file_path}` | module `original_path` | The file the facts are about |
+| `{source}` | file content | The whole file |
+
+The YAML example contains a literal `{{token}}` (escaped brace).
 
 #### `group_modules.md` — LLM Nav Grouping, Module Descriptions and Dependencies
 One call (api-reference, 6+ modules) returns the sidebar grouping **and** the data for the `api/index.md` description column and diagrams, so the index needs no extra LLM call. Rules in the prompt: dependencies first (the grouping and reading order build on them) = other listed modules a module directly uses (imports, calls, instantiates, reads config/data from), exact names only, no self-dependencies; every module in exactly one section, tightly coupled modules together; one description per module (1–2 complete sentences, ≤ 40 words, responsibility + key mechanism, no preamble / headings / labels, identifiers in backticks).
 
-**Reading order** follows how chapter ordering is designed (`OrderChapters`: a reader persona and an explicit strategy), with the strategy adapted from `prompts/api-reference/order_chapters.md` (a template the deterministic api-reference route never loads). Unlike OrderChapters, the dependencies are not an input: the reply lists them first, before the sections, and the code enforces only the role order (`order_sections`). Persona: an engineer integrating with or maintaining the system, reading the sidebar top to bottom. Every section and sub-section gets a `role` — `types` (core data types, shared models, common interfaces) → `setup` (entry points, configuration, initialization, client setup) → `core` (primary domain services, pipeline stages) → `support` (helpers, formatters, validators, adapters) → `operational` (logging/console output, monitoring, telemetry, localization, error handling, admin utilities) — written unquoted in English in every language (`parse_grouping_response` also unwraps a backticked role, which would be invalid YAML). Tie-break rules: a section holding the program's entry point (CLI/app main, bootstrap, the package index exporting the public API) is `setup`; logging, console output, localization and error helpers are `operational` even when every module uses them (`types` is only data models, schemas, interfaces); provider/adapter modules behind a facade take the facade's role; other mixed sections take the role of most of their modules. Same-role sections go in dependency order, with public-facing surfaces first only when neither uses the other or both use each other; sub-sections and modules follow the same strategy (the model is told the sidebar shows one directory's modules together, at the first one's position); sections are never ordered alphabetically or by directory. `order_sections` enforces the role order in code (Section 9).
+**Reading order** follows how chapter ordering is designed (`OrderChapters`: a reader persona and an explicit strategy), with the strategy adapted from `prompts/api-reference/order_chapters.md` (a template the deterministic api-reference route never loads). Unlike OrderChapters, the dependencies are not an input: the reply lists them first, before the sections, and the code enforces only the role order (`order_sections`). Persona: an engineer integrating with or maintaining the system, reading the sidebar top to bottom. Every section and sub-section gets a `role` — `types` (core data types, shared models, common interfaces) → `setup` (entry points, configuration, initialization, client setup) → `core` (primary domain services, pipeline stages) → `support` (helpers, formatters, validators) → `operational` (logging/console output, monitoring, telemetry, localization, error handling, admin utilities) — written unquoted in English in every language (`parse_grouping_response` also unwraps a backticked role, which would be invalid YAML). Tie-break rules: a section holding the program's entry point (CLI/app main, bootstrap, the package index exporting the public API) is `setup`; logging, console output, localization and error helpers are `operational` even when every module uses them (`types` is only data models, schemas, interfaces); provider/adapter modules behind a facade take the facade's role; other mixed sections take the role of most of their modules. Same-role sections go in dependency order, with public-facing surfaces first only when neither uses the other or both use each other; sub-sections and modules follow the same strategy (the model is told the sidebar shows one directory's modules together, at the first one's position); sections are never ordered alphabetically or by directory. `order_sections` enforces the role order in code (Section 9).
 
 **Template variables:**
 | Variable | Source | Description |
 |---|---|---|
 | `{project_name}` | `shared["project_name"]` | Project display name |
 | `{module_count}` | `len(chapter_files)` | Number of documented modules |
-| `{module_list}` | Built from chapter_files + chapter_summaries | `- module_name: summary` per module, in directory-tree order (root files first) |
+| `{module_list}` | Built from chapter_files + chapter_summaries (+ `module_facts`) | `- module_name: summary` per module, in directory-tree order (root files first); `- module_name (uses: a, b): summary` when ExtractFacts verified its dependencies (the prompt says to copy those) |
 | `{directory_tree}` | `shared["directory_tree"]` | Project directory tree string |
 | `{language_note}` | Conditional on `shared["language"]` | `"Section names and module descriptions MUST be in {language}."` or empty |
 
@@ -2078,7 +2168,7 @@ from pocketflow import Flow
 from nodes import (
     FetchRepo, ContextRouter, MapAbstractions, ReduceAbstractions,
     IdentifyAbstractions, AnalyzeRelationships, OrderChapters,
-    WriteChapters, CombineTutorial, DeterministicFileMapper
+    WriteChapters, CombineTutorial, DeterministicFileMapper, ExtractFacts
 )
 
 def create_tutorial_flow():
@@ -2092,6 +2182,7 @@ def create_tutorial_flow():
     write_chapters = WriteChapters(max_retries=5, wait=20)
     combine_tutorial = CombineTutorial()
     deterministic_mapper = DeterministicFileMapper(max_retries=5, wait=20)
+    extract_facts = ExtractFacts(max_retries=3, wait=10)
 
     fetch_repo >> context_router
     
@@ -2107,7 +2198,7 @@ def create_tutorial_flow():
     analyze_relationships >> order_chapters
     order_chapters >> write_chapters
     
-    deterministic_mapper >> write_chapters
+    deterministic_mapper >> extract_facts >> write_chapters
     
     write_chapters >> combine_tutorial
 
@@ -2241,10 +2332,20 @@ def order_sections(sections: list, chapter_files: list) -> list:
 def prune_stale_pages(api_docs_path, chapter_files):
 ```
 
-#### `grouping_extras` / `build_section_map` / `build_module_graph` — `utils/mkdocs.py`
+#### `verify_file_claims` / `verify_dependencies` / `ModuleTable` / `save_facts` — `utils/facts.py`
+Used by: ExtractFacts (prep, exec, post), main.py (`facts_path` for `--force-rebuild`)
+```python
+def verify_file_claims(claims: dict, content: str) -> dict:
+def verify_dependencies(located: dict, contents: dict, table: ModuleTable) -> dict:
+def save_facts(path: str, document: dict) -> None:
+```
+Language-agnostic verification of the extract_facts claims; see Section 9.
+
+#### `grouping_extras` / `verified_dependencies` / `build_section_map` / `build_module_graph` — `utils/mkdocs.py`
 Used by: write_mkdocs_output (grouped api-reference index)
 ```python
 def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]:
+def verified_dependencies(module_facts: dict, chapter_files: list) -> dict:
 def build_section_map(sections: list, dependencies: dict, max_listed: int = 8) -> tuple[str, bool, bool]:
 def build_module_graph(sections: list, dependencies: dict, chapter_files: list) -> tuple[str, int]:
 ```
@@ -2309,6 +2410,7 @@ Nodes read their level with `resolve_thinking_level(shared, "<node_key>")` (fall
 | NODE key | Call site | Workload |
 |---|---|---|
 | `filter_files` | `DeterministicFileMapper` | Mechanical classification (api-reference) |
+| `extract_facts` | `ExtractFacts` (per file) | Extraction with verbatim quotes (api-reference) |
 | `map_abstractions` | `MapAbstractions` (per batch) | Extraction |
 | `reduce_abstractions` | `ReduceAbstractions` | Reasoning-heavy synthesis |
 | `identify_abstractions` | `IdentifyAbstractions` | Reasoning-heavy synthesis |
@@ -2324,6 +2426,7 @@ Profiles (`auto` = `balanced` on ANTHROPIC, GEMINI and OPENROUTER (`thinking.PRO
 | NODE | economy | balanced | quality | max |
 |---|---|---|---|---|
 | filter_files | low | low | medium | medium |
+| extract_facts | low | low | medium | medium |
 | map_abstractions | low | medium | high | xhigh |
 | reduce_abstractions | medium | high | high | max |
 | identify_abstractions | medium | high | high | max |
@@ -2336,7 +2439,7 @@ Profiles (`auto` = `balanced` on ANTHROPIC, GEMINI and OPENROUTER (`thinking.PRO
 
 Rationale: reasoning-heavy synthesis (identify/reduce) gets the most effort; relationship analysis only feeds the summary, diagram and ordering; chapter writing runs N times (hundreds in api-reference), so shipped profiles stop at `high` — current Claude 5 models already do strong work at `medium` (Opus 5.5 at `medium` beats Opus 5 at `high` on knowledge work). `xhigh`/`max` only in the explicit `max` profile (use when a gain has been measured).
 
-Per-mode adjustments: economy → `write_chapters=medium` for advanced (design-rationale chapters, at most `max_abstraction_num` calls). `MODE_NODES` lists which nodes can run per mode (api-reference: `filter_files`, `write_chapters`, `chapter_summary`, `group_modules`, `translate_strings`; other modes: the analysis nodes + `write_chapters`, `chapter_summary`, `translate_strings`) — used for the config display and `WARN_THINKING_OVERRIDE_UNUSED`.
+Per-mode adjustments: economy → `write_chapters=medium` for advanced (design-rationale chapters, at most `max_abstraction_num` calls). `MODE_NODES` lists which nodes can run per mode (api-reference: `filter_files`, `extract_facts`, `write_chapters`, `chapter_summary`, `group_modules`, `translate_strings`; other modes: the analysis nodes + `write_chapters`, `chapter_summary`, `translate_strings`) — used for the config display and `WARN_THINKING_OVERRIDE_UNUSED`.
 
 Provider mapping of a level: ANTHROPIC → `output_config.effort` (xhigh → high on the 4.6 family; pre-4.6 models such as Haiku 4.5 → `budget_tokens` 2,048 / 8,192 / 16,384 / 24,576 / 32,000); GEMINI 3.x → `thinking_level` (per-model set, `llm_config.GEMINI_THINKING_LEVELS`), Gemini 2.5 → `thinking_budget` (`GEMINI_THINKING_BUDGETS` clamped to `GEMINI_BUDGET_RANGES`); OPENROUTER → `reasoning.effort` clamped to the catalog's `supported_efforts`, or `reasoning.max_tokens` for budget-only models; OLLAMA → low/medium/high. The startup display shows it as `CFG_THINKING_SUPPORT` (`llm_config.describe_thinking_support`).
 

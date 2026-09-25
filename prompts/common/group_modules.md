@@ -4,7 +4,7 @@ Group the modules listed below into a LOGICAL HIERARCHY for a documentation side
 The reader is an engineer integrating with or maintaining this system who reads the sidebar from top to bottom. Order for maximum "I can find and understand any API" progression.
 
 Rules for dependencies (work these out first: the grouping and the reading order build on them):
-- For each module, list the OTHER modules from the list that it directly uses: imports, calls, instantiates, or reads configuration or data from. Base this on the module summaries
+- For each module, list the OTHER modules from the list that it directly uses: imports, calls, instantiates, or reads configuration or data from. A module shown with `(uses: ...)` has its dependencies verified against the source code: copy them exactly (`(uses: none)` means it uses no listed module: add none). Base the others on the module summaries
 - Use EXACT module names from the list. Never list a module as its own dependency, and never name anything that is not in the list
 - Leave out modules that use no other listed module
 
