@@ -1,7 +1,9 @@
 <!-- NOTE: This template is NOT used in the current api-reference flow.
      ContextRouter routes api-reference mode to DeterministicFileMapper,
      which bypasses abstraction discovery entirely (1:1 file mapping).
-     Kept for potential future use if api-reference adds a non-deterministic path. -->
+     Kept for potential future use if api-reference adds a non-deterministic path.
+     The section roles in prompts/common/group_modules.md (the api-reference sidebar reading order)
+     are adapted from its ORDERING STRATEGY: change both together. -->
 
 Given the following API modules and their dependencies for the project `{project_name}`:
 

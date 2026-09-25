@@ -154,7 +154,7 @@ codebase_kb/
 │   │   ├── order_chapters.md
 │   │   └── draft_chapters.md
 │   └── common/                      # Shared prompts used across modes
-│       ├── group_modules.md         # LLM-assisted sidebar nav grouping + module descriptions and dependencies (api/index.md)
+│       ├── group_modules.md         # LLM-assisted sidebar nav grouping (reading order) + module descriptions and dependencies (api/index.md)
 │       └── translate_strings.md     # LLM-assisted translation prompt
 └── docs/
     ├── design.md                    # THIS FILE
@@ -1062,7 +1062,7 @@ def parse_yaml_response(response) -> Any:
 def parse_grouping_response(response) -> Any:
 ```
 - Parses the `group_modules.md` reply (`sections` + `descriptions` + `dependencies`) via `parse_yaml_response`
-- When the full block is invalid YAML (typically one malformed description), parses each top-level block (`sections:`, `descriptions:`, `dependencies:`) on its own and keeps the ones that parse, so one bad description costs neither the grouped sidebar nor the dependencies. Raises when `sections` cannot be recovered, for truncated replies, and for replies without a ```` ```yaml ```` block
+- When the full block is invalid YAML (typically one malformed description, or a section `role` written in backticks, which is unwrapped first), parses each top-level block (`sections:`, `descriptions:`, `dependencies:`) on its own and keeps the ones that parse, so one bad description costs neither the grouped sidebar nor the dependencies. Raises when `sections` cannot be recovered, for truncated replies, and for replies without a ```` ```yaml ```` block
 - Used by: `write_mkdocs_output` (CombineTutorial nav grouping)
 
 #### `build_code_file_filter_prompt`
@@ -1189,9 +1189,9 @@ def build_module_graph(sections: list, dependencies: dict, chapter_files: list) 
 def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
 ```
 - Recursively builds MkDocs nav YAML lines from LLM-generated section grouping
-- Handles arbitrary nesting via `children` key in sections
+- Handles arbitrary nesting via `children` key in sections. A section lists its own modules first, then its children (the order of `build_index_sections` and the diagrams)
 - Each module is matched to `chapter_files` by `module_name`. Each `chapter_files` entry must include `original_path` for directory sub-grouping.
-- Files in subdirectories are **always** auto-sub-grouped by their full directory path (deterministic, no extra LLM call). Root-level files remain flat (no sub-layer). Module names inside dir sub-layers are bare (no directory prefix).
+- Files in subdirectories are **always** auto-sub-grouped by their full directory path (deterministic, no extra LLM call), in the order the section first lists them (not alphabetically). Root-level files remain flat (no sub-layer). Module names inside dir sub-layers are bare (no directory prefix).
 - Returns list of indented YAML lines
 
 #### `collect_all_modules`
@@ -1205,8 +1205,20 @@ def collect_all_modules(sections: list) -> set:
 ```python
 def prune_sections(sections: list, chapter_files: list) -> list:
 ```
-- Drops grouped module names that match no `chapter_files` `module_name` (hallucinated or path-prefixed names), then drops sections left with no modules and no children (recursively). Non-dict entries are skipped
-- Runs on the parsed LLM grouping before `collect_all_modules`: an empty section would become a null nav entry (`- "Name":`) and `mkdocs build` would abort with "Expected nav to be a list, got None". If nothing survives, `write_mkdocs_output` falls back to the flat directory nav (`GROUP_EMPTY_FALLBACK`)
+- Resolves grouped module names through `module_name_lookup` (exact `module_name`, `original_path`, unique basename — the same resolution as `grouping_extras`, so a module written as its path is not demoted to "Other"), drops names that match no chapter (hallucinated) and duplicates within a section, then drops sections left with no modules and no children (recursively). Non-dict entries are skipped
+- Runs on the parsed LLM grouping before `collect_all_modules`: an empty section would become a null nav entry (`- "Name":`) and `mkdocs build` would abort with "Expected nav to be a list, got None". If nothing survives, `write_mkdocs_output` falls back to the flat directory nav (`GROUP_EMPTY_FALLBACK`). Extra keys such as `role` are kept
+
+#### `order_sections` / `SECTION_ROLES`
+```python
+SECTION_ROLES = ("types", "setup", "core", "support", "operational")
+def order_sections(sections: list, chapter_files: list) -> list:
+```
+- Puts the grouped sections in **reading order**, the api-reference chapter-ordering strategy (`prompts/api-reference/order_chapters.md`) applied to the sidebar. The `group_modules.md` reply gives every section and sub-section a `role`; siblings are stably sorted in `SECTION_ROLES` order: core data types / shared models → entry points, configuration and setup → primary domain services → supporting services → cross-cutting operational modules (logging, telemetry, localization) last. Within a role the reply's order stands (the prompt asks for dependency order, public surfaces first)
+- A level where any section lacks a known role (missing, misspelled, translated) keeps the reply's order. Roles are matched case- and whitespace-insensitively
+- Each section's modules are grouped by directory in first-appearance order (the nav's directory sub-layers), so the nav, the index tables and both diagrams list them identically
+- Returns new dicts (input not mutated). Runs after `prune_sections` / `grouping_extras` and before the `UI_OTHER` bucket is appended, so "Other" is always last; the bucket lists its modules in directory-tree order (`tree_order_key`) and goes through `order_sections` too, so its nav and table rows agree
+- Only the role order is enforced in code. The order within a role comes from the reply: dependencies are LLM-inferred from summaries (5 of 60 edges wrong in one measured run), too noisy to override the model with
+- Generation order is untouched: `chapter_order` stays deepest-first for the rolling summaries; only the presentation changes
 
 #### `build_index_sections`
 ```python
@@ -1239,9 +1251,9 @@ def split_frontmatter(text: str) -> tuple[str, bool]:
 def write_mkdocs_output(output_path, prep_res, chapter_files):
 ```
 - Orchestrates all MkDocs output: nav grouping, mkdocs.yml, homepage redirect, section index, nav_snippet.yml, link normalization, chapter files, and stale-page pruning
-- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`. The reply is parsed with `parse_grouping_response`; its sections go through `prune_sections`, its `descriptions` / `dependencies` through `grouping_extras` (both reset to `{}` when grouping fails)
+- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`, listed in directory-tree order (root files first) rather than generation order, which would suggest a bottom-up reading order. The reply is parsed with `parse_grouping_response`; its sections go through `prune_sections` and then `order_sections` (reading order, logged as `NAV ORDER`), its `descriptions` / `dependencies` through `grouping_extras` (both reset to `{}` when grouping fails)
 - **Grouped `api/index.md` layout:** title + count line → `## UI_ARCH_OVERVIEW` with the `build_section_map` diagram and, when it has arrows, an italic `UI_SECTION_MAP_NOTE` caption (+ `UI_SECTION_MAP_HUBS` when a section is outlined) → `## UI_CHAPTER_INDEX` section tables (`build_index_sections(…, descriptions=…)`) → `## UI_MODULE_DEPENDENCIES` with the `build_module_graph` diagram and a `UI_MODULE_GRAPH_NOTE` caption (+ `UI_MODULE_GRAPH_HUBS` when hubs were folded). Each diagram is omitted when its builder returns `""`
-- The flat index (no grouping) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description. For tutorial/advanced/sdk it also places `prep_res["overview"]` (project summary, source line, relationship Mermaid diagram — the same block as the standalone `index.md`) between the count line and the chapter index
+- The flat index (no grouping) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description, in the flat nav's order (root files first, then directories alphabetically; a stable sort, so tutorial/advanced/sdk keep `chapter_order`). For tutorial/advanced/sdk it also places `prep_res["overview"]` (project summary, source line, relationship Mermaid diagram — the same block as the standalone `index.md`) between the count line and the chapter index
 - Writes `nav_snippet.yml` next to `mkdocs.yml` (output root), not in `docs/`: MkDocs copies every non-Markdown file in `docs_dir` into the site, so it used to be published at the site root. A leftover `docs/nav_snippet.yml` from older runs is removed
 - Ends with `prune_stale_pages(api_docs_path, chapter_files)`: deletes every `.md` under `docs/api/` that is neither `index.md` nor a current chapter file (matched by file identity, `os.stat` device + inode, so a case-only rename on a case-insensitive filesystem never deletes the page just written), emitting `MKDOCS_PRUNED_STALE`, and removes directories left empty. MkDocs publishes every page in `docs_dir` even when the nav no longer lists it, so without this, pages of removed modules stayed live and searchable (and CI's cache restored them every run)
 - Called by `CombineTutorial.exec` when `is_mkdocs=True`
@@ -1685,8 +1697,9 @@ Assembles final output files. In `api-reference` + `--mkdocs` mode with 6+ modul
 **LLM-Assisted Nav Grouping (api-reference + --mkdocs only):**
 - Loads `prompts/common/group_modules.md` template
 - Sends module names + chapter summaries + directory tree to LLM
-- LLM returns YAML with hierarchical sections (supports arbitrary nesting via `children`)
-- Validates all modules are covered; ungrouped modules → "Other" section
+- LLM returns YAML with hierarchical sections (supports arbitrary nesting via `children`), each with a reading-order `role`
+- `order_sections` puts the sections in reading order (see Section 9)
+- Validates all modules are covered; ungrouped modules → "Other" section (last)
 - Fallback: if LLM fails, uses flat nav (all modules listed directly)
 - Only triggered for 6+ modules; smaller projects keep flat layout
 
@@ -1760,7 +1773,7 @@ def parse_yaml_response(response):
 | ReduceAbstractions | list | `name`, `description`, `files` | ⚠ `files` not `file_indices` |
 | AnalyzeRelationships | dict | `summary`, `relationships[].from_abstraction`, `.to_abstraction`, `.label` | |
 | OrderChapters | list | Top-level int list | `[0, 3, 1, ...]` |
-| CombineTutorial | dict | `sections[].name`, `.modules[]`, `.children[]`; `descriptions` (`{module: str}`), `dependencies` (`{module: [module]}`) | Nested nav grouping, index descriptions and index diagrams via `group_modules.md` (`parse_grouping_response`, `grouping_extras`) |
+| CombineTutorial | dict | `dependencies` (`{module: [module]}`), `sections[].name`, `.role`, `.modules[]`, `.children[]`; `descriptions` (`{module: str}`) — keys asked in this order | Nested nav grouping, index descriptions and index diagrams via `group_modules.md` (`parse_grouping_response`, `grouping_extras`) |
 
 ### Index Validation
 ```python
@@ -1935,25 +1948,33 @@ with open(template_path, "r", encoding="utf-8-sig") as f:
 Shared prompts that are NOT mode-specific. Loaded directly by path, not via `load_prompt_template()`.
 
 #### `group_modules.md` — LLM Nav Grouping, Module Descriptions and Dependencies
-One call (api-reference, 6+ modules) returns the sidebar grouping **and** the data for the `api/index.md` description column and diagrams, so the index needs no extra LLM call. Rules in the prompt: every module in exactly one section; one description per module (1–2 complete sentences, ≤ 40 words, responsibility + key mechanism, no preamble / headings / labels, identifiers in backticks); dependencies = other listed modules a module directly uses (imports, calls, instantiates, reads config/data from), exact names only, no self-dependencies.
+One call (api-reference, 6+ modules) returns the sidebar grouping **and** the data for the `api/index.md` description column and diagrams, so the index needs no extra LLM call. Rules in the prompt: dependencies first (the grouping and reading order build on them) = other listed modules a module directly uses (imports, calls, instantiates, reads config/data from), exact names only, no self-dependencies; every module in exactly one section, tightly coupled modules together; one description per module (1–2 complete sentences, ≤ 40 words, responsibility + key mechanism, no preamble / headings / labels, identifiers in backticks).
+
+**Reading order** follows how chapter ordering is designed (`OrderChapters`: a reader persona and an explicit strategy), with the strategy adapted from `prompts/api-reference/order_chapters.md` (a template the deterministic api-reference route never loads). Unlike OrderChapters, the dependencies are not an input: the reply lists them first, before the sections, and the code enforces only the role order (`order_sections`). Persona: an engineer integrating with or maintaining the system, reading the sidebar top to bottom. Every section and sub-section gets a `role` — `types` (core data types, shared models, common interfaces) → `setup` (entry points, configuration, initialization, client setup) → `core` (primary domain services, pipeline stages) → `support` (helpers, formatters, validators, adapters) → `operational` (logging/console output, monitoring, telemetry, localization, error handling, admin utilities) — written unquoted in English in every language (`parse_grouping_response` also unwraps a backticked role, which would be invalid YAML). Tie-break rules: a section holding the program's entry point (CLI/app main, bootstrap, the package index exporting the public API) is `setup`; logging, console output, localization and error helpers are `operational` even when every module uses them (`types` is only data models, schemas, interfaces); provider/adapter modules behind a facade take the facade's role; other mixed sections take the role of most of their modules. Same-role sections go in dependency order, with public-facing surfaces first only when neither uses the other or both use each other; sub-sections and modules follow the same strategy (the model is told the sidebar shows one directory's modules together, at the first one's position); sections are never ordered alphabetically or by directory. `order_sections` enforces the role order in code (Section 9).
 
 **Template variables:**
 | Variable | Source | Description |
 |---|---|---|
 | `{project_name}` | `shared["project_name"]` | Project display name |
 | `{module_count}` | `len(chapter_files)` | Number of documented modules |
-| `{module_list}` | Built from chapter_files + chapter_summaries | `- module_name: summary` per module |
+| `{module_list}` | Built from chapter_files + chapter_summaries | `- module_name: summary` per module, in directory-tree order (root files first) |
 | `{directory_tree}` | `shared["directory_tree"]` | Project directory tree string |
 | `{language_note}` | Conditional on `shared["language"]` | `"Section names and module descriptions MUST be in {language}."` or empty |
 
 **Expected YAML response** (descriptions as `>-` folded scalars so quotes, colons and `#` inside them never break parsing; `parse_grouping_response` still salvages the sections if they do):
 ```yaml
+dependencies:
+  "module_name_1": ["module_name_2"]
+  "module_name_3": ["module_name_1", "module_name_2"]
 sections:
   - name: "Section Name"
-    modules: ["module_name_1", "module_name_2"]
+    role: setup
+    modules: ["module_name_2", "module_name_1"]
   - name: "Parent Section"
+    role: core
     children:
       - name: "Child Section"
+        role: core
         modules: ["module_name_3"]
 descriptions:
   "module_name_1": >-
@@ -1962,9 +1983,6 @@ descriptions:
     One or two sentences about module_name_2.
   "module_name_3": >-
     One or two sentences about module_name_3.
-dependencies:
-  "module_name_1": ["module_name_2"]
-  "module_name_3": ["module_name_1", "module_name_2"]
 ```
 
 #### `translate_strings.md` — LLM String Translation
@@ -2215,10 +2233,11 @@ Used by: WriteChapters.exec (cache-hit re-heading), write_mkdocs_output (groupin
 def strip_summary_header(summary: str) -> str:
 ```
 
-#### `prune_sections` / `prune_stale_pages` — `utils/mkdocs.py`
+#### `prune_sections` / `order_sections` / `prune_stale_pages` — `utils/mkdocs.py`
 Used by: write_mkdocs_output (1 caller each)
 ```python
 def prune_sections(sections: list, chapter_files: list) -> list:
+def order_sections(sections: list, chapter_files: list) -> list:
 def prune_stale_pages(api_docs_path, chapter_files):
 ```
 

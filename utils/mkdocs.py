@@ -516,11 +516,13 @@ def build_module_graph(sections: list, dependencies: dict, chapter_files: list) 
 def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
     """Recursively build MkDocs nav YAML lines from LLM section grouping.
 
-    Handles arbitrary nesting depth via the ``children`` key.
+    Handles arbitrary nesting depth via the ``children`` key; a section lists its own
+    modules first, then its children (the order of the index tables and diagrams).
     Each leaf module is matched against *chapter_files* by ``module_name``.
     Files in subdirectories are always auto-sub-grouped by their full
-    directory path (deterministic, no extra LLM call). Root-level files
-    remain flat. Module names inside dir sub-layers are bare (no prefix).
+    directory path (deterministic, no extra LLM call), in the order the section
+    first lists them. Root-level files remain flat. Module names inside dir
+    sub-layers are bare (no prefix).
     """
     emit_raw("DEBUG", f"build_grouped_nav | building nav for {len(sections)} sections", dest="LOG")
 
@@ -528,39 +530,25 @@ def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> l
     pad = " " * indent
     for section in sections:
         lines.append(f"{pad}- {yaml_str(section['name'])}:")
-        if "children" in section:
-            lines.extend(build_grouped_nav(section["children"], chapter_files, indent + 2))
 
-        # Collect matched modules with directory info
-        matched = []
+        # Group matched modules by directory, keeping the section's module order
+        dir_groups = defaultdict(list)
         for mod_name in section.get("modules", []):
             match = next((cf for cf in chapter_files if cf["module_name"] == mod_name), None)
             if match:
-                dir_path = os.path.dirname(match.get("original_path", "")) or ""
-                matched.append((dir_path, mod_name, match))
-
-        # Group by directory
-        dir_groups = defaultdict(list)
-        for dir_path, mod_name, match in matched:
-            dir_groups[dir_path].append((mod_name, match))
+                dir_groups[os.path.dirname(match.get("original_path") or "")].append((mod_name, match))
 
         # Emit dir sub-layers for non-root dirs, flat for root files
-        has_non_root = any(d for d in dir_groups)
-        if has_non_root:
-            for dir_path in sorted(dir_groups.keys()):
-                if dir_path:
-                    # Non-root: add directory sub-layer with bare module names
-                    lines.append(f"{pad}  - {yaml_str(dir_path)}:")
-                    for mod_name, match in dir_groups[dir_path]:
-                        lines.append(f"{pad}    - {yaml_str(mod_name)}: {yaml_str('api/' + match['filename'])}")
-                else:
-                    # Root files: flat (no sub-layer)
-                    for mod_name, match in dir_groups[dir_path]:
-                        lines.append(f"{pad}  - {yaml_str(mod_name)}: {yaml_str('api/' + match['filename'])}")
-        else:
-            # All root files → flat list
-            for _dir_path, mod_name, match in matched:
-                lines.append(f"{pad}  - {yaml_str(mod_name)}: {yaml_str('api/' + match['filename'])}")
+        for dir_path, members in dir_groups.items():
+            item_pad = f"{pad}  "
+            if dir_path:
+                # Non-root: add directory sub-layer with bare module names
+                lines.append(f"{pad}  - {yaml_str(dir_path)}:")
+                item_pad = f"{pad}    "
+            lines.extend(f"{item_pad}- {yaml_str(mod_name)}: {yaml_str('api/' + match['filename'])}" for mod_name, match in members)
+
+        if "children" in section:
+            lines.extend(build_grouped_nav(section["children"], chapter_files, indent + 2))
 
     return lines
 
@@ -576,17 +564,19 @@ def collect_all_modules(sections: list) -> set:
 
 
 def prune_sections(sections: list, chapter_files: list) -> list:
-    """Drop grouped module names that match no chapter, then drop sections left empty.
+    """Resolve grouped module names (``module_name_lookup``), drop names that match no chapter, then
+    drop sections left empty.
 
     An empty section would be emitted as a null nav entry (``- "Name":``), which makes
     ``mkdocs build`` abort with "Expected nav to be a list, got None".
     """
-    known = {cf["module_name"] for cf in chapter_files}
+    lookup = module_name_lookup(chapter_files)
     pruned = []
     for section in sections:
         if not isinstance(section, dict):
             continue
-        modules = [m for m in section.get("modules") or [] if isinstance(m, str) and m in known]
+        names = [m.strip() for m in section.get("modules") or [] if isinstance(m, str)]
+        modules = list(dict.fromkeys(lookup[name] for name in names if name in lookup))
         children = prune_sections(section.get("children") or [], chapter_files)
         if not modules and not children:
             continue
@@ -596,6 +586,48 @@ def prune_sections(sections: list, chapter_files: list) -> list:
             kept["children"] = children
         pruned.append(kept)
     return pruned
+
+
+def tree_order_key(chapter_file: dict) -> tuple:
+    """Sort key for directory-tree order (root files first, then directories alphabetically), the
+    order of ``build_directory_tree``; ``chapter_files`` itself is in generation order."""
+    return os.path.split(chapter_file.get("original_path") or "")
+
+
+# Reading-order roles of nav sections, in the order prompts/api-reference/order_chapters.md presents
+# modules: vocabulary, what a developer touches first, the domain, its helpers, cross-cutting last
+SECTION_ROLES = ("types", "setup", "core", "support", "operational")
+
+
+def order_sections(sections: list, chapter_files: list) -> list:
+    """Sections in reading order, as new dicts.
+
+    Siblings are stably sorted by their ``role`` (``SECTION_ROLES`` order), so the reply's order
+    decides within a role; a level where any section lacks a known role keeps the reply's order.
+    Each section's modules are grouped by directory in first-appearance order, the order of the
+    nav's directory sub-layers, so nav, index tables and diagrams list them the same way. Only the
+    role order is enforced: the grouping reply's dependencies are inferred from summaries and too
+    noisy to reorder the model's choices within a role.
+    """
+    rank = {role: index for index, role in enumerate(SECTION_ROLES)}
+    dir_of = {cf["module_name"]: os.path.dirname(cf.get("original_path") or "") for cf in chapter_files}
+
+    def role_rank(section):
+        return rank.get(str(section.get("role", "")).strip().lower())
+
+    def ordered(level):
+        level = [dict(section) for section in level]
+        for section in level:
+            modules = section.get("modules") or []
+            dirs = list(dict.fromkeys(dir_of.get(name, "") for name in modules))
+            section["modules"] = [name for dir_path in dirs for name in modules if dir_of.get(name, "") == dir_path]
+            if section.get("children"):
+                section["children"] = ordered(section["children"])
+        if all(role_rank(section) is not None for section in level):
+            level.sort(key=role_rank)
+        return level
+
+    return ordered(sections)
 
 
 # ---------------------------------------------------------------------------
@@ -715,9 +747,10 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
     if mode == "api-reference" and len(chapter_files) > 5:
         try:
-            module_list = "\n".join(
-                f"- {cf['module_name']}: {summary or cf['description']}" for cf, summary in zip(chapter_files, summaries, strict=True)
-            )
+            # Listed in directory-tree order: chapter_files is in generation order (deepest directory first),
+            # which would suggest a bottom-up reading order
+            listed = sorted(zip(chapter_files, summaries, strict=True), key=lambda pair: tree_order_key(pair[0]))
+            module_list = "\n".join(f"- {cf['module_name']}: {summary or cf['description']}" for cf, summary in listed)
 
             # Load grouping prompt template
             prompt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "prompts", "common", "group_modules.md")
@@ -755,11 +788,20 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             )
 
             if sections:
+                # Reading order (nav, index tables and diagrams all follow it), then "Other" last
+                reply_order = [section["name"] for section in sections]
+                sections = order_sections(sections, chapter_files)
+                emit_raw(
+                    "DEBUG",
+                    f"NAV ORDER | reply={reply_order} | roles={[section.get('role') for section in sections]} "
+                    f"| reading={[section['name'] for section in sections]}",
+                    dest="LOG",
+                )
                 # Validate: ensure all modules are covered
                 grouped_modules = collect_all_modules(sections)
-                ungrouped = [cf["module_name"] for cf in chapter_files if cf["module_name"] not in grouped_modules]
+                ungrouped = [cf["module_name"] for cf in sorted(chapter_files, key=tree_order_key) if cf["module_name"] not in grouped_modules]
                 if ungrouped:
-                    sections.append({"name": get("UI_OTHER"), "modules": ungrouped})
+                    sections += order_sections([{"name": get("UI_OTHER"), "modules": ungrouped}], chapter_files)
 
                 nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
                 nav_lines.insert(0, "    - api/index.md")
@@ -876,7 +918,10 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             f"| {th_chapter} | {th_description} |",
             "|---------|-------------|",
         ]
-        for cf, summary in zip(chapter_files, summaries, strict=True):
+        # Rows in the flat nav's order: root files first, then directories alphabetically (a stable sort, so
+        # tutorial/advanced/sdk, which have no original_path, keep chapter_order)
+        rows = sorted(zip(chapter_files, summaries, strict=True), key=lambda pair: os.path.dirname(pair[0].get("original_path") or ""))
+        for cf, summary in rows:
             # original_path already is "dir/name" (module_name may carry a dir prefix for duplicate basenames)
             display = cf.get("original_path") or cf["module_name"]
             index_lines.append(f"| [{md_link_text(display)}]({cf['filename']}) | {summary_description(summary or cf['description'])} |")

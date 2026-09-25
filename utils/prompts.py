@@ -62,8 +62,9 @@ def parse_grouping_response(response):
 
     When the whole block is not valid YAML, each top-level block (``sections:``, ``descriptions:``,
     ``dependencies:``) is parsed on its own and the ones that parse are kept, so one malformed
-    description costs neither the grouped sidebar nor the dependencies. Raises when ``sections`` cannot
-    be recovered, and for truncated replies.
+    description costs neither the grouped sidebar nor the dependencies. A section ``role`` written in
+    backticks (invalid YAML) is unwrapped first. Raises when ``sections`` cannot be recovered, and for
+    truncated replies.
     """
     try:
         return parse_yaml_response(response)
@@ -71,6 +72,7 @@ def parse_grouping_response(response):
         if getattr(response, "truncated", False) or "```yaml" not in response:
             raise
         yaml_str = response.split("```yaml", 1)[1].split("```", 1)[0]
+        yaml_str = re.sub(r"(?m)^(\s*(?:-\s+)?role\s*:\s*)`([^`\n]*)`", r"\1\2", yaml_str)
         parsed = {}
         for chunk in re.split(r"(?m)^(?=(?:sections|descriptions|dependencies)\s*:)", yaml_str):
             try:
