@@ -28,6 +28,30 @@ def parse_file_index(idx_value):
     return int(nums[0]) if nums else None
 
 
+_INDEX_RE = re.compile(r"^\s*(\d+)\s*(?:#.*)?$")  # 3, "3 # path/to/file.py"
+_INDEX_RANGE_RE = re.compile(r"^\s*(\d+)\s*(?:-|\.\.|\u2013|to)\s*(\d+)\s*(?:#.*)?$")  # "0-3", "4..7"
+
+
+def parse_file_indices(idx_value) -> list[int]:
+    """Strictly parse one entry of an index list the LLM returned → the indices it names.
+
+    An int, an annotated number (``"3 # path"``) or an ascending range (``"0-3"``, ``"4..7"``, expanded). Anything
+    else — a negative number, a path with a digit in it (``src/v2/api.py``), prose — names no index, instead
+    of the first digit run picking an unrelated file."""
+    if isinstance(idx_value, bool):
+        return []
+    if isinstance(idx_value, int):
+        return [idx_value] if idx_value >= 0 else []
+    text = str(idx_value) if isinstance(idx_value, str) else ""
+    single = _INDEX_RE.match(text)
+    if single:
+        return [int(single.group(1))]
+    span = _INDEX_RANGE_RE.match(text)
+    if span and int(span.group(1)) <= int(span.group(2)) and int(span.group(2)) - int(span.group(1)) < 10000:
+        return list(range(int(span.group(1)), int(span.group(2)) + 1))
+    return []
+
+
 def load_prompt_template(template_name, advanced_mode=False, mode=None):
     """Load a prompt template file from the prompts/ directory."""
     if mode is None:
@@ -93,8 +117,38 @@ FACTS_KEYS = ("symbols", "dependencies", "config", "errors")
 _FACTS_BLOCK_RE = re.compile(r"(?msi)^([ \t]*)```ya?ml[^\n]*\n(.*?)^\1```[ \t]*$")
 _FACTS_OPEN_RE = re.compile(r"(?msi)^([ \t]*)```ya?ml[^\n]*\n(.*)")
 # A quote written as a plain scalar (`signature: def run(self):`), the most common reply mistake: its colon
-# or `#` breaks the YAML. Rewritten as a |- block scalar before the lenient re-parse.
-_PLAIN_QUOTE_RE = re.compile(r"(?m)^([ \t]*(?:- )?)(signature|evidence):[ \t]+(?![|>\"'])(\S.*)$")
+# or `#` breaks the YAML. Rewritten as a |- block scalar before the lenient re-parse, as is a quote that
+# only starts like a quoted scalar (`evidence: "name": "@acme/api",` copied from a JSON manifest).
+_PLAIN_QUOTE_RE = re.compile(r"(?m)^([ \t]*(?:- )?)(signature|evidence):[ \t]+(\S.*)$")
+# A value that is one whole quoted scalar or a block indicator, optionally followed by a comment: valid as is
+_WHOLE_SCALAR_RE = re.compile(r"""^(?:"(?:\\.|[^"\\])*"|'(?:''|[^'])*'|[|>][-+0-9]*)[ \t]*(?:#.*)?$""")
+# A name-like value led by a YAML indicator (`name: @acme/api`, `alias: #db/*`, `name: *args`): an error, a
+# comment (the value silently lost) or an alias reference. Double-quoted before the first parse; a lone block
+# indicator (`target: |-`) is left alone.
+_INDICATOR_VALUE_RE = re.compile(
+    r"(?m)^([ \t]*(?:- )?(?:name|entry|alias|target|base|parent):[ \t]+)([@`#*&!%]\S*|[|>](?![-+0-9]*[ \t]*$)\S*)(?:[ \t]+#.*)?$"
+)
+
+
+FACTS_FOCUS_LIMIT = 60  # lines one extract_facts.md follow-up asks about; the rest are only counted
+_FOCUS_LINE_CHARS = 200  # a minified or generated line is shown cut: the model quotes from the full source
+
+
+def build_facts_focus_note(lines: list[tuple[int, str]], limit: int = FACTS_FOCUS_LIMIT) -> str:
+    """The ``{focus_note}`` of an extract_facts.md follow-up: the uncovered lines a first pass left out."""
+
+    def shown_line(text: str) -> str:
+        text = text.strip()
+        return text if len(text) <= _FOCUS_LINE_CHARS else text[: _FOCUS_LINE_CHARS - 3] + "..."
+
+    shown = "\n".join(f"  {number}: {shown_line(text)}" for number, text in lines[:limit])
+    more = f"\n  ... and {len(lines) - limit} more such lines" if len(lines) > limit else ""
+    return (
+        "FOLLOW-UP: a first pass over this file reported nothing for the lines below, which look like declarations "
+        "or imports. Report ONLY the facts on these lines, with the same four lists and rules; a line that is not a "
+        "declaration a reader looks up (a local variable, a statement) gets nothing.\n"
+        f"Lines:\n{shown}{more}\n"
+    )
 
 
 def _load_strings(text: str):
@@ -102,14 +156,19 @@ def _load_strings(text: str):
     return yaml.load(text, Loader=yaml.BaseLoader)  # BaseLoader builds only str / list / dict: safe
 
 
+def _quote_indicator_values(text: str) -> str:
+    return _INDICATOR_VALUE_RE.sub(lambda m: m[1] + '"' + m[2].replace("\\", "\\\\").replace('"', '\\"') + '"', text)
+
+
 def _block_quotes(text: str) -> str:
-    return _PLAIN_QUOTE_RE.sub(lambda m: f"{m[1]}{m[2]}: |-\n{' ' * (len(m[1]) + 2)}{m[3]}", text)
+    return _PLAIN_QUOTE_RE.sub(lambda m: m[0] if _WHOLE_SCALAR_RE.match(m[3]) else f"{m[1]}{m[2]}: |-\n{' ' * (len(m[1]) + 2)}{m[3]}", text)
 
 
-def parse_facts_response(response) -> dict:
-    """Parse the extract_facts.md reply → ``{"symbols": [...], "dependencies": [...], "config": [...], "errors": [...], "unparsed": n}``.
+def parse_facts_response(response, keys: tuple = FACTS_KEYS) -> dict:
+    """Parse an extract_facts.md reply (or, with ``keys=MANIFEST_KEYS``, an extract_manifest.md reply) → ``{"symbols": [...], "dependencies": [...], "config": [...], "errors": [...], "unparsed": n}``.
 
-    Scalars stay strings (``yaml.BaseLoader``). When the block is not valid YAML, quotes written as plain
+    Scalars stay strings (``yaml.BaseLoader``). Name-like values led by a YAML indicator (``@acme/api``,
+    ``#db/*``, ``*args``) are double-quoted first. When the block is not valid YAML, quotes written as plain
     scalars are rewritten as block scalars and the block re-parsed; failing that, each list is parsed on
     its own, and inside a broken list each item, so one malformed quote costs one fact. ``unparsed``
     counts the items that were still lost (and list items that are not mappings), so they count as
@@ -122,7 +181,7 @@ def parse_facts_response(response) -> dict:
     if not match:
         raise ValueError("Failed to parse YAML: no ```yaml block in the facts reply")
     indent = match.group(1)
-    yaml_str = "\n".join(line.removeprefix(indent) for line in match.group(2).split("\n"))
+    yaml_str = _quote_indicator_values("\n".join(line.removeprefix(indent) for line in match.group(2).split("\n")))
     unparsed = 0
     try:
         data = _load_strings(yaml_str)
@@ -130,11 +189,11 @@ def parse_facts_response(response) -> dict:
         try:
             data = _load_strings(_block_quotes(yaml_str))
         except Exception:
-            data, unparsed = _salvage_yaml_lists(_block_quotes(yaml_str), FACTS_KEYS)
-    if not isinstance(data, dict) or not any(key in data for key in FACTS_KEYS):
+            data, unparsed = _salvage_yaml_lists(_block_quotes(yaml_str), keys)
+    if not isinstance(data, dict) or not any(key in data for key in keys):
         raise ValueError("Failed to parse YAML: no fact lists in the facts reply")
     result = {}
-    for key in FACTS_KEYS:
+    for key in keys:
         items = data.get(key)
         items = items if isinstance(items, list) else []
         result[key] = [item for item in items if isinstance(item, dict)]
@@ -187,7 +246,8 @@ def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
     """Build the prompt for DeterministicFileMapper to filter non-code files.
 
     Used in api-reference mode to identify which files are actual code modules
-    (APIs, functions, classes, business logic) vs. UI layouts, configs, assets.
+    (APIs, functions, classes, business logic) vs. UI layouts, configs, assets, and which of the
+    others are manifests that declare the names the code imports itself by (ExtractFacts reads those).
     """
     return (
         f"For the project `{project_name}`, here is the list of all files in the codebase:\n\n"
@@ -197,8 +257,12 @@ def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:
         f"EXCLUDE: UI layouts (like .xaml, .storyboard, .html), configuration files "
         f"(like .xml, .json, .manifest, .ini), static assets, build scripts "
         f"(like .csproj, .sln), and documentation.\n\n"
-        f"Return ONLY a YAML list of the file indices that should be documented as code modules.\n\n"
-        f"```yaml\n- 0\n- 1\n- 3\n```"
+        f"Separately, list the MANIFESTS among the other files: files that declare a package, module, crate or "
+        f"workspace name, or import path aliases, for this project's own code (for example package.json, "
+        f"tsconfig.json, go.mod, Cargo.toml, pyproject.toml, setup.cfg, composer.json, pom.xml, build.gradle, "
+        f"*.csproj, mix.exs, pubspec.yaml, *.gemspec).\n\n"
+        f"Return ONLY YAML with the file indices of both lists:\n\n"
+        f"```yaml\ncode:\n  - 0\n  - 1\n  - 3\nmanifests:\n  - 2\n```"
     )
 
 

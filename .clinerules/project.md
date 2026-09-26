@@ -50,7 +50,7 @@ Read the PocketFlow framework docs in `docs/pocketflow/`:
 - [`docs/design.md`](docs/design.md) — **READ THIS ENTIRELY.** It is the single source of truth for architecture, function signatures, data flow, prompt contracts, and output formats.
 
 ### Step 3: Read Prompt Templates
-Read all 27 prompt files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `prompts/api-reference/` (6), `prompts/sdk/` (6), and `prompts/common/` (3: `extract_facts.md`, `group_modules.md`, `translate_strings.md`). The `{placeholder}` variables form a CONTRACT with the node code.
+Read all 28 prompt files in `prompts/tutorial/` (6), `prompts/advanced/` (6), `prompts/api-reference/` (6), `prompts/sdk/` (6), and `prompts/common/` (4: `extract_facts.md`, `extract_manifest.md`, `group_modules.md`, `translate_strings.md`). The `{placeholder}` variables form a CONTRACT with the node code.
 
 ---
 

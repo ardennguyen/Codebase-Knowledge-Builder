@@ -25,7 +25,7 @@ Rules:
 - Parameters, local variables and attributes are never dependencies, even when they are named like a module
 - Leave a list empty ([]) when there is nothing to report
 - Write every signature and evidence as a `|-` block scalar, so quotes, colons and `#` need no escaping
-
+{focus_note}
 Return ONLY valid YAML:
 
 ```yaml

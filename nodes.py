@@ -12,16 +12,21 @@ from utils.call_llm import call_llm
 from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
 from utils.facts import (
+    MANIFEST_KEYS,
     ModuleTable,
     build_facts_document,
+    completeness_hints,
     facts_hash,
     facts_path,
     load_facts,
+    merge_claims,
     save_facts,
     source_commit,
     split_lines,
+    unexplained_names,
     verify_dependencies,
     verify_file_claims,
+    verify_manifest_claims,
 )
 from utils.files import build_directory_tree, get_content_for_indices
 from utils.llm_config import resolve_llm_settings
@@ -57,11 +62,14 @@ def safe_exec(func):
 
 from utils.llm_common import get_step_summary
 from utils.prompts import (
+    FACTS_FOCUS_LIMIT,
     build_chapter_summary_prompt,
     build_code_file_filter_prompt,
+    build_facts_focus_note,
     load_prompt_template,
     parse_facts_response,
     parse_file_index,
+    parse_file_indices,
     parse_yaml_response,
 )
 from utils.thinking import resolve_thinking_level
@@ -102,15 +110,23 @@ class DeterministicFileMapper(Node):
         emit("LLM_CALL_FILTER_FILES")
         log_token_estimation(self.__class__.__name__, prompt, max_tokens)
         response = call_llm(prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=thinking_level, step="filter_files")
-        valid_indices = parse_yaml_response(response)
-        if not isinstance(valid_indices, list):
-            valid_indices = []
-        return [int(idx) for idx in valid_indices]
+        parsed = parse_yaml_response(response)
+        # {code: [...], manifests: [...]}; a bare list (older reply shape) is the code list
+        code = parsed.get("code") if isinstance(parsed, dict) else parsed
+        manifests = parsed.get("manifests") if isinstance(parsed, dict) else []
+        indices = [idx for entry in (code if isinstance(code, list) else []) for idx in parse_file_indices(entry)]
+        manifest_indices = [idx for entry in (manifests if isinstance(manifests, list) else []) for idx in parse_file_indices(entry)]
+        return indices, manifest_indices
 
     def post(self, shared, prep_res, exec_res):
 
         files = shared.get("files", [])
-        valid_indices = set(exec_res)
+        code_indices, manifest_indices = exec_res
+        valid_indices = set(code_indices)
+        # Manifests are read by ExtractFacts (declared package names and path aliases), never documented as pages
+        shared["manifest_files"] = sorted(
+            {idx for idx in manifest_indices if 0 <= idx < len(files) and idx not in valid_indices and files[idx][1].strip()}
+        )
         modules = []
         chapter_order = []
 
@@ -152,6 +168,7 @@ class ExtractFacts(BatchNode):
     stored in the previous facts.json, under --incremental or with the LLM cache on (--no-cache without
     --incremental re-extracts everything). That also keeps a retried module's accepted reply: the LLM
     cache only holds its first attempt. The output language never enters the hash: facts are quotes.
+    A reused module whose completeness follow-up failed asks it again.
     """
 
     def prep(self, shared):
@@ -161,7 +178,9 @@ class ExtractFacts(BatchNode):
         provider, model_name, _, _ = resolve_llm_settings()
         signature = f"{provider}|{model_name}|{thinking_level or 'default'}|{hashlib.md5(template.encode('utf-8')).hexdigest()}"
         self.facts_file = facts_path(shared.get("output_dir", "output"), shared["project_name"], shared.get("mkdocs", False))
-        previous = load_facts(self.facts_file) if shared.get("incremental") or shared.get("use_cache", True) else {}
+        reuse = shared.get("incremental") or shared.get("use_cache", True)
+        previous = load_facts(self.facts_file) if reuse else {}
+        self.previous_manifests = load_facts(self.facts_file, section="manifests") if reuse else {}
         self.best = {}  # path → (found, claims) of the best attempt so far, kept when retries do worse
 
         items = []
@@ -176,6 +195,7 @@ class ExtractFacts(BatchNode):
                     "content": content,
                     "facts_hash": item_hash,
                     "cached_claims": cached.get("claims") if cached.get("facts_hash") == item_hash else None,
+                    "cached_followup": (cached.get("completeness") or {}).get("followup"),
                     "template": template,
                     "project_name": shared["project_name"],
                     "use_cache": shared.get("use_cache", True),
@@ -183,15 +203,43 @@ class ExtractFacts(BatchNode):
                     "max_tokens": shared.get("max_tokens", 100000),
                 }
             )
-        emit_raw("DEBUG", f"ExtractFacts prep | modules={len(items)} | cached={sum(1 for i in items if i['cached_claims'] is not None)}", dest="LOG")
+        manifest_template = load_prompt_template("extract_manifest", mode="common")
+        manifest_signature = f"{provider}|{model_name}|{thinking_level or 'default'}|{hashlib.md5(manifest_template.encode('utf-8')).hexdigest()}"
+        previous_manifests = self.previous_manifests
+        for index in shared.get("manifest_files", []):
+            file_path, content = files_data[index]
+            path = file_path.replace(os.sep, "/")
+            item_hash = facts_hash(manifest_signature, path, content)
+            cached = previous_manifests.get(path) if isinstance(previous_manifests.get(path), dict) else {}
+            items.append(
+                {
+                    "kind": "manifest",
+                    "path": path,
+                    "content": content,
+                    "facts_hash": item_hash,
+                    "cached_claims": cached.get("claims") if cached.get("facts_hash") == item_hash else None,
+                    "template": manifest_template,
+                    "project_name": shared["project_name"],
+                    "use_cache": shared.get("use_cache", True),
+                    "thinking_level": thinking_level,
+                    "max_tokens": shared.get("max_tokens", 100000),
+                }
+            )
+        emit_raw("DEBUG", f"ExtractFacts prep | items={len(items)} | cached={sum(1 for i in items if i['cached_claims'] is not None)}", dest="LOG")
         return items
 
     @safe_exec
     def exec(self, item):
+        if item.get("kind") == "manifest":
+            return self._exec_manifest(item)
         if item["cached_claims"] is not None:
             emit("FACTS_CACHE_HIT", name=item["path"])
-            return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": item["cached_claims"]}
-        prompt = item["template"].format(project_name=item["project_name"], file_path=item["path"], source=item["content"])
+            followup = item["cached_followup"] if isinstance(item["cached_followup"], dict) else {"status": "none", "asked": []}
+            if followup.get("status") != "failed":
+                return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": item["cached_claims"], "followup": followup}
+            claims, followup, calls = self._follow_up(item, item["cached_claims"], followup.get("asked") or [])
+            return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": claims, "followup": followup, "followup_calls": calls}
+        prompt = item["template"].format(project_name=item["project_name"], file_path=item["path"], source=item["content"], focus_note="")
         emit("LLM_CALL_EXTRACT_FACTS", name=item["path"])
         log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
         response = call_llm(
@@ -210,21 +258,97 @@ class ExtractFacts(BatchNode):
         if checked["claimed"] >= 4 and checked["found"] * 2 < checked["claimed"] and self.cur_retry < self.max_retries - 1:
             emit("FACTS_LOW_COVERAGE", name=item["path"], found=checked["found"], claimed=checked["claimed"])
             raise ValueError(f"only {checked['found']}/{checked['claimed']} claims found in the source")
-        return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": best[1]}
+        claims, followup, calls = self._follow_up(item, best[1])
+        return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": claims, "followup": followup, "followup_calls": calls}
+
+    def _exec_manifest(self, item):
+        """Declared package names and path aliases of one manifest (prompts/common/extract_manifest.md). A reply
+        with items that do not parse is retried uncached; on the last attempt its readable items are kept
+        without a facts hash, so the next run asks again."""
+        if item["cached_claims"] is not None:
+            emit("FACTS_CACHE_HIT", name=item["path"])
+            return {"kind": "manifest", "path": item["path"], "facts_hash": item["facts_hash"], "claims": item["cached_claims"]}
+        prompt = item["template"].format(project_name=item["project_name"], file_path=item["path"], source=item["content"])
+        emit("LLM_CALL_EXTRACT_MANIFEST", name=item["path"])
+        log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
+        response = call_llm(
+            prompt, use_cache=(item["use_cache"] and self.cur_retry == 0), thinking_level=item["thinking_level"], step="extract_facts"
+        )
+        claims = parse_facts_response(response, MANIFEST_KEYS)
+        if claims["unparsed"] and self.cur_retry < self.max_retries - 1:
+            raise ValueError(f"{claims['unparsed']} manifest items are not valid YAML")
+        facts_hash = None if claims["unparsed"] else item["facts_hash"]
+        return {"kind": "manifest", "path": item["path"], "facts_hash": facts_hash, "claims": claims}
+
+    FOLLOWUP_ROUNDS = 3  # follow-up calls per module at most, each on FACTS_FOCUS_LIMIT lines not asked before
+
+    def _follow_up(self, item, claims, asked=()):
+        """More calls while import-like or declaration-like lines are left uncovered: the model sees exactly
+        those lines (``{focus_note}``, at most ``FACTS_FOCUS_LIMIT`` per call, never a line asked before) and
+        each answer is merged in and verified like the first; at most ``FOLLOWUP_ROUNDS`` calls, so a large
+        file the first pass covered thinly is asked in chunks. A reply that does not parse gets one uncached
+        retry; a failing follow-up never costs the module its facts. → ``(claims, {"status": "none" | "done"
+        | "failed", "asked": [line numbers]}, calls)``: ``asked`` are the lines the model answered for, so
+        those it still leaves out were judged not to be facts; ``failed`` makes the next run ask again (from
+        the cached claims, skipping *asked*)."""
+        asked, calls, lines = list(asked), 0, split_lines(item["content"])
+        for _round in range(self.FOLLOWUP_ROUNDS):
+            hints = completeness_hints(item["content"], verify_file_claims(claims, item["content"]), claims)
+            already = set(asked)
+            pending = [number for number in hints["uncovered"] if number not in already]
+            if not pending:
+                break
+            note = build_facts_focus_note([(number, lines[number - 1]) for number in pending])
+            prompt = item["template"].format(project_name=item["project_name"], file_path=item["path"], source=item["content"], focus_note=note)
+            emit("FACTS_FOLLOWUP", name=item["path"], count=len(pending))
+            log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
+            answer = None
+            for attempt in range(2):
+                calls += 1
+                try:
+                    response = call_llm(
+                        prompt,
+                        use_cache=(item["use_cache"] and self.cur_retry == 0 and attempt == 0),
+                        thinking_level=item["thinking_level"],
+                        step="extract_facts",
+                    )
+                    answer = parse_facts_response(response)
+                    break
+                except Exception as e:  # the claims so far stand
+                    emit_raw("WARNING", f"FACTS FOLLOW-UP FAILED | {item['path']} | attempt {attempt + 1} | {e}", dest="LOG")
+            if answer is None:
+                return claims, {"status": "failed", "asked": asked}, calls
+            claims = merge_claims(claims, answer)
+            asked += pending[:FACTS_FOCUS_LIMIT]
+        return claims, {"status": "done" if asked else "none", "asked": asked}, calls
 
     def exec_fallback(self, item, exc):
         """The best earlier attempt if one parsed; else no facts for this module this run (no hash, so the
         next run retries it). The flow goes on either way."""
         emit("WARN_FACTS_FALLBACK", name=item["path"], error=exc)
+        if item.get("kind") == "manifest":
+            return {"kind": "manifest", "path": item["path"], "facts_hash": None, "claims": None}
         best = self.best.get(item["path"])
-        if best is not None:
-            return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": best[1]}
+        if best is not None:  # no follow-up ran: the next run asks it
+            return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": best[1], "followup": {"status": "failed", "asked": []}}
         return {"path": item["path"], "facts_hash": None, "claims": None}
 
     def post(self, shared, prep_res, exec_res_list):
-        contents = {item["path"]: item["content"] for item in prep_res}
+        manifest_results = [res for res in exec_res_list if res.get("kind") == "manifest"]
+        exec_res_list = [res for res in exec_res_list if res.get("kind") != "manifest"]
+        manifest_texts = {item["path"]: item["content"] for item in prep_res if item.get("kind") == "manifest"}
+        manifests = {
+            res["path"]: {
+                **verify_manifest_claims(res["claims"], manifest_texts[res["path"]], res["path"]),
+                "facts_hash": res["facts_hash"],
+                "claims": res["claims"],
+            }
+            for res in manifest_results
+            if res["claims"] is not None
+        }
+        contents = {item["path"]: item["content"] for item in prep_res if item.get("kind") != "manifest"}
         checked = {res["path"]: verify_file_claims(res["claims"], contents[res["path"]]) for res in exec_res_list if res["claims"] is not None}
-        table = ModuleTable(list(contents), {path: result["symbols"] for path, result in checked.items()}, contents)
+        table = ModuleTable(list(contents), {path: result["symbols"] for path, result in checked.items()}, contents, manifests)
         resolved = verify_dependencies({path: result["dependencies"] for path, result in checked.items()}, contents, table)
 
         modules = {}
@@ -233,6 +357,9 @@ class ExtractFacts(BatchNode):
             result, deps = checked.get(path), resolved.get(path)
             rejected = (result["rejected"] if result else []) + (deps["rejected"] if deps else [])
             claimed = result["claimed"] if result else 0
+            hints = completeness_hints(content, result, res["claims"]) if result else None
+            followup = res.get("followup") or {"status": "none", "asked": []}
+            asked = set(followup.get("asked", []))
             modules[path] = {
                 "source_sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
                 "lines": len(split_lines(content)),
@@ -243,8 +370,20 @@ class ExtractFacts(BatchNode):
                 "config": result["config"] if result else [],
                 "errors": result["errors"] if result else [],
                 "coverage": {"claimed": claimed, "verified": claimed - len(rejected)},
+                # Completeness: import-like and declaration-like lines of the source; those no claim reports,
+                # split into lines the follow-up asked about (the model judged them not facts) and the rest
+                "completeness": {
+                    "import_lines": len(hints["import_lines"]),
+                    "declaration_lines": len(hints["declaration_lines"]),
+                    "unreported_lines": [number for number in hints["uncovered"] if number not in asked],
+                    "declined_lines": [number for number in hints["uncovered"] if number in asked],
+                    "followup": followup,
+                }
+                if hints
+                else None,
                 "rejected": rejected,
                 "missed_imports": deps["missed"] if deps else [],
+                "unexplained_names": unexplained_names(content, path, deps["depends_on"], table) if deps else [],
                 "facts_hash": res["facts_hash"],
                 "claims": res["claims"],
             }
@@ -252,7 +391,7 @@ class ExtractFacts(BatchNode):
             for edge in entry["depends_on"]:
                 modules[edge["module"]]["used_by"].append(path)
 
-        save_facts(self.facts_file, build_facts_document(shared["project_name"], source_commit(shared.get("local_dir")), modules))
+        save_facts(self.facts_file, build_facts_document(shared["project_name"], source_commit(shared.get("local_dir")), modules, manifests))
         emit("FILE_WROTE", path=self.facts_file)
         shared["module_facts"] = modules
         for path, entry in modules.items():
@@ -265,6 +404,19 @@ class ExtractFacts(BatchNode):
             symbols=sum(len(entry["symbols"]) for entry in modules.values()),
             edges=sum(len(entry["depends_on"]) for entry in modules.values()),
             rejected=sum(len(entry["rejected"]) for entry in modules.values()),
+        )
+        measured = [entry["completeness"] for entry in modules.values() if entry["completeness"]]
+        total = sum(c["import_lines"] + c["declaration_lines"] for c in measured)
+        unreported = sum(len(c["unreported_lines"]) for c in measured)
+        declined = sum(len(c["declined_lines"]) for c in measured)
+        emit(
+            "FACTS_COMPLETENESS",
+            reported=total - unreported - declined,
+            total=total,
+            declined=declined,
+            unreported=unreported,
+            followups=sum(res.get("followup_calls", 0) for res in exec_res_list),
+            failed=sum(1 for c in measured if c["followup"].get("status") == "failed"),
         )
         emit_step_subtotals("extract_facts")
         return "default"
