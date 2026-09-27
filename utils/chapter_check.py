@@ -318,7 +318,7 @@ def _intended_marks(lines: list[str], blocks: list[dict]) -> list[tuple[int, str
                 stack.pop()
             first = next((line for line in range(index + 1, block["end"] - 1) if lines[line].strip()), None)
             if first is not None:
-                marks.append((first, "code", {"opener": index + 1, "item": bool(stack)}))
+                marks.append((first, "code", {"opener": index + 1, "item": bool(stack), "depth": len(stack) - 1}))
             index, previous, after = block["end"], "other", index + 1
             continue
         if not expanded.strip():
@@ -377,7 +377,7 @@ def _intended_marks(lines: list[str], blocks: list[dict]) -> list[tuple[int, str
             if previous != "text":
                 while stack and indent < stack[-1][0]:
                     stack.pop()
-            marks.append((index, "table", {"item": bool(stack), "cut": _cell_cut(lines[index], len(prefix))}))
+            marks.append((index, "table", {"item": bool(stack), "depth": len(stack) - 1, "cut": _cell_cut(lines[index], len(prefix))}))
             index, previous = index + 2, "table"
             continue
         if previous == "table":  # table rows run until a blank line or another block
@@ -387,7 +387,7 @@ def _intended_marks(lines: list[str], blocks: list[dict]) -> list[tuple[int, str
             while stack and indent < stack[-1][0]:
                 stack.pop()
             if stack and indent < stack[-1][0] + 4:  # 4 columns past the item's text: indented code there too
-                marks.append((index, "content", {}))
+                marks.append((index, "content", {"depth": len(stack) - 1}))
         index, previous = index + 1, "text"
     return marks
 
@@ -461,6 +461,56 @@ class _MarkContexts(HTMLParser):
         self.text += data
 
 
+def _rendered_marks(markdown: str, parsed: dict, render) -> tuple[list[str], list, dict, int]:
+    """``(lines, marks, found, code blocks)``: the page's intended marks (``_intended_marks``), where each landed
+    when the marked page is rendered (``_MarkContexts.found``, by mark number) and how many code blocks it has."""
+    # the renderer reads a lone \r as a line break (a mark after it would move to a line of its own); a page's own
+    # private-use characters must not read as marks — neither changes the line numbers
+    lines = markdown.replace("\r\n", "\n").replace("", "").replace("", "").split("\n")
+    marks = _intended_marks(lines, parsed["blocks"])
+    tagged = list(lines)
+    for number, (index, kind, expect) in enumerate(marks):
+        mark, line = _MARK.format(number), tagged[index]
+        cut = expect["cut"] if kind == "table" else _HARD_BREAK_RE.search(line).start()  # before a hard break's spaces / "\"
+        tagged[index] = line[:cut] + mark + line[cut:] if cut >= 0 else line + mark
+    contexts = _MarkContexts()
+    contexts.feed(render("\n".join(tagged)))
+    contexts.close()
+    return lines, marks, contexts.found, contexts.blocks
+
+
+def _mark_ok(kind: str, expect: dict, where: dict) -> bool:
+    """Whether one mark rendered exactly as CommonMark reads it: a list item in a list item of the right depth
+    and list type, its marker consumed; an item's paragraph, table or code inside that item's depth; a table
+    header in a header cell; code in a code block; the line after a block not swallowed by code."""
+    in_item = where["li"] and where["depth"] == expect.get("depth")
+    if kind == "item":
+        return in_item and not where["marker"] and not where["code"] and where["list"] == ("ol" if expect["numbered"] else "ul")
+    if kind == "content":
+        return in_item and not where["code"]
+    if kind == "table":
+        return where["th"] and (not expect["item"] or in_item)
+    if kind == "code":
+        return bool(where["code"]) and (not expect["item"] or in_item)
+    return not where["code"]
+
+
+def markup_verdicts(markdown: str, parsed: dict, render) -> tuple[list[tuple[str, tuple, bool | None]], int]:
+    """``([(kind, expectation, ok)], code blocks)``: per intended mark, in page order, the CommonMark reading (line
+    positions left out, so a repair that only moves lines compares equal) and whether the site renders it exactly
+    so (``None``: the mark vanished into raw HTML or a comment); and the number of code blocks the site renders
+    (text without a mark turning into indented code shows only there). Stricter than ``markup_problems``, which
+    reports only what a reader notices; ``utils/mkdocs.repair_markup`` keeps a repair only when the reading is
+    unchanged, no mark renders worse and no code block is added."""
+    _lines, marks, found, code_blocks = _rendered_marks(markdown, parsed, render)
+    verdicts = []
+    for number, (_index, kind, expect) in enumerate(marks):
+        reading = tuple(sorted((key, value) for key, value in expect.items() if key not in ("opener", "cut")))
+        where = found.get(number)
+        verdicts.append((kind, reading, None if where is None else _mark_ok(kind, expect, where)))
+    return verdicts, code_blocks
+
+
 def markup_problems(markdown: str, parsed: dict, render) -> dict:
     """Markdown the site renders differently than written: ``{kind: [finding]}`` for ``_MARKUP_KINDS``.
 
@@ -477,19 +527,7 @@ def markup_problems(markdown: str, parsed: dict, render) -> dict:
     ``tables_as_text``, ``code_blocks_not_rendered`` (``{"line", "opener"}``: also a block whose missing closer
     swallows the text after it — reported once, and not again for the next block, whose opening fence the
     renderer took as that closer)."""
-    # the renderer reads a lone \r as a line break (a mark after it would move to a line of its own); a page's own
-    # private-use characters must not read as marks — neither changes the line numbers
-    lines = markdown.replace("\r\n", "\n").replace("", "").replace("", "").split("\n")
-    marks = _intended_marks(lines, parsed["blocks"])
-    tagged = list(lines)
-    for number, (index, kind, expect) in enumerate(marks):
-        mark, line = _MARK.format(number), tagged[index]
-        cut = expect["cut"] if kind == "table" else _HARD_BREAK_RE.search(line).start()  # before a hard break's spaces / "\"
-        tagged[index] = line[:cut] + mark + line[cut:] if cut >= 0 else line + mark
-    contexts = _MarkContexts()
-    contexts.feed(render("\n".join(tagged)))
-    contexts.close()
-    found = contexts.found
+    lines, marks, found, _code_blocks = _rendered_marks(markdown, parsed, render)
     owners = {}  # rendered code block -> [(mark, opener)] of the fenced blocks whose first code line it shows
     for number, (_index, kind, expect) in enumerate(marks):
         if kind == "code" and found.get(number) and found[number]["code"]:
@@ -529,12 +567,12 @@ def markup_problems(markdown: str, parsed: dict, render) -> dict:
             elif ("start" in expect or expect.get("continues")) and where["number"] == 1 and not split_since_item:
                 problem = "lists_split"
             split_since_item, item_listed = False, where["li"] and not where["marker"]
-        elif kind == "content":
-            problem = None if where["li"] or not item_listed else "lists_split"
+        elif kind == "content":  # outside the list, or in a shallower item than its own
+            problem = "lists_split" if item_listed and (not where["li"] or where["depth"] < expect["depth"]) else None
         elif kind == "table":
             if not where["th"]:
                 problem = "tables_as_text"
-            elif expect["item"] and not where["li"] and item_listed:
+            elif expect["item"] and item_listed and (not where["li"] or where["depth"] < expect["depth"]):
                 problem = "lists_split"
         else:
             knock_on, last_block = last_block in blamed, expect["opener"]
@@ -543,7 +581,7 @@ def markup_problems(markdown: str, parsed: dict, render) -> dict:
                     blame(expect["opener"])
                 run = None
                 continue
-            if expect["item"] and not where["li"] and item_listed:
+            if expect["item"] and item_listed and (not where["li"] or where["depth"] < expect["depth"]):
                 problem = "lists_split"
         if problem is None:
             run = None

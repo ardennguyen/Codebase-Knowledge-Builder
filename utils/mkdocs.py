@@ -8,6 +8,7 @@ import json
 import os
 import posixpath
 import re
+import textwrap
 import time
 import traceback
 from collections import Counter, defaultdict
@@ -15,7 +16,7 @@ from collections import Counter, defaultdict
 import yaml
 
 from utils.call_llm import call_llm
-from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check
+from utils.chapter_check import USED_BY_MARKER, markup_problems, markup_verdicts, parse_page, run_chapter_check
 from utils.llm_common import LLMRefusalError
 from utils.output import emit, emit_raw, get
 from utils.prompts import parse_grouping_response
@@ -569,6 +570,35 @@ def build_module_graph(sections: list, dependencies: dict, chapter_files: list) 
     return "\n".join(lines), (threshold if hubs else 0)
 
 
+def build_hub_fan_ins(sections: list, dependencies: dict, chapter_files: list, threshold: int) -> list[tuple[str, str]]:
+    """``[(hub, Mermaid source)]`` for the modules the module graph folds as hubs (used by ``threshold`` or more
+    others), most used first: who uses each of them, since the graph shows only their count. One small diagram
+    per hub — a box per nav section naming the modules in it that use the hub, one arrow from the box to the hub
+    labelled with how many they are — readable where one arrow per user would tangle the module graph."""
+    names = {cf["module_name"] for cf in chapter_files}
+    edges = [(source, target) for source, targets in dependencies.items() for target in targets if source in names and target in names]
+    users = defaultdict(list)
+    for source, target in edges:
+        users[target].append(source)
+    groups = _section_members(sections)
+    owner = {name: index for index, (_, members) in enumerate(groups) for name in members}
+    diagrams = []
+    for hub in sorted((name for name in users if len(users[name]) >= threshold), key=lambda name: (-len(users[name]), name)):
+        by_section = defaultdict(list)
+        for user in users[hub]:
+            by_section[owner.get(user, len(groups))].append(user)
+        lines = ["flowchart LR"]
+        for index in sorted(by_section):
+            title = groups[index][0] if index < len(groups) else get("UI_OTHER")
+            members = sorted(by_section[index], key=lambda name: groups[index][1].index(name) if index < len(groups) else 0)
+            lines.append(f'    S{index}["{_mermaid_label(title)}<br/>{_mermaid_label(", ".join(members))}"]')
+        lines.append(f'    H["{_mermaid_label(hub)}<br/>{_mermaid_label(get("UI_USED_BY", count=len(users[hub])))}"]')
+        lines.extend(f"    S{index} -->|{len(by_section[index])}| H" for index in sorted(by_section))
+        lines += [_ENTRY_NODE_CLASSDEF, "    class H entryNode"]
+        diagrams.append((hub, "\n".join(lines)))
+    return diagrams
+
+
 def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:
     """Recursively build MkDocs nav YAML lines from LLM section grouping.
 
@@ -846,6 +876,219 @@ def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:
         cf["content"] = content + "\n\n"
 
 
+_REPAIRED_KINDS = ("lists_as_text", "tables_as_text", "lists_flattened")
+_ITEM_START_RE = re.compile(r"^( *)([*+-]|\d{1,9}[.)])( +|$)")  # a list item line (tabs expanded): indent, marker, spaces
+_FENCE_LINE_RE = re.compile(r"^\s*(`{3,}|~{3,})")
+_REPAIR_RENDERS = 40  # renders one page's repairs may take (each candidate is rendered)
+
+
+def _indent_of(line: str) -> int:
+    expanded = line.expandtabs(4)
+    return len(expanded) - len(expanded.lstrip(" "))
+
+
+def _flattened_run(lines: list[str], index: int) -> int:
+    """Index after the nested run starting at *index*: its items and everything indented under them."""
+    indent, end = _indent_of(lines[index]), index + 1
+    for position in range(index, len(lines)):
+        if lines[position].strip():
+            if _indent_of(lines[position]) < indent:
+                break
+            end = position + 1
+    return end
+
+
+def _repair(lines: list[str], kind: str, finding: dict) -> list[str]:
+    """*lines* with one finding fixed: a blank line (``>`` in a quote) before a list or table left as text; a
+    flattened nested list re-indented level by level, each level 4 spaces past the one above, an item's
+    paragraphs 4 spaces past its marker and a fenced block moved as one piece (its code unchanged). A run with a
+    tab in its indentation is left alone (moving it would change how its tabs line up)."""
+    index = finding["line"] - 1
+    if kind in ("lists_as_text", "tables_as_text"):
+        if index == 0 or not lines[index - 1].strip():
+            return lines
+        quote = re.match(r"^(?: {0,3}> ?)+", lines[index])
+        return [*lines[:index], quote.group(0).rstrip() if quote else "", *lines[index:]]
+    indent = _indent_of(lines[index])
+    parent = next((line for line in reversed(lines[:index]) if line.strip() and _indent_of(line) < indent), None)
+    if parent is None or _indent_of(parent) + 4 <= indent:
+        return lines
+    end = _flattened_run(lines, index)
+    if any("\t" in line[: len(line) - len(line.lstrip())] for line in lines[index:end]):
+        return lines
+    repaired = list(lines)
+    levels = []  # (old indent, new indent, old text column) of the run's open items
+    fence = None  # (closing-fence pattern, shift) while inside a fenced block
+    for position in range(index, end):
+        line = lines[position]
+        if fence:
+            if line.strip():
+                repaired[position] = " " * fence[1] + line
+            if fence[0].match(line):
+                fence = None
+            continue
+        if not line.strip():
+            continue
+        old = _indent_of(line)
+        item = _ITEM_START_RE.match(line.expandtabs(4))
+        if item:
+            while levels and old <= levels[-1][0]:
+                levels.pop()
+            new = levels[-1][1] + 4 if levels else _indent_of(parent) + 4
+            spaces = len(item.group(3))
+            levels.append((old, new, item.end(2) + (spaces if 1 <= spaces <= 4 else 1)))
+            shift = new - old
+        else:
+            while levels and old < levels[-1][2]:  # not in that item's text any more
+                levels.pop()
+            shift = levels[-1][1] + 4 - levels[-1][2] if levels else 0
+            opener = _FENCE_LINE_RE.match(line)
+            if opener:
+                fence = (re.compile(rf"^\s*{re.escape(opener.group(1)[0])}{{{len(opener.group(1))},}}\s*$"), max(shift, 0))
+        if shift > 0:
+            repaired[position] = " " * shift + line
+    return repaired
+
+
+def _visible(text: str) -> str:
+    """The page's characters, whitespace and lone ``>`` lines left out: all a repair may change is those."""
+    return re.sub(r"\s+", "", "\n".join(line for line in text.split("\n") if line.strip() != ">"))
+
+
+def _code_blocks(text: str) -> list[str]:
+    return [textwrap.dedent(block["text"]) for block in parse_page(text)["blocks"]]
+
+
+def repair_markup(markdown: str, render) -> tuple[str, Counter]:
+    """*markdown* with the lists and tables the site would show as text given the blank line they need, and
+    flattened nested lists re-indented (``markup_problems`` finds them) — ``(markdown, fixed per kind)``. The
+    templates ask for that layout; this catches what the writer still gets wrong.
+
+    Guarded by the renderer: a repair is kept only when the page's visible text and every code block are
+    unchanged, the CommonMark reading of every list item, paragraph, table and code block is the same
+    (``markup_verdicts``) and every mark that rendered exactly still does while at least one more now does — so a
+    repair never moves text into or out of a list item, turns an item into code or nests it deeper. All repairs
+    are tried at once first, then one by one; rounds repeat for nested levels, within ``_REPAIR_RENDERS`` renders.
+    What cannot be repaired this way stays for the chapter check to report."""
+    renders = 0
+
+    def verdicts(text: str) -> tuple[list, int]:
+        nonlocal renders
+        renders += 1
+        return markup_verdicts(text, parse_page(text), render)
+
+    def improved(candidate: str, before: tuple[list, int]) -> tuple[list, int] | None:
+        """The candidate's verdicts when it is an acceptable repair of *current*, else None."""
+        if candidate == current or _visible(candidate) != _visible(current) or _code_blocks(candidate) != _code_blocks(current):
+            return None
+        after = verdicts(candidate)
+        (marks_before, code_before), (marks_after, code_after) = before, after
+        if [(kind, reading) for kind, reading, _ok in marks_after] != [(kind, reading) for kind, reading, _ok in marks_before]:
+            return None  # the writer's meaning would change
+        wrong_before = {number for number, (_kind, _reading, ok) in enumerate(marks_before) if ok is False}
+        wrong_after = {number for number, (_kind, _reading, ok) in enumerate(marks_after) if ok is False}
+        vanished = any(ok is None and marks_before[number][2] is not None for number, (_kind, _reading, ok) in enumerate(marks_after))
+        # text without a mark (a table row, a deeper line) turning into indented code shows only as an extra block
+        return after if wrong_after < wrong_before and not vanished and code_after <= code_before else None
+
+    current = markdown
+    for _round in range(5):  # re-indenting a nested list can show the level below it flattened
+        if renders >= _REPAIR_RENDERS:
+            break
+        found = markup_problems(current, parse_page(current), render)
+        pending = [(kind, finding) for kind in _REPAIRED_KINDS for finding in found[kind]]
+        if not pending:
+            break
+        before = verdicts(current)
+        renders += 1  # markup_problems above
+        # one repair per run: a flattened finding inside another's run is re-indented with it
+        runs, kept = [], []
+        lines = current.split("\n")
+        for kind, finding in sorted(pending, key=lambda item: item[1]["line"]):
+            index = finding["line"] - 1
+            if kind == "lists_flattened":
+                if any(start <= index < end for start, end in runs):
+                    continue
+                runs.append((index, _flattened_run(lines, index)))
+            kept.append((kind, finding))
+        kept.reverse()  # bottom-up, so the line numbers above stay valid while lines are inserted
+        batch = lines
+        for kind, finding in kept:
+            batch = _repair(batch, kind, finding)
+        after = improved("\n".join(batch), before)
+        if after is not None:
+            current = "\n".join(batch)
+            continue
+        progress = False
+        for kind, finding in kept:
+            if renders >= _REPAIR_RENDERS:
+                break
+            candidate = "\n".join(_repair(current.split("\n"), kind, finding))
+            after = improved(candidate, before)
+            if after is not None:
+                current, before, progress = candidate, after, True
+        if not progress:
+            break
+    if current == markdown:
+        return markdown, Counter()
+    start = markup_problems(markdown, parse_page(markdown), render)
+    end = markup_problems(current, parse_page(current), render)
+    return current, +Counter({kind: len(start[kind]) - len(end[kind]) for kind in _REPAIRED_KINDS})
+
+
+_SEE_ALSO_ITEM_RE = re.compile(
+    r"^(?P<prefix>\s*[-*+]\s+)(?P<open>\*\*|__)?\[(?P<text>[^\]\n]+)\]\((?P<target><[^>\n]+>|[^)\s]+)\)(?P<close>\*\*|__)?"
+    r"(?P<sep>\s*(?::|\s[-\u2013\u2014]|\u2014|\u2013)\s*|\s+)?(?P<rest>.*)$"  # separator: a colon, a hyphen, an en or em dash
+)
+
+
+def _see_also_lines(content: str, chapters: set, page: str) -> list[int]:
+    """Line indices of the See Also list items: the last ``##`` section that links a chapter (the heading is
+    translated, so it is found by position, as the chapter check finds it), outside code blocks."""
+    parsed = parse_page(content)
+    starts = [number for number, level, _text in parsed["headings"] if level == 2]
+    if not starts:
+        return []
+    prose = dict(parsed["prose"])
+    for start, end in reversed(list(zip(starts, [*starts[1:], len(content.split("\n")) + 1], strict=True))):
+        items = [number - 1 for number in range(start + 1, end) if number in prose and _SEE_ALSO_ITEM_RE.match(prose[number])]
+        targets = [_SEE_ALSO_ITEM_RE.match(prose[index + 1]).group("target").strip("<>") for index in items]
+        if any(_resolve_page(page, target) in chapters for target in targets):
+            return items
+    return []
+
+
+def _resolve_page(page: str, target: str) -> str:
+    path = target.split("#", 1)[0]
+    return posixpath.normpath(posixpath.join(posixpath.dirname(page), path)) if path else page
+
+
+def normalize_see_also(chapter_files: list) -> int:
+    """Give every See Also entry the same form, ``- [path/to/file.ext](target) — description``: the link neither
+    bold nor code-formatted, its text the linked chapter's source path (as in the "Used by" line; kept, stripped
+    of formatting, for a link to no chapter or a chapter without one), an em dash before the description. The
+    template asks for that form; this evens out what the writer varies (bold links, code-formatted paths, colons).
+    Returns the number of entries changed."""
+    path_of = {cf["filename"]: cf.get("original_path") or "" for cf in chapter_files}
+    changed = 0
+    for cf in chapter_files:
+        lines = cf["content"].split("\n")
+        for index in _see_also_lines(cf["content"], set(path_of), cf["filename"]):
+            match = _SEE_ALSO_ITEM_RE.match(lines[index])
+            if bool(match.group("open")) != bool(match.group("close")):
+                continue  # bold spanning more than the link: left as written
+            target, rest = match.group("target"), match.group("rest").strip()
+            source = path_of.get(_resolve_page(cf["filename"], target.strip("<>")))
+            text = md_link_text(source) if source else re.sub(r"`+|\*\*|__", "", match.group("text")).strip()
+            separator = " — " if match.group("sep") and match.group("sep").strip() else " "
+            line = f"{match.group('prefix')}[{text}]({target})" + (f"{separator}{rest}" if rest else "")
+            if line != lines[index]:
+                lines[index] = line
+                changed += 1
+        cf["content"] = "\n".join(lines)
+    return changed
+
+
 def _page_link(page: str, target: str, filenames: set) -> str:
     """Link target from chapter *page* to chapter *target*, page-relative; ``./``-pinned when the relative path
     is also another chapter's root-relative path; in ``<…>`` when it holds spaces or parentheses."""
@@ -1049,6 +1292,10 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
                 provenance = get("UI_DEPS_PARTIAL", modules=", ".join(inferred_sources)) if inferred_sources else get("UI_DEPS_VERIFIED")
                 note += f" {provenance} ([facts.json](facts.json))"
             index_lines += [f"## {get('UI_MODULE_DEPENDENCIES')}", "", "```mermaid", module_graph, "```", "", f"*{note}*", ""]
+            if hub_threshold:  # who uses each hub: the graph shows only their count
+                index_lines += [f"### {get('UI_SHARED_MODULES')}", "", f"*{get('UI_SHARED_MODULES_NOTE', count=hub_threshold)}*", ""]
+                for hub, fan_in in build_hub_fan_ins(sections, dependencies, chapter_files, hub_threshold):
+                    index_lines += [f"#### {md_heading_text(hub)}", "", "```mermaid", fan_in, "```", ""]
         index_content = "\n".join(index_lines)
     else:
         # Build a rich flat index with module listing table
@@ -1097,6 +1344,19 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     # --- Deterministic "Used by" line (verified importers), then normalize cross-chapter links ---
     add_used_by_lines(chapter_files, prep_res.get("module_facts") or {})
     normalize_chapter_links(chapter_files)
+    normalize_see_also(chapter_files)
+
+    # --- Lists and tables the site would show as text, flattened nested lists: repaired, render-verified ---
+    render = site_renderer()
+    if render:
+        repaired = Counter()
+        for chapter_info in chapter_files:
+            chapter_info["content"], fixed = repair_markup(chapter_info["content"], render)
+            if fixed:
+                emit("MARKUP_REPAIRED_PAGE", page=chapter_info["filename"], fixed=", ".join(f"{kind} {count}" for kind, count in fixed.items()))
+            repaired += fixed
+        if repaired:
+            emit("MARKUP_REPAIRED", **{kind: repaired[kind] for kind in _REPAIRED_KINDS})
 
     # --- Write chapter files ---
     for chapter_info in chapter_files:
@@ -1110,7 +1370,7 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     prune_stale_pages(api_docs_path, chapter_files)
 
     # --- Check the written chapters (no LLM; report next to mkdocs.yml, not published), rendered like the site ---
-    run_chapter_check(output_path, api_docs_path, chapter_files, prep_res, render=site_renderer())
+    run_chapter_check(output_path, api_docs_path, chapter_files, prep_res, render=render)
 
 
 def prune_stale_pages(api_docs_path, chapter_files):
@@ -1155,8 +1415,9 @@ def write_standalone_output(output_path, prep_res, chapter_files, ui):
         f.write(index_content)
     emit("FILE_WROTE", path=index_filepath)
 
-    # Write chapter files (api-reference: with the deterministic "Used by" line)
+    # Write chapter files (api-reference: with the deterministic "Used by" line; See Also entries in one form)
     add_used_by_lines(chapter_files, prep_res.get("module_facts") or {})
+    normalize_see_also(chapter_files)
     for chapter_info in chapter_files:
         chapter_filepath = os.path.join(output_path, chapter_info["filename"])
         with open(chapter_filepath, "w", encoding="utf-8") as f:

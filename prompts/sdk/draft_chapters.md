@@ -99,7 +99,7 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
   | Class/Function | Responsibility | Key Methods |
   Even then, fully document as many as possible and use the table only for trivial accessors or simple data containers.
 
-- End the page with the `## See Also` section listing related modules with Markdown links{link_lang_note}. Link targets MUST be copied EXACTLY from the `(doc: ...)` annotations in the Index.
+- End the page with the `## See Also` section listing related modules with Markdown links{link_lang_note}. Link targets MUST be copied EXACTLY from the `(doc: ...)` annotations in the Index. Write every entry in the same form, `- [module name](doc path) — how it relates to this one.`: plain link text (no bold, no code formatting), an em dash, one sentence.
 
 - Return ONLY valid Markdown content. Do not include conversational filler.
 
