@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "project": "Codebase-Knowledge-Builder",
- "commit": "d9c40b7f1c56b24ead5bca9ddb12e15911c937ba",
+ "commit": "e411e4556db422715cef3a3915e2c1cee2e4754b",
  "note": "Every symbol, dependency, config key and error below was found in the source at the given line. Presence is verified, completeness is not: 'coverage' compares verified to claimed facts per module.",
  "modules": {
   "flow.py": {
@@ -381,6 +381,15 @@
      "kind": "cli"
     },
     {
+     "name": "-e",
+     "line": 59,
+     "end_line": 64,
+     "evidence": "parser.add_argument( \"-e\", \"--exclude\", nargs=\"+\", help=\"Files to exclude. Custom patterns are automatically merged with a massive global exclusion list (build caches, node_modules, binaries, media, AI environments) AND your repository's native .gitignore rules.\", )",
+     "match": "exact",
+     "kind": "cli",
+     "truncated": true
+    },
+    {
      "name": "--exclude",
      "line": 61,
      "evidence": "\"--exclude\",",
@@ -423,9 +432,44 @@
      "kind": "cli"
     },
     {
+     "name": "--thinking-level",
+     "line": 73,
+     "end_line": 81,
+     "evidence": "parser.add_argument( \"--thinking-level\", default=None, type=_thinking_level_arg, metavar=\"{\" + \",\".join(THINKING_LEVELS) + \"}\", help=\"Global thinking effort for EVERY LLM call. Overrides --thinking-profile. 'default' (or empty) = model default. \" \"Mapped per provider: Anthropic effort (thinking budg",
+     "match": "exact",
+     "kind": "cli",
+     "truncated": true
+    },
+    {
+     "name": "--thinking-profile",
+     "line": 82,
+     "end_line": 90,
+     "evidence": "parser.add_argument( \"--thinking-profile\", default=\"auto\", type=str.lower, choices=THINKING_PROFILES, help=\"Per-node thinking effort profile (default: auto = balanced on ANTHROPIC, GEMINI and OPENROUTER, off elsewhere). \" \"economy/balanced/quality/max give reasoning-heavy nodes (abstractions, relati",
+     "match": "exact",
+     "kind": "cli",
+     "truncated": true
+    },
+    {
+     "name": "--thinking-override",
+     "line": 91,
+     "end_line": 96,
+     "evidence": "parser.add_argument(\n        \"--thinking-override\",\n        nargs=\"+\",\n        metavar=\"NODE=LEVEL\",\n        help=f\"Per-node thinking level overrides, highest precedence (e.g., write_chapters=high identify_abstractions=xhigh). NODE: {', '.join(NODE_KEYS)}.\",\n    )",
+     "match": "exact",
+     "kind": "cli"
+    },
+    {
+     "name": "--max-tokens",
+     "line": 98,
+     "end_line": 100,
+     "evidence": "parser.add_argument(\n        \"--max-tokens\", type=int, default=None, help=\"Maximum number of tokens for the context window (default: fetched dynamically).\"\n    )",
+     "match": "exact",
+     "kind": "cli"
+    },
+    {
      "name": "--mode",
-     "line": 109,
-     "evidence": "parser.add_argument(\"--advanced\", action=\"store_true\", help=\"Legacy flag: equivalent to --mode advanced.\")",
+     "line": 103,
+     "end_line": 108,
+     "evidence": "parser.add_argument(\n        \"--mode\",\n        choices=[\"tutorial\", \"advanced\", \"api-reference\", \"sdk\"],\n        default=\"tutorial\",\n        help=\"Documentation style (tutorial, advanced, api-reference, sdk). (default: tutorial).\",\n    )",
      "match": "exact",
      "kind": "cli"
     },
@@ -440,6 +484,22 @@
      "name": "--mkdocs",
      "line": 110,
      "evidence": "parser.add_argument(\"--mkdocs\", action=\"store_true\", help=\"Format output for MkDocs Material (adds YAML frontmatter & nav snippet).\")",
+     "match": "exact",
+     "kind": "cli"
+    },
+    {
+     "name": "--incremental",
+     "line": 111,
+     "end_line": 115,
+     "evidence": "parser.add_argument(\n        \"--incremental\",\n        action=\"store_true\",\n        help=\"Enable MD5 incremental caching to skip unchanged modules (Only supported in --mode api-reference).\",\n    )",
+     "match": "exact",
+     "kind": "cli"
+    },
+    {
+     "name": "--force-rebuild",
+     "line": 116,
+     "end_line": 118,
+     "evidence": "parser.add_argument(\n        \"--force-rebuild\", action=\"store_true\", help=\"Clear incremental cache and regenerate all chapters from scratch (use with --incremental).\"\n    )",
      "match": "exact",
      "kind": "cli"
     },
@@ -484,12 +544,13 @@
      "name": "argparse.ArgumentTypeError",
      "line": 41,
      "evidence": "raise argparse.ArgumentTypeError(f\"invalid choice: {value!r} (choose from {', '.join(THINKING_LEVELS)}, default)\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
     "claimed": 64,
-    "verified": 57
+    "verified": 64
    },
    "completeness": {
     "import_lines": 18,
@@ -506,65 +567,9 @@
      ]
     }
    },
-   "rejected": [
-    {
-     "kind": "config",
-     "name": "-e",
-     "evidence": "parser.add_argument(",
-     "reason": "name/evidence not in source"
-    },
-    {
-     "kind": "config",
-     "name": "--thinking-level",
-     "evidence": "parser.add_argument(",
-     "reason": "name/evidence not in source"
-    },
-    {
-     "kind": "config",
-     "name": "--thinking-profile",
-     "evidence": "parser.add_argument(",
-     "reason": "name/evidence not in source"
-    },
-    {
-     "kind": "config",
-     "name": "--thinking-override",
-     "evidence": "parser.add_argument(",
-     "reason": "name/evidence not in source"
-    },
-    {
-     "kind": "config",
-     "name": "--max-tokens",
-     "evidence": "parser.add_argument(",
-     "reason": "name/evidence not in source"
-    },
-    {
-     "kind": "config",
-     "name": "--incremental",
-     "evidence": "parser.add_argument(",
-     "reason": "name/evidence not in source"
-    },
-    {
-     "kind": "config",
-     "name": "--force-rebuild",
-     "evidence": "parser.add_argument(",
-     "reason": "name/evidence not in source"
-    }
-   ],
+   "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "CombineTutorial",
-     "module": "nodes.py"
-    },
-    {
-     "name": "ExtractFacts",
-     "module": "nodes.py"
-    },
-    {
-     "name": "auto_translate",
-     "module": "utils/i18n.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "b4f888e0ae2527960c41fd1d2295423c",
    "claims": {
     "symbols": [
@@ -906,15 +911,15 @@
    }
   },
   "nodes.py": {
-   "source_sha256": "3049590fce7d453dfe3e70c201d2d9c5ecd52dd5dbb6bad26005a3e2bfc7c205",
-   "lines": 1987,
+   "source_sha256": "c4cbb3cc6a754b764d68814abb17efa7b4612661c06c99dfbdc69089b99154fc",
+   "lines": 2010,
    "symbols": [
     {
      "name": "safe_exec",
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 44,
+     "line": 45,
      "signature": "def safe_exec(func):",
      "match": "exact"
     },
@@ -923,7 +928,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 86,
+     "line": 88,
      "signature": "def emit_step_subtotals(*steps: str) -> None:",
      "match": "exact"
     },
@@ -932,7 +937,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 94,
+     "line": 96,
      "signature": "class DeterministicFileMapper(Node):",
      "match": "exact"
     },
@@ -941,65 +946,34 @@
      "kind": "method",
      "parent": "DeterministicFileMapper",
      "visibility": "public",
-     "line": 95,
+     "line": 97,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      95,
-      174,
-      426,
-      587,
-      668,
-      729,
-      799,
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "DeterministicFileMapper",
      "visibility": "public",
-     "line": 107,
-     "end_line": 108,
-     "signature": "@safe_exec\n    def exec(self, prep_res):",
-     "match": "joined",
-     "ambiguous_lines": [
-      107,
-      851,
-      1084,
-      1237,
-      1947
-     ]
+     "line": 110,
+     "signature": "def exec(self, prep_res):",
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "DeterministicFileMapper",
      "visibility": "public",
-     "line": 121,
+     "line": 123,
      "signature": "def post(self, shared, prep_res, exec_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      121,
-      573,
-      724,
-      794,
-      954,
-      1183,
-      1301,
-      1974
-     ]
+     "match": "exact"
     },
     {
      "name": "ExtractFacts",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 163,
+     "line": 165,
      "signature": "class ExtractFacts(BatchNode):",
      "match": "exact"
     },
@@ -1008,42 +982,25 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 174,
+     "line": 176,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      174,
-      426,
-      587,
-      668,
-      729,
-      799,
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 231,
-     "end_line": 232,
-     "signature": "@safe_exec\n    def exec(self, item):",
-     "match": "joined",
-     "ambiguous_lines": [
-      231,
-      1412
-     ]
+     "line": 234,
+     "signature": "def exec(self, item):",
+     "match": "exact"
     },
     {
      "name": "_exec_manifest",
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "private",
-     "line": 264,
+     "line": 266,
      "signature": "def _exec_manifest(self, item):",
      "match": "exact"
     },
@@ -1052,7 +1009,7 @@
      "kind": "constant",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 283,
+     "line": 285,
      "signature": "FOLLOWUP_ROUNDS = 3  # follow-up calls per module at most, each on FACTS_FOCUS_LIMIT lines not asked before",
      "match": "exact"
     },
@@ -1061,7 +1018,7 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "private",
-     "line": 285,
+     "line": 287,
      "signature": "def _follow_up(self, item, claims, asked=()):",
      "match": "exact"
     },
@@ -1070,34 +1027,25 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 325,
+     "line": 327,
      "signature": "def exec_fallback(self, item, exc):",
-     "match": "exact",
-     "ambiguous_lines": [
-      325,
-      1710
-     ]
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 336,
+     "line": 338,
      "signature": "def post(self, shared, prep_res, exec_res_list):",
-     "match": "exact",
-     "ambiguous_lines": [
-      336,
-      658,
-      1724
-     ]
+     "match": "exact"
     },
     {
      "name": "ContextRouter",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 425,
+     "line": 427,
      "signature": "class ContextRouter(Node):",
      "match": "exact"
     },
@@ -1106,63 +1054,34 @@
      "kind": "method",
      "parent": "ContextRouter",
      "visibility": "public",
-     "line": 426,
+     "line": 428,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      426,
-      587,
-      668,
-      729,
-      799,
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "ContextRouter",
      "visibility": "public",
-     "line": 522,
+     "line": 524,
      "signature": "def exec(self, prep_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      522,
-      681,
-      761,
-      852,
-      1085,
-      1238,
-      1948
-     ]
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "ContextRouter",
      "visibility": "public",
-     "line": 573,
+     "line": 575,
      "signature": "def post(self, shared, prep_res, exec_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      573,
-      724,
-      794,
-      954,
-      1183,
-      1301,
-      1974
-     ]
+     "match": "exact"
     },
     {
      "name": "MapAbstractions",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 586,
+     "line": 588,
      "signature": "class MapAbstractions(BatchNode):",
      "match": "exact"
     },
@@ -1171,52 +1090,34 @@
      "kind": "method",
      "parent": "MapAbstractions",
      "visibility": "public",
-     "line": 587,
+     "line": 589,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      587,
-      668,
-      729,
-      799,
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "MapAbstractions",
      "visibility": "public",
-     "line": 604,
+     "line": 606,
      "signature": "def exec(self, item):",
-     "match": "exact",
-     "ambiguous_lines": [
-      604,
-      1413
-     ]
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "MapAbstractions",
      "visibility": "public",
-     "line": 658,
+     "line": 660,
      "signature": "def post(self, shared, prep_res, exec_res_list):",
-     "match": "exact",
-     "ambiguous_lines": [
-      658,
-      1724
-     ]
+     "match": "exact"
     },
     {
      "name": "ReduceAbstractions",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 667,
+     "line": 669,
      "signature": "class ReduceAbstractions(Node):",
      "match": "exact"
     },
@@ -1225,59 +1126,34 @@
      "kind": "method",
      "parent": "ReduceAbstractions",
      "visibility": "public",
-     "line": 668,
+     "line": 670,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      668,
-      729,
-      799,
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "ReduceAbstractions",
      "visibility": "public",
-     "line": 681,
+     "line": 683,
      "signature": "def exec(self, prep_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      681,
-      761,
-      852,
-      1085,
-      1238,
-      1948
-     ]
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "ReduceAbstractions",
      "visibility": "public",
-     "line": 724,
+     "line": 726,
      "signature": "def post(self, shared, prep_res, exec_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      724,
-      794,
-      954,
-      1183,
-      1301,
-      1974
-     ]
+     "match": "exact"
     },
     {
      "name": "FetchRepo",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 728,
+     "line": 730,
      "signature": "class FetchRepo(Node):",
      "match": "exact"
     },
@@ -1286,56 +1162,34 @@
      "kind": "method",
      "parent": "FetchRepo",
      "visibility": "public",
-     "line": 729,
+     "line": 731,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      729,
-      799,
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "FetchRepo",
      "visibility": "public",
-     "line": 761,
+     "line": 763,
      "signature": "def exec(self, prep_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      761,
-      852,
-      1085,
-      1238,
-      1948
-     ]
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "FetchRepo",
      "visibility": "public",
-     "line": 794,
+     "line": 796,
      "signature": "def post(self, shared, prep_res, exec_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      794,
-      954,
-      1183,
-      1301,
-      1974
-     ]
+     "match": "exact"
     },
     {
      "name": "IdentifyAbstractions",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 798,
+     "line": 800,
      "signature": "class IdentifyAbstractions(Node):",
      "match": "exact"
     },
@@ -1344,54 +1198,34 @@
      "kind": "method",
      "parent": "IdentifyAbstractions",
      "visibility": "public",
-     "line": 799,
+     "line": 801,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      799,
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "IdentifyAbstractions",
      "visibility": "public",
-     "line": 851,
-     "end_line": 852,
-     "signature": "@safe_exec\n    def exec(self, prep_res):",
-     "match": "joined",
-     "ambiguous_lines": [
-      851,
-      1084,
-      1237,
-      1947
-     ]
+     "line": 854,
+     "signature": "def exec(self, prep_res):",
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "IdentifyAbstractions",
      "visibility": "public",
-     "line": 954,
+     "line": 956,
      "signature": "def post(self, shared, prep_res, exec_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      954,
-      1183,
-      1301,
-      1974
-     ]
+     "match": "exact"
     },
     {
      "name": "AnalyzeRelationships",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 958,
+     "line": 960,
      "signature": "class AnalyzeRelationships(Node):",
      "match": "exact"
     },
@@ -1400,51 +1234,34 @@
      "kind": "method",
      "parent": "AnalyzeRelationships",
      "visibility": "public",
-     "line": 959,
+     "line": 961,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      959,
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "AnalyzeRelationships",
      "visibility": "public",
-     "line": 1084,
-     "end_line": 1085,
-     "signature": "@safe_exec\n    def exec(self, prep_res):",
-     "match": "joined",
-     "ambiguous_lines": [
-      1084,
-      1237,
-      1947
-     ]
+     "line": 1087,
+     "signature": "def exec(self, prep_res):",
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "AnalyzeRelationships",
      "visibility": "public",
-     "line": 1183,
+     "line": 1185,
      "signature": "def post(self, shared, prep_res, exec_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      1183,
-      1301,
-      1974
-     ]
+     "match": "exact"
     },
     {
      "name": "OrderChapters",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 1189,
+     "line": 1191,
      "signature": "class OrderChapters(Node):",
      "match": "exact"
     },
@@ -1453,48 +1270,34 @@
      "kind": "method",
      "parent": "OrderChapters",
      "visibility": "public",
-     "line": 1190,
+     "line": 1192,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      1190,
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "OrderChapters",
      "visibility": "public",
-     "line": 1237,
-     "end_line": 1238,
-     "signature": "@safe_exec\n    def exec(self, prep_res):",
-     "match": "joined",
-     "ambiguous_lines": [
-      1237,
-      1947
-     ]
+     "line": 1240,
+     "signature": "def exec(self, prep_res):",
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "OrderChapters",
      "visibility": "public",
-     "line": 1301,
+     "line": 1303,
      "signature": "def post(self, shared, prep_res, exec_res):",
-     "match": "exact",
-     "ambiguous_lines": [
-      1301,
-      1974
-     ]
+     "match": "exact"
     },
     {
      "name": "WriteChapters",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 1306,
+     "line": 1308,
      "signature": "class WriteChapters(BatchNode):",
      "match": "exact"
     },
@@ -1503,30 +1306,25 @@
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1307,
+     "line": 1309,
      "signature": "def prep(self, shared):",
-     "match": "exact",
-     "ambiguous_lines": [
-      1307,
-      1750
-     ]
+     "match": "exact"
     },
     {
      "name": "exec",
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1412,
-     "end_line": 1413,
-     "signature": "@safe_exec\n    def exec(self, item):",
-     "match": "joined"
+     "line": 1425,
+     "signature": "def exec(self, item):",
+     "match": "exact"
     },
     {
      "name": "exec_fallback",
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1710,
+     "line": 1725,
      "signature": "def exec_fallback(self, item, exc):",
      "match": "exact"
     },
@@ -1535,7 +1333,7 @@
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1724,
+     "line": 1739,
      "signature": "def post(self, shared, prep_res, exec_res_list):",
      "match": "exact"
     },
@@ -1544,7 +1342,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 1749,
+     "line": 1764,
      "signature": "class CombineTutorial(Node):",
      "match": "exact"
     },
@@ -1553,7 +1351,7 @@
      "kind": "method",
      "parent": "CombineTutorial",
      "visibility": "public",
-     "line": 1750,
+     "line": 1765,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1562,17 +1360,16 @@
      "kind": "method",
      "parent": "CombineTutorial",
      "visibility": "public",
-     "line": 1947,
-     "end_line": 1948,
-     "signature": "@safe_exec\n    def exec(self, prep_res):",
-     "match": "joined"
+     "line": 1971,
+     "signature": "def exec(self, prep_res):",
+     "match": "exact"
     },
     {
      "name": "post",
      "kind": "method",
      "parent": "CombineTutorial",
      "visibility": "public",
-     "line": 1974,
+     "line": 1997,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     }
@@ -1586,79 +1383,86 @@
      "via": "path"
     },
     {
+     "module": "utils/chapter_check.py",
+     "target": "utils.chapter_check",
+     "line": 12,
+     "evidence": "from utils.chapter_check import source_context",
+     "via": "path"
+    },
+    {
      "module": "utils/crawl_github_files.py",
      "target": "utils.crawl_github_files",
-     "line": 12,
+     "line": 13,
      "evidence": "from utils.crawl_github_files import crawl_github_files",
      "via": "path"
     },
     {
      "module": "utils/crawl_local_files.py",
      "target": "utils.crawl_local_files",
-     "line": 13,
+     "line": 14,
      "evidence": "from utils.crawl_local_files import crawl_local_files",
      "via": "path"
     },
     {
      "module": "utils/facts.py",
      "target": "utils.facts",
-     "line": 14,
+     "line": 15,
      "evidence": "from utils.facts import (",
      "via": "path"
     },
     {
      "module": "utils/files.py",
      "target": "utils.files",
-     "line": 31,
+     "line": 32,
      "evidence": "from utils.files import build_directory_tree, get_content_for_indices",
      "via": "path"
     },
     {
      "module": "utils/llm_config.py",
      "target": "utils.llm_config",
-     "line": 32,
+     "line": 33,
      "evidence": "from utils.llm_config import resolve_llm_settings",
      "via": "path"
     },
     {
      "module": "utils/mkdocs.py",
      "target": "utils.mkdocs",
-     "line": 33,
+     "line": 34,
      "evidence": "from utils.mkdocs import (",
      "via": "path"
     },
     {
      "module": "utils/output.py",
      "target": "utils.output",
-     "line": 41,
+     "line": 42,
      "evidence": "from utils.output import emit, emit_raw, get",
      "via": "path"
     },
     {
      "module": "utils/llm_common.py",
      "target": "utils.llm_common",
-     "line": 63,
+     "line": 64,
      "evidence": "from utils.llm_common import get_step_summary",
      "via": "path"
     },
     {
      "module": "utils/prompts.py",
      "target": "utils.prompts",
-     "line": 64,
+     "line": 65,
      "evidence": "from utils.prompts import (",
      "via": "path"
     },
     {
      "module": "utils/thinking.py",
      "target": "utils.thinking",
-     "line": 75,
+     "line": 77,
      "evidence": "from utils.thinking import resolve_thinking_level",
      "via": "path"
     },
     {
      "module": "utils/token_utils.py",
      "target": "utils.token_utils",
-     "line": 76,
+     "line": 78,
      "evidence": "from utils.token_utils import (",
      "via": "path"
     }
@@ -1667,6 +1471,10 @@
     "flow.py"
    ],
    "external": [
+    {
+     "name": "pocketflow",
+     "line": 9
+    },
     {
      "name": "hashlib",
      "line": 1
@@ -1694,152 +1502,170 @@
     {
      "name": "functools",
      "line": 7
-    },
-    {
-     "name": "pocketflow",
-     "line": 9
     }
    ],
    "config": [],
    "errors": [
     {
      "name": "ValueError",
-     "line": 260,
+     "line": 262,
      "evidence": "raise ValueError(f\"only {checked['found']}/{checked['claimed']} claims found in the source\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 279,
+     "line": 281,
      "evidence": "raise ValueError(f\"{claims['unparsed']} manifest items are not valid YAML\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 789,
+     "line": 791,
      "evidence": "raise ValueError(\"No matching files found. Check your directory and include/exclude patterns.\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 905,
+     "line": 907,
      "evidence": "raise ValueError(\"LLM Output is not a list\")",
-     "match": "exact"
-    },
-    {
-     "name": "ValueError",
-     "line": 910,
-     "evidence": "raise ValueError(f\"Missing keys in abstraction item: {item}\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 912,
-     "evidence": "raise ValueError(f\"Name is not a string in item: {item}\")",
-     "match": "exact"
+     "evidence": "raise ValueError(f\"Missing keys in abstraction item: {item}\")",
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 914,
-     "evidence": "raise ValueError(f\"Description is not a string in item: {item}\")",
-     "match": "exact"
+     "evidence": "raise ValueError(f\"Name is not a string in item: {item}\")",
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 916,
-     "evidence": "raise ValueError(f\"file_indices is not a list in item: {item}\")",
-     "match": "exact"
+     "evidence": "raise ValueError(f\"Description is not a string in item: {item}\")",
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1133,
-     "evidence": "raise ValueError(\"LLM output is not a dict or missing keys ('summary', 'relationships')\")",
-     "match": "exact"
+     "line": 918,
+     "evidence": "raise ValueError(f\"file_indices is not a list in item: {item}\")",
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 1135,
-     "evidence": "raise ValueError(\"summary is not a string\")",
-     "match": "exact"
+     "evidence": "raise ValueError(\"LLM output is not a dict or missing keys ('summary', 'relationships')\")",
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 1137,
+     "evidence": "raise ValueError(\"summary is not a string\")",
+     "match": "exact",
+     "role": "raised"
+    },
+    {
+     "name": "ValueError",
+     "line": 1139,
      "evidence": "raise ValueError(\"relationships is not a list\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1145,
+     "line": 1147,
      "evidence": "raise ValueError(f\"Missing keys (expected from_abstraction, to_abstraction, label) in relationship item: {rel}\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1148,
+     "line": 1150,
      "evidence": "raise ValueError(f\"Relationship label is not a string: {rel}\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1159,
+     "line": 1161,
      "evidence": "raise ValueError(\"Missing valid integer for from_abstraction or to_abstraction.\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1269,
+     "line": 1271,
      "evidence": "raise ValueError(\"LLM output is not a list\")",
-     "match": "exact"
-    },
-    {
-     "name": "ValueError",
-     "line": 1283,
-     "evidence": "raise ValueError(f\"Invalid index {idx} in ordered list. Max index is {num_abstractions - 1}.\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 1285,
+     "evidence": "raise ValueError(f\"Invalid index {idx} in ordered list. Max index is {num_abstractions - 1}.\")",
+     "match": "exact",
+     "role": "raised"
+    },
+    {
+     "name": "ValueError",
+     "line": 1287,
      "evidence": "raise ValueError(f\"Duplicate index {idx} found in ordered list.\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1290,
+     "line": 1292,
      "evidence": "raise ValueError(f\"Could not parse index from ordered list entry: {entry}\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1642,
+     "line": 1657,
      "evidence": "raise ValueError(f\"Empty chapter response for '{abstraction_name.strip()}'\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
-    "claimed": 90,
-    "verified": 90
+    "claimed": 91,
+    "verified": 91
    },
    "completeness": {
-    "import_lines": 20,
+    "import_lines": 21,
     "declaration_lines": 51,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
-     "status": "none",
-     "asked": []
+     "status": "done",
+     "asked": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ]
     }
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "_tokens",
-     "module": "utils/llm_anthropic.py"
-    }
-   ],
-   "facts_hash": "6b5b1ffb124da444ff67843d052636ca",
+   "unexplained_names": [],
+   "facts_hash": "46ee4f422289ee1983a619594254821c",
    "claims": {
     "symbols": [
      {
@@ -1875,7 +1701,7 @@
       "kind": "method",
       "parent": "DeterministicFileMapper",
       "visibility": "public",
-      "signature": "@safe_exec\ndef exec(self, prep_res):"
+      "signature": "def exec(self, prep_res):"
      },
      {
       "name": "post",
@@ -1903,7 +1729,7 @@
       "kind": "method",
       "parent": "ExtractFacts",
       "visibility": "public",
-      "signature": "@safe_exec\ndef exec(self, item):"
+      "signature": "def exec(self, item):"
      },
      {
       "name": "_exec_manifest",
@@ -2071,7 +1897,7 @@
       "kind": "method",
       "parent": "IdentifyAbstractions",
       "visibility": "public",
-      "signature": "@safe_exec\ndef exec(self, prep_res):"
+      "signature": "def exec(self, prep_res):"
      },
      {
       "name": "post",
@@ -2099,7 +1925,7 @@
       "kind": "method",
       "parent": "AnalyzeRelationships",
       "visibility": "public",
-      "signature": "@safe_exec\ndef exec(self, prep_res):"
+      "signature": "def exec(self, prep_res):"
      },
      {
       "name": "post",
@@ -2127,7 +1953,7 @@
       "kind": "method",
       "parent": "OrderChapters",
       "visibility": "public",
-      "signature": "@safe_exec\ndef exec(self, prep_res):"
+      "signature": "def exec(self, prep_res):"
      },
      {
       "name": "post",
@@ -2155,7 +1981,7 @@
       "kind": "method",
       "parent": "WriteChapters",
       "visibility": "public",
-      "signature": "@safe_exec\ndef exec(self, item):"
+      "signature": "def exec(self, item):"
      },
      {
       "name": "exec_fallback",
@@ -2190,7 +2016,7 @@
       "kind": "method",
       "parent": "CombineTutorial",
       "visibility": "public",
-      "signature": "@safe_exec\ndef exec(self, prep_res):"
+      "signature": "def exec(self, prep_res):"
      },
      {
       "name": "post",
@@ -2202,40 +2028,16 @@
     ],
     "dependencies": [
      {
-      "target": "hashlib",
-      "evidence": "import hashlib"
-     },
-     {
-      "target": "json",
-      "evidence": "import json"
-     },
-     {
-      "target": "os",
-      "evidence": "import os"
-     },
-     {
-      "target": "re",
-      "evidence": "import re"
-     },
-     {
-      "target": "traceback",
-      "evidence": "import traceback"
-     },
-     {
-      "target": "collections",
-      "evidence": "from collections import Counter, defaultdict"
-     },
-     {
-      "target": "functools",
-      "evidence": "from functools import wraps"
-     },
-     {
       "target": "pocketflow",
       "evidence": "from pocketflow import BatchNode, Node"
      },
      {
       "target": "utils.call_llm",
       "evidence": "from utils.call_llm import call_llm"
+     },
+     {
+      "target": "utils.chapter_check",
+      "evidence": "from utils.chapter_check import source_context"
      },
      {
       "target": "utils.crawl_github_files",
@@ -2280,6 +2082,34 @@
      {
       "target": "utils.token_utils",
       "evidence": "from utils.token_utils import ("
+     },
+     {
+      "target": "hashlib",
+      "evidence": "import hashlib"
+     },
+     {
+      "target": "json",
+      "evidence": "import json"
+     },
+     {
+      "target": "os",
+      "evidence": "import os"
+     },
+     {
+      "target": "re",
+      "evidence": "import re"
+     },
+     {
+      "target": "traceback",
+      "evidence": "import traceback"
+     },
+     {
+      "target": "collections",
+      "evidence": "from collections import Counter, defaultdict"
+     },
+     {
+      "target": "functools",
+      "evidence": "from functools import wraps"
      }
     ],
     "config": [],
@@ -2590,79 +2420,92 @@
      "name": "ValueError",
      "line": 118,
      "evidence": "raise ValueError(\"LLM_PROVIDER environment variable is required\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 132,
      "evidence": "raise ValueError(f\"{model_var} environment variable is required\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 134,
      "evidence": "raise ValueError(f\"{base_url_var} environment variable is required\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ValueError",
      "line": 177,
      "evidence": "raise ValueError(f\"Provider returned invalid JSON. Status Code: {response.status_code}\") from None",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "RuntimeError",
      "line": 185,
      "evidence": "raise RuntimeError(f\"API response missing 'choices' key. Response: {error_detail}\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "Exception",
      "line": 218,
      "evidence": "raise Exception(error_message) from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "Exception",
      "line": 220,
      "evidence": "raise Exception(f\"Failed to connect to {provider} API. Check your network connection.\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "Exception",
      "line": 222,
      "evidence": "raise Exception(f\"Request to {provider} API timed out.\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "Exception",
      "line": 224,
      "evidence": "raise Exception(f\"An error occurred while making the request to {provider}: {e}\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "Exception",
      "line": 226,
      "evidence": "raise Exception(f\"Failed to parse response as JSON from {provider}. The server might have returned an invalid response.\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ImportError",
      "line": 233,
      "evidence": "raise ImportError(\"LLM_PROVIDER=ANTHROPIC requires the 'anthropic' package: pip install -r requirements.txt\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "ImportError",
      "line": 241,
      "evidence": "raise ImportError(\"LLM_PROVIDER=GEMINI requires the 'google-genai' package (>=1.56): pip install -r requirements.txt\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "LLMRefusalError",
      "line": 337,
      "evidence": "except LLMRefusalError as e:",
-     "match": "exact"
+     "match": "exact",
+     "role": "caught"
     }
    ],
    "coverage": {
@@ -2681,12 +2524,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "main",
-     "module": "main.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "3af2da24666972ce34619b6e335899de",
    "claims": {
     "symbols": [
@@ -2934,6 +2772,956 @@
     "unparsed": 0
    }
   },
+  "utils/chapter_check.py": {
+   "source_sha256": "753e0af463ccfdbcdec54590ba61017543865779cd2364d1f904aac806351bb5",
+   "lines": 553,
+   "symbols": [
+    {
+     "name": "_WORD_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 18,
+     "signature": "_WORD_RE = re.compile(r\"[^\\W\\d][\\w$]*\")",
+     "match": "exact"
+    },
+    {
+     "name": "_FENCE_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 19,
+     "signature": "_FENCE_RE = re.compile(r\"^(\\s*)(`{3,}|~{3,})\\s*([\\w+-]*)\")",
+     "match": "exact"
+    },
+    {
+     "name": "_LINK_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 21,
+     "end_line": 23,
+     "signature": "_LINK_RE = re.compile(\n    r\"(?<!\\\\)!?\\[(?:[^\\[\\]\\\\]|\\\\.|!?\\[[^\\]]*\\](?:\\([^)]*\\))?)*\\]\\(\\s*(<[^>\\n]+>|(?:[^()\\s]|\\([^()\\s]*\\))+)(?:\\s+(?:\\\"[^\\\"]*\\\"|'[^']*'|\\([^)]*\\)))?\\s*\\)\"\n)",
+     "match": "joined"
+    },
+    {
+     "name": "_REFERENCE_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 24,
+     "signature": "_REFERENCE_RE = re.compile(r\"^\\s{0,3}\\[[^\\]]+\\]:\\s*(<[^>\\n]+>|\\S+)\")  # [ref]: target",
+     "match": "exact"
+    },
+    {
+     "name": "_IMAGE_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 25,
+     "signature": "_IMAGE_RE = re.compile(r\"(?<!\\\\)!\\[[^\\]]*\\]\\(\\s*(<[^>\\n]+>|[^()\\s]+)\")  # an image, also one nested in a link's text",
+     "match": "exact"
+    },
+    {
+     "name": "_HTML_HREF_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 26,
+     "signature": "_HTML_HREF_RE = re.compile(r\"<a\\s[^>]*?href\\s*=\\s*[\\\"']([^\\\"']+)[\\\"']\", re.IGNORECASE)",
+     "match": "exact"
+    },
+    {
+     "name": "_CODE_SPAN_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 27,
+     "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(.+?)\\1\")",
+     "match": "exact"
+    },
+    {
+     "name": "_HTML_COMMENT_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 28,
+     "signature": "_HTML_COMMENT_RE = re.compile(r\"<!--.*?-->\")",
+     "match": "exact"
+    },
+    {
+     "name": "_HEADING_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 29,
+     "signature": "_HEADING_RE = re.compile(r\"^(#{1,6})\\s+(.*?)\\s*#*\\s*$\")",
+     "match": "exact"
+    },
+    {
+     "name": "_LABELLED_CODE_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 31,
+     "signature": "_LABELLED_CODE_RE = re.compile(r\"\\*\\*[^*\\n]{1,40}?[:\\uff1a]?\\*\\*\\s*[:\\uff1a]?\\s*(`+)(.+?)\\1\")",
+     "match": "exact"
+    },
+    {
+     "name": "_BLOCK_LABEL_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 32,
+     "signature": "_BLOCK_LABEL_RE = re.compile(r\"^\\*\\*[^*\\n]{1,40}?[:\\uff1a]?\\*\\*\\s*[:\\uff1a]?\\s*$\")",
+     "match": "exact"
+    },
+    {
+     "name": "_DECORATOR_LINE_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 33,
+     "signature": "_DECORATOR_LINE_RE = re.compile(r\"^\\s*(?:@|#\\[|\\[[A-Z])\")  # @property, #[inline], [Obsolete]",
+     "match": "exact"
+    },
+    {
+     "name": "_COMMENT_LINE_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 34,
+     "signature": "_COMMENT_LINE_RE = re.compile(r\"^\\s*(?:#|//|/\\*|\\*|--|;|%)\")  # a code block's leading comment lines",
+     "match": "exact"
+    },
+    {
+     "name": "_DECLARATION_START",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 36,
+     "signature": "_DECLARATION_START = _DECLARATION_WORDS | _DECLARATION_MODIFIERS | _TOP_LEVEL_WORDS | {\"pub\", \"void\", \"extern\"}",
+     "match": "exact"
+    },
+    {
+     "name": "_NOT_DECLARATION",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 37,
+     "end_line": 39,
+     "signature": "_NOT_DECLARATION = {\n    \"await\",\n    \"return\",",
+     "match": "joined"
+    },
+    {
+     "name": "_ARROW_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 58,
+     "end_line": 60,
+     "signature": "_ARROW_RE = re.compile(\n    r\"^\\s*(?:export\\s+)?(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)\\s*(?::[^=]+)?=\\s*(?:async\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*(?::[^=]*)?=>\"\n)",
+     "match": "joined"
+    },
+    {
+     "name": "_NAME_BEFORE_PAREN_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 61,
+     "signature": "_NAME_BEFORE_PAREN_RE = re.compile(r\"([^\\W\\d][\\w$]*[?!]?)\\s*(?:<[^()]*>|\\[[^()]*\\])?\\s*\\(\")",
+     "match": "exact"
+    },
+    {
+     "name": "_PARAM_TOKEN_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 62,
+     "signature": "_PARAM_TOKEN_RE = re.compile(r\"[\\w$]+|\\.\\.\\.|[*&\\[\\]?]\")  # words plus the punctuation that changes a type",
+     "match": "exact"
+    },
+    {
+     "name": "_TYPE_NAME_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 64,
+     "signature": "_TYPE_NAME_RE = re.compile(r\"^_*[A-Z](?=[A-Za-z0-9]*[a-z])(?=[A-Za-z0-9]*?[A-Z][A-Za-z0-9]*?[A-Z]|[A-Za-z0-9]*[a-z][A-Za-z0-9]*[A-Z])[A-Za-z0-9]+$\")",
+     "match": "exact"
+    },
+    {
+     "name": "_MERMAID_TYPES",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 65,
+     "end_line": 70,
+     "signature": "_MERMAID_TYPES = ( \"flowchart\", \"flowchart-elk\", \"graph\", \"sequenceDiagram\", \"classDiagram\", \"classDiagram-v2\", \"stateDiagram\", \"stateDiagram-v2\", \"erDiagram\", \"journey\", \"gantt\", \"pie\", \"mindmap\", \"timeline\", \"gitGraph\", \"quadrantChart\", \"requirementDiagram\", \"C4Context\", \"C4Container\", \"C4Componen",
+     "match": "joined",
+     "truncated": true
+    },
+    {
+     "name": "_DIAGRAM_KEYS",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 71,
+     "end_line": 73,
+     "signature": "_DIAGRAM_KEYS = {\n    \"type\": \"CHAPTER_CHECK_DIAGRAM_TYPE\",\n    \"arrow\": \"CHAPTER_CHECK_DIAGRAM_ARROW\",",
+     "match": "joined"
+    },
+    {
+     "name": "USED_BY_MARKER",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "public",
+     "line": 80,
+     "signature": "USED_BY_MARKER = \"<!-- \" + \"used-by:auto\" + \" -->\"",
+     "match": "exact"
+    },
+    {
+     "name": "REPORT_FILENAME",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "public",
+     "line": 81,
+     "signature": "REPORT_FILENAME = \"chapter_check.json\"",
+     "match": "exact"
+    },
+    {
+     "name": "_words",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 84,
+     "signature": "def _words(text: str) -> list[str]:",
+     "match": "exact"
+    },
+    {
+     "name": "_collapse",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 88,
+     "signature": "def _collapse(text: str) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "parse_page",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 92,
+     "signature": "def parse_page(markdown: str) -> dict:",
+     "match": "exact"
+    },
+    {
+     "name": "_links",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 133,
+     "signature": "def _links(prose: list) -> list[tuple[int, str]]:",
+     "match": "exact"
+    },
+    {
+     "name": "resolve_link",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 148,
+     "signature": "def resolve_link(page: str, target: str) -> str | None:",
+     "match": "exact"
+    },
+    {
+     "name": "broken_links",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 158,
+     "signature": "def broken_links(page: str, parsed: dict, exists) -> list[dict]:",
+     "match": "exact"
+    },
+    {
+     "name": "mermaid_problems",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 168,
+     "signature": "def mermaid_problems(source: str) -> list[dict]:",
+     "match": "exact"
+    },
+    {
+     "name": "diagram_problems",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 205,
+     "signature": "def diagram_problems(parsed: dict) -> list[dict]:",
+     "match": "exact"
+    },
+    {
+     "name": "_page_text",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 215,
+     "signature": "def _page_text(parsed: dict) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "missing_symbols",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 221,
+     "signature": "def missing_symbols(parsed: dict, symbols: list[dict]) -> list[dict]:",
+     "match": "exact"
+    },
+    {
+     "name": "_is_subsequence",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 235,
+     "signature": "def _is_subsequence(wanted: list[str], have: list[str]) -> bool:",
+     "match": "exact"
+    },
+    {
+     "name": "_strip_decorators",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 243,
+     "signature": "def _strip_decorators(text: str) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "_head",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 251,
+     "signature": "def _head(text: str) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "_declared_name",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 272,
+     "signature": "def _declared_name(text: str) -> tuple[str, int] | None:",
+     "match": "exact"
+    },
+    {
+     "name": "_declaration_shaped",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 284,
+     "signature": "def _declaration_shaped(text: str) -> bool:",
+     "match": "exact"
+    },
+    {
+     "name": "_signatures",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 308,
+     "signature": "def _signatures(parsed: dict) -> list[tuple[int, str]]:",
+     "match": "exact"
+    },
+    {
+     "name": "_params",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 326,
+     "signature": "def _params(head: str) -> tuple[list[list[str]], bool] | None:",
+     "match": "exact"
+    },
+    {
+     "name": "_compare",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 352,
+     "signature": "def _compare(page_head: str, source_head: str) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "signature_issues",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 375,
+     "signature": "def signature_issues(parsed: dict, source: str, symbols: list[dict]) -> tuple[list[dict], list[dict]]:",
+     "match": "exact"
+    },
+    {
+     "name": "unknown_type_names",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 405,
+     "signature": "def unknown_type_names(parsed: dict, known_words: set) -> list[dict]:",
+     "match": "exact"
+    },
+    {
+     "name": "_see_also_section",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 419,
+     "signature": "def _see_also_section(parsed: dict, pages: set, page: str) -> list[tuple[int, str]]:",
+     "match": "exact"
+    },
+    {
+     "name": "see_also_issues",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 436,
+     "signature": "def see_also_issues(page: str, parsed: dict, module: str, module_by_page: dict, facts: dict) -> tuple[list, list]:",
+     "match": "exact"
+    },
+    {
+     "name": "check_chapter",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 454,
+     "end_line": 456,
+     "signature": "def check_chapter(\n    page: str, markdown: str, exists, module: str = \"\", facts: dict | None = None, source: str = \"\", known_words=None, module_by_page=None\n) -> dict:",
+     "match": "joined"
+    },
+    {
+     "name": "_FACT_KINDS",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 482,
+     "end_line": 485,
+     "signature": "_FACT_KINDS = (\n    \"missing_symbols\", \"signature_mismatches\", \"signatures_embellished\", \"unknown_type_names\", \"see_also_unrelated\",\n    \"see_also_missing_dependencies\",\n)  # fmt: skip",
+     "match": "joined"
+    },
+    {
+     "name": "_COUNTED",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 486,
+     "signature": "_COUNTED = (\"broken_links\", \"diagram_problems\", \"unclosed_fences\", *_FACT_KINDS)",
+     "match": "exact"
+    },
+    {
+     "name": "run_chapter_check",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 489,
+     "signature": "def run_chapter_check(output_path: str, site_dir: str, chapter_files: list, prep_res: dict, standalone: bool = False) -> dict:",
+     "match": "exact"
+    },
+    {
+     "name": "source_context",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 548,
+     "signature": "def source_context(files_data: list) -> tuple[dict, set]:",
+     "match": "exact"
+    }
+   ],
+   "depends_on": [
+    {
+     "module": "utils/facts.py",
+     "target": "utils.facts",
+     "line": 15,
+     "evidence": "from utils.facts import _DECLARATION_MODIFIERS, _DECLARATION_WORDS, _TOP_LEVEL_WORDS, _names_in",
+     "via": "path"
+    },
+    {
+     "module": "utils/output.py",
+     "target": "utils.output",
+     "line": 16,
+     "evidence": "from utils.output import emit",
+     "via": "path"
+    }
+   ],
+   "used_by": [
+    "nodes.py",
+    "utils/mkdocs.py"
+   ],
+   "external": [
+    {
+     "name": "json",
+     "line": 9
+    },
+    {
+     "name": "os",
+     "line": 10
+    },
+    {
+     "name": "posixpath",
+     "line": 11
+    },
+    {
+     "name": "re",
+     "line": 12
+    },
+    {
+     "name": "urllib.parse",
+     "line": 13
+    }
+   ],
+   "config": [],
+   "errors": [],
+   "coverage": {
+    "claimed": 57,
+    "verified": 57
+   },
+   "completeness": {
+    "import_lines": 7,
+    "declaration_lines": 50,
+    "unreported_lines": [],
+    "declined_lines": [],
+    "followup": {
+     "status": "done",
+     "asked": [
+      18,
+      19,
+      21,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      31,
+      32,
+      33,
+      34,
+      36,
+      37,
+      58,
+      61,
+      62,
+      64,
+      65,
+      71,
+      84,
+      88,
+      133,
+      215,
+      235,
+      243,
+      251,
+      272,
+      284,
+      308,
+      326,
+      352,
+      419,
+      482,
+      486
+     ]
+    }
+   },
+   "rejected": [],
+   "missed_imports": [],
+   "unexplained_names": [],
+   "facts_hash": "db5ab4828ca8806b0142aee71d29901d",
+   "claims": {
+    "symbols": [
+     {
+      "name": "USED_BY_MARKER",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "public",
+      "signature": "USED_BY_MARKER = \"<!-- \" + \"used-by:auto\" + \" -->\""
+     },
+     {
+      "name": "REPORT_FILENAME",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "public",
+      "signature": "REPORT_FILENAME = \"chapter_check.json\""
+     },
+     {
+      "name": "parse_page",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def parse_page(markdown: str) -> dict:"
+     },
+     {
+      "name": "resolve_link",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def resolve_link(page: str, target: str) -> str | None:"
+     },
+     {
+      "name": "broken_links",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def broken_links(page: str, parsed: dict, exists) -> list[dict]:"
+     },
+     {
+      "name": "mermaid_problems",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def mermaid_problems(source: str) -> list[dict]:"
+     },
+     {
+      "name": "diagram_problems",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def diagram_problems(parsed: dict) -> list[dict]:"
+     },
+     {
+      "name": "missing_symbols",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def missing_symbols(parsed: dict, symbols: list[dict]) -> list[dict]:"
+     },
+     {
+      "name": "signature_issues",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def signature_issues(parsed: dict, source: str, symbols: list[dict]) -> tuple[list[dict], list[dict]]:"
+     },
+     {
+      "name": "unknown_type_names",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def unknown_type_names(parsed: dict, known_words: set) -> list[dict]:"
+     },
+     {
+      "name": "see_also_issues",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def see_also_issues(page: str, parsed: dict, module: str, module_by_page: dict, facts: dict) -> tuple[list, list]:"
+     },
+     {
+      "name": "check_chapter",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def check_chapter(\n    page: str, markdown: str, exists, module: str = \"\", facts: dict | None = None, source: str = \"\", known_words=None, module_by_page=None\n) -> dict:"
+     },
+     {
+      "name": "run_chapter_check",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def run_chapter_check(output_path: str, site_dir: str, chapter_files: list, prep_res: dict, standalone: bool = False) -> dict:"
+     },
+     {
+      "name": "source_context",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def source_context(files_data: list) -> tuple[dict, set]:"
+     },
+     {
+      "name": "_WORD_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_WORD_RE = re.compile(r\"[^\\W\\d][\\w$]*\")"
+     },
+     {
+      "name": "_FENCE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_FENCE_RE = re.compile(r\"^(\\s*)(`{3,}|~{3,})\\s*([\\w+-]*)\")"
+     },
+     {
+      "name": "_LINK_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_LINK_RE = re.compile(\n    r\"(?<!\\\\)!?\\[(?:[^\\[\\]\\\\]|\\\\.|!?\\[[^\\]]*\\](?:\\([^)]*\\))?)*\\]\\(\\s*(<[^>\\n]+>|(?:[^()\\s]|\\([^()\\s]*\\))+)(?:\\s+(?:\\\"[^\\\"]*\\\"|'[^']*'|\\([^)]*\\)))?\\s*\\)\"\n)"
+     },
+     {
+      "name": "_REFERENCE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_REFERENCE_RE = re.compile(r\"^\\s{0,3}\\[[^\\]]+\\]:\\s*(<[^>\\n]+>|\\S+)\")  # [ref]: target"
+     },
+     {
+      "name": "_IMAGE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_IMAGE_RE = re.compile(r\"(?<!\\\\)!\\[[^\\]]*\\]\\(\\s*(<[^>\\n]+>|[^()\\s]+)\")  # an image, also one nested in a link's text"
+     },
+     {
+      "name": "_HTML_HREF_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_HTML_HREF_RE = re.compile(r\"<a\\s[^>]*?href\\s*=\\s*[\\\"']([^\\\"']+)[\\\"']\", re.IGNORECASE)"
+     },
+     {
+      "name": "_CODE_SPAN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(.+?)\\1\")"
+     },
+     {
+      "name": "_HTML_COMMENT_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_HTML_COMMENT_RE = re.compile(r\"<!--.*?-->\")"
+     },
+     {
+      "name": "_HEADING_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_HEADING_RE = re.compile(r\"^(#{1,6})\\s+(.*?)\\s*#*\\s*$\")"
+     },
+     {
+      "name": "_LABELLED_CODE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_LABELLED_CODE_RE = re.compile(r\"\\*\\*[^*\\n]{1,40}?[:\\uff1a]?\\*\\*\\s*[:\\uff1a]?\\s*(`+)(.+?)\\1\")"
+     },
+     {
+      "name": "_BLOCK_LABEL_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_BLOCK_LABEL_RE = re.compile(r\"^\\*\\*[^*\\n]{1,40}?[:\\uff1a]?\\*\\*\\s*[:\\uff1a]?\\s*$\")"
+     },
+     {
+      "name": "_DECORATOR_LINE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_DECORATOR_LINE_RE = re.compile(r\"^\\s*(?:@|#\\[|\\[[A-Z])\")  # @property, #[inline], [Obsolete]"
+     },
+     {
+      "name": "_COMMENT_LINE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_COMMENT_LINE_RE = re.compile(r\"^\\s*(?:#|//|/\\*|\\*|--|;|%)\")  # a code block's leading comment lines"
+     },
+     {
+      "name": "_DECLARATION_START",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_DECLARATION_START = _DECLARATION_WORDS | _DECLARATION_MODIFIERS | _TOP_LEVEL_WORDS | {\"pub\", \"void\", \"extern\"}"
+     },
+     {
+      "name": "_NOT_DECLARATION",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_NOT_DECLARATION = {\n    \"await\",\n    \"return\","
+     },
+     {
+      "name": "_ARROW_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_ARROW_RE = re.compile(\n    r\"^\\s*(?:export\\s+)?(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)\\s*(?::[^=]+)?=\\s*(?:async\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*(?::[^=]*)?=>\"\n)"
+     },
+     {
+      "name": "_NAME_BEFORE_PAREN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_NAME_BEFORE_PAREN_RE = re.compile(r\"([^\\W\\d][\\w$]*[?!]?)\\s*(?:<[^()]*>|\\[[^()]*\\])?\\s*\\(\")"
+     },
+     {
+      "name": "_PARAM_TOKEN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_PARAM_TOKEN_RE = re.compile(r\"[\\w$]+|\\.\\.\\.|[*&\\[\\]?]\")  # words plus the punctuation that changes a type"
+     },
+     {
+      "name": "_TYPE_NAME_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_TYPE_NAME_RE = re.compile(r\"^_*[A-Z](?=[A-Za-z0-9]*[a-z])(?=[A-Za-z0-9]*?[A-Z][A-Za-z0-9]*?[A-Z]|[A-Za-z0-9]*[a-z][A-Za-z0-9]*[A-Z])[A-Za-z0-9]+$\")"
+     },
+     {
+      "name": "_MERMAID_TYPES",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_MERMAID_TYPES = (\n    \"flowchart\", \"flowchart-elk\", \"graph\", \"sequenceDiagram\", \"classDiagram\", \"classDiagram-v2\", \"stateDiagram\",\n    \"stateDiagram-v2\", \"erDiagram\", \"journey\", \"gantt\", \"pie\", \"mindmap\", \"timeline\", \"gitGraph\", \"quadrantChart\","
+     },
+     {
+      "name": "_DIAGRAM_KEYS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_DIAGRAM_KEYS = {\n    \"type\": \"CHAPTER_CHECK_DIAGRAM_TYPE\",\n    \"arrow\": \"CHAPTER_CHECK_DIAGRAM_ARROW\","
+     },
+     {
+      "name": "_words",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _words(text: str) -> list[str]:"
+     },
+     {
+      "name": "_collapse",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _collapse(text: str) -> str:"
+     },
+     {
+      "name": "_links",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _links(prose: list) -> list[tuple[int, str]]:"
+     },
+     {
+      "name": "_page_text",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _page_text(parsed: dict) -> str:"
+     },
+     {
+      "name": "_is_subsequence",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _is_subsequence(wanted: list[str], have: list[str]) -> bool:"
+     },
+     {
+      "name": "_strip_decorators",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _strip_decorators(text: str) -> str:"
+     },
+     {
+      "name": "_head",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _head(text: str) -> str:"
+     },
+     {
+      "name": "_declared_name",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _declared_name(text: str) -> tuple[str, int] | None:"
+     },
+     {
+      "name": "_declaration_shaped",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _declaration_shaped(text: str) -> bool:"
+     },
+     {
+      "name": "_signatures",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _signatures(parsed: dict) -> list[tuple[int, str]]:"
+     },
+     {
+      "name": "_params",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _params(head: str) -> tuple[list[list[str]], bool] | None:"
+     },
+     {
+      "name": "_compare",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _compare(page_head: str, source_head: str) -> str:"
+     },
+     {
+      "name": "_see_also_section",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _see_also_section(parsed: dict, pages: set, page: str) -> list[tuple[int, str]]:"
+     },
+     {
+      "name": "_FACT_KINDS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_FACT_KINDS = (\n    \"missing_symbols\", \"signature_mismatches\", \"signatures_embellished\", \"unknown_type_names\", \"see_also_unrelated\",\n    \"see_also_missing_dependencies\","
+     },
+     {
+      "name": "_COUNTED",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_COUNTED = (\"broken_links\", \"diagram_problems\", \"unclosed_fences\", *_FACT_KINDS)"
+     }
+    ],
+    "dependencies": [
+     {
+      "target": "json",
+      "evidence": "import json"
+     },
+     {
+      "target": "os",
+      "evidence": "import os"
+     },
+     {
+      "target": "posixpath",
+      "evidence": "import posixpath"
+     },
+     {
+      "target": "re",
+      "evidence": "import re"
+     },
+     {
+      "target": "urllib.parse",
+      "evidence": "from urllib.parse import unquote"
+     },
+     {
+      "target": "utils.facts",
+      "evidence": "from utils.facts import _DECLARATION_MODIFIERS, _DECLARATION_WORDS, _TOP_LEVEL_WORDS, _names_in"
+     },
+     {
+      "target": "utils.output",
+      "evidence": "from utils.output import emit"
+     }
+    ],
+    "config": [],
+    "errors": [],
+    "unparsed": 0
+   }
+  },
   "utils/crawl_github_files.py": {
    "source_sha256": "3ad6521526e3d166c2a1af6d3de2d3f134b78a5f619031a1ec77bb9b09f7e2e0",
    "lines": 568,
@@ -2953,8 +3741,8 @@
      "parent": "",
      "visibility": "public",
      "line": 17,
-     "end_line": 19,
-     "signature": "def crawl_github_files(\n    repo_url,\n    token=None,",
+     "end_line": 24,
+     "signature": "def crawl_github_files(\n    repo_url,\n    token=None,\n    max_file_size: int = DEFAULT_MAX_FILE_SIZE,\n    use_relative_paths: bool = False,\n    include_patterns: str | set[str] | None = None,\n    exclude_patterns: str | set[str] | None = None,\n):",
      "match": "joined"
     }
    ],
@@ -3022,13 +3810,15 @@
      "name": "ValueError",
      "line": 215,
      "evidence": "raise ValueError(f\"Invalid GitHub URL: {repo_url}\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "Exception",
      "line": 233,
      "evidence": "raise Exception(\"GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
@@ -3048,15 +3838,8 @@
     }
    },
    "rejected": [],
-   "missed_imports": [
-    "main.py"
-   ],
-   "unexplained_names": [
-    {
-     "name": "main",
-     "module": "main.py"
-    }
-   ],
+   "missed_imports": [],
+   "unexplained_names": [],
    "facts_hash": "7338ae7b6c860c4a879c4f24da06425e",
    "claims": {
     "symbols": [
@@ -3169,8 +3952,8 @@
      "parent": "",
      "visibility": "public",
      "line": 45,
-     "end_line": 47,
-     "signature": "def crawl_local_files(\n    directory,\n    include_patterns=None,",
+     "end_line": 51,
+     "signature": "def crawl_local_files(\n    directory,\n    include_patterns=None,\n    exclude_patterns=None,\n    max_file_size=None,\n    use_relative_paths=True,\n):",
      "match": "joined"
     }
    ],
@@ -3206,7 +3989,8 @@
      "name": "ValueError",
      "line": 65,
      "evidence": "raise ValueError(f\"Directory does not exist: {directory}\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
@@ -3227,12 +4011,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "crawl_github_files",
-     "module": "utils/crawl_github_files.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "b452a7a4a4faf20d54a8fec0be150e8d",
    "claims": {
     "symbols": [
@@ -3346,8 +4125,8 @@
    }
   },
   "utils/facts.py": {
-   "source_sha256": "0e3a313347b7d2daef2590f6c535381cf519170760394c023109e1fce34e3289",
-   "lines": 1511,
+   "source_sha256": "616568c576e658a1c1d0bd3a557b54c4ac0fad9600db0bf8cfd203968d9cd950",
+   "lines": 1752,
    "symbols": [
     {
      "name": "FACTS_SCHEMA",
@@ -3404,11 +4183,147 @@
      "match": "exact"
     },
     {
-     "name": "_WORD_RE",
+     "name": "_CALL_SPAN_LINES",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 30,
+     "signature": "_CALL_SPAN_LINES = 12  # lines a config/error quote's open bracket may run on (a multi-line `add_argument(` call)",
+     "match": "exact"
+    },
+    {
+     "name": "_STRING_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 31,
+     "signature": "_STRING_RE = re.compile(r\"\\\"(?:\\\\.|[^\\\"\\\\])*\\\"|'(?:\\\\.|[^'\\\\])*'|`[^`]*`\")  # one-line string literals",
+     "match": "exact"
+    },
+    {
+     "name": "_HANDLER_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 34,
+     "signature": "_HANDLER_RE = re.compile(r\"(?<![\\w.$@])@?(?:except\\*?|catch|rescue|recover)(?![\\w$])\", re.IGNORECASE)",
+     "match": "exact"
+    },
+    {
+     "name": "_RAISE_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 35,
+     "signature": "_RAISE_RE = re.compile(r\"(?<![\\w$])(?:(?<!\\.)(?:raise|throw|throws|panic|Err|abort|error|fail|reject)|Errorf)(?![\\w$])\")  # fmt.Errorf, not log.error",
+     "match": "exact"
+    },
+    {
+     "name": "_ROLE_RANK",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 36,
+     "signature": "_ROLE_RANK = {\"raised\": 0, \"mentioned\": 1, \"caught\": 2}  # of several places, the one that raises the error wins",
+     "match": "exact"
+    },
+    {
+     "name": "_COMMENT_START_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 37,
+     "signature": "_COMMENT_START_RE = re.compile(r\"^\\s*(?:#|//|/\\*|\\*|--)\")  # a comment line (C preprocessor lines too)",
+     "match": "exact"
+    },
+    {
+     "name": "_LABEL_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 39,
+     "signature": "_LABEL_RE = re.compile(r\"\\s*([A-Za-z_]\\w*)[\\w\\s]*:\\s*|\\s*([a-z_]\\w*)\\s*\")",
+     "match": "exact"
+    },
+    {
+     "name": "_NAME",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 41,
+     "signature": "_NAME = r\"[^\\W\\d][\\w$]*\"",
+     "match": "exact"
+    },
+    {
+     "name": "_KEYWORD_BINDS_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 42,
+     "end_line": 44,
+     "signature": "_KEYWORD_BINDS_RE = re.compile(\n    rf\"(?<![\\w$.])(?:for|let|var|val|const)[ \\t]+[(\\[{{]?[ \\t]*((?:{_NAME}[ \\t]*,[ \\t]*)*{_NAME})(?=[ \\t]*(?:[,)\\]}}=:;]|in\\b|of\\b|$))\", re.MULTILINE\n)  # for a, b in …, const {a, b} = …, let [x, y] = …, val repo: Repository = … (the type is not bound)",
+     "match": "joined"
+    },
+    {
+     "name": "_LINE_BINDS_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 45,
+     "signature": "_LINE_BINDS_RE = re.compile(rf\"^[ \\t]*((?:{_NAME}[ \\t]*,[ \\t]*)*{_NAME})[ \\t]*:?=(?![=>])\", re.MULTILINE)  # a, b := …; x = …",
+     "match": "exact"
+    },
+    {
+     "name": "_KWARG_BINDS_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 46,
+     "signature": "_KWARG_BINDS_RE = re.compile(rf\"[(,][ \\t]*({_NAME})[ \\t]*=(?![=>])\")  # f(name=…), def f(x=1) — not `x: Type = …`",
+     "match": "exact"
+    },
+    {
+     "name": "_FIRST_NAME_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 47,
+     "signature": "_FIRST_NAME_RE = re.compile(r\"(?<![\\w$])(?:(?<=\\.\\.)|(?<!\\.))([^\\W\\d][\\w$]*)\")  # a name not after one dot (`..MAX` counts)",
+     "match": "exact"
+    },
+    {
+     "name": "_DOTTED_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 48,
+     "signature": "_DOTTED_RE = re.compile(r\"(?<![\\w$.])[^\\W\\d][\\w$]*(?:\\.[^\\W\\d][\\w$]*)+\")  # Shop.Cart.add, os.environ.get",
+     "match": "exact"
+    },
+    {
+     "name": "_SHELL_VAR_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 49,
+     "signature": "_SHELL_VAR_RE = re.compile(r\"\\$\\{?([A-Za-z_]\\w*)\")  # $NAME, ${NAME}",
+     "match": "exact"
+    },
+    {
+     "name": "_INTERPOLATION_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 50,
+     "signature": "_INTERPOLATION_RE = re.compile(r\"\\$\\{([^}]*)\\}|#\\{([^}]*)\\}|\\\\\\(([^)]*)\\)\")  # ${expr}, #{expr}, \\(expr)",
+     "match": "exact"
+    },
+    {
+     "name": "_WORD_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 51,
      "signature": "_WORD_RE = re.compile(r\"\\w+\")",
      "match": "exact"
     },
@@ -3417,7 +4332,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 31,
+     "line": 52,
      "signature": "_LINE_BREAK_RE = re.compile(r\"\\r\\n|\\r|\\n\")  # what editors, GitHub and models count; str.splitlines also splits at \\f, \\x85, U+2028",
      "match": "exact"
     },
@@ -3426,7 +4341,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 32,
+     "line": 53,
      "signature": "_DOTTED_RE = re.compile(r\"\\w+(?:(?:\\.|::|\\\\)\\w+)+\")",
      "match": "exact"
     },
@@ -3435,7 +4350,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 35,
+     "line": 56,
      "signature": "_QUALIFIERS = set(\"./\\\\:\\\"'<`\")",
      "match": "exact"
     },
@@ -3444,7 +4359,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 36,
+     "line": 57,
      "signature": "_CLOSERS = set(\"\\\"'`>\")",
      "match": "exact"
     },
@@ -3453,16 +4368,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 39,
-     "signature": "_IMPORT_WORDS = {",
-     "match": "exact"
+     "line": 60,
+     "end_line": 62,
+     "signature": "_IMPORT_WORDS = {\n    \"import\",\n    \"from\",",
+     "match": "joined"
     },
     {
      "name": "_MODIFIERS",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 60,
+     "line": 81,
      "signature": "_MODIFIERS = {\"pub\", \"crate\", \"public\", \"private\", \"protected\", \"internal\", \"static\"}",
      "match": "exact"
     },
@@ -3471,7 +4387,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 61,
+     "line": 82,
      "signature": "_CONTAINER_KINDS = {\"class\", \"struct\", \"interface\", \"enum\", \"trait\", \"type\", \"module\", \"namespace\", \"impl\", \"object\", \"record\", \"protocol\"}",
      "match": "exact"
     },
@@ -3480,7 +4396,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 62,
+     "line": 83,
      "signature": "_OWNER_EXCLUDED_KINDS = {\"method\"}  # called on objects of any type: proves nothing about which file a line uses",
      "match": "exact"
     },
@@ -3489,7 +4405,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 63,
+     "line": 84,
      "signature": "_NAMESPACE_WORDS = {\"namespace\", \"package\", \"module\", \"defmodule\", \"library\", \"unit\"}  # declaration lines",
      "match": "exact"
     },
@@ -3498,7 +4414,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 64,
+     "line": 85,
      "signature": "_INDEX_STEMS = (\"mod\", \"index\", \"__init__\", \"init\", \"main\", \"lib\")  # the file a directory import means, in this preference",
      "match": "exact"
     },
@@ -3507,7 +4423,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 65,
+     "line": 86,
      "signature": "_BARE_NAME_RE = re.compile(r\"^[\\w-]+$\")  # a package name without any path part",
      "match": "exact"
     },
@@ -3516,7 +4432,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 66,
+     "line": 87,
      "signature": "_SEGMENT_RE = re.compile(r\"^[\\w$@~-]+$\")  # path segments; drops grouped-import lists such as {Repo, StoreError}",
      "match": "exact"
     },
@@ -3525,7 +4441,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 67,
+     "line": 88,
      "signature": "_GO_BLOCK_LINE_RE = re.compile(r'^\\s*(?:[\\w.]+\\s+)?\"[^\"]+\"\\s*$')  # a bare quoted path, e.g. inside import ( ... )",
      "match": "exact"
     },
@@ -3534,7 +4450,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 70,
+     "line": 91,
      "signature": "def split_lines(content: str) -> list[str]:",
      "match": "exact"
     },
@@ -3543,7 +4459,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 76,
+     "line": 97,
      "signature": "def _nfc(text) -> str:",
      "match": "exact"
     },
@@ -3552,7 +4468,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 80,
+     "line": 101,
      "signature": "def _collapse(text: str) -> str:",
      "match": "exact"
     },
@@ -3561,7 +4477,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 84,
+     "line": 105,
      "signature": "def _squash(text: str) -> str:",
      "match": "exact"
     },
@@ -3570,7 +4486,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 88,
+     "line": 109,
      "signature": "def _words(text: str) -> list[str]:",
      "match": "exact"
     },
@@ -3579,7 +4495,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 92,
+     "line": 113,
      "signature": "class SourceIndex:",
      "match": "exact"
     },
@@ -3588,8 +4504,17 @@
      "kind": "method",
      "parent": "SourceIndex",
      "visibility": "public",
-     "line": 95,
+     "line": 116,
      "signature": "def __init__(self, content: str):",
+     "match": "exact"
+    },
+    {
+     "name": "block_chain",
+     "kind": "method",
+     "parent": "SourceIndex",
+     "visibility": "public",
+     "line": 134,
+     "signature": "def block_chain(self, line: int) -> tuple:",
      "match": "exact"
     },
     {
@@ -3597,7 +4522,7 @@
      "kind": "method",
      "parent": "SourceIndex",
      "visibility": "public",
-     "line": 112,
+     "line": 141,
      "signature": "def text(self, first: int, last: int) -> str:",
      "match": "exact"
     },
@@ -3606,7 +4531,7 @@
      "kind": "method",
      "parent": "SourceIndex",
      "visibility": "public",
-     "line": 115,
+     "line": 144,
      "signature": "def locate(self, quote, start: int = 0, end: int | None = None) -> list[tuple[int, int, str]]:",
      "match": "exact"
     },
@@ -3615,7 +4540,7 @@
      "kind": "method",
      "parent": "SourceIndex",
      "visibility": "private",
-     "line": 162,
+     "line": 191,
      "signature": "def _words_in_order(self, words: list[str], first: int, end: int) -> int | None:",
      "match": "exact"
     },
@@ -3624,7 +4549,7 @@
      "kind": "method",
      "parent": "SourceIndex",
      "visibility": "public",
-     "line": 172,
+     "line": 201,
      "signature": "def excerpt(self, first: int, last: int, quote) -> tuple[str, bool]:",
      "match": "exact"
     },
@@ -3633,7 +4558,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 183,
+     "line": 213,
      "signature": "def _has_words(text: str, name: str) -> bool:",
      "match": "exact"
     },
@@ -3642,7 +4567,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 197,
+     "line": 227,
      "signature": "def _names_in(text: str, name: str) -> bool:",
      "match": "exact"
     },
@@ -3651,7 +4576,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 205,
+     "line": 235,
      "signature": "def _as_text(value) -> str:",
      "match": "exact"
     },
@@ -3660,7 +4585,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 211,
+     "line": 241,
      "signature": "def _claim_list(claims: dict, key: str) -> list[dict]:",
      "match": "exact"
     },
@@ -3669,7 +4594,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 221,
+     "line": 251,
      "signature": "def verify_file_claims(claims: dict, content: str) -> dict:",
      "match": "exact"
     },
@@ -3678,7 +4603,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 288,
+     "line": 345,
      "signature": "def _verify_symbols(symbols: list[dict], index: SourceIndex) -> tuple[list, list]:",
      "match": "exact"
     },
@@ -3687,7 +4612,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 352,
+     "line": 422,
      "signature": "def _end(first: int, last: int) -> dict:",
      "match": "exact"
     },
@@ -3696,8 +4621,53 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 357,
+     "line": 427,
      "signature": "def _enclosing(containers: list[tuple[int, str]], line: int) -> str | None:",
+     "match": "exact"
+    },
+    {
+     "name": "_parent_verdict",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 433,
+     "signature": "def _parent_verdict(index: SourceIndex, match: tuple, parent: str) -> bool | None:",
+     "match": "exact"
+    },
+    {
+     "name": "_in_parent",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 454,
+     "signature": "def _in_parent(index: SourceIndex, match: tuple, parent: str, containers: list) -> bool:",
+     "match": "exact"
+    },
+    {
+     "name": "_call_span",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 460,
+     "signature": "def _call_span(index: SourceIndex, first: int, last: int) -> int:",
+     "match": "exact"
+    },
+    {
+     "name": "_name_rank",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 474,
+     "signature": "def _name_rank(text: str, name: str) -> int:",
+     "match": "exact"
+    },
+    {
+     "name": "_error_role",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 482,
+     "signature": "def _error_role(index: SourceIndex, first: int, last: int, name: str) -> str:",
      "match": "exact"
     },
     {
@@ -3705,16 +4675,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 370,
-     "signature": "_DECLARATION_WORDS = {",
-     "match": "exact"
+     "line": 510,
+     "end_line": 512,
+     "signature": "_DECLARATION_WORDS = {\n    \"def\", \"class\", \"function\", \"func\", \"fun\", \"fn\", \"struct\", \"interface\", \"enum\", \"trait\", \"type\", \"typealias\",\n    \"record\", \"object\", \"protocol\", \"extension\", \"macro\", \"sub\", \"procedure\", \"typedef\", \"defmodule\", \"defp\",",
+     "match": "joined"
     },
     {
      "name": "_FUNCTION_WORDS",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 377,
+     "line": 517,
      "signature": "_FUNCTION_WORDS = {\"def\", \"function\", \"func\", \"fun\", \"fn\", \"sub\", \"procedure\", \"defp\", \"defmacro\", \"macro\", \"factory\"}",
      "match": "exact"
     },
@@ -3723,7 +4694,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 378,
+     "line": 518,
      "signature": "_TOP_LEVEL_WORDS = {\"const\", \"let\", \"var\", \"val\", \"local\", \"static\", \"global\"}  # declarations only when unindented",
      "match": "exact"
     },
@@ -3732,16 +4703,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 379,
-     "signature": "_DECLARATION_MODIFIERS = _MODIFIERS | {",
-     "match": "exact"
+     "line": 519,
+     "end_line": 521,
+     "signature": "_DECLARATION_MODIFIERS = _MODIFIERS | {\n    \"export\", \"async\", \"abstract\", \"final\", \"override\", \"sealed\", \"virtual\", \"extern\", \"inline\", \"open\", \"default\",\n    \"unsafe\", \"partial\", \"readonly\", \"synchronized\", \"native\", \"suspend\", \"noinline\", \"lateinit\", \"lazy\",",
+     "match": "joined"
     },
     {
      "name": "_CONTROL_WORDS",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 384,
+     "line": 524,
      "signature": "_CONTROL_WORDS = {\"if\", \"for\", \"while\", \"switch\", \"return\", \"else\", \"do\", \"case\", \"catch\", \"when\", \"match\", \"elif\", \"unless\", \"until\"}",
      "match": "exact"
     },
@@ -3750,7 +4722,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 387,
+     "line": 527,
      "signature": "_CONTAINER_WORDS = (_DECLARATION_WORDS - _FUNCTION_WORDS) | {\"impl\", \"namespace\", \"module\", \"mod\", \"package\"}",
      "match": "exact"
     },
@@ -3759,16 +4731,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 388,
-     "signature": "_BLOCK_CONTROL_WORDS = _CONTROL_WORDS | {",
-     "match": "exact"
+     "line": 528,
+     "end_line": 530,
+     "signature": "_BLOCK_CONTROL_WORDS = _CONTROL_WORDS | {\n    \"try\",\n    \"except\",",
+     "match": "joined"
     },
     {
      "name": "_CLOSURE_RE",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 405,
+     "line": 545,
      "signature": "_CLOSURE_RE = re.compile(r\"=>|\\bfunction\\b|\\blambda\\b|\\bdo\\s*(?:\\|[^|]*\\|)?\\s*$|\\{\\s*\\|[^|]*\\|\\s*$|\\bfn\\s*\\(|\\bfunc\\s*\\(\")",
      "match": "exact"
     },
@@ -3777,7 +4750,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 406,
+     "line": 546,
      "signature": "_NAMELESS_DECLARATIONS = {\"defstruct\", \"defexception\"}  # Elixir: `defstruct [:name, :email]`",
      "match": "exact"
     },
@@ -3786,7 +4759,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 408,
+     "line": 548,
      "signature": "_TYPED_VALUE_RE = re.compile(r\"^[A-Za-z_][\\w.<>\\[\\],?]*\\s+[A-Za-z_$][\\w$]*\\s*(?:=[^=]|;|$)\")",
      "match": "exact"
     },
@@ -3795,7 +4768,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 409,
+     "line": 549,
      "signature": "_WORD_AT_RE = re.compile(r\"([A-Za-z_]\\w*)(\\s+|\\(|$)\")",
      "match": "exact"
     },
@@ -3804,7 +4777,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 410,
+     "line": 550,
      "signature": "_ANNOTATIONS_RE = re.compile(r\"^(?:@[\\w.]+(?:\\([^)]*\\))?\\s+)+\")  # @objc, @Published, @testable, @Override",
      "match": "exact"
     },
@@ -3813,7 +4786,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 411,
+     "line": 551,
      "signature": "_PATH_TOKEN_RE = re.compile(r\"[\\w@$~-]+(?:(?:[./\\\\]|::)+[\\w@$~*-]+)+|[\\\"'<`][^\\\"'<>`\\s]+[\\\"'>`]\")  # a.b, a/b, a::b, \"x\", <x>",
      "match": "exact"
     },
@@ -3822,16 +4795,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 414,
-     "signature": "_C_FUNCTION_RE = re.compile(",
-     "match": "exact"
+     "line": 554,
+     "end_line": 556,
+     "signature": "_C_FUNCTION_RE = re.compile(\n    r\"^[A-Za-z_][\\w\\s\\*&:<>,\\[\\]]*?\\b[A-Za-z_][\\w:~]*\\s*\\([^;]*\\)\\s*(?:(?:const|noexcept|override|final|async\\*?|sync\\*)\\s*)*(?:->[^{]*)?\\{?\\s*$\"\n)  # `Future<void> fetch() async {`, `int size() const noexcept {`",
+     "match": "joined"
     },
     {
      "name": "_CONSTANT_RE",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 417,
+     "line": 557,
      "signature": "_CONSTANT_RE = re.compile(r\"^_*[A-Z][A-Z0-9_]*\\s*(?::[^=]*)?=([^=].*)$\")  # UPPER_CASE = ..., _PRIVATE_CONSTANT = ...",
      "match": "exact"
     },
@@ -3840,7 +4814,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 418,
+     "line": 558,
      "signature": "_SIGNATURE_RE = re.compile(r\"^[a-z_][\\w']*\\s*::\\s*\\S\")  # unindented Haskell-style type signature: parse :: String -> Expr",
      "match": "exact"
     },
@@ -3849,7 +4823,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 419,
+     "line": 559,
      "signature": "_SQL_CREATE_RE = re.compile(r\"^CREATE\\s+(?:OR\\s+REPLACE\\s+)?(?:TABLE|VIEW|INDEX|FUNCTION|PROCEDURE|TYPE|TRIGGER|SCHEMA)\\b\", re.IGNORECASE)",
      "match": "exact"
     },
@@ -3858,7 +4832,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 420,
+     "line": 560,
      "signature": "_EXPORTED_FUNCTION_RE = re.compile(r\"^(?:module\\.)?exports(?:\\.\\w+)?\\s*=\\s*(?:async\\s+)?function\\b\")  # module.exports = function f(",
      "match": "exact"
     },
@@ -3867,7 +4841,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 421,
+     "line": 561,
      "signature": "_NOT_IMPORT_AFTER = set(\"=+-*/%|&>!,;)]}?:\")  # `source = x`, `include += y`: an expression, not an import (`<` opens #include <x>)",
      "match": "exact"
     },
@@ -3876,8 +4850,8 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 423,
-     "signature": "_IMPORT_CALL_RE = re.compile(r\"(?<![\\w.])(?:(?:require|require_relative|import|load)\\s*\\(\\s*|(?:require|require_relative)\\s+)[\\\"'`]\")",
+     "line": 563,
+     "signature": "_IMPORT_CALL_RE = re.compile(r\"(?<![\\w.])(?:(?:require|require_relative|import)\\s*\\(\\s*|(?:require|require_relative)\\s+)[\\\"'`]\")",
      "match": "exact"
     },
     {
@@ -3885,7 +4859,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 425,
+     "line": 565,
      "signature": "_METHOD_RE = re.compile(r\"^(?!(?:new|return|throw|await|yield|else|delete|typeof)\\b)[\\w<>\\[\\],\\s\\*&:?]*?\\b[A-Za-z_$][\\w$]*\\s*\\(\")",
      "match": "exact"
     },
@@ -3894,17 +4868,36 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 427,
-     "signature": "_CODE_TOKEN_RE = re.compile(r\"\\\"\\\"\\\"|'''|/\\*|\\\"(?:\\\\.|[^\\\"\\\\])*(?:\\\"|$)|'(?:\\\\.|[^'\\\\])*(?:'|$)|`(?:\\\\.|[^`\\\\])*(?:`|$)|(?<=\\s)(?:#|//|--(?=\\s|$))\")",
-     "match": "exact"
+     "line": 567,
+     "end_line": 569,
+     "signature": "_CODE_TOKEN_RE = re.compile(\n    r\"\\\"\\\"\\\"|'''|/\\*|\\\"(?:\\\\.|[^\\\"\\\\])*(?:\\\"|$)|'(?:\\\\.|[^'\\\\])*(?:'|$)|`(?:\\\\.|[^`\\\\])*(?:`|$)|(?<=[\\s;])(?:#|//|--(?=\\s|$))\"\n)",
+     "match": "joined"
     },
     {
      "name": "_BLOCK_CLOSERS",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 428,
+     "line": 570,
      "signature": "_BLOCK_CLOSERS = {'\"\"\"': '\"\"\"', \"'''\": \"'''\", \"/*\": \"*/\"}",
+     "match": "exact"
+    },
+    {
+     "name": "_find_closer",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 573,
+     "signature": "def _find_closer(line: str, closer: str, start: int) -> int:",
+     "match": "exact"
+    },
+    {
+     "name": "_rfind_closer",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 582,
+     "signature": "def _rfind_closer(line: str, closer: str) -> int:",
      "match": "exact"
     },
     {
@@ -3912,7 +4905,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 431,
+     "line": 589,
      "signature": "def code_view(lines: list[str]) -> list[str]:",
      "match": "exact"
     },
@@ -3921,7 +4914,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 484,
+     "line": 642,
      "signature": "def _lead(stripped: str) -> tuple[list[str], str | None, str, str]:",
      "match": "exact"
     },
@@ -3930,7 +4923,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 502,
+     "line": 660,
      "signature": "def declaration_like(line: str) -> bool:",
      "match": "exact"
     },
@@ -3939,7 +4932,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 543,
+     "line": 701,
      "signature": "def import_statement_like(line: str) -> bool:",
      "match": "exact"
     },
@@ -3948,7 +4941,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 582,
+     "line": 750,
      "signature": "def import_block_lines(lines: list[str]) -> set[int]:",
      "match": "exact"
     },
@@ -3957,8 +4950,8 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 596,
-     "signature": "def _indent(line: str) -> int:",
+     "line": 764,
+     "signature": "def _indent(line: str, tab: int = 4) -> int:",
      "match": "exact"
     },
     {
@@ -3966,8 +4959,26 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 600,
+     "line": 769,
      "signature": "def _block_kind(line: str) -> str | None:",
+     "match": "exact"
+    },
+    {
+     "name": "_nameless",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 788,
+     "signature": "def _nameless(text: str) -> bool:",
+     "match": "exact"
+    },
+    {
+     "name": "_block_chains",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 801,
+     "signature": "def _block_chains(lines: list[str]) -> list[tuple]:",
      "match": "exact"
     },
     {
@@ -3975,7 +4986,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 619,
+     "line": 823,
      "signature": "def enclosing_blocks(lines: list[str]) -> list[str | None]:",
      "match": "exact"
     },
@@ -3984,7 +4995,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 637,
+     "line": 841,
      "signature": "def completeness_hints(content: str, checked: dict, claims: dict | None = None) -> dict:",
      "match": "exact"
     },
@@ -3993,7 +5004,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 674,
+     "line": 878,
      "signature": "def unexplained_names(content: str, source_path: str, depends_on: list[dict], table) -> list[dict]:",
      "match": "exact"
     },
@@ -4002,16 +5013,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 689,
-     "signature": "_IDENTITY_FIELDS = {",
-     "match": "exact"
+     "line": 924,
+     "end_line": 926,
+     "signature": "_IDENTITY_FIELDS = {\n    \"symbols\": (\"parent\", \"name\", \"signature\"),\n    \"dependencies\": (\"target\", \"evidence\"),",
+     "match": "joined"
     },
     {
      "name": "merge_claims",
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 697,
+     "line": 932,
      "signature": "def merge_claims(first: dict, second: dict) -> dict:",
      "match": "exact"
     },
@@ -4020,7 +5032,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 717,
+     "line": 952,
      "signature": "MANIFEST_KEYS = (\"provides\", \"aliases\")",
      "match": "exact"
     },
@@ -4029,16 +5041,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 722,
-     "signature": "_NAME_KEYS = {",
-     "match": "exact"
+     "line": 957,
+     "end_line": 959,
+     "signature": "_NAME_KEYS = {\n    \"name\", \"module\", \"package\", \"artifactid\", \"groupid\", \"assemblyname\", \"rootnamespace\", \"packageid\",\n    \"library\", \"crate\", \"app\", \"project\", \"modulename\", \"bundle\",",
+     "match": "joined"
     },
     {
      "name": "_ENTRY_KEYS",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 728,
+     "line": 963,
      "signature": "_ENTRY_KEYS = {\"main\", \"module\", \"exports\", \"types\", \"typings\", \"entry\", \"bin\", \"lib\", \"path\", \"browser\", \"source\", \"import\", \"require\"}",
      "match": "exact"
     },
@@ -4047,7 +5060,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 731,
+     "line": 966,
      "signature": "def normalize_name(text: str) -> str:",
      "match": "exact"
     },
@@ -4056,7 +5069,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 737,
+     "line": 972,
      "signature": "def _name_segments(text: str) -> list[str]:",
      "match": "exact"
     },
@@ -4065,7 +5078,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 741,
+     "line": 976,
      "signature": "def verify_manifest_claims(claims: dict, content: str, manifest_path: str) -> dict:",
      "match": "exact"
     },
@@ -4074,7 +5087,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 795,
+     "line": 1030,
      "signature": "def _declares_name(line: str, name: str, keys: set | None = None) -> bool:",
      "match": "exact"
     },
@@ -4083,7 +5096,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 804,
+     "line": 1039,
      "signature": "def manifest_rules(manifests: dict) -> tuple[list, list]:",
      "match": "exact"
     },
@@ -4092,7 +5105,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 838,
+     "line": 1073,
      "signature": "def _stem(path: str) -> str:",
      "match": "exact"
     },
@@ -4101,7 +5114,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 842,
+     "line": 1077,
      "signature": "def _segments(path: str) -> list[str]:",
      "match": "exact"
     },
@@ -4110,7 +5123,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 846,
+     "line": 1081,
      "signature": "def _is_relative(target: str) -> bool:",
      "match": "exact"
     },
@@ -4119,7 +5132,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 850,
+     "line": 1085,
      "signature": "class ModuleTable:",
      "match": "exact"
     },
@@ -4128,7 +5141,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "public",
-     "line": 853,
+     "line": 1088,
      "signature": "def __init__(self, paths: list[str], symbols_by_path: dict, contents: dict | None = None, manifests: dict | None = None):",
      "match": "exact"
     },
@@ -4137,7 +5150,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "public",
-     "line": 881,
+     "line": 1116,
      "signature": "def normalize(self, target: str) -> tuple[list[str], str]:",
      "match": "exact"
     },
@@ -4146,7 +5159,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 898,
+     "line": 1133,
      "signature": "def _suffix_hits(self, tail: list[str], ext: str, source_path: str) -> list[str]:",
      "match": "exact"
     },
@@ -4155,7 +5168,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 916,
+     "line": 1151,
      "signature": "def _index_file(self, directory: str) -> str | None:",
      "match": "exact"
     },
@@ -4164,7 +5177,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 920,
+     "line": 1155,
      "signature": "def _resolve_relative(self, target: str, source_path: str, source_words: set) -> tuple[list[str], str] | None:",
      "match": "exact"
     },
@@ -4173,7 +5186,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 952,
+     "line": 1187,
      "signature": "def _resolve_rooted(self, base: str, source_path: str, source_words: set) -> tuple[list[str], str] | None:",
      "match": "exact"
     },
@@ -4182,7 +5195,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "public",
-     "line": 974,
+     "line": 1209,
      "signature": "def resolve_manifest(self, target: str, source_path: str, source_words: set, prefer_local: bool = False) -> tuple[list[str], str] | None:",
      "match": "exact"
     },
@@ -4191,7 +5204,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 1036,
+     "line": 1271,
      "signature": "def _matches_whole(self, target: str, source_path: str) -> bool:",
      "match": "exact"
     },
@@ -4200,7 +5213,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 1045,
+     "line": 1280,
      "signature": "def _resolve_in_package(self, package: dict, rest: list[str], source_path: str, source_words: set) -> list[str]:",
      "match": "exact"
     },
@@ -4209,7 +5222,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 1080,
+     "line": 1315,
      "signature": "def _package_root(self, package: dict, under: list[str], source_path: str, source_words: set) -> list[str]:",
      "match": "exact"
     },
@@ -4218,7 +5231,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "public",
-     "line": 1097,
+     "line": 1332,
      "signature": "def resolve(self, target: str, source_path: str, source_words: set) -> tuple[list[str], str]:",
      "match": "exact"
     },
@@ -4227,7 +5240,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "private",
-     "line": 1131,
+     "line": 1366,
      "signature": "def _corroborated(self, target: str, parts: list[str], size: int, path: str, source_path: str, source_words: set) -> bool:",
      "match": "exact"
     },
@@ -4236,7 +5249,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "public",
-     "line": 1142,
+     "line": 1377,
      "signature": "def used_names(self, path: str, source_path: str, source_words: set) -> set:",
      "match": "exact"
     },
@@ -4245,7 +5258,7 @@
      "kind": "method",
      "parent": "ModuleTable",
      "visibility": "public",
-     "line": 1148,
+     "line": 1383,
      "signature": "def namespace_members(self, target: str, source_path: str, source_words: set) -> list[str]:",
      "match": "exact"
     },
@@ -4254,7 +5267,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 1163,
+     "line": 1398,
      "signature": "def _names_path(evidence: str, name: str, extension: str, extensions: set) -> bool:",
      "match": "exact"
     },
@@ -4263,7 +5276,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 1181,
+     "line": 1416,
      "signature": "def _plain_occurrence(evidence: str, name: str, extension: str, extensions: set) -> bool:",
      "match": "exact"
     },
@@ -4272,7 +5285,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 1191,
+     "line": 1426,
      "signature": "def _names_directory(evidence: str, directory: str) -> bool:",
      "match": "exact"
     },
@@ -4281,7 +5294,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 1199,
+     "line": 1434,
      "signature": "def _import_like(evidence: str) -> bool:",
      "match": "exact"
     },
@@ -4290,8 +5303,8 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1206,
-     "end_line": 1208,
+     "line": 1441,
+     "end_line": 1443,
      "signature": "def evidence_names_module(\n    evidence: str, target_path: str, source_path: str, table: ModuleTable, how: str, relative_style: bool = False, per_line: bool = False\n) -> bool:",
      "match": "joined"
     },
@@ -4300,7 +5313,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1250,
+     "line": 1485,
      "signature": "def declares_namespace(content: str, dotted: str) -> bool:",
      "match": "exact"
     },
@@ -4309,7 +5322,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1260,
+     "line": 1495,
      "signature": "def scan_import_candidates(content: str, source_path: str, table: ModuleTable, relative_style: bool = False) -> set[str]:",
      "match": "exact"
     },
@@ -4318,7 +5331,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1278,
+     "line": 1519,
      "signature": "def relative_import_extensions(located: dict) -> set:",
      "match": "exact"
     },
@@ -4327,7 +5340,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1287,
+     "line": 1528,
      "signature": "def target_written(target: str, evidence: str) -> bool:",
      "match": "exact"
     },
@@ -4336,7 +5349,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 1323,
+     "line": 1564,
      "signature": "def _without_bindings(line: str) -> str:",
      "match": "exact"
     },
@@ -4345,7 +5358,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 1331,
+     "line": 1572,
      "signature": "def _bare_path(text: str) -> str:",
      "match": "exact"
     },
@@ -4354,7 +5367,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 1335,
+     "line": 1576,
      "signature": "def _imports_target(evidence: str, target: str) -> bool:",
      "match": "exact"
     },
@@ -4363,8 +5376,8 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1354,
-     "end_line": 1356,
+     "line": 1595,
+     "end_line": 1597,
      "signature": "def judge_dependency(\n    claim: dict, source_path: str, source_words: set, table: ModuleTable, relative_style: bool, shadowed: frozenset = frozenset()\n) -> tuple[str, list]:",
      "match": "joined"
     },
@@ -4373,7 +5386,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1404,
+     "line": 1645,
      "signature": "def shadowed_names(claims: list[dict], verdicts: list[tuple]) -> frozenset:",
      "match": "exact"
     },
@@ -4382,7 +5395,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1417,
+     "line": 1658,
      "signature": "def verify_dependencies(located: dict, contents: dict, table: ModuleTable) -> dict:",
      "match": "exact"
     },
@@ -4391,7 +5404,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1458,
+     "line": 1699,
      "signature": "def facts_hash(signature: str, path: str, content: str) -> str:",
      "match": "exact"
     },
@@ -4400,7 +5413,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1462,
+     "line": 1703,
      "signature": "def source_commit(local_dir) -> str | None:",
      "match": "exact"
     },
@@ -4409,7 +5422,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1473,
+     "line": 1714,
      "signature": "def build_facts_document(project_name: str, commit, modules: dict, manifests: dict | None = None) -> dict:",
      "match": "exact"
     },
@@ -4418,7 +5431,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1489,
+     "line": 1730,
      "signature": "def load_facts(path: str, section: str = \"modules\") -> dict:",
      "match": "exact"
     },
@@ -4427,7 +5440,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1500,
+     "line": 1741,
      "signature": "def save_facts(path: str, document: dict) -> None:",
      "match": "exact"
     },
@@ -4436,7 +5449,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1508,
+     "line": 1749,
      "signature": "def facts_path(output_dir: str, project_name: str, is_mkdocs: bool) -> str:",
      "match": "exact"
     }
@@ -4444,7 +5457,8 @@
    "depends_on": [],
    "used_by": [
     "main.py",
-    "nodes.py"
+    "nodes.py",
+    "utils/chapter_check.py"
    ],
    "external": [
     {
@@ -4489,33 +5503,14 @@
     }
    ],
    "config": [],
-   "errors": [
-    {
-     "name": "OSError",
-     "line": 1468,
-     "evidence": "except (OSError, subprocess.SubprocessError):",
-     "match": "exact"
-    },
-    {
-     "name": "subprocess.SubprocessError",
-     "line": 1468,
-     "evidence": "except (OSError, subprocess.SubprocessError):",
-     "match": "exact"
-    },
-    {
-     "name": "ValueError",
-     "line": 1494,
-     "evidence": "except (OSError, ValueError):",
-     "match": "exact"
-    }
-   ],
+   "errors": [],
    "coverage": {
-    "claimed": 134,
-    "verified": 134
+    "claimed": 156,
+    "verified": 156
    },
    "completeness": {
     "import_lines": 10,
-    "declaration_lines": 121,
+    "declaration_lines": 146,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
@@ -4526,107 +5521,110 @@
       29,
       30,
       31,
-      32,
+      34,
       35,
       36,
+      37,
       39,
+      41,
+      42,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      56,
+      57,
       60,
-      61,
-      62,
-      63,
-      64,
-      65,
-      66,
-      67,
-      76,
-      80,
+      81,
+      82,
+      83,
       84,
+      85,
+      86,
+      87,
       88,
-      162,
-      183,
-      197,
-      205,
-      211,
-      288,
-      352,
-      357,
-      370,
-      377,
-      378,
-      379,
-      384,
-      387,
-      388,
-      405,
-      406,
-      408,
-      409,
-      410,
-      411,
-      414,
-      417,
-      418,
-      419,
-      420,
-      421,
-      423,
-      425,
+      97,
+      101,
+      105,
+      109,
+      191,
+      213,
+      227,
+      235,
+      241,
+      345,
+      422,
       427,
-      428,
-      484,
-      596,
-      600,
-      689,
-      722,
-      728,
-      737,
-      795,
-      838,
-      842,
-      846,
-      898,
-      916,
-      920,
-      952,
-      1036,
-      1045,
-      1080,
-      1131,
-      1163,
-      1181,
-      1191,
-      1199,
-      1323,
-      1331,
-      1335
+      433,
+      454,
+      460,
+      474,
+      482,
+      510,
+      517,
+      518,
+      519,
+      524,
+      527,
+      528,
+      545,
+      546,
+      548,
+      549,
+      550,
+      551,
+      554,
+      557,
+      558,
+      559,
+      560,
+      561,
+      563,
+      565,
+      567,
+      570,
+      573,
+      582,
+      642,
+      764,
+      769,
+      788,
+      801,
+      924,
+      957,
+      963,
+      972,
+      1030,
+      1073,
+      1077,
+      1081,
+      1133,
+      1151,
+      1155,
+      1187,
+      1271,
+      1280,
+      1315,
+      1366,
+      1398,
+      1416,
+      1426,
+      1434,
+      1564,
+      1572,
+      1576
      ]
     }
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "ExtractFacts",
-     "module": "nodes.py"
-    },
-    {
-     "name": "get",
-     "module": "utils/output.py"
-    },
-    {
-     "name": "init",
-     "module": "utils/output.py"
-    },
-    {
-     "name": "main",
-     "module": "main.py"
-    },
-    {
-     "name": "truncated",
-     "module": "utils/llm_common.py"
-    }
-   ],
-   "facts_hash": "7387850835f584fd55ff6b289f132543",
+   "unexplained_names": [],
+   "facts_hash": "364dfdc05039872c13935750568e7e81",
    "claims": {
     "symbols": [
      {
@@ -4670,6 +5668,13 @@
       "parent": "SourceIndex",
       "visibility": "public",
       "signature": "def __init__(self, content: str):"
+     },
+     {
+      "name": "block_chain",
+      "kind": "method",
+      "parent": "SourceIndex",
+      "visibility": "public",
+      "signature": "def block_chain(self, line: int) -> tuple:"
      },
      {
       "name": "text",
@@ -4952,6 +5957,111 @@
       "signature": "_EXCERPT = 300  # longest source text stored per fact (a minified one-line file would repeat itself per fact)"
      },
      {
+      "name": "_CALL_SPAN_LINES",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_CALL_SPAN_LINES = 12  # lines a config/error quote's open bracket may run on (a multi-line `add_argument(` call)"
+     },
+     {
+      "name": "_STRING_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_STRING_RE = re.compile(r\"\\\"(?:\\\\.|[^\\\"\\\\])*\\\"|'(?:\\\\.|[^'\\\\])*'|`[^`]*`\")  # one-line string literals"
+     },
+     {
+      "name": "_HANDLER_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_HANDLER_RE = re.compile(r\"(?<![\\w.$@])@?(?:except\\*?|catch|rescue|recover)(?![\\w$])\", re.IGNORECASE)"
+     },
+     {
+      "name": "_RAISE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_RAISE_RE = re.compile(r\"(?<![\\w$])(?:(?<!\\.)(?:raise|throw|throws|panic|Err|abort|error|fail|reject)|Errorf)(?![\\w$])\")  # fmt.Errorf, not log.error"
+     },
+     {
+      "name": "_ROLE_RANK",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_ROLE_RANK = {\"raised\": 0, \"mentioned\": 1, \"caught\": 2}  # of several places, the one that raises the error wins"
+     },
+     {
+      "name": "_COMMENT_START_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_COMMENT_START_RE = re.compile(r\"^\\s*(?:#|//|/\\*|\\*|--)\")  # a comment line (C preprocessor lines too)"
+     },
+     {
+      "name": "_LABEL_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_LABEL_RE = re.compile(r\"\\s*([A-Za-z_]\\w*)[\\w\\s]*:\\s*|\\s*([a-z_]\\w*)\\s*\")"
+     },
+     {
+      "name": "_NAME",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_NAME = r\"[^\\W\\d][\\w$]*\""
+     },
+     {
+      "name": "_KEYWORD_BINDS_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_KEYWORD_BINDS_RE = re.compile(\n    rf\"(?<![\\w$.])(?:for|let|var|val|const)[ \\t]+[(\\[{{]?[ \\t]*((?:{_NAME}[ \\t]*,[ \\t]*)*{_NAME})(?=[ \\t]*(?:[,)\\]}}=:;]|in\\b|of\\b|$))\", re.MULTILINE\n)  # for a, b in …, const {a, b} = …, let [x, y] = …, val repo: Repository = … (the type is not bound)"
+     },
+     {
+      "name": "_LINE_BINDS_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_LINE_BINDS_RE = re.compile(rf\"^[ \\t]*((?:{_NAME}[ \\t]*,[ \\t]*)*{_NAME})[ \\t]*:?=(?![=>])\", re.MULTILINE)  # a, b := …; x = …"
+     },
+     {
+      "name": "_KWARG_BINDS_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_KWARG_BINDS_RE = re.compile(rf\"[(,][ \\t]*({_NAME})[ \\t]*=(?![=>])\")  # f(name=…), def f(x=1) — not `x: Type = …`"
+     },
+     {
+      "name": "_FIRST_NAME_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_FIRST_NAME_RE = re.compile(r\"(?<![\\w$])(?:(?<=\\.\\.)|(?<!\\.))([^\\W\\d][\\w$]*)\")  # a name not after one dot (`..MAX` counts)"
+     },
+     {
+      "name": "_DOTTED_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_DOTTED_RE = re.compile(r\"(?<![\\w$.])[^\\W\\d][\\w$]*(?:\\.[^\\W\\d][\\w$]*)+\")  # Shop.Cart.add, os.environ.get"
+     },
+     {
+      "name": "_SHELL_VAR_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SHELL_VAR_RE = re.compile(r\"\\$\\{?([A-Za-z_]\\w*)\")  # $NAME, ${NAME}"
+     },
+     {
+      "name": "_INTERPOLATION_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_INTERPOLATION_RE = re.compile(r\"\\$\\{([^}]*)\\}|#\\{([^}]*)\\}|\\\\\\(([^)]*)\\)\")  # ${expr}, #{expr}, \\(expr)"
+     },
+     {
       "name": "_WORD_RE",
       "kind": "constant",
       "parent": "",
@@ -4991,7 +6101,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_IMPORT_WORDS = {"
+      "signature": "_IMPORT_WORDS = {\n    \"import\",\n    \"from\","
      },
      {
       "name": "_MODIFIERS",
@@ -5134,11 +6244,46 @@
       "signature": "def _enclosing(containers: list[tuple[int, str]], line: int) -> str | None:"
      },
      {
+      "name": "_parent_verdict",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _parent_verdict(index: SourceIndex, match: tuple, parent: str) -> bool | None:"
+     },
+     {
+      "name": "_in_parent",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _in_parent(index: SourceIndex, match: tuple, parent: str, containers: list) -> bool:"
+     },
+     {
+      "name": "_call_span",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _call_span(index: SourceIndex, first: int, last: int) -> int:"
+     },
+     {
+      "name": "_name_rank",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _name_rank(text: str, name: str) -> int:"
+     },
+     {
+      "name": "_error_role",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _error_role(index: SourceIndex, first: int, last: int, name: str) -> str:"
+     },
+     {
       "name": "_DECLARATION_WORDS",
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_DECLARATION_WORDS = {"
+      "signature": "_DECLARATION_WORDS = {\n    \"def\", \"class\", \"function\", \"func\", \"fun\", \"fn\", \"struct\", \"interface\", \"enum\", \"trait\", \"type\", \"typealias\",\n    \"record\", \"object\", \"protocol\", \"extension\", \"macro\", \"sub\", \"procedure\", \"typedef\", \"defmodule\", \"defp\","
      },
      {
       "name": "_FUNCTION_WORDS",
@@ -5159,7 +6304,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_DECLARATION_MODIFIERS = _MODIFIERS | {"
+      "signature": "_DECLARATION_MODIFIERS = _MODIFIERS | {\n    \"export\", \"async\", \"abstract\", \"final\", \"override\", \"sealed\", \"virtual\", \"extern\", \"inline\", \"open\", \"default\",\n    \"unsafe\", \"partial\", \"readonly\", \"synchronized\", \"native\", \"suspend\", \"noinline\", \"lateinit\", \"lazy\","
      },
      {
       "name": "_CONTROL_WORDS",
@@ -5180,7 +6325,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_BLOCK_CONTROL_WORDS = _CONTROL_WORDS | {"
+      "signature": "_BLOCK_CONTROL_WORDS = _CONTROL_WORDS | {\n    \"try\",\n    \"except\","
      },
      {
       "name": "_CLOSURE_RE",
@@ -5229,7 +6374,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_C_FUNCTION_RE = re.compile("
+      "signature": "_C_FUNCTION_RE = re.compile(\n    r\"^[A-Za-z_][\\w\\s\\*&:<>,\\[\\]]*?\\b[A-Za-z_][\\w:~]*\\s*\\([^;]*\\)\\s*(?:(?:const|noexcept|override|final|async\\*?|sync\\*)\\s*)*(?:->[^{]*)?\\{?\\s*$\"\n)  # `Future<void> fetch() async {`, `int size() const noexcept {`"
      },
      {
       "name": "_CONSTANT_RE",
@@ -5271,7 +6416,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_IMPORT_CALL_RE = re.compile(r\"(?<![\\w.])(?:(?:require|require_relative|import|load)\\s*\\(\\s*|(?:require|require_relative)\\s+)[\\\"'`]\")"
+      "signature": "_IMPORT_CALL_RE = re.compile(r\"(?<![\\w.])(?:(?:require|require_relative|import)\\s*\\(\\s*|(?:require|require_relative)\\s+)[\\\"'`]\")"
      },
      {
       "name": "_METHOD_RE",
@@ -5285,7 +6430,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_CODE_TOKEN_RE = re.compile(r\"\\\"\\\"\\\"|'''|/\\*|\\\"(?:\\\\.|[^\\\"\\\\])*(?:\\\"|$)|'(?:\\\\.|[^'\\\\])*(?:'|$)|`(?:\\\\.|[^`\\\\])*(?:`|$)|(?<=\\s)(?:#|//|--(?=\\s|$))\")"
+      "signature": "_CODE_TOKEN_RE = re.compile(\n    r\"\\\"\\\"\\\"|'''|/\\*|\\\"(?:\\\\.|[^\\\"\\\\])*(?:\\\"|$)|'(?:\\\\.|[^'\\\\])*(?:'|$)|`(?:\\\\.|[^`\\\\])*(?:`|$)|(?<=[\\s;])(?:#|//|--(?=\\s|$))\"\n)"
      },
      {
       "name": "_BLOCK_CLOSERS",
@@ -5293,6 +6438,20 @@
       "parent": "",
       "visibility": "private",
       "signature": "_BLOCK_CLOSERS = {'\"\"\"': '\"\"\"', \"'''\": \"'''\", \"/*\": \"*/\"}"
+     },
+     {
+      "name": "_find_closer",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _find_closer(line: str, closer: str, start: int) -> int:"
+     },
+     {
+      "name": "_rfind_closer",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _rfind_closer(line: str, closer: str) -> int:"
      },
      {
       "name": "_lead",
@@ -5306,7 +6465,7 @@
       "kind": "function",
       "parent": "",
       "visibility": "private",
-      "signature": "def _indent(line: str) -> int:"
+      "signature": "def _indent(line: str, tab: int = 4) -> int:"
      },
      {
       "name": "_block_kind",
@@ -5316,18 +6475,32 @@
       "signature": "def _block_kind(line: str) -> str | None:"
      },
      {
+      "name": "_nameless",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _nameless(text: str) -> bool:"
+     },
+     {
+      "name": "_block_chains",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _block_chains(lines: list[str]) -> list[tuple]:"
+     },
+     {
       "name": "_IDENTITY_FIELDS",
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_IDENTITY_FIELDS = {"
+      "signature": "_IDENTITY_FIELDS = {\n    \"symbols\": (\"parent\", \"name\", \"signature\"),\n    \"dependencies\": (\"target\", \"evidence\"),"
      },
      {
       "name": "_NAME_KEYS",
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_NAME_KEYS = {"
+      "signature": "_NAME_KEYS = {\n    \"name\", \"module\", \"package\", \"artifactid\", \"groupid\", \"assemblyname\", \"rootnamespace\", \"packageid\",\n    \"library\", \"crate\", \"app\", \"project\", \"modulename\", \"bundle\","
      },
      {
       "name": "_ENTRY_KEYS",
@@ -5520,20 +6693,7 @@
      }
     ],
     "config": [],
-    "errors": [
-     {
-      "name": "OSError",
-      "evidence": "except (OSError, subprocess.SubprocessError):"
-     },
-     {
-      "name": "subprocess.SubprocessError",
-      "evidence": "except (OSError, subprocess.SubprocessError):"
-     },
-     {
-      "name": "ValueError",
-      "evidence": "except (OSError, ValueError):"
-     }
-    ],
+    "errors": [],
     "unparsed": 0
    }
   },
@@ -5592,24 +6752,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "CombineTutorial",
-     "module": "nodes.py"
-    },
-    {
-     "name": "ContextRouter",
-     "module": "nodes.py"
-    },
-    {
-     "name": "IdentifyAbstractions",
-     "module": "nodes.py"
-    },
-    {
-     "name": "MapAbstractions",
-     "module": "nodes.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "cb9a859b89f4d3ef44170f78cb670373",
    "claims": {
     "symbols": [
@@ -5893,7 +7036,7 @@
      "visibility": "private",
      "line": 87,
      "end_line": 100,
-     "signature": "able-5-1\": (10.00, 50.00, 0.25), \"claude-fable-5\": (10.00, 50.00, 1.00), \"claude-mythos-5-1\": (10.00, 50.00, 0.25), \"claude-mythos-5\": (10.00, 50.00, 1.00), \"claude-sonnet-5\": (2.00, 10.00, 0.20), \"claude-opus-4-8\": (5.00, 25.00, 0.50), \"claude-opus-4-7\": (5.00, 25.00, 0.50), \"claude-opus-4-6\": (5.0",
+     "signature": "_PRICING = { \"claude-opus-5-5\": (4.00, 20.00, 0.20), \"claude-opus-5\": (5.00, 25.00, 0.50), \"claude-fable-5-1\": (10.00, 50.00, 0.25), \"claude-fable-5\": (10.00, 50.00, 1.00), \"claude-mythos-5-1\": (10.00, 50.00, 0.25), \"claude-mythos-5\": (10.00, 50.00, 1.00), \"claude-sonnet-5\": (2.00, 10.00, 0.20), \"cl",
      "match": "joined",
      "truncated": true
     },
@@ -6217,19 +7360,22 @@
      "name": "anthropic.APIError",
      "line": 147,
      "evidence": "except anthropic.APIError as e:",
-     "match": "exact"
+     "match": "exact",
+     "role": "caught"
     },
     {
      "name": "anthropic.BadRequestError",
      "line": 249,
      "evidence": "except anthropic.BadRequestError as e:",
-     "match": "exact"
+     "match": "exact",
+     "role": "caught"
     },
     {
      "name": "LLMRefusalError",
      "line": 427,
      "evidence": "raise LLMRefusalError(model, category, provider=\"ANTHROPIC\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
@@ -6250,12 +7396,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "call_llm",
-     "module": "utils/call_llm.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "3a7a6a2c431a38091bcf5067e7028516",
    "claims": {
     "symbols": [
@@ -6738,8 +7879,8 @@
      "parent": "",
      "visibility": "public",
      "line": 107,
-     "end_line": 109,
-     "signature": "def record_usage(\n    provider: str,\n    model: str,",
+     "end_line": 118,
+     "signature": "def record_usage(\n    provider: str,\n    model: str,\n    *,\n    input_tokens: int = 0,\n    output_tokens: int = 0,\n    thinking_tokens: int = 0,\n    cache_read: int = 0,\n    cache_write: int = 0,\n    cost: float | None = None,\n    measured: bool = True,\n) -> None:",
      "match": "joined"
     },
     {
@@ -6863,7 +8004,8 @@
      "name": "LLMRefusalError",
      "line": 25,
      "evidence": "class LLMRefusalError(RuntimeError):",
-     "match": "exact"
+     "match": "exact",
+     "role": "mentioned"
     }
    ],
    "coverage": {
@@ -6882,24 +8024,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "NODE_KEYS",
-     "module": "utils/thinking.py"
-    },
-    {
-     "name": "call_llm",
-     "module": "utils/call_llm.py"
-    },
-    {
-     "name": "get",
-     "module": "utils/output.py"
-    },
-    {
-     "name": "parse_yaml_response",
-     "module": "utils/prompts.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "6318c3a5c61321a794376d7eae491e89",
    "claims": {
     "symbols": [
@@ -7194,7 +8319,8 @@
      "parent": "",
      "visibility": "public",
      "line": 49,
-     "signature": "ANTHROPIC_ADAPTIVE_PREFIXES = (",
+     "end_line": 58,
+     "signature": "ANTHROPIC_ADAPTIVE_PREFIXES = (\n    \"claude-opus-5\",\n    \"claude-sonnet-5\",\n    \"claude-fable-\",\n    \"claude-mythos-\",\n    \"claude-opus-4-8\",\n    \"claude-opus-4-7\",\n    \"claude-opus-4-6\",\n    \"claude-sonnet-4-6\",\n)",
      "match": "exact"
     },
     {
@@ -7275,8 +8401,10 @@
      "parent": "",
      "visibility": "public",
      "line": 79,
-     "signature": "GEMINI_THINKING_LEVELS = (",
-     "match": "exact"
+     "end_line": 88,
+     "signature": "GEMINI_THINKING_LEVELS = ( (\"gemini-3.8-flash\", (\"low\", \"medium\", \"high\")), (\"gemini-3.7-flash\", (\"low\", \"medium\", \"high\")), (\"gemini-3.6-flash\", (\"minimal\", \"low\", \"medium\", \"high\")), (\"gemini-3.5-flash\", (\"minimal\", \"low\", \"medium\", \"high\")), # also gemini-3.5-flash-lite (\"gemini-3.1-pro\", (\"low\",",
+     "match": "exact",
+     "truncated": true
     },
     {
      "name": "GEMINI_3_DEFAULT_LEVELS",
@@ -7293,7 +8421,8 @@
      "parent": "",
      "visibility": "public",
      "line": 91,
-     "signature": "GEMINI_BUDGET_RANGES = (",
+     "end_line": 95,
+     "signature": "GEMINI_BUDGET_RANGES = (\n    (\"gemini-2.5-flash-lite\", 512, 24_576, True),\n    (\"gemini-2.5-flash\", 1, 24_576, True),\n    (\"gemini-2.5-pro\", 128, 32_768, False),\n)",
      "match": "exact"
     },
     {
@@ -7338,7 +8467,8 @@
      "parent": "",
      "visibility": "public",
      "line": 106,
-     "signature": "GEMINI_VERTEX_LOCATIONS = (",
+     "end_line": 113,
+     "signature": "GEMINI_VERTEX_LOCATIONS = (\n    (\"gemini-3.8-flash-cyber\", (\"global\", \"us\")),\n    (\"gemini-3.5-flash-lite\", (\"global\", \"us\", \"eu\")),\n    (\"gemini-3.5-flash\", None),\n    (\"gemini-3.1-pro\", (\"global\",)),\n    (\"gemini-3-flash\", (\"global\",)),\n    (\"gemini-3-pro\", (\"global\",)),\n)",
      "match": "exact"
     },
     {
@@ -8090,7 +9220,8 @@
      "name": "ValueError",
      "line": 400,
      "evidence": "raise ValueError(\"OpenRouter model catalog response has no 'data' list\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
@@ -8114,31 +9245,8 @@
     }
    },
    "rejected": [],
-   "missed_imports": [
-    "utils/thinking.py"
-   ],
-   "unexplained_names": [
-    {
-     "name": "_REASONING_BUDGETS",
-     "module": "utils/llm_openrouter.py"
-    },
-    {
-     "name": "call_llm",
-     "module": "utils/call_llm.py"
-    },
-    {
-     "name": "input_token_budget",
-     "module": "utils/token_utils.py"
-    },
-    {
-     "name": "main",
-     "module": "main.py"
-    },
-    {
-     "name": "token_ratio",
-     "module": "utils/token_utils.py"
-    }
-   ],
+   "missed_imports": [],
+   "unexplained_names": [],
    "facts_hash": "35f303cbe3654e289a3eb072e3114889",
    "claims": {
     "symbols": [
@@ -9213,19 +10321,22 @@
      "name": "ValueError",
      "line": 123,
      "evidence": "raise ValueError(\"Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "genai_errors.ClientError",
      "line": 255,
      "evidence": "except genai_errors.ClientError as e:",
-     "match": "exact"
+     "match": "exact",
+     "role": "caught"
     },
     {
      "name": "LLMRefusalError",
      "line": 280,
      "evidence": "raise LLMRefusalError(model, category, provider=\"GEMINI\", retryable=retryable)",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
@@ -9244,12 +10355,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "call_llm",
-     "module": "utils/call_llm.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "2ac3cd2452d904c75a5d387d955de959",
    "claims": {
     "symbols": [
@@ -9809,31 +10915,36 @@
      "name": "ValueError",
      "line": 334,
      "evidence": "raise ValueError(\"OPENROUTER_MODEL environment variable is required\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "RuntimeError",
      "line": 205,
      "evidence": "raise RuntimeError(f\"OpenRouter request failed after {attempt} attempts: {e}\") from e",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "LLMRefusalError",
      "line": 222,
      "evidence": "raise LLMRefusalError(model, category, provider=\"OPENROUTER\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
      "name": "requests.exceptions.ConnectionError",
      "line": 203,
      "evidence": "except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:",
-     "match": "exact"
+     "match": "exact",
+     "role": "caught"
     },
     {
      "name": "requests.exceptions.Timeout",
      "line": 203,
      "evidence": "except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:",
-     "match": "exact"
+     "match": "exact",
+     "role": "caught"
     }
    ],
    "coverage": {
@@ -9852,12 +10963,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "call_llm",
-     "module": "utils/call_llm.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "2664281770d5fa08606c8e1836267015",
    "claims": {
     "symbols": [
@@ -10118,15 +11224,15 @@
    }
   },
   "utils/mkdocs.py": {
-   "source_sha256": "6cff58b083089ac8a889d55e119272ad6ea395d7892077c8b0ad533f3f65bdaa",
-   "lines": 1066,
+   "source_sha256": "2683bafcd13295c8bc26b7ba527b97c18257487d2bfb39c66424f87b131a9e96",
+   "lines": 1112,
    "symbols": [
     {
      "name": "yaml_str",
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 26,
+     "line": 27,
      "signature": "def yaml_str(value) -> str:",
      "match": "exact"
     },
@@ -10135,7 +11241,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 35,
+     "line": 36,
      "signature": "def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True, lang_code: str = \"\") -> str:",
      "match": "exact"
     },
@@ -10144,7 +11250,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 107,
+     "line": 108,
      "signature": "MERMAID_INIT_JS = \"\"\"\\",
      "match": "exact"
     },
@@ -10153,7 +11259,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 150,
+     "line": 151,
      "signature": "def build_mermaid_init_js() -> str:",
      "match": "exact"
     },
@@ -10162,7 +11268,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 159,
+     "line": 160,
      "signature": "_FRONTMATTER_RE = re.compile(r\"^-{3}[ \\t]*\\n(.*?\\n)(?:\\.{3}|-{3})[ \\t]*\\n\", re.DOTALL)  # same block MkDocs' meta parser reads",
      "match": "exact"
     },
@@ -10171,7 +11277,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 160,
+     "line": 161,
      "signature": "_SUMMARY_HEADER_RE = re.compile(r\"^.+ \\d+ — .+:$\")",
      "match": "exact"
     },
@@ -10180,7 +11286,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 162,
+     "line": 163,
      "signature": "_SUMMARY_LABEL_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)]\\W{0,3}[^:\\uff1a\\n]{1,80}[:\\uff1a]\\**\\s*\")",
      "match": "exact"
     },
@@ -10189,7 +11295,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 163,
+     "line": 164,
      "signature": "_POINT_MARKER_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)][\\s*_]*\")  # the bare \"(1)\" / \"### (1)\" / \"**1.\" marker",
      "match": "exact"
     },
@@ -10198,7 +11304,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 164,
+     "line": 165,
      "signature": "_MD_ESCAPE_RE = re.compile(r\"([\\\\`*_\\[\\]|])\")",
      "match": "exact"
     },
@@ -10207,7 +11313,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 166,
+     "line": 167,
      "signature": "_POINT_PAREN_RE = re.compile(r\"(?m)^[ \\t#>*_]*\\(([1-4])\\)\")",
      "match": "exact"
     },
@@ -10216,7 +11322,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 167,
+     "line": 168,
      "signature": "_POINT_PLAIN_RE = re.compile(r\"(?m)^[ \\t#>*_]*([1-4])[.)]\\s\")",
      "match": "exact"
     },
@@ -10225,7 +11331,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 169,
+     "line": 170,
      "signature": "_CJK_STOPS = (\"\\u3002\", \"\\uff01\", \"\\uff1f\")",
      "match": "exact"
     },
@@ -10234,7 +11340,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 170,
+     "line": 171,
      "signature": "_SENTENCE_END_RE = re.compile(r\"(?<=[.!?])\\s+|(?<=[\\u3002\\uff01\\uff1f])\\s*\")",
      "match": "exact"
     },
@@ -10243,7 +11349,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 171,
+     "line": 172,
      "signature": "_ABBREVIATIONS = (\"e.g.\", \"i.e.\", \"vs.\", \"etc.\", \"cf.\", \"approx.\", \"incl.\", \"resp.\", \"no.\", \"fig.\")",
      "match": "exact"
     },
@@ -10252,7 +11358,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 172,
+     "line": 173,
      "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(?!`).+?(?<!`)\\1(?!`)\")",
      "match": "exact"
     },
@@ -10261,7 +11367,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 173,
+     "line": 174,
      "signature": "_ENTRY_NODE_CLASSDEF = \"    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5\"",
      "match": "exact"
     },
@@ -10270,7 +11376,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 174,
+     "line": 175,
      "signature": "_MODULE_GRAPH_MAX_MODULES = 80  # beyond this a module-level graph is unreadable; the section map still shows",
      "match": "exact"
     },
@@ -10279,7 +11385,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 177,
+     "line": 178,
      "signature": "def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: bool) -> dict:",
      "match": "exact"
     },
@@ -10288,7 +11394,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 212,
+     "line": 213,
      "signature": "def split_frontmatter(text: str) -> tuple[str, bool]:",
      "match": "exact"
     },
@@ -10297,7 +11403,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 228,
+     "line": 229,
      "signature": "def strip_summary_header(summary: str) -> str:",
      "match": "exact"
     },
@@ -10306,7 +11412,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 236,
+     "line": 237,
      "signature": "def _sentences(text: str):",
      "match": "exact"
     },
@@ -10315,7 +11421,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 249,
+     "line": 250,
      "signature": "def _ends_with_abbreviation(piece: str) -> bool:",
      "match": "exact"
     },
@@ -10324,7 +11430,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 260,
+     "line": 261,
      "signature": "def _is_prose(text: str) -> bool:",
      "match": "exact"
     },
@@ -10333,7 +11439,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 266,
+     "line": 267,
      "signature": "def clip_sentences(text: str, limit: int) -> str:",
      "match": "exact"
     },
@@ -10342,7 +11448,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 291,
+     "line": 292,
      "signature": "def table_cell_text(text: str) -> str:",
      "match": "exact"
     },
@@ -10351,7 +11457,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 303,
+     "line": 304,
      "signature": "def summary_description(summary: str, limit: int = 300) -> str:",
      "match": "exact"
     },
@@ -10360,7 +11466,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 332,
+     "line": 333,
      "signature": "def md_link_text(text: str) -> str:",
      "match": "exact"
     },
@@ -10369,7 +11475,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 342,
+     "line": 343,
      "signature": "def module_name_lookup(chapter_files: list) -> dict:",
      "match": "exact"
     },
@@ -10378,7 +11484,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 360,
+     "line": 361,
      "signature": "def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]:",
      "match": "exact"
     },
@@ -10387,7 +11493,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 404,
+     "line": 405,
      "signature": "def modules_with_facts(module_facts: dict, chapter_files: list) -> set:",
      "match": "exact"
     },
@@ -10396,7 +11502,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 411,
+     "line": 412,
      "signature": "def verified_dependencies(module_facts: dict, chapter_files: list) -> dict:",
      "match": "exact"
     },
@@ -10405,7 +11511,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 424,
+     "line": 425,
      "signature": "def _section_members(sections: list) -> list[tuple[str, list]]:",
      "match": "exact"
     },
@@ -10414,7 +11520,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 446,
+     "line": 447,
      "signature": "def _mermaid_label(text) -> str:",
      "match": "exact"
     },
@@ -10423,7 +11529,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 459,
+     "line": 460,
      "signature": "def build_section_map(sections: list, dependencies: dict, max_listed: int = 8) -> tuple[str, bool, bool]:",
      "match": "exact"
     },
@@ -10432,7 +11538,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 494,
+     "line": 495,
      "signature": "def build_module_graph(sections: list, dependencies: dict, chapter_files: list) -> tuple[str, int]:",
      "match": "exact"
     },
@@ -10441,7 +11547,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 536,
+     "line": 537,
      "signature": "def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:",
      "match": "exact"
     },
@@ -10450,7 +11556,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 576,
+     "line": 577,
      "signature": "def collect_all_modules(sections: list) -> set:",
      "match": "exact"
     },
@@ -10459,7 +11565,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 586,
+     "line": 587,
      "signature": "def prune_sections(sections: list, chapter_files: list) -> list:",
      "match": "exact"
     },
@@ -10468,7 +11574,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 611,
+     "line": 612,
      "signature": "def tree_order_key(chapter_file: dict) -> tuple:",
      "match": "exact"
     },
@@ -10477,7 +11583,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 619,
+     "line": 620,
      "signature": "SECTION_ROLES = (\"types\", \"setup\", \"core\", \"support\", \"operational\")",
      "match": "exact"
     },
@@ -10486,7 +11592,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 622,
+     "line": 623,
      "signature": "def order_sections(sections: list, chapter_files: list) -> list:",
      "match": "exact"
     },
@@ -10495,7 +11601,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 658,
+     "line": 659,
      "signature": "def build_index_sections(lines, sections, chapter_files, level=3, summaries=None, descriptions=None):",
      "match": "exact"
     },
@@ -10504,8 +11610,26 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 687,
+     "line": 688,
      "signature": "def normalize_chapter_links(chapter_files):",
+     "match": "exact"
+    },
+    {
+     "name": "add_used_by_lines",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 740,
+     "signature": "def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:",
+     "match": "exact"
+    },
+    {
+     "name": "_page_link",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 769,
+     "signature": "def _page_link(page: str, target: str, filenames: set) -> str:",
      "match": "exact"
     },
     {
@@ -10513,7 +11637,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 739,
+     "line": 779,
      "signature": "def write_mkdocs_output(output_path, prep_res, chapter_files):",
      "match": "exact"
     },
@@ -10522,7 +11646,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 996,
+     "line": 1040,
      "signature": "def prune_stale_pages(api_docs_path, chapter_files):",
      "match": "exact"
     },
@@ -10531,7 +11655,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1026,
+     "line": 1070,
      "signature": "def write_standalone_output(output_path, prep_res, chapter_files, ui):",
      "match": "exact"
     }
@@ -10545,23 +11669,30 @@
      "via": "path"
     },
     {
+     "module": "utils/chapter_check.py",
+     "target": "utils.chapter_check",
+     "line": 17,
+     "evidence": "from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check",
+     "via": "path"
+    },
+    {
      "module": "utils/output.py",
      "target": "utils.output",
-     "line": 17,
+     "line": 18,
      "evidence": "from utils.output import emit, emit_raw, get",
      "via": "path"
     },
     {
      "module": "utils/prompts.py",
      "target": "utils.prompts",
-     "line": 18,
+     "line": 19,
      "evidence": "from utils.prompts import parse_grouping_response",
      "via": "path"
     },
     {
      "module": "utils/token_utils.py",
      "target": "utils.token_utils",
-     "line": 19,
+     "line": 20,
      "evidence": "from utils.token_utils import log_token_estimation",
      "via": "path"
     }
@@ -10606,63 +11737,43 @@
    "config": [],
    "errors": [],
    "coverage": {
-    "claimed": 58,
-    "verified": 58
+    "claimed": 61,
+    "verified": 61
    },
    "completeness": {
-    "import_lines": 11,
-    "declaration_lines": 46,
+    "import_lines": 12,
+    "declaration_lines": 48,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
      "status": "done",
      "asked": [
-      159,
       160,
-      162,
+      161,
       163,
       164,
-      166,
+      165,
       167,
-      169,
+      168,
       170,
       171,
       172,
       173,
       174,
-      236,
-      249,
-      260,
-      424,
-      446
+      175,
+      237,
+      250,
+      261,
+      425,
+      447,
+      769
      ]
     }
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "CombineTutorial",
-     "module": "nodes.py"
-    },
-    {
-     "name": "DeterministicFileMapper",
-     "module": "nodes.py"
-    },
-    {
-     "name": "ExtractFacts",
-     "module": "nodes.py"
-    },
-    {
-     "name": "WriteChapters",
-     "module": "nodes.py"
-    },
-    {
-     "name": "build_directory_tree",
-     "module": "utils/files.py"
-    }
-   ],
-   "facts_hash": "9ef5839489c494da93db07a50bba2c8c",
+   "unexplained_names": [],
+   "facts_hash": "e61c7c45c7eb2e3b8e888f8beb902cae",
    "claims": {
     "symbols": [
      {
@@ -10841,6 +11952,13 @@
       "signature": "def normalize_chapter_links(chapter_files):"
      },
      {
+      "name": "add_used_by_lines",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:"
+     },
+     {
       "name": "write_mkdocs_output",
       "kind": "function",
       "parent": "",
@@ -10986,6 +12104,13 @@
       "parent": "",
       "visibility": "private",
       "signature": "def _mermaid_label(text) -> str:"
+     },
+     {
+      "name": "_page_link",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _page_link(page: str, target: str, filenames: set) -> str:"
      }
     ],
     "dependencies": [
@@ -11024,6 +12149,10 @@
      {
       "target": "utils.call_llm",
       "evidence": "from utils.call_llm import call_llm"
+     },
+     {
+      "target": "utils.chapter_check",
+      "evidence": "from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check"
      },
      {
       "target": "utils.output",
@@ -11288,6 +12417,7 @@
     "main.py",
     "nodes.py",
     "utils/call_llm.py",
+    "utils/chapter_check.py",
     "utils/crawl_github_files.py",
     "utils/crawl_local_files.py",
     "utils/i18n.py",
@@ -11343,12 +12473,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "main",
-     "module": "main.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "9fd31c5377c7af1900270f5ff42729f2",
    "claims": {
     "symbols": [
@@ -11562,8 +12687,8 @@
    }
   },
   "utils/prompts.py": {
-   "source_sha256": "2e6e8d4cf419ae0f2ec39d482e3165b5e491ec0414569edaa8de8a17aa08ab6b",
-   "lines": 300,
+   "source_sha256": "1bb999ef737b1ad15ad023c26dbd6c1e548265e1af917e0865666b7ae8d9c203",
+   "lines": 366,
    "symbols": [
     {
      "name": "parse_file_index",
@@ -11679,7 +12804,44 @@
      "parent": "",
      "visibility": "private",
      "line": 128,
-     "signature": "_INDICATOR_VALUE_RE = re.compile(",
+     "end_line": 130,
+     "signature": "_INDICATOR_VALUE_RE = re.compile(\n    r\"(?m)^([ \\t]*(?:- )?(?:name|entry|alias|target|base|parent):[ \\t]+)([@`#*&!%]\\S*|[|>](?![-+0-9]*[ \\t]*$)\\S*)(?:[ \\t]+#.*)?$\"\n)",
+     "match": "joined"
+    },
+    {
+     "name": "_FACT_SIGNATURE_CHARS",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 133,
+     "signature": "_FACT_SIGNATURE_CHARS = 200  # a verified signature shown in the chapter prompt (whitespace collapsed)",
+     "match": "exact"
+    },
+    {
+     "name": "build_verified_facts_block",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 136,
+     "signature": "def build_verified_facts_block(facts: dict | None, doc_paths: dict) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "_fact_signature",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 180,
+     "signature": "def _fact_signature(symbol: dict) -> tuple[str, bool]:",
+     "match": "exact"
+    },
+    {
+     "name": "_code_span",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 193,
+     "signature": "def _code_span(text: str) -> str:",
      "match": "exact"
     },
     {
@@ -11687,7 +12849,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 133,
+     "line": 199,
      "signature": "FACTS_FOCUS_LIMIT = 60  # lines one extract_facts.md follow-up asks about; the rest are only counted",
      "match": "exact"
     },
@@ -11696,7 +12858,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 134,
+     "line": 200,
      "signature": "_FOCUS_LINE_CHARS = 200  # a minified or generated line is shown cut: the model quotes from the full source",
      "match": "exact"
     },
@@ -11705,7 +12867,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 137,
+     "line": 203,
      "signature": "def build_facts_focus_note(lines: list[tuple[int, str]], limit: int = FACTS_FOCUS_LIMIT) -> str:",
      "match": "exact"
     },
@@ -11714,7 +12876,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 154,
+     "line": 220,
      "signature": "def _load_strings(text: str):",
      "match": "exact"
     },
@@ -11723,7 +12885,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 159,
+     "line": 225,
      "signature": "def _quote_indicator_values(text: str) -> str:",
      "match": "exact"
     },
@@ -11732,7 +12894,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 163,
+     "line": 229,
      "signature": "def _block_quotes(text: str) -> str:",
      "match": "exact"
     },
@@ -11741,7 +12903,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 167,
+     "line": 233,
      "signature": "def parse_facts_response(response, keys: tuple = FACTS_KEYS) -> dict:",
      "match": "exact"
     },
@@ -11750,7 +12912,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 205,
+     "line": 271,
      "signature": "def _salvage_yaml_lists(yaml_str: str, keys: tuple) -> tuple[dict, int]:",
      "match": "exact"
     },
@@ -11759,7 +12921,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 245,
+     "line": 311,
      "signature": "def build_code_file_filter_prompt(project_name: str, file_listing: str) -> str:",
      "match": "exact"
     },
@@ -11768,7 +12930,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 269,
+     "line": 335,
      "signature": "def build_chapter_summary_prompt(chapter_num: int, abstraction_name: str, chapter_content: str, language: str = \"english\") -> str:",
      "match": "exact"
     }
@@ -11806,22 +12968,45 @@
      "name": "ValueError",
      "line": 76,
      "evidence": "raise ValueError(\"LLM response was truncated before the YAML block completed\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     },
     {
-     "name": "Exception",
-     "line": 80,
-     "evidence": "except Exception as e:",
-     "match": "exact"
+     "name": "ValueError",
+     "line": 81,
+     "evidence": "raise ValueError(f\"Failed to parse YAML: {e}\") from e",
+     "match": "exact",
+     "role": "raised"
+    },
+    {
+     "name": "ValueError",
+     "line": 109,
+     "evidence": "raise ValueError(\"Failed to parse YAML: no sections list in the grouping reply\") from None",
+     "match": "exact",
+     "role": "raised"
+    },
+    {
+     "name": "ValueError",
+     "line": 248,
+     "evidence": "raise ValueError(\"Failed to parse YAML: no ```yaml block in the facts reply\")",
+     "match": "exact",
+     "role": "raised"
+    },
+    {
+     "name": "ValueError",
+     "line": 260,
+     "evidence": "raise ValueError(\"Failed to parse YAML: no fact lists in the facts reply\")",
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
-    "claimed": 29,
-    "verified": 29
+    "claimed": 36,
+    "verified": 36
    },
    "completeness": {
     "import_lines": 4,
-    "declaration_lines": 23,
+    "declaration_lines": 27,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
@@ -11831,37 +13016,8 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "DeterministicFileMapper",
-     "module": "nodes.py"
-    },
-    {
-     "name": "ExtractFacts",
-     "module": "nodes.py"
-    },
-    {
-     "name": "MANIFEST_KEYS",
-     "module": "utils/facts.py"
-    },
-    {
-     "name": "TruncatedResponse",
-     "module": "utils/llm_common.py"
-    },
-    {
-     "name": "main",
-     "module": "main.py"
-    },
-    {
-     "name": "truncated",
-     "module": "utils/llm_common.py"
-    },
-    {
-     "name": "yaml_str",
-     "module": "utils/mkdocs.py"
-    }
-   ],
-   "facts_hash": "28c9e26328a9eb1c2337a7ecdba6ba01",
+   "unexplained_names": [],
+   "facts_hash": "e935f476bec3fc857cdd6932589a1c96",
    "claims": {
     "symbols": [
      {
@@ -11953,7 +13109,35 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_INDICATOR_VALUE_RE = re.compile("
+      "signature": "_INDICATOR_VALUE_RE = re.compile(\n    r\"(?m)^([ \\t]*(?:- )?(?:name|entry|alias|target|base|parent):[ \\t]+)([@`#*&!%]\\S*|[|>](?![-+0-9]*[ \\t]*$)\\S*)(?:[ \\t]+#.*)?$\"\n)"
+     },
+     {
+      "name": "_FACT_SIGNATURE_CHARS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_FACT_SIGNATURE_CHARS = 200  # a verified signature shown in the chapter prompt (whitespace collapsed)"
+     },
+     {
+      "name": "build_verified_facts_block",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def build_verified_facts_block(facts: dict | None, doc_paths: dict) -> str:"
+     },
+     {
+      "name": "_fact_signature",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _fact_signature(symbol: dict) -> tuple[str, bool]:"
+     },
+     {
+      "name": "_code_span",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _code_span(text: str) -> str:"
      },
      {
       "name": "FACTS_FOCUS_LIMIT",
@@ -12051,8 +13235,20 @@
       "evidence": "raise ValueError(\"LLM response was truncated before the YAML block completed\")"
      },
      {
-      "name": "Exception",
-      "evidence": "except Exception as e:"
+      "name": "ValueError",
+      "evidence": "raise ValueError(f\"Failed to parse YAML: {e}\") from e"
+     },
+     {
+      "name": "ValueError",
+      "evidence": "raise ValueError(\"Failed to parse YAML: no sections list in the grouping reply\") from None"
+     },
+     {
+      "name": "ValueError",
+      "evidence": "raise ValueError(\"Failed to parse YAML: no ```yaml block in the facts reply\")"
+     },
+     {
+      "name": "ValueError",
+      "evidence": "raise ValueError(\"Failed to parse YAML: no fact lists in the facts reply\")"
      }
     ],
     "unparsed": 0
@@ -12086,9 +13282,10 @@
      "parent": "",
      "visibility": "public",
      "line": 27,
-     "end_line": 29,
-     "signature": "NODE_KEYS = (\n    \"filter_files\",  # DeterministicFileMapper — code/non-code file classification (api-reference)\n    \"extract_facts\",  # ExtractFacts — per-file symbols, dependencies, config, errors with source quotes (api-reference)",
-     "match": "joined"
+     "end_line": 39,
+     "signature": "NODE_KEYS = ( \"filter_files\", # DeterministicFileMapper — code/non-code file classification (api-reference) \"extract_facts\", # ExtractFacts — per-file symbols, dependencies, config, errors with source quotes (api-reference) \"map_abstractions\", # MapAbstractions — per-batch abstraction extraction (ba",
+     "match": "joined",
+     "truncated": true
     },
     {
      "name": "_ANALYSIS_NODES",
@@ -12220,52 +13417,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "AnalyzeRelationships",
-     "module": "nodes.py"
-    },
-    {
-     "name": "CombineTutorial",
-     "module": "nodes.py"
-    },
-    {
-     "name": "DeterministicFileMapper",
-     "module": "nodes.py"
-    },
-    {
-     "name": "ExtractFacts",
-     "module": "nodes.py"
-    },
-    {
-     "name": "IdentifyAbstractions",
-     "module": "nodes.py"
-    },
-    {
-     "name": "MapAbstractions",
-     "module": "nodes.py"
-    },
-    {
-     "name": "OrderChapters",
-     "module": "nodes.py"
-    },
-    {
-     "name": "ReduceAbstractions",
-     "module": "nodes.py"
-    },
-    {
-     "name": "WriteChapters",
-     "module": "nodes.py"
-    },
-    {
-     "name": "get",
-     "module": "utils/output.py"
-    },
-    {
-     "name": "main",
-     "module": "main.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "b7e3c3ffcfb5dbefc481019c2440f4e8",
    "claims": {
     "symbols": [
@@ -12864,7 +14016,8 @@
      "name": "ValueError",
      "line": 241,
      "evidence": "raise ValueError(f\"ratios were measured against {data.get('counter')!r}, not {CALIBRATION_COUNTER}\")",
-     "match": "exact"
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
@@ -12883,16 +14036,7 @@
    },
    "rejected": [],
    "missed_imports": [],
-   "unexplained_names": [
-    {
-     "name": "call_llm",
-     "module": "utils/call_llm.py"
-    },
-    {
-     "name": "get_step_summary",
-     "module": "utils/llm_common.py"
-    }
-   ],
+   "unexplained_names": [],
    "facts_hash": "0e7656f1a150f33b04ec08877def5d01",
    "claims": {
     "symbols": [
