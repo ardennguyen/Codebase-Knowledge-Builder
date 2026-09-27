@@ -27,6 +27,27 @@ CLAIM_KEYS = ("symbols", "dependencies", "config", "errors")
 _WINDOW = 8  # lines a quote may span (joined imports, multi-line signatures); longer quotes get their own length
 _MIN_TOKEN_QUOTE = 3  # identifier tokens needed before the in-order token fallback is trusted
 _EXCERPT = 300  # longest source text stored per fact (a minified one-line file would repeat itself per fact)
+_CALL_SPAN_LINES = 12  # lines a config/error quote's open bracket may run on (a multi-line `add_argument(` call)
+_STRING_RE = re.compile(r"\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|`[^`]*`")  # one-line string literals
+# Error role, from the text before the name: a handler keyword after the last raise keyword → caught (`except X:`,
+# `} catch (X e)`, `rescue X`, Dart `on X catch`); a raise keyword → raised; neither (a definition, a return) → mentioned
+_HANDLER_RE = re.compile(r"(?<![\w.$@])@?(?:except\*?|catch|rescue|recover)(?![\w$])", re.IGNORECASE)
+_RAISE_RE = re.compile(r"(?<![\w$])(?:(?<!\.)(?:raise|throw|throws|panic|Err|abort|error|fail|reject)|Errorf)(?![\w$])")  # fmt.Errorf, not log.error
+_ROLE_RANK = {"raised": 0, "mentioned": 1, "caught": 2}  # of several places, the one that raises the error wins
+_COMMENT_START_RE = re.compile(r"^\s*(?:#|//|/\*|\*|--)")  # a comment line (C preprocessor lines too)
+# An access label or a bare keyword line inside a block: `public slots:`, `signals:`, `private`, `where`
+_LABEL_RE = re.compile(r"\s*([A-Za-z_]\w*)[\w\s]*:\s*|\s*([a-z_]\w*)\s*")
+# unexplained_names: names the file binds itself (declarations, assignments, keyword arguments) and names it uses
+_NAME = r"[^\W\d][\w$]*"
+_KEYWORD_BINDS_RE = re.compile(
+    rf"(?<![\w$.])(?:for|let|var|val|const)[ \t]+[(\[{{]?[ \t]*((?:{_NAME}[ \t]*,[ \t]*)*{_NAME})(?=[ \t]*(?:[,)\]}}=:;]|in\b|of\b|$))", re.MULTILINE
+)  # for a, b in …, const {a, b} = …, let [x, y] = …, val repo: Repository = … (the type is not bound)
+_LINE_BINDS_RE = re.compile(rf"^[ \t]*((?:{_NAME}[ \t]*,[ \t]*)*{_NAME})[ \t]*:?=(?![=>])", re.MULTILINE)  # a, b := …; x = …
+_KWARG_BINDS_RE = re.compile(rf"[(,][ \t]*({_NAME})[ \t]*=(?![=>])")  # f(name=…), def f(x=1) — not `x: Type = …`
+_FIRST_NAME_RE = re.compile(r"(?<![\w$])(?:(?<=\.\.)|(?<!\.))([^\W\d][\w$]*)")  # a name not after one dot (`..MAX` counts)
+_DOTTED_RE = re.compile(r"(?<![\w$.])[^\W\d][\w$]*(?:\.[^\W\d][\w$]*)+")  # Shop.Cart.add, os.environ.get
+_SHELL_VAR_RE = re.compile(r"\$\{?([A-Za-z_]\w*)")  # $NAME, ${NAME}
+_INTERPOLATION_RE = re.compile(r"\$\{([^}]*)\}|#\{([^}]*)\}|\\\(([^)]*)\)")  # ${expr}, #{expr}, \(expr)
 _WORD_RE = re.compile(r"\w+")
 _LINE_BREAK_RE = re.compile(r"\r\n|\r|\n")  # what editors, GitHub and models count; str.splitlines also splits at \f, \x85, U+2028
 _DOTTED_RE = re.compile(r"\w+(?:(?:\.|::|\\)\w+)+")
@@ -108,6 +129,14 @@ class SourceIndex:
         for number, words in enumerate(self.word_sets):
             for word in words:
                 self.word_lines[word].append(number)
+        self._chains = None  # block_chain(), built on first use
+
+    def block_chain(self, line: int) -> tuple:
+        """The blocks *line* sits in, innermost first: ``(indent, text, kind, named)`` per enclosing line
+        (``_block_chains``)."""
+        if self._chains is None:
+            self._chains = _block_chains(self.lines)
+        return self._chains[line]
 
     def text(self, first: int, last: int) -> str:
         return "\n".join(self.lines[first : last + 1])
@@ -170,13 +199,14 @@ class SourceIndex:
         return None
 
     def excerpt(self, first: int, last: int, quote) -> tuple[str, bool]:
-        """The matched source text, at most ``_EXCERPT`` characters around the quote: ``(text, truncated)``."""
+        """The matched source text, at most ``_EXCERPT`` characters around the quote: ``(text, truncated)``. A
+        quote longer than the window keeps its start (a long signature keeps its keyword and name)."""
         text = self.text(first, last).strip()
         if len(text) <= _EXCERPT:
             return text, False
         flat, wanted = _collapse(text), _collapse(quote)
         pos = max(flat.find(wanted), 0)
-        start = max(0, min(pos - (_EXCERPT - len(wanted)) // 2, len(flat) - _EXCERPT))
+        start = max(0, min(pos - max(0, (_EXCERPT - len(wanted)) // 2), len(flat) - _EXCERPT))
         return flat[start : start + _EXCERPT], True
 
 
@@ -223,7 +253,8 @@ def verify_file_claims(claims: dict, content: str) -> dict:
 
     Returns ``{"symbols", "dependencies", "config", "errors", "rejected", "claimed", "found"}``:
     kept claims carry the real source text (at most ``_EXCERPT`` characters, ``truncated`` when cut)
-    and 1-based ``line``; ``rejected`` lists the others with a reason. Reply items the parser could not
+    and 1-based ``line``; errors also a ``role``, ``raised``, ``caught`` or ``mentioned`` (``_error_role``);
+    ``rejected`` lists the others with a reason. Reply items the parser could not
     read (``claims["unparsed"]``) count as claimed and rejected. Dependencies are only located here;
     ``verify_dependencies`` resolves them once every module's facts exist.
     """
@@ -258,18 +289,36 @@ def verify_file_claims(claims: dict, content: str) -> dict:
         for item in _claim_list(claims, key):
             claimed += 1
             name, evidence = _as_text(item.get("name")).strip(), _as_text(item.get("evidence"))
-            matches = [m for m in (index.locate(evidence) if name else []) if _names_in(index.text(m[0], m[1]), name)]
+            # A quote that opens a multi-line call (`parser.add_argument(`) also covers the call's lines when the
+            # name is not on its own lines (`extended`)
+            matches = []
+            for first, last, how in index.locate(evidence) if name else []:
+                if _names_in(index.text(first, last), name):
+                    matches.append((first, last, how, False))
+                    continue
+                end = _call_span(index, first, last)
+                if end > last and _names_in(index.text(first, end), name):
+                    matches.append((first, end, how, True))
             if not matches:
                 rejected.append({"kind": key, "name": name, "evidence": evidence, "reason": "name/evidence not in source"})
                 continue
-            first, last, how = matches[0]
+            # Of several places: the name used in code, then written as a whole string, then only mentioned in
+            # prose; the quote's own lines before extended spans; for errors, raising before handling
+            roles = {m: _error_role(index, m[0], m[1], name) for m in matches} if key == "errors" else {}
+            matches.sort(key=lambda m: (_ROLE_RANK.get(roles.get(m), 0), _name_rank(index.text(m[0], m[1]), name), m[3]))
+            first, last, how, extended = matches[0]
             text, truncated = index.excerpt(first, last, evidence)
+            if extended and not _names_in(text, name):  # a long call: center the stored text on the name
+                text, truncated = index.excerpt(first, last, name)
             entry = {"name": name, "line": first + 1, **_end(first, last), "evidence": text, "match": how}
             if key == "config":
                 entry["kind"] = _as_text(item.get("kind")).strip() or "config"
+            else:
+                entry["role"] = roles[matches[0]]
             result[key].append({**entry, "truncated": True} if truncated else entry)
 
-    # One fact quoted twice (a whole signature and its first line, an import and its block) is kept once
+    # One fact quoted twice (a whole signature and its first line, an import and its block) is kept once; a
+    # config key or error found both on a call's line and inside its extended span keeps the narrower place
     for key, fields in (("symbols", ("parent", "name")), ("dependencies", ("target",)), ("config", ("name",)), ("errors", ("name",))):
         seen, unique = set(), []
         for entry in result[key]:
@@ -277,6 +326,14 @@ def verify_file_claims(claims: dict, content: str) -> dict:
             if marker not in seen:
                 seen.add(marker)
                 unique.append(entry)
+        if key in ("config", "errors"):
+            narrow_first = sorted(unique, key=lambda e: e.get("end_line", e["line"]) - e["line"])
+            kept_spans = []
+            for entry in narrow_first:
+                low, high = entry["line"], entry.get("end_line", entry["line"])
+                if not any(other["name"] == entry["name"] and low <= other["line"] <= high for other in kept_spans):
+                    kept_spans.append(entry)
+            unique = [entry for entry in unique if any(entry is other for other in kept_spans)]
         claimed -= len(result[key]) - len(unique)
         result[key] = unique
     result["rejected"] = rejected
@@ -288,15 +345,21 @@ def verify_file_claims(claims: dict, content: str) -> dict:
 def _verify_symbols(symbols: list[dict], index: SourceIndex) -> tuple[list, list]:
     """Locate each symbol's signature, members inside their parent.
 
-    Parents are placed before their members. A member is searched from its parent's line to the next
-    top-level symbol, so ``prep`` declared in ten classes of one file lands on the right line; failing
-    that, file-wide, where a match counts only when its text names the parent (a Go receiver, a C++
-    ``Class::``) or the nearest class-like symbol declared above it is that parent (or there is none).
-    A member signature matching several lines that no parent span tells apart is rejected; a
-    top-level one (conditional definitions) is kept at its first line with ``ambiguous_lines``.
+    Every top-level symbol is placed first, then parents before their members. A member is searched
+    from its parent's line to the next top-level symbol, so ``prep`` declared in ten classes of one file
+    lands on the right line; failing that, file-wide, where a match counts only when its text names the
+    parent (a Go receiver, a C++ ``Class::``) or the blocks around it name the parent (``_parent_verdict``:
+    a Rust ``impl`` or Swift ``extension`` block far below the type), or — when the blocks cannot tell — the
+    nearest class-like symbol declared above it is that parent (or there is none). A member signature matching several
+    lines that no parent span tells apart is rejected; a top-level one (conditional definitions) is
+    kept at its first line with ``ambiguous_lines``. Inside the span, too, a member is rejected when the
+    blocks around it show it belongs elsewhere (``_parent_verdict``): the span of a class claimed above an
+    unclaimed one runs on over the unclaimed class's methods.
     """
     kept, rejected, placed = [], [], {}
-    pending, unscoped = list(symbols), False
+    # Top-level claims first: a member's span ends at the next top-level symbol, so all of them must be
+    # known before any member is searched (claims come in file order, members right after their class)
+    pending, unscoped = sorted(symbols, key=lambda item: bool(_as_text(item.get("parent")).strip())), False
     while pending:
         pending_names = {_as_text(item.get("name")).strip() for item in pending}
         waiting = []
@@ -312,12 +375,16 @@ def _verify_symbols(symbols: list[dict], index: SourceIndex) -> tuple[list, list
             if parent in placed:
                 start = placed[parent]
                 end = next((line for line in tops if line > start), None)
-                matches = [m for m in index.locate(signature, start, end) if name and _names_in(index.text(m[0], m[1]), name)]
+                matches = [
+                    m
+                    for m in index.locate(signature, start, end)
+                    if name and _names_in(index.text(m[0], m[1]), name) and _parent_verdict(index, m, parent) is not False
+                ]
                 scoped = bool(matches)
             if not matches:
                 matches = [m for m in index.locate(signature) if name and _names_in(index.text(m[0], m[1]), name)]
                 if parent:
-                    matches = [m for m in matches if parent in _words(index.text(m[0], m[1])) or _enclosing(containers, m[0]) in (None, parent)]
+                    matches = [m for m in matches if _in_parent(index, m, parent, containers)]
             if not matches or (len(matches) > 1 and parent and not scoped):
                 if not matches:
                     reason = "signature not in source" if not index.locate(signature) else "name not in its signature, or outside its parent"
@@ -326,6 +393,9 @@ def _verify_symbols(symbols: list[dict], index: SourceIndex) -> tuple[list, list
                 rejected.append({"kind": "symbol", "name": name, "parent": parent, "signature": signature, "reason": reason})
                 continue
             first, last, how = matches[0]
+            # A declaration quoted by its first lines (the prompt allows 3) runs on to the line closing its
+            # parameter list, so the stored signature is complete
+            last = _call_span(index, first, last)
             text, truncated = index.excerpt(first, last, signature)
             entry = {
                 "name": name,
@@ -358,6 +428,76 @@ def _enclosing(containers: list[tuple[int, str]], line: int) -> str | None:
     """Name of the nearest class/struct/module-like symbol declared before *line*, if any."""
     names = [name for start, name in containers if start < line]
     return names[-1] if names else None
+
+
+def _parent_verdict(index: SourceIndex, match: tuple, parent: str) -> bool | None:
+    """Whether the blocks around a member match say it belongs to *parent*: True when its own text names the
+    parent (a Go receiver, a C++ ``Class::``) or an enclosing line does (``class Foo:``, ``impl<T> Foo<T>``,
+    ``impl Display for Foo {``, ``defmodule Shop.Cart do``), looking through control blocks, labels and nameless
+    containers (``companion object {``, ``class << self``, ``typedef struct {``); False when a named container
+    that is not the parent encloses it, or it sits in a top-level function; None when nothing can tell
+    (unindented, or only statements above it — a column-0 heredoc line ends the chain)."""
+    if parent in _words(index.text(match[0], match[1])):
+        return True
+    if not _indent(index.lines[match[0]], 8):
+        return None
+    for indent, text, kind, named in index.block_chain(match[0]):
+        if _names_in(text, parent):
+            return True
+        if named:
+            return False
+        if not indent:
+            return True if kind == "container" else False if kind == "function" else None
+    return None
+
+
+def _in_parent(index: SourceIndex, match: tuple, parent: str, containers: list) -> bool:
+    """Whether a file-wide match of a member belongs to *parent* (see ``_verify_symbols``)."""
+    verdict = _parent_verdict(index, match, parent)
+    return verdict if verdict is not None else _enclosing(containers, match[0]) in (None, parent)
+
+
+def _call_span(index: SourceIndex, first: int, last: int) -> int:
+    """Last line of a match whose lines open more ``(`` / ``[`` than they close (a multi-line call such as
+    ``parser.add_argument(`` ... ``)``, ``[`` lists): the line that closes them, at most ``_CALL_SPAN_LINES``
+    further; *last* when balanced or never closed. A block's ``{`` does not count: a function or ``if``
+    header is no evidence for what its body reads."""
+    depth = 0
+    for number in range(first, min(len(index.lines), last + 1 + _CALL_SPAN_LINES)):
+        code = _STRING_RE.sub('""', index.lines[number])
+        depth += code.count("(") + code.count("[") - code.count(")") - code.count("]")
+        if number >= last and depth <= 0:
+            return number
+    return last
+
+
+def _name_rank(text: str, name: str) -> int:
+    """How a config/error match writes *name*: 0 in code (``os.environ.get(API_KEY)``, ``API_KEY = …``), 1 as a
+    whole string literal (``"--mode"``), 2 only inside a longer string (another flag's help text)."""
+    if _names_in(_STRING_RE.sub('""', text), name):
+        return 0
+    return 1 if any(m.group()[1:-1] == _nfc(name) for m in _STRING_RE.finditer(_nfc(text))) else 2
+
+
+def _error_role(index: SourceIndex, first: int, last: int, name: str) -> str:
+    """``raised``, ``caught`` or ``mentioned``: read on the first line of the match that names the error, from
+    the text before the name (strings blanked) — a handler keyword after the last raise keyword means caught
+    (``except (KeyError, X):``, ``} catch (e) {``, ``rescue X => e``, Kotlin ``try {…} catch (e: X)``, Dart
+    ``} on X catch``), a raise keyword means raised (``} catch (e) { throw new X(…) }``, ``raise X(…)``,
+    ``fmt.Errorf(…, X)``), neither (a definition, a return) means mentioned."""
+    pattern = re.compile(r"(?<![\w$])" + re.escape(_nfc(name)) + r"(?![\w$])")
+    for number in range(first, last + 1):
+        code = _STRING_RE.sub('""', _nfc(index.lines[number]))
+        found = pattern.search(code)
+        if not found:
+            continue
+        head = code[: found.start()]
+        handler = max((m.end() for m in _HANDLER_RE.finditer(head)), default=-1)
+        if re.search(r"(?<![\w.$])on\s+$", head):
+            handler = len(head)
+        raiser = max((m.end() for m in _RAISE_RE.finditer(head)), default=-1)
+        return "caught" if handler > raiser else "raised" if raiser >= 0 else "mentioned"
+    return "mentioned"
 
 
 # ---------------------------------------------------------------------------
@@ -420,19 +560,37 @@ _SQL_CREATE_RE = re.compile(r"^CREATE\s+(?:OR\s+REPLACE\s+)?(?:TABLE|VIEW|INDEX|
 _EXPORTED_FUNCTION_RE = re.compile(r"^(?:module\.)?exports(?:\.\w+)?\s*=\s*(?:async\s+)?function\b")  # module.exports = function f(
 _NOT_IMPORT_AFTER = set("=+-*/%|&>!,;)]}?:")  # `source = x`, `include += y`: an expression, not an import (`<` opens #include <x>)
 # require('./x'), import('./x'), and Lua / Ruby's parenthesis-free require "x"
-_IMPORT_CALL_RE = re.compile(r"(?<![\w.])(?:(?:require|require_relative|import|load)\s*\(\s*|(?:require|require_relative)\s+)[\"'`]")
+_IMPORT_CALL_RE = re.compile(r"(?<![\w.])(?:(?:require|require_relative|import)\s*\(\s*|(?:require|require_relative)\s+)[\"'`]")
 # `[type] name(args)` with no `.`, `=` or `new` before the parenthesis: a method or function definition head
 _METHOD_RE = re.compile(r"^(?!(?:new|return|throw|await|yield|else|delete|typeof)\b)[\w<>\[\],\s\*&:?]*?\b[A-Za-z_$][\w$]*\s*\(")
 # Block delimiters, one-line string literals (skipped whole) and trailing comment markers after whitespace
-_CODE_TOKEN_RE = re.compile(r"\"\"\"|'''|/\*|\"(?:\\.|[^\"\\])*(?:\"|$)|'(?:\\.|[^'\\])*(?:'|$)|`(?:\\.|[^`\\])*(?:`|$)|(?<=\s)(?:#|//|--(?=\s|$))")
+_CODE_TOKEN_RE = re.compile(
+    r"\"\"\"|'''|/\*|\"(?:\\.|[^\"\\])*(?:\"|$)|'(?:\\.|[^'\\])*(?:'|$)|`(?:\\.|[^`\\])*(?:`|$)|(?<=[\s;])(?:#|//|--(?=\s|$))"
+)
 _BLOCK_CLOSERS = {'"""': '"""', "'''": "'''", "/*": "*/"}
+
+
+def _find_closer(line: str, closer: str, start: int) -> int:
+    """Position of a block closer in *line* from *start*, -1 if none; a ``*/`` right after ``/`` is part of a
+    glob (``build/*/``), not the end of a comment."""
+    position = line.find(closer, start)
+    while closer == "*/" and position > 0 and line[position - 1] == "/":
+        position = line.find(closer, position + 1)
+    return position
+
+
+def _rfind_closer(line: str, closer: str) -> int:
+    position = line.rfind(closer)
+    while closer == "*/" and position > 0 and line[position - 1] == "/":
+        position = line.rfind(closer, 0, position)
+    return position
 
 
 def code_view(lines: list[str]) -> list[str]:
     """The lines with comments and block strings blanked, for the hints only (line numbers unchanged).
 
     Block strings and comments (``\"\"\"`` / ``'''`` docstrings, ``/* ... */``) and trailing comments (``#``,
-    ``//``, ``--`` after whitespace) hold prose, usage examples and commented-out code: none of it is a
+    ``//``, ``--`` after whitespace or ``;``) hold prose, usage examples and commented-out code: none of it is a
     declaration or import. A language-agnostic scan: delimiters inside a one-line string literal do not count
     (``'\"\"\"'``, ``"src/*"``), nor a ``/*`` right after a name (a glob: ``lib/*.sh``), nor an opener whose
     closer never follows in the file. A block string becomes ``""`` so ``HELP = \"\"\"...`` stays an
@@ -440,7 +598,7 @@ def code_view(lines: list[str]) -> list[str]:
     last = {}  # closer → (line, column) of its last occurrence
     for closer in set(_BLOCK_CLOSERS.values()):
         for number in range(len(lines) - 1, -1, -1):
-            column = lines[number].rfind(closer)
+            column = _rfind_closer(lines[number], closer)
             if column >= 0:
                 last[closer] = (number, column)
                 break
@@ -448,7 +606,7 @@ def code_view(lines: list[str]) -> list[str]:
     for number, line in enumerate(lines):
         out, position = "", 0
         if closing:
-            end = line.find(closing)
+            end = _find_closer(line, closing, 0)
             if end < 0:
                 view.append("")
                 continue
@@ -466,13 +624,13 @@ def code_view(lines: list[str]) -> list[str]:
                 out += line[position:start]
                 break
             closer = _BLOCK_CLOSERS.get(token)
-            glob = token == "/*" and start and (line[start - 1].isalnum() or line[start - 1] in "_.*/$}")
+            glob = token == "/*" and start and (line[start - 1].isalnum() or line[start - 1] in "_.*/$}\"')")  # lib/*.sh, "$OUT"/*
             if not closer or glob or last.get(closer, (-1, -1)) < (number, match.end()):
                 out += line[position : match.end()]
                 position = match.end()
                 continue
             out += line[position:start] + ('""' if closer != "*/" else " ")
-            end = line.find(closer, match.end())
+            end = _find_closer(line, closer, match.end())
             if end < 0:
                 closing = closer
                 break
@@ -546,12 +704,17 @@ def import_statement_like(line: str) -> bool:
     block opener (``import (``, ``import {``); ``export`` only with ``from`` or a quoted specifier. A
     ``require('x')`` / ``import('x')`` call anywhere in the line and a shell ``. path`` also count."""
     stripped = _ANNOTATIONS_RE.sub("", line.strip())  # @testable import X
-    if stripped.startswith("#") and not stripped[1:2].isalpha():
+    if stripped.startswith(("//", "/*", "*", "--")):  # comments, a Lua / SQL `--` line too
         return False
+    if stripped.startswith("#"):  # only a preprocessor include (`#include "x.h"`, `# include <y>`, `#import`)
+        if not re.match(r"#\s*(?:include|import)\s*[<\"]", stripped):  # not a commented-out `# import os`
+            return False
+        stripped = "#" + stripped[1:].lstrip()
     if stripped.startswith(("'", '"', "`")):
         return False
-    if _IMPORT_CALL_RE.search(stripped) and not stripped.startswith(("//", "/*", "*")):
-        return True
+    strings = [m.span() for m in _STRING_RE.finditer(stripped)]
+    if any(not any(low <= call.start() < high for low, high in strings) for call in _IMPORT_CALL_RE.finditer(stripped)):
+        return True  # require('x') / import('x') in code, not in a message such as "call require('x') first"
     if re.match(r"^\.\s+[\"'$./\w]", stripped):  # shell: . ./lib/env.sh
         return True
     if not _import_like(stripped):
@@ -562,15 +725,20 @@ def import_statement_like(line: str) -> bool:
     after = stripped.lstrip("#@").split(words[0], 1)[1].lstrip()
     if not after or after in ("(", "{", "["):
         return False
+    if after[0] == "*" and words[0] in ("import", "export"):  # import * as x from …, export * from …
+        return re.match(r"\*\s*(?:as\s+[\w$]+\s+)?from\b", after) is not None
     if after[0] in _NOT_IMPORT_AFTER:
         return False
-    if after[0] == "." and words[0] != "from" and after[1:2] not in ("/", "."):  # import.meta, load.x: attribute access
+    julia_relative = words[0] in ("using", "import") and re.match(r"\.+[A-Za-z_]", after)  # using .Cart
+    if after[0] == "." and words[0] != "from" and after[1:2] not in ("/", ".") and not julia_relative:  # import.meta: attribute access
         return False
     if after[0] == "(" and (
-        words[0] not in ("require", "import", "include", "load", "source", "library", "use") or not re.match(r"\(\s*[\"'`\w$./@~]", after)
-    ):  # a call form needs an argument naming what it loads: library(dplyr), not load().then(
+        words[0] not in ("require", "require_once", "include", "include_once", "import", "load", "source", "library", "use")
+        or not re.match(r"\(\s*[\"'`\w$./@~]", after)
+    ):  # a call form needs an argument naming what it loads: library(dplyr), require_once('x.php'), not load().then(
         return False
-    if len(_words(after)) > 6 and not _PATH_TOKEN_RE.search(after):  # prose that starts with `source`, `use`, ...
+    relative_import = words[0] == "from" and " import " in f" {after} "  # from .models import A, B, C, D, E
+    if len(_words(after)) > 6 and not _PATH_TOKEN_RE.search(after) and not relative_import:  # prose that starts with `source`, `use`, …
         return False
     if words[0] == "from" and re.match(r"[\w.]+,", after):  # from here on, …
         return False
@@ -593,8 +761,9 @@ def import_block_lines(lines: list[str]) -> set[int]:
     return found
 
 
-def _indent(line: str) -> int:
-    return len(line.expandtabs(4)) - len(line.expandtabs(4).lstrip())
+def _indent(line: str, tab: int = 4) -> int:
+    expanded = line.expandtabs(tab)
+    return len(expanded) - len(expanded.lstrip())
 
 
 def _block_kind(line: str) -> str | None:
@@ -614,6 +783,41 @@ def _block_kind(line: str) -> str | None:
     if _CLOSURE_RE.search(stripped) or (word and _METHOD_RE.match(f"{word}{separator}{rest}") and re.search(r"[)\]{:]\s*$", stripped)):
         return "function"  # a callback (describe('x', () => {), a method head (public void run() {, int main(void))
     return "other"
+
+
+def _nameless(text: str) -> bool:
+    """A container line that declares no name: ``companion object {``, ``class << self``, ``typedef struct {``,
+    ``union {`` (generics after the keyword skipped: ``impl<T> Store<T>`` is named)."""
+    rest = _ANNOTATIONS_RE.sub("", text.strip())
+    while True:
+        rest = re.sub(r"^<[^<>]*>\s*", "", rest)
+        word = re.match(r"([A-Za-z_]\w*)\s*", rest)
+        if word and (word.group(1) in _CONTAINER_WORDS or word.group(1) in _DECLARATION_MODIFIERS):
+            rest = rest[word.end() :]
+            continue
+        return not re.match(r"[A-Za-z_$]", rest)
+
+
+def _block_chains(lines: list[str]) -> list[tuple]:
+    """Per line, the lines of the blocks it sits in, innermost first: ``(indent, text, kind, named)`` with
+    ``kind`` from ``_block_kind`` and ``named`` for a container that declares a name. One pass over
+    ``code_view`` (block strings blanked) with a stack of open blocks by indentation, tabs as 8 columns (git's
+    width); blank and comment lines, closers (``) : Base() {``, ``} else {``) and labels (``public slots:``,
+    ``where``, ``private``) neither open nor close a block."""
+    chains, stack = [], []
+    for text in code_view(lines):
+        indent = _indent(text, 8)
+        chains.append(tuple(entry for entry in reversed(stack) if entry[0] < indent))
+        if not re.search(r"\w", text) or _COMMENT_START_RE.match(text):
+            continue
+        kind = _block_kind(text)
+        label = _LABEL_RE.fullmatch(text)
+        if kind is None or (label and kind != "container" and (label.group(1) or label.group(2)) not in _BLOCK_CONTROL_WORDS):
+            continue
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+        stack.append((indent, text, kind, kind == "container" and not _nameless(text)))
+    return chains
 
 
 def enclosing_blocks(lines: list[str]) -> list[str | None]:
@@ -672,15 +876,46 @@ def completeness_hints(content: str, checked: dict, claims: dict | None = None) 
 
 
 def unexplained_names(content: str, source_path: str, depends_on: list[dict], table) -> list[dict]:
-    """Names that exactly one other module defines (``ModuleTable.symbol_owner``), used in this source, with
-    no verified dependency on that module: ``[{"name", "module"}]``. A recall hint for same-package and
-    same-namespace use without an import line; the word may also sit in a comment or string."""
-    words = set(_words(content))
+    """Names that exactly one other module defines (``ModuleTable.symbol_owner``), used in this source's
+    code, with no verified dependency on that module: ``[{"name", "module"}]``. A recall hint for
+    same-package and same-namespace use without an import line (Go, Java, Kotlin, C#, Ruby, Elixir …).
+    Comments and string literals do not count (interpolations ``${x}``, ``#{x}``, ``\\(x)`` and ``$VAR`` do),
+    nor attribute accesses (``x.get()`` uses ``x``) and names the file binds itself: ``let``/``var``/``val``/
+    ``const``/``for`` bindings incl. destructuring, statement-start assignments (``a, b := …``) and keyword
+    arguments — a type written after ``:`` is a use, not a binding. A dotted name also matches its sub-chains
+    (``Shop.Cart.add`` uses ``Shop.Cart`` and ``Cart``)."""
+
+    def code_of(line: str) -> str:
+        if re.match(r"\s*(?://|#(?:[\s!#]|$)|--(?:\s|$))", line):
+            return ""  # a comment line (a Swift `#expect(`, a JS `#cache =` or a C `#include` stays)
+
+        def keep_interpolations(literal):
+            parts = [part for group in _INTERPOLATION_RE.findall(literal.group()) for part in group if part]
+            if literal.group()[0] == '"':
+                parts += ["$" + name for name in _SHELL_VAR_RE.findall(literal.group())]
+            return " " + " ".join(parts) + " "
+
+        return _STRING_RE.sub(keep_interpolations, line)
+
+    code = "\n".join(code_of(line) for line in code_view(split_lines(_nfc(content))))
+    bound = set()
+    for pattern in (_KEYWORD_BINDS_RE, _LINE_BINDS_RE, _KWARG_BINDS_RE):
+        for match in pattern.finditer(code):
+            bound.update(name.strip() for name in match.group(1).split(","))
+    used = set(_FIRST_NAME_RE.findall(code)) | set(_SHELL_VAR_RE.findall(code))
+    # Sub-chains only as long as a dotted defined name (a chain of n parts has n² sub-chains)
+    lengths = {name.count(".") + 1 for name in table.symbol_owner if "." in name}
+    dotted = set()
+    for chain in _DOTTED_RE.findall(code):
+        parts = chain.split(".")
+        used.update(part for part in parts[1:] if part[:1].isupper())  # Acme.Billing.Invoice: a namespace path
+        dotted.update(".".join(parts[i : i + size]) for size in lengths for i in range(len(parts) - size + 1))
     linked = {edge["module"] for edge in depends_on}
     own = table.all_symbols.get(source_path, set())
     found = []
     for name, module in sorted(table.symbol_owner.items()):
-        if module != source_path and module not in linked and name not in own and (name in words or name.split(".")[-1] in words):
+        hit = (name in dotted or name.split(".")[-1] in used) if "." in name else name in used
+        if module != source_path and module not in linked and name not in own and name not in bound and hit:
             found.append({"name": name, "module": module})
     return found
 
@@ -1258,10 +1493,16 @@ def declares_namespace(content: str, dotted: str) -> bool:
 
 
 def scan_import_candidates(content: str, source_path: str, table: ModuleTable, relative_style: bool = False) -> set[str]:
-    """Modules named on import-like lines of the source (recall diagnostic only; never an edge by itself)."""
+    """Modules named on import statements of the source (recall diagnostic only; never an edge by itself).
+
+    Comments and block strings are left out (``code_view``) and a line must be an import statement
+    (``import_statement_like``) or a path inside a Go ``import ( ... )`` block, so a message such as
+    ``"branch is not 'main'"`` never names ``main.py``."""
     found = set()
-    for line in split_lines(content):
-        if not (_import_like(line) or _GO_BLOCK_LINE_RE.match(line)):
+    lines = code_view(split_lines(_nfc(content)))
+    block = import_block_lines(lines)
+    for number, line in enumerate(lines):
+        if not (import_statement_like(line) or number in block):
             continue
         if relative_style:
             line = re.sub(r"[\"'`][\w-]+[\"'`]", " ", line)
