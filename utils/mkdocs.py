@@ -8,6 +8,7 @@ import json
 import os
 import posixpath
 import re
+import time
 import traceback
 from collections import Counter, defaultdict
 
@@ -15,6 +16,7 @@ import yaml
 
 from utils.call_llm import call_llm
 from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check
+from utils.llm_common import LLMRefusalError
 from utils.output import emit, emit_raw, get
 from utils.prompts import parse_grouping_response
 from utils.token_utils import log_token_estimation
@@ -362,6 +364,12 @@ def md_link_text(text: str) -> str:
     return _MD_ESCAPE_RE.sub(r"\\\1", " ".join(str(text).split()))
 
 
+def md_heading_text(text: str) -> str:
+    """``md_link_text`` for a heading: ``#`` escaped too (a trailing one would read as the closing sequence), so a
+    section named after a directory (``src/__tests__``, ``Samples/C#``) renders literally."""
+    return md_link_text(text).replace("#", "\\#")
+
+
 # ---------------------------------------------------------------------------
 # Grouping reply extras (descriptions, dependencies) and index diagrams
 # ---------------------------------------------------------------------------
@@ -613,7 +621,7 @@ def collect_all_modules(sections: list) -> set:
 
 def prune_sections(sections: list, chapter_files: list) -> list:
     """Resolve grouped module names (``module_name_lookup``), drop names that match no chapter, then
-    drop sections left empty.
+    drop sections left empty, and sections without a name.
 
     An empty section would be emitted as a null nav entry (``- "Name":``), which makes
     ``mkdocs build`` abort with "Expected nav to be a list, got None".
@@ -621,8 +629,8 @@ def prune_sections(sections: list, chapter_files: list) -> list:
     lookup = module_name_lookup(chapter_files)
     pruned = []
     for section in sections:
-        if not isinstance(section, dict):
-            continue
+        if not isinstance(section, dict) or not isinstance(section.get("name"), str) or not section["name"].strip():
+            continue  # a section without a name cannot become a nav entry: its modules go to "Other"
         names = [m.strip() for m in section.get("modules") or [] if isinstance(m, str)]
         modules = list(dict.fromkeys(lookup[name] for name in names if name in lookup))
         children = prune_sections(section.get("children") or [], chapter_files)
@@ -640,6 +648,51 @@ def tree_order_key(chapter_file: dict) -> tuple:
     """Sort key for directory-tree order (root files first, then directories alphabetically), the
     order of ``build_directory_tree``; ``chapter_files`` itself is in generation order."""
     return os.path.split(chapter_file.get("original_path") or "")
+
+
+def directory_sections(chapter_files: list) -> list:
+    """Index sections from the directory tree — root files first, then one section per directory,
+    alphabetically, each in chapter order: the directory nav's layout and order — for an api-reference index
+    without an LLM grouping (it failed, or 5 modules or fewer), which keeps its section tables, section map and
+    module dependency graph."""
+    groups = {}
+    for cf in chapter_files:
+        groups.setdefault(os.path.dirname(cf.get("original_path") or ""), []).append(cf["module_name"])
+    return [{"name": directory or get("UI_ROOT_FILES"), "modules": groups[directory]} for directory in sorted(groups)]
+
+
+GROUPING_ATTEMPTS = 3  # like the pipeline's LLM nodes: a stream cut off upstream must not cost the grouped nav
+GROUPING_WAIT = 20  # seconds between attempts
+
+
+def request_grouping(prompt: str, prep_res: dict, chapter_files: list) -> tuple[dict, list]:
+    """``(parsed reply, pruned sections)`` of the group_modules call, retried up to ``GROUPING_ATTEMPTS``
+    times when the call fails (e.g. an upstream idle timeout on the long thinking-heavy reply), the reply does
+    not parse, or it names no module of the project; the cache is read on the first attempt only. A refusal the
+    provider would repeat is not retried. The last failure is raised."""
+    use_cache = prep_res.get("use_cache", True)
+    attempt = 1
+    while True:
+        try:
+            response = call_llm(prompt, use_cache=use_cache and attempt == 1, thinking_level=prep_res.get("thinking_level"), step="group_modules")
+            parsed = parse_grouping_response(response)
+            sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
+            # Drop unknown module names and the sections they leave empty (null nav entries break mkdocs build)
+            sections = prune_sections(sections, chapter_files) if isinstance(sections, list) else []
+            if not sections:
+                raise ValueError(get("GROUP_NO_SECTIONS"))
+            return (parsed if isinstance(parsed, dict) else {}), sections
+        except LLMRefusalError as e:
+            if not e.retryable:
+                raise
+            error = e
+        except Exception as e:
+            error = e
+        if attempt == GROUPING_ATTEMPTS:
+            raise error
+        emit("GROUP_RETRY", attempt=attempt, attempts=GROUPING_ATTEMPTS, error=error, wait=GROUPING_WAIT)
+        time.sleep(GROUPING_WAIT)
+        attempt += 1
 
 
 # Reading-order roles of nav sections, in the order prompts/api-reference/order_chapters.md presents
@@ -694,7 +747,7 @@ def build_index_sections(lines, sections, chapter_files, level=3, summaries=None
     descriptions = descriptions or {}
     heading = "#" * level
     for section in sections:
-        lines.append(f"{heading} {section['name']}")
+        lines.append(f"{heading} {md_heading_text(section['name'])}")
         lines.append("")
         if section.get("modules"):
             lines.append(f"| {get('UI_TH_CHAPTER')} | {get('UI_TH_DESCRIPTION')} |")
@@ -829,20 +882,22 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
 
     # --- LLM-Assisted Nav Grouping (api-reference only, 6+ modules) ---
     # The same reply also carries one-line module descriptions and module dependencies (index page)
-    sections = None
-    descriptions, dependencies, has_facts, inferred_sources = {}, {}, False, []
+    sections, grouped = None, False
+    descriptions, dependencies, has_facts, inferred_sources, verified = {}, {}, False, [], {}
     emit_raw("DEBUG", f"NAV GROUPING CHECK | mode={mode} | module_count={len(chapter_files)} | threshold=6", dest="LOG")
+    if mode == "api-reference":
+        # Source-verified dependencies (ExtractFacts) are shown to the grouping model and, per module, replace the
+        # ones it infers; a module whose extraction failed keeps the reply's edges. With a flat nav (no grouping,
+        # or it failed) they still draw the index diagrams
+        module_facts = prep_res.get("module_facts") or {}
+        with_facts = modules_with_facts(module_facts, chapter_files)
+        has_facts = bool(with_facts)
+        verified = verified_dependencies(module_facts, chapter_files)
     if mode == "api-reference" and len(chapter_files) > 5:
         try:
             # Listed in directory-tree order: chapter_files is in generation order (deepest directory first),
             # which would suggest a bottom-up reading order
             listed = sorted(zip(chapter_files, summaries, strict=True), key=lambda pair: tree_order_key(pair[0]))
-            # Source-verified dependencies (ExtractFacts) are shown to the model and, per module, replace the ones
-            # it infers; a module whose extraction failed keeps the reply's edges
-            module_facts = prep_res.get("module_facts") or {}
-            with_facts = modules_with_facts(module_facts, chapter_files)
-            has_facts = bool(with_facts)
-            verified = verified_dependencies(module_facts, chapter_files)
             lines = []
             for cf, summary in listed:
                 name = cf["module_name"]
@@ -869,18 +924,13 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
             emit("LLM_CALL_GROUPING", count=len(chapter_files))
 
             log_token_estimation("NavGrouping", group_prompt, prep_res.get("max_tokens", 100000))
-            group_response = call_llm(
-                group_prompt, use_cache=prep_res.get("use_cache", True), thinking_level=prep_res.get("thinking_level"), step="group_modules"
-            )
-            parsed = parse_grouping_response(group_response)
-            sections = parsed.get("sections", parsed) if isinstance(parsed, dict) else None
-            if isinstance(sections, list):
-                # Drop unknown module names and the sections they leave empty (null nav entries break mkdocs build)
-                sections = prune_sections(sections, chapter_files)
-            descriptions, dependencies = grouping_extras(parsed, chapter_files)
+            parsed, sections = request_grouping(group_prompt, prep_res, chapter_files)
+            descriptions, replied = grouping_extras(parsed, chapter_files)
             if has_facts:
-                dependencies = {source: targets for source, targets in dependencies.items() if source not in with_facts} | verified
+                dependencies = {source: targets for source, targets in replied.items() if source not in with_facts} | verified
                 inferred_sources = sorted(source for source in dependencies if source not in with_facts)
+            else:
+                dependencies = replied
             emit_raw(
                 "DEBUG",
                 f"NAV GROUPING EXTRAS | verified={has_facts} | descriptions={len(descriptions)}/{len(chapter_files)} "
@@ -888,47 +938,46 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
                 dest="LOG",
             )
 
-            if sections:
-                # Reading order (nav, index tables and diagrams all follow it), then "Other" last
-                reply_order = [section["name"] for section in sections]
-                sections = order_sections(sections, chapter_files)
-                emit_raw(
-                    "DEBUG",
-                    f"NAV ORDER | reply={reply_order} | roles={[section.get('role') for section in sections]} "
-                    f"| reading={[section['name'] for section in sections]}",
-                    dest="LOG",
-                )
-                # Validate: ensure all modules are covered
-                grouped_modules = collect_all_modules(sections)
-                ungrouped = [cf["module_name"] for cf in sorted(chapter_files, key=tree_order_key) if cf["module_name"] not in grouped_modules]
-                if ungrouped:
-                    sections += order_sections([{"name": get("UI_OTHER"), "modules": ungrouped}], chapter_files)
+            # Reading order (nav, index tables and diagrams all follow it), then "Other" last
+            reply_order = [section["name"] for section in sections]
+            sections = order_sections(sections, chapter_files)
+            emit_raw(
+                "DEBUG",
+                f"NAV ORDER | reply={reply_order} | roles={[section.get('role') for section in sections]} "
+                f"| reading={[section['name'] for section in sections]}",
+                dest="LOG",
+            )
+            # Validate: ensure all modules are covered
+            grouped_modules = collect_all_modules(sections)
+            ungrouped = [cf["module_name"] for cf in sorted(chapter_files, key=tree_order_key) if cf["module_name"] not in grouped_modules]
+            if ungrouped:
+                sections += order_sections([{"name": get("UI_OTHER"), "modules": ungrouped}], chapter_files)
 
-                nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
-                nav_lines.insert(0, "    - api/index.md")
-                nav_label = mode_labels.get(mode, "Documentation")
-                nav_snippet = f"nav:\n  - {nav_label}:\n" + "\n".join(nav_lines)
-                emit("DONE_GROUPING", count=len(sections))
-            else:
-                emit("GROUP_EMPTY_FALLBACK")
-                nav_snippet = prep_res["nav_snippet"]
+            nav_lines = build_grouped_nav(sections, chapter_files, indent=4)
+            nav_lines.insert(0, "    - api/index.md")
+            nav_label = mode_labels.get(mode, "Documentation")
+            nav_snippet = f"nav:\n  - {nav_label}:\n" + "\n".join(nav_lines)
+            grouped = True
+            emit("DONE_GROUPING", count=len(sections))
 
         except Exception as e:
             emit("GROUP_ERROR_FALLBACK", error=e)
             emit_raw("ERROR", f"LLM grouping failed: {e}\n{traceback.format_exc()}", dest="LOG")
-            nav_snippet = prep_res["nav_snippet"]
-            sections = None
-            descriptions, dependencies, has_facts, inferred_sources = {}, {}, False, []
-    else:
-        nav_snippet = prep_res["nav_snippet"]
+    if not grouped:
+        nav_snippet = prep_res["nav_snippet"]  # the directory nav
+        if mode == "api-reference":
+            # The index groups modules by directory, like the nav, and keeps its section map and module dependency
+            # graph, drawn from the verified dependencies (without a grouping reply: no one-line descriptions)
+            sections = directory_sections(chapter_files)
+            descriptions, dependencies, inferred_sources = {}, dict(verified), []
 
     emit_raw(
         "DEBUG",
-        f"NAV SNIPPET FINAL | grouped={sections is not None} | nav_snippet_lines={nav_snippet.count(chr(10)) + 1}",
+        f"NAV SNIPPET FINAL | grouped={grouped} | index_sections={len(sections or [])} | nav_snippet_lines={nav_snippet.count(chr(10)) + 1}",
         dest="LOG",
     )
     emit_raw("DEBUG", f"NAV SNIPPET CONTENT:\n{nav_snippet}", dest="LOG")
-    if sections:
+    if grouped:
         emit("COMBINE_NAV_GROUPED", count=len(sections))
     else:
         emit("COMBINE_NAV_FLAT")

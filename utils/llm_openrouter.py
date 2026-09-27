@@ -350,7 +350,14 @@ def call_openrouter(prompt: str, thinking_level: str | None = None) -> str:
     start = time.time()
     resp = _post(f"{openrouter_base_url()}/v1/chat/completions", headers, payload)
     generation_id = resp.headers.get("X-Generation-Id")
-    result = _consume(resp)
+    try:
+        result = _consume(resp)
+    except Exception:
+        # An error chunk mid-stream ("Upstream idle timeout exceeded") still was a request: unmeasured, like a
+        # dropped stream, so a failed attempt and its retry both show in the usage ledger
+        record_usage("OPENROUTER", model, cost=None, measured=False)
+        emit_raw("DEBUG", f"OPENROUTER USAGE | model={model} | stream error, no usage reported | generation_id={generation_id or 'n/a'}", dest="BOTH")
+        raise
     _record(model, result, raw_tokens, desc, time.time() - start, generation_id)
     if is_debug() and result["reasoning"]:
         emit_raw("DEBUG", f"REASONING:\n{result['reasoning']}", dest="LOG")

@@ -44,8 +44,9 @@ WARN_MAX_ABS_API_REF,WARNING,BOTH,[Warning] --max-abstractions is ignored in api
 WARN_TOKEN_NO_REPO,WARNING,BOTH,[Warning] --token is ignored without --repo (local directory mode does not use GitHub tokens).,[Cảnh báo] --token bị bỏ qua khi không có --repo (chế độ thư mục cục bộ không sử dụng GitHub token).,,,,,,,,,,
 ERROR_FORCE_REBUILD_NO_INCREMENTAL,ERROR,BOTH,[Error] --force-rebuild requires --incremental.,[Lỗi] --force-rebuild yêu cầu --incremental.,,,,,,,,,,
 ERROR_QUOTING,ERROR,BOTH,"[Error] Shell quoting error in {flag}: pattern contains embedded CLI flag ({embedded}). Broken quotes caused subsequent arguments to be swallowed. Fix: quote each pattern separately, e.g. --exclude 'pattern1/*' 'pattern2/*'. Detected in: {pattern}","[Lỗi] Lỗi shell quoting trong {flag}: pattern chứa flag CLI bị lồng ({embedded}). Lỗi dấu ngoặc kép khiến các đối số tiếp theo bị nuốt mất. Khắc phục: đặt dấu ngoặc riêng cho từng pattern, ví dụ: --exclude 'pattern1/*' 'pattern2/*'. Phát hiện trong: {pattern}",,,,,,,,,,
-GROUP_EMPTY_FALLBACK,WARNING,BOTH,"[Grouping] LLM returned empty sections, using flat nav","[Phân nhóm] LLM trả về các mục trống, sử dụng flat nav",,,,,,,,,,
-GROUP_ERROR_FALLBACK,WARNING,BOTH,"[Grouping] LLM grouping failed ({error}), using flat nav","[Phân nhóm] Phân nhóm bằng LLM thất bại ({error}), sử dụng flat nav",,,,,,,,,,
+GROUP_ERROR_FALLBACK,WARNING,BOTH,"[Grouping] LLM grouping failed ({error}): the sidebar follows the directory tree, and the index groups modules by directory (its dependency diagrams come from facts.json)","[Phân nhóm] Phân nhóm bằng LLM thất bại ({error}): thanh bên theo cây thư mục, trang mục lục nhóm module theo thư mục (các sơ đồ phụ thuộc lấy từ facts.json)",,,,,,,,,,
+GROUP_RETRY,WARNING,BOTH,[Grouping] Attempt {attempt}/{attempts} failed ({error}); retrying in {wait}s,[Phân nhóm] Lần thử {attempt}/{attempts} thất bại ({error}); thử lại sau {wait} giây,,,,,,,,,,
+GROUP_NO_SECTIONS,WARNING,BOTH,the reply names no section with a module of this project,câu trả lời không nêu mục nào chứa module của dự án này,,,,,,,,,,
 NODE_RETRY_ERROR,WARNING,BOTH,[Retry] {class_name} error: {error},[Thử lại] Lỗi {class_name}: {error},,,,,,,,,,
 FORCE_REBUILD_DELETED,WARNING,BOTH,[Force Rebuild] Deleted cache manifest: {path},[Force Rebuild] Đã xóa cache manifest: {path},,,,,,,,,,
 FORCE_REBUILD_NO_MANIFEST,WARNING,BOTH,[Force Rebuild] No cache manifest found at {path} — all chapters will be generated fresh.,[Force Rebuild] Không tìm thấy cache manifest tại {path} — tất cả các chương sẽ được tạo mới.,,,,,,,,,,
@@ -123,6 +124,7 @@ UI_CHAPTER_INDEX,UI,BOTH,Chapter Index,Mục lục chương,,,,,,,,,,
 UI_TH_CHAPTER,UI,BOTH,Chapter,Chương,,,,,,,,,,
 UI_TH_DESCRIPTION,UI,BOTH,Description,Mô tả,,,,,,,,,,
 UI_OTHER,UI,BOTH,Other,Khác,,,,,,,,,,
+UI_ROOT_FILES,UI,BOTH,Project root,Thư mục gốc dự án,,,,,,,,,,
 UI_HOME,UI,BOTH,Home,Trang chủ,首页,ホーム,홈,Accueil,Inicio,Startseite,Início,Главная,หน้าแรก,Beranda
 UI_ARCH_OVERVIEW,UI,BOTH,Architecture Overview,Tổng quan kiến trúc,架构概览,アーキテクチャ概要,아키텍처 개요,Vue d'ensemble de l'architecture,Visión general de la arquitectura,Architekturüberblick,Visão geral da arquitetura,Обзор архитектуры,ภาพรวมสถาปัตยกรรม,Ikhtisar Arsitektur
 UI_MODULE_DEPENDENCIES,UI,BOTH,Module Dependencies,Phụ thuộc giữa các module,模块依赖关系,モジュールの依存関係,모듈 의존성,Dépendances entre modules,Dependencias entre módulos,Modulabhängigkeiten,Dependências entre módulos,Зависимости модулей,การพึ่งพาระหว่างโมดูล,Ketergantungan Modul

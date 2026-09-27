@@ -1331,7 +1331,17 @@ def collect_all_modules(sections: list) -> set:
 def prune_sections(sections: list, chapter_files: list) -> list:
 ```
 - Resolves grouped module names through `module_name_lookup` (exact `module_name`, `original_path`, unique basename — the same resolution as `grouping_extras`, so a module written as its path is not demoted to "Other"), drops names that match no chapter (hallucinated) and duplicates within a section, then drops sections left with no modules and no children (recursively). Non-dict entries are skipped
-- Runs on the parsed LLM grouping before `collect_all_modules`: an empty section would become a null nav entry (`- "Name":`) and `mkdocs build` would abort with "Expected nav to be a list, got None". If nothing survives, `write_mkdocs_output` falls back to the flat directory nav (`GROUP_EMPTY_FALLBACK`). Extra keys such as `role` are kept
+- Runs on the parsed LLM grouping before `collect_all_modules`: an empty section would become a null nav entry (`- "Name":`) and `mkdocs build` would abort with "Expected nav to be a list, got None". A section without a name is dropped too (its modules go to "Other"). If nothing survives, `request_grouping` counts the reply as failed (`GROUP_NO_SECTIONS`) and asks again; after the last attempt `write_mkdocs_output` takes the directory fallback (`GROUP_ERROR_FALLBACK`). Extra keys such as `role` are kept
+
+#### `directory_sections` / `request_grouping`
+```python
+def directory_sections(chapter_files: list) -> list   # [{"name": dir or UI_ROOT_FILES, "modules": [...]}], tree order
+GROUPING_ATTEMPTS = 3
+GROUPING_WAIT = 20
+def request_grouping(prompt: str, prep_res: dict, chapter_files: list) -> tuple[dict, list]   # (parsed reply, pruned sections)
+```
+- `directory_sections`: index sections from the directory tree (root files first, then one section per directory alphabetically, each in chapter order — the directory nav's layout and order), used when there is no LLM grouping (it failed, or 5 modules or fewer) so the api-reference index keeps its section tables, section map and module dependency graph
+- `request_grouping`: the group_modules call, parsed and pruned, retried as described under `write_mkdocs_output`; raises the last failure
 
 #### `order_sections` / `SECTION_ROLES`
 ```python
@@ -1376,9 +1386,11 @@ def split_frontmatter(text: str) -> tuple[str, bool]:
 def write_mkdocs_output(output_path, prep_res, chapter_files):
 ```
 - Orchestrates all MkDocs output: nav grouping, mkdocs.yml, homepage redirect, section index, nav_snippet.yml, link normalization, chapter files, and stale-page pruning
-- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`, listed in directory-tree order (root files first) rather than generation order, which would suggest a bottom-up reading order. The reply is parsed with `parse_grouping_response`; its sections go through `prune_sections` and then `order_sections` (reading order, logged as `NAV ORDER`), its `descriptions` / `dependencies` through `grouping_extras` (both reset to `{}` when grouping fails)
-- **Grouped `api/index.md` layout:** title + count line → `## UI_ARCH_OVERVIEW` with the `build_section_map` diagram and, when it has arrows, an italic `UI_SECTION_MAP_NOTE` caption (+ `UI_SECTION_MAP_HUBS` when a section is outlined) → `## UI_CHAPTER_INDEX` section tables (`build_index_sections(…, descriptions=…)`) → `## UI_MODULE_DEPENDENCIES` with the `build_module_graph` diagram and a `UI_MODULE_GRAPH_NOTE` caption (+ `UI_MODULE_GRAPH_HUBS` when hubs were folded). Each diagram is omitted when its builder returns `""`
-- The flat index (no grouping) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description, in the flat nav's order (root files first, then directories alphabetically; a stable sort, so tutorial/advanced/sdk keep `chapter_order`). For tutorial/advanced/sdk it also places `prep_res["overview"]` (project summary, source line, relationship Mermaid diagram — the same block as the standalone `index.md`) between the count line and the chapter index
+- For api-reference mode with 6+ modules, runs LLM-assisted nav grouping via `prompts/common/group_modules.md`; the module list uses each chapter's summary (header stripped), falling back to `cf["description"]`, listed in directory-tree order (root files first) rather than generation order, which would suggest a bottom-up reading order. The call goes through `request_grouping` (retried; see below); its sections go through `prune_sections` there and then `order_sections` (reading order, logged as `NAV ORDER`), its `descriptions` / `dependencies` through `grouping_extras`
+- **Grouping failure:** `request_grouping` makes up to `GROUPING_ATTEMPTS` (3) calls, `GROUPING_WAIT` (20 s) apart, emitting `GROUP_RETRY`: when the call fails (the thinking-heavy reply takes about 4 minutes and once ended in OpenRouter's "Upstream idle timeout exceeded", which, unretried, cost the deployed site its grouped sidebar and both index diagrams), the reply does not parse, or it names no module of the project (`GROUP_NO_SECTIONS`); the cache is read on the first attempt only, and a refusal the provider would repeat (`LLMRefusalError`, not retryable) is not retried. When every attempt fails (`GROUP_ERROR_FALLBACK`) the sidebar keeps the directory nav (`prep_res["nav_snippet"]`) and the index uses `directory_sections` — root files (`UI_ROOT_FILES`) then one section per directory — with the grouped layout below, so the section map and the module dependency graph stay, drawn from the verified dependencies; only the reply's one-line descriptions (and inferred edges) are missing
+- **Every api-reference index** has that layout: with 5 modules or fewer (no grouping call) the index uses `directory_sections` and the verified dependencies too, so the module dependency graph is there whenever facts.json has edges
+- **Grouped `api/index.md` layout** (section names escaped for the heading, `md_heading_text`: a directory name such as `src/__tests__` or `Samples/C#` renders literally): title + count line → `## UI_ARCH_OVERVIEW` with the `build_section_map` diagram and, when it has arrows, an italic `UI_SECTION_MAP_NOTE` caption (+ `UI_SECTION_MAP_HUBS` when a section is outlined) → `## UI_CHAPTER_INDEX` section tables (`build_index_sections(…, descriptions=…)`) → `## UI_MODULE_DEPENDENCIES` with the `build_module_graph` diagram and a `UI_MODULE_GRAPH_NOTE` caption (+ `UI_MODULE_GRAPH_HUBS` when hubs were folded). Each diagram is omitted when its builder returns `""`
+- The flat index (tutorial / advanced / sdk: no module dependencies to draw) shows `original_path` (or `module_name`) as link text and `summary_description(summary or description)` as the description, in the flat nav's order (root files first, then directories alphabetically; a stable sort, so tutorial/advanced/sdk keep `chapter_order`). For tutorial/advanced/sdk it also places `prep_res["overview"]` (project summary, source line, relationship Mermaid diagram — the same block as the standalone `index.md`) between the count line and the chapter index
 - Writes `nav_snippet.yml` next to `mkdocs.yml` (output root), not in `docs/`: MkDocs copies every non-Markdown file in `docs_dir` into the site, so it used to be published at the site root. A leftover `docs/nav_snippet.yml` from older runs is removed
 - Before link normalization, `add_used_by_lines(chapter_files, module_facts)` ends every chapter with verified importers (its See Also section) with `**<UI_USED_BY_LINE>:** [a](../a.md), [b](b.md) <!-- used-by:auto -->` (`USED_BY_MARKER`): deterministic, built from facts.json `used_by` (modules with a chapter, the page itself excluded), link targets written page-relative (`_page_link`, `./`-pinned like `normalize_chapter_links`, in `<…>` when they hold spaces or parentheses). The line from an earlier run (cached pages are re-read from disk) is replaced — only a prose line outside code that starts with `**` and ends with the marker counts, never a code or table line quoting it; none is added without importers; a page ending in an unclosed code block (a truncated reply) gets it closed first, by the same fence at the same indentation (the only closer the site's renderer accepts). `write_standalone_output` does the same before writing the chapters
 - Then `run_chapter_check(output_path, api_docs_path, chapter_files, prep_res, render=site_renderer())` (`utils/chapter_check.py`, no LLM): `chapter_check.json` next to `mkdocs.yml`, the pages also rendered with the site's Markdown pipeline. `write_standalone_output` runs it too, over the pages in the output folder, without a renderer
@@ -1841,7 +1853,7 @@ filename = f"{i+1:02d}_{safe_name}.md"
 **`post()` return:** `None`. Also cleans up: `del self.chapters_written_so_far; del self.chapter_summaries`
 
 #### CombineTutorial
-Assembles final output files. In `api-reference` + `--mkdocs` mode with 6+ modules, makes **one LLM call** to group modules into sidebar sections.
+Assembles final output files. In `api-reference` + `--mkdocs` mode with 6+ modules, makes **one LLM call** (up to 3 attempts, `request_grouping`) to group modules into sidebar sections.
 
 **LLM-Assisted Nav Grouping (api-reference + --mkdocs only):**
 - Loads `prompts/common/group_modules.md` template
@@ -1849,8 +1861,9 @@ Assembles final output files. In `api-reference` + `--mkdocs` mode with 6+ modul
 - LLM returns YAML with hierarchical sections (supports arbitrary nesting via `children`), each with a reading-order `role`
 - `order_sections` puts the sections in reading order (see Section 9)
 - Validates all modules are covered; ungrouped modules → "Other" section (last)
-- Fallback: if LLM fails, uses flat nav (all modules listed directly)
-- Only triggered for 6+ modules; smaller projects keep flat layout
+- The call is retried (`request_grouping`: 3 attempts, 20 s apart; a reply that does not parse or names no module counts as failed)
+- Fallback: if every attempt fails, the sidebar keeps the directory nav and the index groups modules by directory (`directory_sections`), keeping the section map and the module dependency graph from the verified dependencies
+- Only triggered for 6+ modules; smaller projects keep the directory nav, and their index is grouped by directory with the module dependency graph
 
 **Mermaid generation:**
 ```python
@@ -2016,6 +2029,8 @@ ui = {
 | DeterministicFileMapper | 5 | 20 |
 | ExtractFacts | 3 | 10 |
 | CombineTutorial | 0 (default) | 0 |
+
+CombineTutorial itself is not retried (it writes the output); its one LLM call, the api-reference nav grouping, retries inside `request_grouping` (`utils/mkdocs.py`): `GROUPING_ATTEMPTS = 3`, `GROUPING_WAIT = 20` seconds, cache read on the first attempt only, a non-retryable refusal not retried, then the directory fallback (Section 9).
 
 ### Anthropic Provider Errors
 
@@ -2612,7 +2627,7 @@ Catalog-driven (`llm_config.openrouter_model_info`: exact id, `canonical_slug`, 
 - `max_tokens`: `openrouter_output_budget(model, level)` (shared per-effort table capped by `top_provider.max_completion_tokens`, 32K when that is unknown, and `OPENROUTER_MAX_OUTPUT_TOKENS`), clamped to `context − prompt − CONTEXT_MARGIN` (min 4,096). Omitted for a model missing from the catalog unless `OPENROUTER_MAX_OUTPUT_TOKENS` is set.
 - `temperature` (`OPENROUTER_TEMPERATURE`, default 0.7) only when: no reasoning requested, not `rejects_sampling_params(model)` (Claude 4.7+/5.x, Gemini 3.x), `temperature` in `supported_parameters`, and the model is neither `mandatory` nor `default_enabled` reasoning.
 - SSE streaming (`stream: true`; lines split as bytes and decoded per line — `str.splitlines()` would break JSON containing U+2028; `:`-prefixed keep-alive lines skipped; read timeout `OPENROUTER_TIMEOUT_SECONDS` between events). A proxy that answers with one `application/json` body is parsed as a single chunk. Headers `Authorization: Bearer` (when a key is set). App attribution is opt-in (`llm_openrouter._attribution_headers()`): only when `OPENROUTER_APP_URL` is set are `HTTP-Referer` (that URL), `X-OpenRouter-Title` and legacy `X-Title` ("Codebase Knowledge Builder") sent; unset → no attribution headers.
-- Usage from the final chunk: prompt / completion (incl. reasoning) / `completion_tokens_details.reasoning_tokens` / `prompt_tokens_details.cached_tokens`/`cache_write_tokens` / `cost` (USD, authoritative; with BYOK, `cost_details.upstream_inference_cost` is added).
+- Usage from the final chunk: prompt / completion (incl. reasoning) / `completion_tokens_details.reasoning_tokens` / `prompt_tokens_details.cached_tokens`/`cache_write_tokens` / `cost` (USD, authoritative; with BYOK, `cost_details.upstream_inference_cost` is added). A stream that ends in an error chunk (e.g. "Upstream idle timeout exceeded") is recorded as an unmeasured request before the error is raised, so a failed attempt and its retry both show in the ledger.
 - Claude 4.6+ through OpenRouter: effort → Anthropic `output_config.effort` (xhigh → high on 4.6, minimal → low); Gemini 3.x: effort → `thinkingLevel`.
 
 ### Shared helpers (`utils/llm_common.py`, SDK-free)
