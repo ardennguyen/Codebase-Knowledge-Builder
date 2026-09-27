@@ -32,12 +32,14 @@ Environment variables:
                                tokenizer, 1.2 for 4.6 and older), corrected at runtime by token_utils calibration
 """
 
+import logging
 import os
+import re
 import time
 
 import anthropic
 
-from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, record_usage
+from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, open_sdk_logger, record_usage
 from utils.llm_config import (
     ANTHROPIC_ADAPTIVE_PREFIXES,
     ANTHROPIC_BUDGET_BY_LEVEL,
@@ -50,7 +52,7 @@ from utils.llm_config import (
     anthropic_output_cap,
     anthropic_planned_output,
 )
-from utils.output import emit, emit_raw, is_debug
+from utils.output import brief, emit, emit_raw, is_debug
 
 EFFORT_LEVELS = ANTHROPIC_EFFORT_LEVELS
 
@@ -113,13 +115,42 @@ _model_limits_cache = {}
 _fallbacks_disabled = False
 
 
+_SDK_MAX_RETRIES = 3  # the client's own retries (408/409/429/5xx, connection errors, timeouts)
+
+
+class _SdkRetryRecords:
+    """Reads the SDK's own retry records (``anthropic._base_client``, through ``open_sdk_logger``) into
+    ``LLM_HTTP_RETRY``: the cause from its debug records (``Retrying due to status code 529``, ``Encountered …``
+    with the exception), the attempt from ``N retries left``, the wait from ``Retrying request to … in T seconds``."""
+
+    def __init__(self):
+        self.cause, self.left = "", None
+
+    def __call__(self, record):
+        message = record.getMessage()
+        if message.startswith("Retrying due to status code"):
+            self.cause = f"HTTP {message.rsplit(' ', 1)[-1]}"
+        elif message.startswith("Retrying as header"):
+            self.cause = "x-should-retry"
+        elif message.startswith("Encountered") and record.exc_info and record.exc_info[1] is not None:
+            self.cause = f"{type(record.exc_info[1]).__name__}: {record.exc_info[1]}"
+        elif re.match(r"^\d+ retr(?:y|ies) left$", message):
+            self.left = int(message.split()[0])
+        elif message.startswith("Retrying request to") and len(record.args or ()) == 2:
+            attempt = _SDK_MAX_RETRIES - self.left + 1 if self.left is not None else "?"
+            wait = f"{float(record.args[1]):.1f}"
+            emit("LLM_HTTP_RETRY", provider="Anthropic", attempt=attempt, attempts=_SDK_MAX_RETRIES + 1, error=brief(self.cause or "?"), wait=wait)
+            self.cause, self.left = "", None
+
+
 def _get_client():
     global _client
     if _client is None:
         # SDK resolves credentials (ANTHROPIC_API_KEY / AUTH_TOKEN / ant profile) and
-        # ANTHROPIC_BASE_URL itself. SDK retries 408/409/429/5xx with backoff;
-        # PocketFlow node retries sit on top of this.
-        _client = anthropic.Anthropic(max_retries=3)
+        # ANTHROPIC_BASE_URL itself. SDK retries 408/409/429/5xx with backoff (announced:
+        # _SdkRetryRecords); PocketFlow node retries sit on top of this.
+        _client = anthropic.Anthropic(max_retries=_SDK_MAX_RETRIES)
+        open_sdk_logger("anthropic._base_client", logging.DEBUG, _SdkRetryRecords())
     return _client
 
 
@@ -432,5 +463,5 @@ def call_anthropic(prompt: str, thinking_level: str | None = None) -> str:
         emit("WARN_ANTHROPIC_TRUNCATED", max_tokens=f"{params['max_tokens']:,}")
         return TruncatedResponse(text)
     if not text:
-        emit_raw("WARNING", f"Anthropic response contained no text blocks (stop_reason={message.stop_reason})", dest="LOG")
+        emit("LLM_EMPTY_REPLY", provider="Anthropic", reason=message.stop_reason)
     return text

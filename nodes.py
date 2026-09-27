@@ -39,14 +39,33 @@ from utils.mkdocs import (
     write_standalone_output,
     yaml_str,
 )
-from utils.output import emit, emit_raw, get
+from utils.output import brief, emit, emit_raw, get
+
+
+def _retry_subject(item) -> str:
+    """What a batch node's failed attempt was about, for its retry notice: the file (ExtractFacts), the chapter
+    and its source (WriteChapters), the batch number (MapAbstractions); ``""`` for a single-call node."""
+    if not isinstance(item, dict):
+        return ""
+    try:
+        if item.get("path"):
+            return f", {item['path']}"
+        if "chapter_num" in item:
+            details = item.get("abstraction_details") or {}
+            return f", {get('UI_CHAPTER')} {item['chapter_num']} ({details.get('original_path') or str(details.get('name', '')).strip()})"
+        if "batch_index" in item:
+            return f", #{int(item['batch_index']) + 1}"
+    except (AttributeError, TypeError, ValueError):  # an unexpected item shape must not hide the real error
+        pass
+    return ""
 
 
 def safe_exec(func):
-    """Decorator that wraps Node.exec() with standardized error handling.
+    """Decorator that wraps Node.exec() with standardized error handling — every retried node's exec has it.
 
-    On exception: emits NODE_RETRY_ERROR, logs traceback, and re-raises.
-    Eliminates the identical try/except pattern duplicated across all nodes.
+    On exception: emits NODE_RETRY (stdout + log) when PocketFlow will try again — the attempt, how many
+    (``max_retries``), the wait (``wait``) and what failed — or NODE_FAILED when no attempt is left (the node's
+    exec_fallback, or the run stopping, follows), logs the traceback, and re-raises.
     """
 
     @wraps(func)
@@ -54,7 +73,12 @@ def safe_exec(func):
         try:
             return func(self, *args, **kwargs)
         except Exception as e:
-            emit("NODE_RETRY_ERROR", class_name=self.__class__.__name__, error=e)
+            attempt, attempts = self.cur_retry + 1, self.max_retries
+            step, subject = self.__class__.__name__, _retry_subject(args[0] if args else None)
+            if attempt < attempts:
+                emit("NODE_RETRY", step=step, subject=subject, attempt=attempt, attempts=attempts, error=brief(e), wait=self.wait)
+            else:
+                emit("NODE_FAILED", step=step, subject=subject, attempt=attempt, attempts=attempts, error=brief(e))
             emit_raw("ERROR", f"[Node {self.__class__.__name__}] Error: {e}\n{traceback.format_exc()}", dest="LOG")
             raise
 
@@ -198,6 +222,7 @@ class ExtractFacts(BatchNode):
                     "facts_hash": item_hash,
                     "cached_claims": cached.get("claims") if cached.get("facts_hash") == item_hash else None,
                     "cached_followup": (cached.get("completeness") or {}).get("followup"),
+                    "failed_before": bool(cached) and cached.get("claims") is None,  # no attempt parsed last run
                     "template": template,
                     "project_name": shared["project_name"],
                     "use_cache": shared.get("use_cache", True),
@@ -220,6 +245,7 @@ class ExtractFacts(BatchNode):
                     "content": content,
                     "facts_hash": item_hash,
                     "cached_claims": cached.get("claims") if cached.get("facts_hash") == item_hash else None,
+                    "failed_before": bool(cached) and cached.get("facts_hash") is None,  # items that did not parse last run
                     "template": manifest_template,
                     "project_name": shared["project_name"],
                     "use_cache": shared.get("use_cache", True),
@@ -239,9 +265,12 @@ class ExtractFacts(BatchNode):
             followup = item["cached_followup"] if isinstance(item["cached_followup"], dict) else {"status": "none", "asked": []}
             if followup.get("status") != "failed":
                 return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": item["cached_claims"], "followup": followup}
+            emit("FACTS_FOLLOWUP_AGAIN", name=item["path"])  # its follow-up failed on an earlier run
             claims, followup, calls = self._follow_up(item, item["cached_claims"], followup.get("asked") or [])
             return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": claims, "followup": followup, "followup_calls": calls}
         prompt = item["template"].format(project_name=item["project_name"], file_path=item["path"], source=item["content"], focus_note="")
+        if item.get("failed_before") and self.cur_retry == 0:  # carried over from an earlier run
+            emit("FACTS_EXTRACT_AGAIN", name=item["path"])
         emit("LLM_CALL_EXTRACT_FACTS", name=item["path"])
         log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
         response = call_llm(
@@ -257,9 +286,11 @@ class ExtractFacts(BatchNode):
             self.best[item["path"]] = best = (checked["found"], claims)
         # Mostly unfindable quotes mean the model paraphrased: retry uncached, then keep the best attempt's
         # verified part rather than losing the module
-        if checked["claimed"] >= 4 and checked["found"] * 2 < checked["claimed"] and self.cur_retry < self.max_retries - 1:
-            emit("FACTS_LOW_COVERAGE", name=item["path"], found=checked["found"], claimed=checked["claimed"])
+        low = checked["claimed"] >= 4 and checked["found"] * 2 < checked["claimed"]
+        if low and self.cur_retry < self.max_retries - 1:  # the retry notice (NODE_RETRY) gives the reason
             raise ValueError(f"only {checked['found']}/{checked['claimed']} claims found in the source")
+        if low:
+            emit("FACTS_LOW_COVERAGE", name=item["path"], found=checked["found"], claimed=checked["claimed"], attempts=self.max_retries, best=best[0])
         claims, followup, calls = self._follow_up(item, best[1])
         return {"path": item["path"], "facts_hash": item["facts_hash"], "claims": claims, "followup": followup, "followup_calls": calls}
 
@@ -271,6 +302,8 @@ class ExtractFacts(BatchNode):
             emit("FACTS_CACHE_HIT", name=item["path"])
             return {"kind": "manifest", "path": item["path"], "facts_hash": item["facts_hash"], "claims": item["cached_claims"]}
         prompt = item["template"].format(project_name=item["project_name"], file_path=item["path"], source=item["content"])
+        if item.get("failed_before") and self.cur_retry == 0:  # carried over from an earlier run
+            emit("FACTS_EXTRACT_AGAIN", name=item["path"])
         emit("LLM_CALL_EXTRACT_MANIFEST", name=item["path"])
         log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
         response = call_llm(
@@ -279,10 +312,13 @@ class ExtractFacts(BatchNode):
         claims = parse_facts_response(response, MANIFEST_KEYS)
         if claims["unparsed"] and self.cur_retry < self.max_retries - 1:
             raise ValueError(f"{claims['unparsed']} manifest items are not valid YAML")
+        if claims["unparsed"]:
+            emit("FACTS_MANIFEST_UNPARSED", name=item["path"], count=claims["unparsed"], attempts=self.max_retries)
         facts_hash = None if claims["unparsed"] else item["facts_hash"]
         return {"kind": "manifest", "path": item["path"], "facts_hash": facts_hash, "claims": claims}
 
     FOLLOWUP_ROUNDS = 3  # follow-up calls per module at most, each on FACTS_FOCUS_LIMIT lines not asked before
+    FOLLOWUP_ATTEMPTS = 2  # a follow-up call that fails or does not parse is sent once more, uncached
 
     def _follow_up(self, item, claims, asked=()):
         """More calls while import-like or declaration-like lines are left uncovered: the model sees exactly
@@ -305,19 +341,20 @@ class ExtractFacts(BatchNode):
             emit("FACTS_FOLLOWUP", name=item["path"], count=len(pending))
             log_token_estimation(self.__class__.__name__, prompt, item["max_tokens"])
             answer = None
-            for attempt in range(2):
+            for attempt in range(1, self.FOLLOWUP_ATTEMPTS + 1):
                 calls += 1
                 try:
                     response = call_llm(
                         prompt,
-                        use_cache=(item["use_cache"] and self.cur_retry == 0 and attempt == 0),
+                        use_cache=(item["use_cache"] and self.cur_retry == 0 and attempt == 1),
                         thinking_level=item["thinking_level"],
                         step="extract_facts",
                     )
                     answer = parse_facts_response(response)
                     break
                 except Exception as e:  # the claims so far stand
-                    emit_raw("WARNING", f"FACTS FOLLOW-UP FAILED | {item['path']} | attempt {attempt + 1} | {e}", dest="LOG")
+                    key = "FACTS_FOLLOWUP_RETRY" if attempt < self.FOLLOWUP_ATTEMPTS else "FACTS_FOLLOWUP_FAILED"
+                    emit(key, name=item["path"], attempt=attempt, attempts=self.FOLLOWUP_ATTEMPTS, error=brief(e))
             if answer is None:
                 return claims, {"status": "failed", "asked": asked}, calls
             claims = merge_claims(claims, answer)
@@ -603,6 +640,7 @@ class MapAbstractions(BatchNode):
             for i, batch in enumerate(shared["file_batches"])
         ]
 
+    @safe_exec
     def exec(self, item):
         batch_index = item["batch_index"]
         files = item["files"]
@@ -680,6 +718,7 @@ class ReduceAbstractions(Node):
             shared.get("mode", "tutorial"),
         )
 
+    @safe_exec
     def exec(self, prep_res):
         mapped_abstractions, project_name, language, use_cache, max_abstraction_num, thinking_level, _advanced_mode, max_tokens, mode = prep_res
 
@@ -1470,6 +1509,8 @@ class WriteChapters(BatchNode):
                         cached_hash = cached_entry.get("hash")
                         cached_summary = cached_entry.get("summary")
                         cached_file = cached_entry.get("filename")
+                        if cached_entry.get("failed"):  # a placeholder or truncated page last run: written again now
+                            emit("WRITE_CHAPTER_AGAIN", chapter_num=chapter_num, name=abstraction_name.strip())
                     else:
                         cached_hash, cached_summary, cached_file = None, None, None
                     # The entry must describe the page now at `filename`: standalone names carry the chapter
@@ -1548,8 +1589,8 @@ class WriteChapters(BatchNode):
                                 "filename": filename,
                                 "summary": summary_entry,
                             }
-                except Exception as e:
-                    emit("WARN_MANIFEST_CACHE_FAIL", error=e)
+                except Exception as e:  # reading the cached page or regenerating its summary: the page is written again
+                    emit("WARN_MANIFEST_CACHE_FAIL", chapter_num=chapter_num, name=abstraction_name.strip(), error=e)
 
         # Get summary of chapters written *before* this one
         # Uses LLM-generated technical summaries (3-5 sentences each) instead of
@@ -1700,9 +1741,12 @@ class WriteChapters(BatchNode):
             f"CHAPTER SUMMARY START | chapter={chapter_num} | name={abstraction_name.strip()} | prompt_tokens={summary_tokens:,}",
             dest="LOG",
         )
-        chapter_summary = call_llm(
-            summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=summary_thinking_level, step="chapter_summary"
-        )
+        try:
+            chapter_summary = call_llm(
+                summary_prompt, use_cache=(use_cache and self.cur_retry == 0), thinking_level=summary_thinking_level, step="chapter_summary"
+            )
+        except Exception as e:  # the chapter is retried as a whole: its retry notice says the summary failed
+            raise RuntimeError(get("ERR_CHAPTER_SUMMARY", error=e)) from e
         summary_response_tokens = count_tokens(chapter_summary)
         self.chapter_summaries.append(f"{get('UI_CHAPTER')} {chapter_num} — {abstraction_name.strip()}:\n{chapter_summary}")
         emit("SUMMARY_DONE", chapter_num=chapter_num, tokens=f"~{summary_response_tokens:,}")
@@ -1734,7 +1778,7 @@ class WriteChapters(BatchNode):
         notice = get("UI_CHAPTER_UNAVAILABLE")
         summary = f"{get('UI_CHAPTER')} {chapter_num} — {name.strip()}:\n{notice}"
         self.chapter_summaries.append(summary)
-        return {"content": f"# {name.strip()}\n\n{notice}\n", "hash": None, "name": name, "summary": summary}
+        return {"content": f"# {name.strip()}\n\n{notice}\n", "hash": None, "name": name, "cache_key": item.get("cache_key"), "summary": summary}
 
     def post(self, shared, prep_res, exec_res_list):
 
@@ -1742,13 +1786,15 @@ class WriteChapters(BatchNode):
         shared["chapters"] = [res["content"] for res in exec_res_list]
 
         # MD5 incremental manifest: rebuilt from this run's chapters only, so entries of removed modules
-        # (and legacy name keys) drop out. Truncated or placeholder pages have no hash and are left out,
-        # so they regenerate on the next run. CombineTutorial.post saves it once the pages are on disk.
+        # (and legacy name keys) drop out. Truncated or placeholder pages are kept without a hash and marked
+        # "failed": they regenerate on the next run, which says so (WRITE_CHAPTER_AGAIN). CombineTutorial.post
+        # saves it once the pages are on disk.
         if shared.get("incremental"):
             shared["pending_manifest"] = {
                 res.get("cache_key") or res["name"]: {"hash": res["hash"], "summary": res.get("summary", ""), "filename": res.get("filename")}
+                | ({} if res.get("hash") else {"failed": True})
                 for res in exec_res_list
-                if res.get("hash") and res.get("name")
+                if res.get("name")
             }
 
         # Save summaries to shared store for CombineTutorial's LLM nav grouping

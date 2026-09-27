@@ -14,6 +14,7 @@
 import contextlib
 import contextvars
 import hashlib
+import logging
 
 
 class TruncatedResponse(str):
@@ -186,6 +187,36 @@ def reset_usage() -> None:
 # De-duplicated warnings
 # ---------------------------------------------------------------------------
 _warned = set()
+
+
+class _SdkLogBridge(logging.Handler):
+    """Every record of one SDK logger, opened to a lower level, goes to ``on_record`` (the retry notices); on to the
+    rest of logging go only the records the logger let through before, exactly as before (``callHandlers`` of its
+    parent: the handlers up the tree, else Python's last-resort stderr handler). So opening it changes nothing else
+    that is printed: a root handler some library adds never gets the SDK's debug records, which hold whole prompts,
+    and the SDK's warnings still reach stderr."""
+
+    def __init__(self, logger: logging.Logger, passthrough: int, on_record):
+        super().__init__(logging.NOTSET)
+        self.logger, self.passthrough, self.on_record = logger, passthrough, on_record
+
+    def emit(self, record):
+        with contextlib.suppress(Exception):  # a notice never breaks a request
+            self.on_record(record)
+        if record.levelno >= self.passthrough and self.logger.parent is not None:
+            self.logger.parent.callHandlers(record)
+
+
+def open_sdk_logger(name: str, level: int, on_record) -> None:
+    """Route SDK logger *name* through ``_SdkLogBridge``, opened to *level* (once per process): how the provider
+    modules announce the retries their SDK makes and only logs."""
+    logger = logging.getLogger(name)
+    if any(isinstance(handler, _SdkLogBridge) for handler in logger.handlers):
+        return
+    passthrough = logger.getEffectiveLevel()
+    logger.addHandler(_SdkLogBridge(logger, passthrough, on_record))
+    logger.propagate = False
+    logger.setLevel(min(level, passthrough))
 
 
 def warn_once(key: str, *parts) -> bool:

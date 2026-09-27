@@ -46,7 +46,7 @@ from utils.llm_config import (
     openrouter_output_budget,
     rejects_sampling_params,
 )
-from utils.output import emit, emit_raw, is_debug
+from utils.output import brief, emit, emit_raw, is_debug
 from utils.thinking import clamp_level
 
 _RETRYABLE_STATUS = {408, 429, 502, 503, 524, 529}
@@ -203,11 +203,13 @@ def _post(url: str, headers: dict, payload: dict):
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             if attempt == _MAX_ATTEMPTS:
                 raise RuntimeError(f"OpenRouter request failed after {attempt} attempts: {e}") from e
+            emit("LLM_HTTP_RETRY", provider="OpenRouter", attempt=attempt, attempts=_MAX_ATTEMPTS, error=brief(e), wait=2**attempt)
             time.sleep(2**attempt)
             continue
         if resp.status_code in _RETRYABLE_STATUS and attempt < _MAX_ATTEMPTS:
             wait = min(_retry_after(resp) or 2**attempt * 2, 60)
-            emit_raw("WARNING", f"OpenRouter HTTP {resp.status_code}; retrying in {wait:.0f}s ({_error_detail(resp)})", dest="LOG")
+            error = f"HTTP {resp.status_code}: {_error_detail(resp)}"
+            emit("LLM_HTTP_RETRY", provider="OpenRouter", attempt=attempt, attempts=_MAX_ATTEMPTS, error=brief(error), wait=f"{wait:.0f}")
             resp.close()
             time.sleep(wait)
             continue
@@ -382,5 +384,5 @@ def call_openrouter(prompt: str, thinking_level: str | None = None) -> str:
         emit("WARN_LLM_TRUNCATED", provider="OpenRouter", max_tokens=f"{max_tokens:,}" if max_tokens else "default")
         return TruncatedResponse(result["text"])
     if not result["text"]:
-        emit_raw("WARNING", f"OpenRouter response contained no text (finish_reason={finish or 'n/a'})", dest="LOG")
+        emit("LLM_EMPTY_REPLY", provider="OpenRouter", reason=finish or "n/a")
     return result["text"]

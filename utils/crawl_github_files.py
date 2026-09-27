@@ -340,7 +340,7 @@ def crawl_github_files(
                 raise Exception("GitHub API rate limit exceeded. Please provide a GitHub token using --token or GITHUB_TOKEN env var.")
             reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
             wait_time = max(reset_time - time.time(), 0) + 1
-            emit_raw("WARNING", f"Rate limit exceeded. Waiting for {wait_time:.0f} seconds...")
+            emit("GITHUB_RATE_LIMIT_WAIT", path=path or "/", wait=f"{wait_time:.0f}")
             time.sleep(wait_time)
             return fetch_contents(path)
 

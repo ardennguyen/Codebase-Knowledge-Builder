@@ -207,6 +207,10 @@ def _call_llm_provider(prompt: str, thinking_level: str | None = None) -> str:
             from utils.llm_common import TruncatedResponse
 
             return TruncatedResponse(text)
+        if not text:
+            from utils.output import emit
+
+            emit("LLM_EMPTY_REPLY", provider=provider, reason=choice.get("finish_reason") or "n/a")
         return text
     except requests.exceptions.HTTPError as e:
         error_message = f"HTTP error occurred: {e}"

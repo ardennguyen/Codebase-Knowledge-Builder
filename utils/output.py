@@ -143,6 +143,13 @@ def is_debug():
     return _debug
 
 
+def brief(value, limit: int = 300) -> str:
+    """An error for a one-line notice: whitespace collapsed, cut to *limit* characters (a provider's HTML error page
+    would otherwise fill the screen on every retry). The full text stays in the log's traceback."""
+    text = " ".join(str(value).split())
+    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
+
+
 def get(key, **kwargs):
     """Get a translated string without printing or logging.
 

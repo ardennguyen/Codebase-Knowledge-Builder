@@ -545,7 +545,7 @@ shared = {
 | `manifest_files` | `DeterministicFileMapper.post()` (api-reference) | `list[int]` | Indices into `shared["files"]` of the manifests (package / module / crate names, path aliases) the filter reply listed that are not code and not empty; read by `ExtractFacts`, never documented |
 | `module_facts` | `ExtractFacts.post()` (api-reference) | `dict[str, dict]` | Verified facts per module path (the `modules` object of `facts.json`); `WriteChapters` puts each file's facts into its prompt (`{verified_facts}`), `CombineTutorial` passes them to the writers for the verified dependencies, the "Used by" lines and the chapter check |
 | `chapter_summaries` | `WriteChapters.post()` | `list[str]` | Per-chapter summaries for LLM nav grouping and `api/index.md` descriptions |
-| `pending_manifest` | `WriteChapters.post()` (`--incremental` only) | `dict[str, dict]` | New incremental manifest (`{source_path: {"hash", "summary", "filename"}}`); written to `.doc_cache_manifest.json` by `CombineTutorial.post()` after the pages are on disk |
+| `pending_manifest` | `WriteChapters.post()` (`--incremental` only) | `dict[str, dict]` | New incremental manifest (`{source_path: {"hash", "summary", "filename"}}`; a truncated or placeholder page: `"hash": None, "failed": true`); written to `.doc_cache_manifest.json` by `CombineTutorial.post()` after the pages are on disk |
 
 ### Data Transformations Between Nodes
 
@@ -896,7 +896,7 @@ else:
 | 404 | Token, no path, ref='main' | `"Repository not found. Check if default branch is not 'main'"` |
 | 404 | Token, with path | `"Path '{path}' not found or insufficient permissions."` |
 | 403/429 | No token | Raise exception: `"Rate limit exceeded. Provide a token."` |
-| 403/429 | With token | Sleep using `X-RateLimit-Reset` header, recursive retry |
+| 403/429 | With token | `GITHUB_RATE_LIMIT_WAIT` (stdout + log: the path and the wait), sleep using `X-RateLimit-Reset` header, recursive retry |
 
 **Stats Return Structure:**
 ```python
@@ -1474,6 +1474,9 @@ def get(key, **kwargs):
 def is_debug() -> bool:
     """True when --debug is active (gates verbose diagnostics outside output.py, e.g. Claude thinking summaries)."""
 
+def brief(value, limit: int = 300) -> str:
+    """An error for a one-line notice (the retry notices): whitespace collapsed, cut to limit characters with "…"."""
+
 def configure_logging(project_name="project", mode="tutorial"):
     """Configure file-based logging. Creates logs/{project}_{mode}_{timestamp}.log.
     Opens a plain file handle — no Python logging module. Log entries are timestamped
@@ -1853,9 +1856,9 @@ filename = f"{i+1:02d}_{safe_name}.md"
 7. **Incremental mode (`--incremental`)**: summaries are persisted in `.doc_cache_manifest.json` alongside content hashes. The hash is `md5(generation_signature + file_context_str + verified_facts)` (a dependency re-resolved because another module was added or removed changes the block and regenerates the page), where `generation_signature = f"{mode}|{language}|{provider}|{model}|{write_chapters level}|{md5(draft_chapters template)}"` is computed once in `prep()` — switching model, effort, language or template regenerates pages (a one-time full rebuild after upgrading). On cache hits, summaries are loaded from manifest (zero LLM calls) and re-headed with the current chapter number (`strip_summary_header`), since numbers shift when modules are added or removed. Old manifest format (hash-only strings) is auto-detected and migrated.
    - **Manifest key:** `item["cache_key"]` = the module's `original_path` (e.g. `utils/__init__.py`), falling back to the abstraction name when there is none. Bare names collided when two files shared a basename, so all but one of them missed the cache on every run. Lookups fall back to the legacy name key (`manifest.get(cache_key) or manifest.get(name)`); that is safe because the hash covers the file path.
    - **Page check:** each entry also stores the chapter `filename`, and a hit requires `hash == current_hash` **and** that filename equal the module's current one (`same_page`). Standalone filenames carry the chapter position (`NN_`), so after positions shift the file at the current name can hold another module's (or an older) page. Entries without a `filename` (older manifests) are trusted only with `--mkdocs`, whose names are path-derived; in standalone mode they regenerate once.
-   - **When it is saved:** `post()` builds `shared["pending_manifest"]` from this run's results only (entries with a hash), so removed modules and legacy name keys drop out. `CombineTutorial.post()` writes it (temp file + `os.replace`) after `write_mkdocs_output`/`write_standalone_output` returned. Saving earlier let an interrupted run leave new hashes next to old pages, which later runs served as cache hits.
-7a. An empty chapter response raises `ValueError` (node retry). A truncated response (`TruncatedResponse`) is kept for this run but gets `hash=None`, so it is left out of the new manifest: no stale hash can serve the partial page and the next incremental run regenerates it.
-7b. `exec_fallback(item, exc)`: when a chapter still fails after all retries, emit `WARN_CHAPTER_FALLBACK` and return a placeholder page (`# {name}` + `UI_CHAPTER_UNAVAILABLE`) with `hash=None` and a placeholder summary appended to `chapter_summaries` (keeps summaries aligned with chapter files). The run completes instead of discarding every chapter already generated.
+   - **When it is saved:** `post()` builds `shared["pending_manifest"]` from this run's results only, so removed modules and legacy name keys drop out; a truncated or placeholder page is kept without a hash and marked `"failed": true`, so the next run regenerates it and says so (`WRITE_CHAPTER_AGAIN`). `CombineTutorial.post()` writes it (temp file + `os.replace`) after `write_mkdocs_output`/`write_standalone_output` returned. Saving earlier let an interrupted run leave new hashes next to old pages, which later runs served as cache hits.
+7a. An empty chapter response raises `ValueError` (node retry). A truncated response (`TruncatedResponse`) is kept for this run but gets `hash=None`, so its manifest entry has no hash (`"failed": true`): no stale hash can serve the partial page and the next incremental run regenerates it, announcing it.
+7b. `exec_fallback(item, exc)`: when a chapter still fails after all retries, emit `WARN_CHAPTER_FALLBACK` and return a placeholder page (`# {name}` + `UI_CHAPTER_UNAVAILABLE`) with `hash=None` (its `cache_key` kept, so the manifest marks that source path failed) and a placeholder summary appended to `chapter_summaries` (keeps summaries aligned with chapter files). The run completes instead of discarding every chapter already generated.
 8. CLI output: `\033[96m[Summarizing] Chapter N for cross-chapter context (X tokens)...\033[0m` → `\033[96m[Summary Done] Chapter N: X tokens\033[0m` (cyan)
 9. Log: `CHAPTER SUMMARY START | chapter=N | prompt_tokens=X` → `CHAPTER SUMMARY DONE | chapter=N | summary_tokens=X`
 
@@ -2045,17 +2048,44 @@ ui = {
 
 CombineTutorial itself is not retried (it writes the output); its one LLM call, the api-reference nav grouping, retries inside `request_grouping` (`utils/mkdocs.py`): `GROUPING_ATTEMPTS = 3`, `GROUPING_WAIT = 20` seconds, cache read on the first attempt only, a non-retryable refusal not retried, then the directory fallback (Section 9).
 
+### Retry Notices
+
+Every retry is announced on stdout and in the log (`DEST` `BOTH`), with the attempt, the number of attempts, the wait and the error — cut to 300 characters by `utils/output.brief` (a provider's HTML error page would fill the screen; the log keeps the traceback); the last failure says so and is never labelled a retry. An inventory of the 56 retry sites of the code (PocketFlow node retries, explicit loops, SDK-internal retries, cross-run re-asks) found retries that printed nothing, wrote to the log only, or labelled a final failure "[Retry]".
+
+| Retry | Notice while attempts are left | Last failure |
+|---|---|---|
+| Every retried node's `exec` (PocketFlow `max_retries` / `wait`, table above) | `NODE_RETRY` from `@safe_exec`: `[Retry] ExtractFacts, utils/facts.py: attempt 1/3 failed (…); retrying in 10s.` — the subject from the item (`_retry_subject`: a file path, `Chapter N (source)`, a batch `#N`; empty for an unexpected shape) | `NODE_FAILED` (`… attempt 3/3 failed (…); no attempts left.`), then the node's own fallback notice (`WARN_FACTS_FALLBACK`, `WARN_CHAPTER_FALLBACK`) or the run stopping |
+| ExtractFacts low coverage (most quotes not in the source) | the node retry above, its error saying `only 3/9 claims found in the source` | `FACTS_LOW_COVERAGE`: the best attempt is kept |
+| ExtractFacts manifest with items that do not parse | the node retry above | `FACTS_MANIFEST_UNPARSED`: the readable items are kept, the next run asks again |
+| ExtractFacts follow-up call (`FOLLOWUP_ATTEMPTS` = 2, no wait) | `FACTS_FOLLOWUP_RETRY` | `FACTS_FOLLOWUP_FAILED`: the facts so far stand, the next run asks again |
+| WriteChapters chapter summary (retries the chapter as a whole) | the node retry, its error prefixed `ERR_CHAPTER_SUMMARY` ("the chapter summary failed: …") | `NODE_FAILED` + `WARN_CHAPTER_FALLBACK` |
+| WriteChapters cached page whose reuse fails (reading it, or regenerating its summary) | `WARN_MANIFEST_CACHE_FAIL` (chapter and error): the page is written again | the node retry above |
+| Carried over to the next run: a module with no parsed attempt (facts.json `claims` None), a manifest with unparsed items (no hash), a failed follow-up, a truncated or placeholder page (manifest `"failed": true`) | `FACTS_EXTRACT_AGAIN`, `FACTS_FOLLOWUP_AGAIN`, `WRITE_CHAPTER_AGAIN` on that run (once per item, not on node retries) | as above |
+| OpenRouter POST (`_post`: connection errors, timeouts, 408/429/502/503/524/529) | `LLM_HTTP_RETRY` (`[Retry] OpenRouter request: attempt 1/3 failed (HTTP 429: …); retrying in 4s.`) | the error propagates to the node retry |
+| Anthropic SDK (`max_retries=3`: 408/409/429/5xx, connection errors, timeouts) | `LLM_HTTP_RETRY` from `_SdkRetryRecords`, reading the SDK's own retry records on `anthropic._base_client` (cause `Retrying due to status code N` / `Encountered …`, attempt `N retries left`, wait `Retrying request to … in T seconds`) | the error propagates |
+| Gemini SDK (`HttpRetryOptions(attempts=2)`) | `LLM_HTTP_RETRY` from `_sdk_retry_record` on `google_genai._api_client` (tenacity's `Retrying … in T seconds as it raised …`), attempts counted per request | the error propagates |
+| Provider resends: Anthropic at a larger budget after `max_tokens`, without server-side fallbacks after they are rejected; Gemini without thinking after it is rejected | `WARN_ANTHROPIC_TRUNCATED_RETRY`, `WARN_ANTHROPIC_FALLBACK_DISABLED`, `WARN_GEMINI_THINKING_REJECTED` | `WARN_ANTHROPIC_TRUNCATED` / the error propagates |
+| A retryable output block (Gemini SAFETY / RECITATION …, OpenRouter content filter) | `WARN_LLM_BLOCKED_RETRYABLE` ("another attempt may pass"), then the node retry | `NODE_FAILED` |
+| An empty reply (every provider: Anthropic, Gemini, OpenRouter, OpenAI-compatible) | `LLM_EMPTY_REPLY`, then the caller's parse fails into the node retry | `NODE_FAILED` |
+| OpenRouter model catalog (fetched again when next needed: 60 s cooldown, doubling per failure up to 15 min) | `CATALOG_RETRY` on every failed fetch (+ `WARN_OPENROUTER_CATALOG_UNAVAILABLE` once) | a permanent failure (4xx other than 408/429, a reply without the model list): `CATALOG_GAVE_UP`, not fetched again this run; `CATALOG_LOADED` when a later fetch succeeds |
+| Nav grouping (`request_grouping`) | `GROUP_RETRY` | `GROUP_ERROR_FALLBACK` |
+| GitHub API rate limit (with a token) | `GITHUB_RATE_LIMIT_WAIT` | none (waits until the limit resets) |
+
+**SDK loggers** (`utils/llm_common.open_sdk_logger`): the retry records are debug (Anthropic) and info (Gemini), so each SDK logger is opened to that level and given a `_SdkLogBridge`: it hands every record to the provider's reader and passes on to the rest of logging only the records the logger let through before (`callHandlers` of its parent: the handlers up the tree, else Python's last-resort stderr handler), with `propagate` off. Nothing else printed changes: a root handler some library adds never gets the SDK's debug records (they hold whole request options, prompts included), `ANTHROPIC_LOG` keeps its effect (info: the SDK's own info lines; debug: its debug records), and SDK warnings still reach stderr. A reader's error never reaches the request.
+
+Not retries of an operation, and not announced: the lenient parse stages of one reply (`parse_facts_response`, `parse_grouping_response`: their losses show as `unparsed` counts and retries above) and `repair_markup`'s rounds.
+
 ### Anthropic Provider Errors
 
-- The anthropic SDK retries connection errors, 408, 409, 429 and 5xx itself (`max_retries=3`); PocketFlow node retries sit on top.
+- The anthropic SDK retries connection errors, 408, 409, 429 and 5xx itself (`max_retries=3`, announced — see Retry Notices); PocketFlow node retries sit on top.
 - `stop_reason == "refusal"` (after any server-side fallback) → `WARN_ANTHROPIC_REFUSAL` + `LLMRefusalError` (deterministic: node retries re-raise it without a new request; WriteChapters falls back to a placeholder page, other nodes stop).
 - `stop_reason == "max_tokens"` → one internal retry at the largest allowed budget (`WARN_ANTHROPIC_TRUNCATED_RETRY`); if still truncated (or `model_context_window_exceeded`), `WARN_ANTHROPIC_TRUNCATED` and the partial text is returned as `TruncatedResponse` — never cached, so later runs regenerate it.
 - A 400 that rejects the fallback feature itself (the `server-side-fallback-*` beta header, or `fallbacks: "default"` for this model/account) disables fallbacks for the rest of the run (`WARN_ANTHROPIC_FALLBACK_DISABLED`) and the request is resent without them. Other 400s — including a bad model list in `ANTHROPIC_FALLBACKS` — propagate.
 
 ### Gemini / OpenRouter Provider Errors
 
-- **Gemini:** SDK `HttpRetryOptions(attempts=2)` retries 408/429/5xx once; `GEMINI_TIMEOUT_SECONDS` (default 1800) is the total per-request deadline, covering the whole stream. `MAX_TOKENS` → `WARN_LLM_TRUNCATED` + `TruncatedResponse`. A blocked prompt (`prompt_feedback.block_reason`) and `PROHIBITED_CONTENT` / `BLOCKLIST` / `SPII` / `IMAGE_*` finish reasons → `WARN_LLM_REFUSAL` + `LLMRefusalError` (deterministic). `SAFETY` / `RECITATION` / `LANGUAGE` / `OTHER` on the candidate → `WARN_LLM_BLOCKED_RETRYABLE` + `LLMRefusalError(retryable=True)`. A 400 that rejects the thinking config → `WARN_GEMINI_THINKING_REJECTED`, resend without it (model remembered for the run). Other `ClientError` / `ServerError` propagate.
-- **OpenRouter:** up to 3 attempts on connection errors and 408/429/502/503/524/529, honoring `Retry-After` (capped 60 s). HTTP 403 whose error is a refusal / `content_policy_violation` / moderation (`metadata.reasons` / `flagged_input`) → `LLMRefusalError`; other 4xx/5xx → `RuntimeError` with the provider's message. `finish_reason` `length` → `TruncatedResponse`; a `refusal` delta or a native `refusal` / `prohibited_content` / `blocklist` / `spii` → `LLMRefusalError`; `content_filter` or native `safety` / `recitation` → `LLMRefusalError(retryable=True)`; `error` (finish reason, choice error, or a mid-stream `error` chunk) and a stream that ends without any `finish_reason` (dropped connection, empty body) → `RuntimeError`.
+- **Gemini:** SDK `HttpRetryOptions(attempts=2)` retries 408/429/5xx once (announced — see Retry Notices); `GEMINI_TIMEOUT_SECONDS` (default 1800) is the total per-request deadline, covering the whole stream. `MAX_TOKENS` → `WARN_LLM_TRUNCATED` + `TruncatedResponse`. A blocked prompt (`prompt_feedback.block_reason`) and `PROHIBITED_CONTENT` / `BLOCKLIST` / `SPII` / `IMAGE_*` finish reasons → `WARN_LLM_REFUSAL` + `LLMRefusalError` (deterministic). `SAFETY` / `RECITATION` / `LANGUAGE` / `OTHER` on the candidate → `WARN_LLM_BLOCKED_RETRYABLE` + `LLMRefusalError(retryable=True)`. A 400 that rejects the thinking config → `WARN_GEMINI_THINKING_REJECTED`, resend without it (model remembered for the run). Other `ClientError` / `ServerError` propagate.
+- **OpenRouter:** up to 3 attempts on connection errors and 408/429/502/503/524/529, honoring `Retry-After` (capped 60 s), each announced (`LLM_HTTP_RETRY`). HTTP 403 whose error is a refusal / `content_policy_violation` / moderation (`metadata.reasons` / `flagged_input`) → `LLMRefusalError`; other 4xx/5xx → `RuntimeError` with the provider's message. `finish_reason` `length` → `TruncatedResponse`; a `refusal` delta or a native `refusal` / `prohibited_content` / `blocklist` / `spii` → `LLMRefusalError`; `content_filter` or native `safety` / `recitation` → `LLMRefusalError(retryable=True)`; `error` (finish reason, choice error, or a mid-stream `error` chunk) and a stream that ends without any `finish_reason` (dropped connection, empty body) → `RuntimeError`.
 - Deterministic refusals from every provider are remembered and not re-sent on node retries; retryable blocks are re-sampled (Section 9).
 
 ### LLM Cache-on-Retry Pattern

@@ -371,11 +371,16 @@ def get_token_ratio() -> float:
 # ---------------------------------------------------------------------------
 # OpenRouter model catalog (GET {base}/v1/models)
 # ---------------------------------------------------------------------------
-# Failed fetches are never cached: a transient blip at startup must not degrade the whole run.
-# After a failure the catalog is retried once the cooldown has passed (callers get None meanwhile).
+# Failed fetches are never cached: a transient blip at startup must not degrade the whole run. After a
+# transient failure the catalog is fetched again when next needed, once the cooldown has passed (callers get
+# None meanwhile); the cooldown doubles with every failure, up to 15 minutes. A permanent failure (a 4xx other
+# than 408/429, or a reply without the model list) stops fetching for the run.
 _openrouter_models_cache = None
 _openrouter_last_failure = 0.0
+_openrouter_failures = 0  # failed fetches so far (each announced)
+_openrouter_gave_up = False
 _OPENROUTER_RETRY_COOLDOWN = 60.0
+_OPENROUTER_MAX_COOLDOWN = 900.0
 _OPENROUTER_ROUTING_SUFFIXES = (":nitro", ":floor", ":online", ":thinking", ":extended", ":exacto")
 
 
@@ -384,14 +389,22 @@ def openrouter_catalog_cached() -> bool:
     return _openrouter_models_cache is not None
 
 
+def _catalog_cooldown() -> float:
+    return min(_OPENROUTER_RETRY_COOLDOWN * 2 ** max(_openrouter_failures - 1, 0), _OPENROUTER_MAX_COOLDOWN)
+
+
 def openrouter_catalog() -> list | None:
-    """The model catalog, or None when it could not be fetched (yet)."""
-    global _openrouter_models_cache, _openrouter_last_failure
+    """The model catalog, or None when it could not be fetched (yet). Every failed fetch is announced:
+    ``CATALOG_RETRY`` (fetched again when next needed, after the doubling cooldown) or, for a permanent failure,
+    ``CATALOG_GAVE_UP``; a fetch that succeeds after failures says so (``CATALOG_LOADED``)."""
+    global _openrouter_models_cache, _openrouter_last_failure, _openrouter_failures, _openrouter_gave_up
     if _openrouter_models_cache is not None:
         return _openrouter_models_cache
-    if _openrouter_last_failure and time.time() - _openrouter_last_failure < _OPENROUTER_RETRY_COOLDOWN:
+    if _openrouter_gave_up or (_openrouter_last_failure and time.time() - _openrouter_last_failure < _catalog_cooldown()):
         return None
     url = f"{openrouter_base_url()}/v1/models"
+    from utils.output import brief, emit
+
     try:
         resp = requests.get(url, timeout=20)
         resp.raise_for_status()
@@ -399,15 +412,22 @@ def openrouter_catalog() -> list | None:
         if not isinstance(data, list):
             raise ValueError("OpenRouter model catalog response has no 'data' list")
         _openrouter_models_cache = data
+        if _openrouter_failures:
+            emit("CATALOG_LOADED", attempt=_openrouter_failures + 1)
         return data
     except Exception as e:
         from utils.llm_common import warn_once
-        from utils.output import emit, emit_raw
 
         _openrouter_last_failure = time.time()
-        emit_raw("WARNING", f"Failed to fetch OpenRouter model info from {url}: {e}", dest="LOG")
-        if warn_once("openrouter_catalog_unavailable"):
-            emit("WARN_OPENROUTER_CATALOG_UNAVAILABLE", url=url, error=str(e)[:200])
+        _openrouter_failures += 1
+        if warn_once("openrouter_catalog_unavailable"):  # what the run does without it, once
+            emit("WARN_OPENROUTER_CATALOG_UNAVAILABLE", url=url, error=brief(e, 200))
+        status = getattr(getattr(e, "response", None), "status_code", None)
+        if isinstance(e, ValueError) or (isinstance(status, int) and 400 <= status < 500 and status not in (408, 429)):
+            _openrouter_gave_up = True  # the endpoint answers, but not with a catalog: asking again will not help
+            emit("CATALOG_GAVE_UP", attempt=_openrouter_failures, error=brief(e, 200))
+        else:
+            emit("CATALOG_RETRY", attempt=_openrouter_failures, error=brief(e, 200), wait=f"{_catalog_cooldown():.0f}")
         return None
 
 

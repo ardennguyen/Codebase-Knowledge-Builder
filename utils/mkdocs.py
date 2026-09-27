@@ -1356,7 +1356,12 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
                 emit("MARKUP_REPAIRED_PAGE", page=chapter_info["filename"], fixed=", ".join(f"{kind} {count}" for kind, count in fixed.items()))
             repaired += fixed
         if repaired:
-            emit("MARKUP_REPAIRED", **{kind: repaired[kind] for kind in _REPAIRED_KINDS})
+            emit(
+                "MARKUP_REPAIRED",
+                lists_as_text=repaired["lists_as_text"],
+                tables_as_text=repaired["tables_as_text"],
+                lists_flattened=repaired["lists_flattened"],
+            )
 
     # --- Write chapter files ---
     for chapter_info in chapter_files:

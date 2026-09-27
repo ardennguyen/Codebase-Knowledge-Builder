@@ -28,14 +28,16 @@ GEMINI_TOKEN_RATIO.
 """
 
 import datetime
+import logging
 import os
+import re
 import time
 
 from google import genai
 from google.genai import errors as genai_errors
 from google.genai import types
 
-from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, record_usage, warn_once
+from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, open_sdk_logger, record_usage, warn_once
 from utils.llm_config import (
     DEFAULT_GEMINI_MODEL,
     GEMINI_DEFAULT_LIMITS,
@@ -45,7 +47,7 @@ from utils.llm_config import (
     gemini_output_budget,
     gemini_thinking_mode,
 )
-from utils.output import emit, emit_raw, is_debug
+from utils.output import brief, emit, emit_raw, is_debug
 from utils.thinking import clamp_level
 
 # Finish reasons that mean "declined / blocked" rather than "cut off". Sampling-dependent stops can
@@ -105,14 +107,37 @@ def _timeout_ms() -> int:
     return int(max(seconds, 30.0) * 1000)
 
 
+_SDK_ATTEMPTS = 2  # the client's own attempts on transient errors
+_TENACITY_RETRY_RE = re.compile(r"^Retrying \S+ in (?P<wait>[\d.]+) seconds as it (?:raised|returned) (?P<cause>.*?)\.?$", re.DOTALL)
+_sdk_retries = 0  # retries of the SDK request in flight (reset per request)
+
+
+def _sdk_retry_record(record) -> None:
+    """Reads the SDK's own retry record (tenacity's before-sleep line on ``google_genai._api_client``, through
+    ``open_sdk_logger``: ``Retrying … in T seconds as it raised ServerError: 503 …``) into ``LLM_HTTP_RETRY``."""
+    global _sdk_retries
+    match = _TENACITY_RETRY_RE.match(record.getMessage())
+    if match:
+        _sdk_retries += 1
+        emit(
+            "LLM_HTTP_RETRY",
+            provider="Gemini",
+            attempt=_sdk_retries,
+            attempts=_SDK_ATTEMPTS,
+            error=brief(match.group("cause")),
+            wait=match.group("wait"),
+        )
+
+
 def _get_client():
     global _client
     if _client is None:
         http_options = types.HttpOptions(
             timeout=_timeout_ms(),  # milliseconds; with no timeout a stalled connection hangs forever
-            # One SDK retry for transient errors; PocketFlow node retries (5 x 20 s) sit on top.
-            retry_options=types.HttpRetryOptions(attempts=2, http_status_codes=[408, 429, 500, 502, 503, 504]),
+            # SDK retries for transient errors (announced: _sdk_retry_record); PocketFlow node retries (5 x 20 s) sit on top.
+            retry_options=types.HttpRetryOptions(attempts=_SDK_ATTEMPTS, http_status_codes=[408, 429, 500, 502, 503, 504]),
         )
+        open_sdk_logger("google_genai._api_client", logging.INFO, _sdk_retry_record)
         if os.getenv("GEMINI_PROJECT_ID"):
             _client = genai.Client(vertexai=True, project=os.getenv("GEMINI_PROJECT_ID"), location=gemini_location(), http_options=http_options)
         elif os.getenv("GEMINI_API_KEY"):
@@ -129,9 +154,11 @@ def get_model_limits(model: str) -> tuple[int, int]:
     not (the SDK maps no limits there), so the static Gemini 3.x / 2.5 table applies."""
     if model in _model_limits_cache:
         return _model_limits_cache[model]
+    global _sdk_retries
     limits = GEMINI_DEFAULT_LIMITS
     if not os.getenv("GEMINI_PROJECT_ID"):
         try:
+            _sdk_retries = 0
             info = _get_client().models.get(model=model)
             limits = (getattr(info, "input_token_limit", None) or limits[0], getattr(info, "output_token_limit", None) or limits[1])
             emit_raw("DEBUG", f"Gemini models.get | model={model} | input={limits[0]:,} | output={limits[1]:,}", dest="LOG")
@@ -213,8 +240,10 @@ def _record(model: str, usage, raw_prompt_tokens: int, level_desc: str, finish: 
 
 def _stream(model: str, prompt: str, config) -> dict:
     """Consume generate_content_stream; returns text, thoughts, finish, block_reason, usage."""
+    global _sdk_retries
     text, thoughts = [], []
     finish, block_reason, usage = "", "", None
+    _sdk_retries = 0  # _sdk_retry_record counts this request's retries
     for chunk in _get_client().models.generate_content_stream(model=model, contents=[prompt], config=config):
         feedback = getattr(chunk, "prompt_feedback", None)
         if feedback is not None and getattr(feedback, "block_reason", None):
@@ -283,5 +312,5 @@ def call_gemini(prompt: str, thinking_level: str | None = None) -> str:
         emit("WARN_LLM_TRUNCATED", provider="Gemini", max_tokens=f"{max_output:,}")
         return TruncatedResponse(result["text"])
     if not result["text"]:
-        emit_raw("WARNING", f"Gemini response contained no text (finish_reason={result['finish'] or 'n/a'})", dest="LOG")
+        emit("LLM_EMPTY_REPLY", provider="Gemini", reason=result["finish"] or "n/a")
     return result["text"]
