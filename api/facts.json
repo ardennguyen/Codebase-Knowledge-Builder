@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "project": "Codebase-Knowledge-Builder",
- "commit": "aeaa0fbee0b6ca7e838aca6281783e3855d5eff3",
+ "commit": "3a2475a3acefc1c2698cf32496ba039caee16a98",
  "note": "Every symbol, dependency, config key and error below was found in the source at the given line. Presence is verified, completeness is not: 'coverage' compares verified to claimed facts per module.",
  "modules": {
   "flow.py": {
@@ -8544,7 +8544,8 @@
     "utils/llm_anthropic.py",
     "utils/llm_config.py",
     "utils/llm_gemini.py",
-    "utils/llm_openrouter.py"
+    "utils/llm_openrouter.py",
+    "utils/mkdocs.py"
    ],
    "external": [
     {
@@ -11166,8 +11167,8 @@
    }
   },
   "utils/llm_openrouter.py": {
-   "source_sha256": "6d95a327d043fe6cfc8cba7ddcaff24c25d6cbce0d52b8ec9ec6e8bbd2b31f17",
-   "lines": 379,
+   "source_sha256": "dfcbffa1f531cfe7e09bfb1d0647b6af1d437e366c0c6387968fdc7c541fe0c7",
+   "lines": 386,
    "symbols": [
     {
      "name": "_RETRYABLE_STATUS",
@@ -11474,13 +11475,6 @@
    ],
    "errors": [
     {
-     "name": "ValueError",
-     "line": 334,
-     "evidence": "raise ValueError(\"OPENROUTER_MODEL environment variable is required\")",
-     "match": "exact",
-     "role": "raised"
-    },
-    {
      "name": "RuntimeError",
      "line": 205,
      "evidence": "raise RuntimeError(f\"OpenRouter request failed after {attempt} attempts: {e}\") from e",
@@ -11495,23 +11489,16 @@
      "role": "raised"
     },
     {
-     "name": "requests.exceptions.ConnectionError",
-     "line": 203,
-     "evidence": "except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:",
+     "name": "ValueError",
+     "line": 334,
+     "evidence": "raise ValueError(\"OPENROUTER_MODEL environment variable is required\")",
      "match": "exact",
-     "role": "caught"
-    },
-    {
-     "name": "requests.exceptions.Timeout",
-     "line": 203,
-     "evidence": "except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:",
-     "match": "exact",
-     "role": "caught"
+     "role": "raised"
     }
    ],
    "coverage": {
-    "claimed": 43,
-    "verified": 43
+    "claimed": 41,
+    "verified": 41
    },
    "completeness": {
     "import_lines": 10,
@@ -11519,14 +11506,16 @@
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
-     "status": "none",
-     "asked": []
+     "status": "done",
+     "asked": [
+      330
+     ]
     }
    },
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "2664281770d5fa08606c8e1836267015",
+   "facts_hash": "4c30623859d9e7c0ead125c54c5700ee",
    "claims": {
     "symbols": [
      {
@@ -11762,10 +11751,6 @@
     ],
     "errors": [
      {
-      "name": "ValueError",
-      "evidence": "raise ValueError(\"OPENROUTER_MODEL environment variable is required\")"
-     },
-     {
       "name": "RuntimeError",
       "evidence": "raise RuntimeError(f\"OpenRouter request failed after {attempt} attempts: {e}\") from e"
      },
@@ -11774,27 +11759,23 @@
       "evidence": "raise LLMRefusalError(model, category, provider=\"OPENROUTER\")"
      },
      {
-      "name": "requests.exceptions.ConnectionError",
-      "evidence": "except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:"
-     },
-     {
-      "name": "requests.exceptions.Timeout",
-      "evidence": "except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:"
+      "name": "ValueError",
+      "evidence": "raise ValueError(\"OPENROUTER_MODEL environment variable is required\")"
      }
     ],
     "unparsed": 0
    }
   },
   "utils/mkdocs.py": {
-   "source_sha256": "bcae206a616f007437404ed1681d4f5a6f9fca18f9c9eedb314a1579fced4f5b",
-   "lines": 1139,
+   "source_sha256": "b400c7c6e17c2041dbafbf4bdef97a0db1b004d12628e4b2ee0ee6d280df0e5a",
+   "lines": 1188,
    "symbols": [
     {
      "name": "yaml_str",
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 27,
+     "line": 29,
      "signature": "def yaml_str(value) -> str:",
      "match": "exact"
     },
@@ -11803,7 +11784,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 36,
+     "line": 38,
      "signature": "def build_mkdocs_config(site_name: str, nav_yaml: str, include_home: bool = True, lang_code: str = \"\") -> str:",
      "match": "exact"
     },
@@ -11812,7 +11793,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 108,
+     "line": 110,
      "signature": "MERMAID_INIT_JS = \"\"\"\\",
      "match": "exact"
     },
@@ -11821,7 +11802,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 151,
+     "line": 153,
      "signature": "def build_mermaid_init_js() -> str:",
      "match": "exact"
     },
@@ -11830,70 +11811,70 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 156,
+     "line": 158,
      "signature": "def site_renderer():",
      "match": "exact"
     },
     {
      "name": "_FRONTMATTER_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 187,
+     "line": 189,
      "signature": "_FRONTMATTER_RE = re.compile(r\"^-{3}[ \\t]*\\n(.*?\\n)(?:\\.{3}|-{3})[ \\t]*\\n\", re.DOTALL)  # same block MkDocs' meta parser reads",
      "match": "exact"
     },
     {
      "name": "_SUMMARY_HEADER_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 188,
+     "line": 190,
      "signature": "_SUMMARY_HEADER_RE = re.compile(r\"^.+ \\d+ — .+:$\")",
      "match": "exact"
     },
     {
      "name": "_SUMMARY_LABEL_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 190,
+     "line": 192,
      "signature": "_SUMMARY_LABEL_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)]\\W{0,3}[^:\\uff1a\\n]{1,80}[:\\uff1a]\\**\\s*\")",
      "match": "exact"
     },
     {
      "name": "_POINT_MARKER_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 191,
+     "line": 193,
      "signature": "_POINT_MARKER_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)][\\s*_]*\")  # the bare \"(1)\" / \"### (1)\" / \"**1.\" marker",
      "match": "exact"
     },
     {
      "name": "_MD_ESCAPE_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 192,
+     "line": 194,
      "signature": "_MD_ESCAPE_RE = re.compile(r\"([\\\\`*_\\[\\]|])\")",
      "match": "exact"
     },
     {
      "name": "_POINT_PAREN_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 194,
+     "line": 196,
      "signature": "_POINT_PAREN_RE = re.compile(r\"(?m)^[ \\t#>*_]*\\(([1-4])\\)\")",
      "match": "exact"
     },
     {
      "name": "_POINT_PLAIN_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 195,
+     "line": 197,
      "signature": "_POINT_PLAIN_RE = re.compile(r\"(?m)^[ \\t#>*_]*([1-4])[.)]\\s\")",
      "match": "exact"
     },
@@ -11902,16 +11883,16 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 197,
+     "line": 199,
      "signature": "_CJK_STOPS = (\"\\u3002\", \"\\uff01\", \"\\uff1f\")",
      "match": "exact"
     },
     {
      "name": "_SENTENCE_END_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 198,
+     "line": 200,
      "signature": "_SENTENCE_END_RE = re.compile(r\"(?<=[.!?])\\s+|(?<=[\\u3002\\uff01\\uff1f])\\s*\")",
      "match": "exact"
     },
@@ -11920,16 +11901,16 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 199,
+     "line": 201,
      "signature": "_ABBREVIATIONS = (\"e.g.\", \"i.e.\", \"vs.\", \"etc.\", \"cf.\", \"approx.\", \"incl.\", \"resp.\", \"no.\", \"fig.\")",
      "match": "exact"
     },
     {
      "name": "_CODE_SPAN_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 200,
+     "line": 202,
      "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(?!`).+?(?<!`)\\1(?!`)\")",
      "match": "exact"
     },
@@ -11938,7 +11919,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 201,
+     "line": 203,
      "signature": "_ENTRY_NODE_CLASSDEF = \"    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5\"",
      "match": "exact"
     },
@@ -11947,7 +11928,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 202,
+     "line": 204,
      "signature": "_MODULE_GRAPH_MAX_MODULES = 80  # beyond this a module-level graph is unreadable; the section map still shows",
      "match": "exact"
     },
@@ -11956,7 +11937,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 205,
+     "line": 207,
      "signature": "def build_chapter_filenames(chapter_order: list, abstractions: list, is_mkdocs: bool) -> dict:",
      "match": "exact"
     },
@@ -11965,7 +11946,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 240,
+     "line": 242,
      "signature": "def split_frontmatter(text: str) -> tuple[str, bool]:",
      "match": "exact"
     },
@@ -11974,7 +11955,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 256,
+     "line": 258,
      "signature": "def strip_summary_header(summary: str) -> str:",
      "match": "exact"
     },
@@ -11983,7 +11964,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 264,
+     "line": 266,
      "signature": "def _sentences(text: str):",
      "match": "exact"
     },
@@ -11992,7 +11973,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 277,
+     "line": 279,
      "signature": "def _ends_with_abbreviation(piece: str) -> bool:",
      "match": "exact"
     },
@@ -12001,7 +11982,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 288,
+     "line": 290,
      "signature": "def _is_prose(text: str) -> bool:",
      "match": "exact"
     },
@@ -12010,7 +11991,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 294,
+     "line": 296,
      "signature": "def clip_sentences(text: str, limit: int) -> str:",
      "match": "exact"
     },
@@ -12019,7 +12000,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 319,
+     "line": 321,
      "signature": "def table_cell_text(text: str) -> str:",
      "match": "exact"
     },
@@ -12028,7 +12009,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 331,
+     "line": 333,
      "signature": "def summary_description(summary: str, limit: int = 300) -> str:",
      "match": "exact"
     },
@@ -12037,8 +12018,17 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 360,
+     "line": 362,
      "signature": "def md_link_text(text: str) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "md_heading_text",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 367,
+     "signature": "def md_heading_text(text: str) -> str:",
      "match": "exact"
     },
     {
@@ -12046,7 +12036,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 370,
+     "line": 378,
      "signature": "def module_name_lookup(chapter_files: list) -> dict:",
      "match": "exact"
     },
@@ -12055,7 +12045,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 388,
+     "line": 396,
      "signature": "def grouping_extras(parsed, chapter_files: list) -> tuple[dict, dict]:",
      "match": "exact"
     },
@@ -12064,7 +12054,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 432,
+     "line": 440,
      "signature": "def modules_with_facts(module_facts: dict, chapter_files: list) -> set:",
      "match": "exact"
     },
@@ -12073,7 +12063,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 439,
+     "line": 447,
      "signature": "def verified_dependencies(module_facts: dict, chapter_files: list) -> dict:",
      "match": "exact"
     },
@@ -12082,7 +12072,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 452,
+     "line": 460,
      "signature": "def _section_members(sections: list) -> list[tuple[str, list]]:",
      "match": "exact"
     },
@@ -12091,7 +12081,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 474,
+     "line": 482,
      "signature": "def _mermaid_label(text) -> str:",
      "match": "exact"
     },
@@ -12100,7 +12090,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 487,
+     "line": 495,
      "signature": "def build_section_map(sections: list, dependencies: dict, max_listed: int = 8) -> tuple[str, bool, bool]:",
      "match": "exact"
     },
@@ -12109,7 +12099,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 522,
+     "line": 530,
      "signature": "def build_module_graph(sections: list, dependencies: dict, chapter_files: list) -> tuple[str, int]:",
      "match": "exact"
     },
@@ -12118,7 +12108,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 564,
+     "line": 572,
      "signature": "def build_grouped_nav(sections: list, chapter_files: list, indent: int = 4) -> list[str]:",
      "match": "exact"
     },
@@ -12127,7 +12117,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 604,
+     "line": 612,
      "signature": "def collect_all_modules(sections: list) -> set:",
      "match": "exact"
     },
@@ -12136,7 +12126,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 614,
+     "line": 622,
      "signature": "def prune_sections(sections: list, chapter_files: list) -> list:",
      "match": "exact"
     },
@@ -12145,8 +12135,44 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 639,
+     "line": 647,
      "signature": "def tree_order_key(chapter_file: dict) -> tuple:",
+     "match": "exact"
+    },
+    {
+     "name": "directory_sections",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 653,
+     "signature": "def directory_sections(chapter_files: list) -> list:",
+     "match": "exact"
+    },
+    {
+     "name": "GROUPING_ATTEMPTS",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "public",
+     "line": 664,
+     "signature": "GROUPING_ATTEMPTS = 3  # like the pipeline's LLM nodes: a stream cut off upstream must not cost the grouped nav",
+     "match": "exact"
+    },
+    {
+     "name": "GROUPING_WAIT",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "public",
+     "line": 665,
+     "signature": "GROUPING_WAIT = 20  # seconds between attempts",
+     "match": "exact"
+    },
+    {
+     "name": "request_grouping",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 668,
+     "signature": "def request_grouping(prompt: str, prep_res: dict, chapter_files: list) -> tuple[dict, list]:",
      "match": "exact"
     },
     {
@@ -12154,7 +12180,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 647,
+     "line": 700,
      "signature": "SECTION_ROLES = (\"types\", \"setup\", \"core\", \"support\", \"operational\")",
      "match": "exact"
     },
@@ -12163,7 +12189,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 650,
+     "line": 703,
      "signature": "def order_sections(sections: list, chapter_files: list) -> list:",
      "match": "exact"
     },
@@ -12172,7 +12198,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 686,
+     "line": 739,
      "signature": "def build_index_sections(lines, sections, chapter_files, level=3, summaries=None, descriptions=None):",
      "match": "exact"
     },
@@ -12181,7 +12207,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 715,
+     "line": 768,
      "signature": "def normalize_chapter_links(chapter_files):",
      "match": "exact"
     },
@@ -12190,7 +12216,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 767,
+     "line": 820,
      "signature": "def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:",
      "match": "exact"
     },
@@ -12199,7 +12225,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 796,
+     "line": 849,
      "signature": "def _page_link(page: str, target: str, filenames: set) -> str:",
      "match": "exact"
     },
@@ -12208,7 +12234,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 806,
+     "line": 859,
      "signature": "def write_mkdocs_output(output_path, prep_res, chapter_files):",
      "match": "exact"
     },
@@ -12217,7 +12243,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1067,
+     "line": 1116,
      "signature": "def prune_stale_pages(api_docs_path, chapter_files):",
      "match": "exact"
     },
@@ -12226,7 +12252,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1097,
+     "line": 1146,
      "signature": "def write_standalone_output(output_path, prep_res, chapter_files, ui):",
      "match": "exact"
     }
@@ -12234,38 +12260,45 @@
    "depends_on": [
     {
      "module": "utils/call_llm.py",
-     "target": "utils.call_llm",
-     "line": 16,
+     "target": "utils.call_llm.call_llm",
+     "line": 17,
      "evidence": "from utils.call_llm import call_llm",
      "via": "path"
     },
     {
      "module": "utils/chapter_check.py",
-     "target": "utils.chapter_check",
-     "line": 17,
+     "target": "utils.chapter_check.USED_BY_MARKER",
+     "line": 18,
      "evidence": "from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check",
-     "via": "path"
+     "via": "symbol"
+    },
+    {
+     "module": "utils/llm_common.py",
+     "target": "utils.llm_common.LLMRefusalError",
+     "line": 19,
+     "evidence": "from utils.llm_common import LLMRefusalError",
+     "via": "symbol"
     },
     {
      "module": "utils/output.py",
-     "target": "utils.output",
-     "line": 18,
+     "target": "utils.output.emit",
+     "line": 20,
      "evidence": "from utils.output import emit, emit_raw, get",
-     "via": "path"
+     "via": "symbol"
     },
     {
      "module": "utils/prompts.py",
-     "target": "utils.prompts",
-     "line": 19,
+     "target": "utils.prompts.parse_grouping_response",
+     "line": 21,
      "evidence": "from utils.prompts import parse_grouping_response",
-     "via": "path"
+     "via": "symbol"
     },
     {
      "module": "utils/token_utils.py",
-     "target": "utils.token_utils",
-     "line": 20,
+     "target": "utils.token_utils.log_token_estimation",
+     "line": 22,
      "evidence": "from utils.token_utils import log_token_estimation",
-     "via": "path"
+     "via": "symbol"
     }
    ],
    "used_by": [
@@ -12273,16 +12306,8 @@
    ],
    "external": [
     {
-     "name": "collections",
-     "line": 12
-    },
-    {
      "name": "json",
      "line": 7
-    },
-    {
-     "name": "markdown",
-     "line": 162
     },
     {
      "name": "os",
@@ -12297,34 +12322,85 @@
      "line": 10
     },
     {
-     "name": "traceback",
+     "name": "time",
      "line": 11
     },
     {
+     "name": "traceback",
+     "line": 12
+    },
+    {
+     "name": "collections.Counter",
+     "line": 13
+    },
+    {
+     "name": "collections.defaultdict",
+     "line": 13
+    },
+    {
      "name": "yaml",
-     "line": 14
+     "line": 15
+    },
+    {
+     "name": "markdown",
+     "line": 164
     }
    ],
    "config": [],
-   "errors": [],
+   "errors": [
+    {
+     "name": "ValueError",
+     "line": 683,
+     "evidence": "raise ValueError(get(\"GROUP_NO_SECTIONS\"))",
+     "match": "exact",
+     "role": "raised"
+    },
+    {
+     "name": "LLMRefusalError",
+     "line": 685,
+     "evidence": "except LLMRefusalError as e:",
+     "match": "exact",
+     "role": "caught"
+    }
+   ],
    "coverage": {
-    "claimed": 62,
-    "verified": 62
+    "claimed": 76,
+    "verified": 76
    },
    "completeness": {
-    "import_lines": 13,
-    "declaration_lines": 49,
+    "import_lines": 15,
+    "declaration_lines": 54,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
-     "status": "none",
-     "asked": []
+     "status": "done",
+     "asked": [
+      189,
+      190,
+      192,
+      193,
+      194,
+      196,
+      197,
+      199,
+      200,
+      201,
+      202,
+      203,
+      204,
+      266,
+      279,
+      290,
+      460,
+      482,
+      849
+     ]
     }
    },
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "dff70a3e1ca65047fcd73c9cac43813a",
+   "facts_hash": "1e10aa4b5a84f28ddb553e34a6da354c",
    "claims": {
     "symbols": [
      {
@@ -12363,97 +12439,6 @@
       "signature": "def site_renderer():"
      },
      {
-      "name": "_FRONTMATTER_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_FRONTMATTER_RE = re.compile(r\"^-{3}[ \\t]*\\n(.*?\\n)(?:\\.{3}|-{3})[ \\t]*\\n\", re.DOTALL)  # same block MkDocs' meta parser reads"
-     },
-     {
-      "name": "_SUMMARY_HEADER_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_SUMMARY_HEADER_RE = re.compile(r\"^.+ \\d+ — .+:$\")"
-     },
-     {
-      "name": "_SUMMARY_LABEL_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_SUMMARY_LABEL_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)]\\W{0,3}[^:\\uff1a\\n]{1,80}[:\\uff1a]\\**\\s*\")"
-     },
-     {
-      "name": "_POINT_MARKER_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_POINT_MARKER_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)][\\s*_]*\")  # the bare \"(1)\" / \"### (1)\" / \"**1.\" marker"
-     },
-     {
-      "name": "_MD_ESCAPE_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_MD_ESCAPE_RE = re.compile(r\"([\\\\`*_\\[\\]|])\")"
-     },
-     {
-      "name": "_POINT_PAREN_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_POINT_PAREN_RE = re.compile(r\"(?m)^[ \\t#>*_]*\\(([1-4])\\)\")"
-     },
-     {
-      "name": "_POINT_PLAIN_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_POINT_PLAIN_RE = re.compile(r\"(?m)^[ \\t#>*_]*([1-4])[.)]\\s\")"
-     },
-     {
-      "name": "_CJK_STOPS",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_CJK_STOPS = (\"\\u3002\", \"\\uff01\", \"\\uff1f\")"
-     },
-     {
-      "name": "_SENTENCE_END_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_SENTENCE_END_RE = re.compile(r\"(?<=[.!?])\\s+|(?<=[\\u3002\\uff01\\uff1f])\\s*\")"
-     },
-     {
-      "name": "_ABBREVIATIONS",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_ABBREVIATIONS = (\"e.g.\", \"i.e.\", \"vs.\", \"etc.\", \"cf.\", \"approx.\", \"incl.\", \"resp.\", \"no.\", \"fig.\")"
-     },
-     {
-      "name": "_CODE_SPAN_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(?!`).+?(?<!`)\\1(?!`)\")"
-     },
-     {
-      "name": "_ENTRY_NODE_CLASSDEF",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_ENTRY_NODE_CLASSDEF = \"    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5\""
-     },
-     {
-      "name": "_MODULE_GRAPH_MAX_MODULES",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_MODULE_GRAPH_MAX_MODULES = 80  # beyond this a module-level graph is unreadable; the section map still shows"
-     },
-     {
       "name": "build_chapter_filenames",
       "kind": "function",
       "parent": "",
@@ -12473,27 +12458,6 @@
       "parent": "",
       "visibility": "public",
       "signature": "def strip_summary_header(summary: str) -> str:"
-     },
-     {
-      "name": "_sentences",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _sentences(text: str):"
-     },
-     {
-      "name": "_ends_with_abbreviation",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _ends_with_abbreviation(piece: str) -> bool:"
-     },
-     {
-      "name": "_is_prose",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _is_prose(text: str) -> bool:"
      },
      {
       "name": "clip_sentences",
@@ -12524,6 +12488,13 @@
       "signature": "def md_link_text(text: str) -> str:"
      },
      {
+      "name": "md_heading_text",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def md_heading_text(text: str) -> str:"
+     },
+     {
       "name": "module_name_lookup",
       "kind": "function",
       "parent": "",
@@ -12550,20 +12521,6 @@
       "parent": "",
       "visibility": "public",
       "signature": "def verified_dependencies(module_facts: dict, chapter_files: list) -> dict:"
-     },
-     {
-      "name": "_section_members",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _section_members(sections: list) -> list[tuple[str, list]]:"
-     },
-     {
-      "name": "_mermaid_label",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _mermaid_label(text) -> str:"
      },
      {
       "name": "build_section_map",
@@ -12608,6 +12565,34 @@
       "signature": "def tree_order_key(chapter_file: dict) -> tuple:"
      },
      {
+      "name": "directory_sections",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def directory_sections(chapter_files: list) -> list:"
+     },
+     {
+      "name": "GROUPING_ATTEMPTS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "public",
+      "signature": "GROUPING_ATTEMPTS = 3"
+     },
+     {
+      "name": "GROUPING_WAIT",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "public",
+      "signature": "GROUPING_WAIT = 20"
+     },
+     {
+      "name": "request_grouping",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def request_grouping(prompt: str, prep_res: dict, chapter_files: list) -> tuple[dict, list]:"
+     },
+     {
       "name": "SECTION_ROLES",
       "kind": "constant",
       "parent": "",
@@ -12643,13 +12628,6 @@
       "signature": "def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:"
      },
      {
-      "name": "_page_link",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _page_link(page: str, target: str, filenames: set) -> str:"
-     },
-     {
       "name": "write_mkdocs_output",
       "kind": "function",
       "parent": "",
@@ -12669,20 +12647,145 @@
       "parent": "",
       "visibility": "public",
       "signature": "def write_standalone_output(output_path, prep_res, chapter_files, ui):"
+     },
+     {
+      "name": "_FRONTMATTER_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_FRONTMATTER_RE = re.compile(r\"^-{3}[ \\t]*\\n(.*?\\n)(?:\\.{3}|-{3})[ \\t]*\\n\", re.DOTALL)  # same block MkDocs' meta parser reads"
+     },
+     {
+      "name": "_SUMMARY_HEADER_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SUMMARY_HEADER_RE = re.compile(r\"^.+ \\d+ — .+:$\")"
+     },
+     {
+      "name": "_SUMMARY_LABEL_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SUMMARY_LABEL_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)]\\W{0,3}[^:\\uff1a\\n]{1,80}[:\\uff1a]\\**\\s*\")"
+     },
+     {
+      "name": "_POINT_MARKER_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_POINT_MARKER_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)][\\s*_]*\")  # the bare \"(1)\" / \"### (1)\" / \"**1.\" marker"
+     },
+     {
+      "name": "_MD_ESCAPE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_MD_ESCAPE_RE = re.compile(r\"([\\\\`*_\\[\\]|])\")"
+     },
+     {
+      "name": "_POINT_PAREN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_POINT_PAREN_RE = re.compile(r\"(?m)^[ \\t#>*_]*\\(([1-4])\\)\")"
+     },
+     {
+      "name": "_POINT_PLAIN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_POINT_PLAIN_RE = re.compile(r\"(?m)^[ \\t#>*_]*([1-4])[.)]\\s\")"
+     },
+     {
+      "name": "_CJK_STOPS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_CJK_STOPS = (\"\\u3002\", \"\\uff01\", \"\\uff1f\")"
+     },
+     {
+      "name": "_SENTENCE_END_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SENTENCE_END_RE = re.compile(r\"(?<=[.!?])\\s+|(?<=[\\u3002\\uff01\\uff1f])\\s*\")"
+     },
+     {
+      "name": "_ABBREVIATIONS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_ABBREVIATIONS = (\"e.g.\", \"i.e.\", \"vs.\", \"etc.\", \"cf.\", \"approx.\", \"incl.\", \"resp.\", \"no.\", \"fig.\")"
+     },
+     {
+      "name": "_CODE_SPAN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(?!`).+?(?<!`)\\1(?!`)\")"
+     },
+     {
+      "name": "_ENTRY_NODE_CLASSDEF",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_ENTRY_NODE_CLASSDEF = \"    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5\""
+     },
+     {
+      "name": "_MODULE_GRAPH_MAX_MODULES",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_MODULE_GRAPH_MAX_MODULES = 80  # beyond this a module-level graph is unreadable; the section map still shows"
+     },
+     {
+      "name": "_sentences",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _sentences(text: str):"
+     },
+     {
+      "name": "_ends_with_abbreviation",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _ends_with_abbreviation(piece: str) -> bool:"
+     },
+     {
+      "name": "_is_prose",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _is_prose(text: str) -> bool:"
+     },
+     {
+      "name": "_section_members",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _section_members(sections: list) -> list[tuple[str, list]]:"
+     },
+     {
+      "name": "_mermaid_label",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _mermaid_label(text) -> str:"
+     },
+     {
+      "name": "_page_link",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _page_link(page: str, target: str, filenames: set) -> str:"
      }
     ],
     "dependencies": [
      {
-      "target": "collections",
-      "evidence": "from collections import Counter, defaultdict"
-     },
-     {
       "target": "json",
       "evidence": "import json"
-     },
-     {
-      "target": "markdown",
-      "evidence": "import markdown"
      },
      {
       "target": "os",
@@ -12697,36 +12800,81 @@
       "evidence": "import re"
      },
      {
+      "target": "time",
+      "evidence": "import time"
+     },
+     {
       "target": "traceback",
       "evidence": "import traceback"
      },
      {
-      "target": "utils.call_llm",
-      "evidence": "from utils.call_llm import call_llm"
+      "target": "collections.Counter",
+      "evidence": "from collections import Counter, defaultdict"
      },
      {
-      "target": "utils.chapter_check",
-      "evidence": "from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check"
-     },
-     {
-      "target": "utils.output",
-      "evidence": "from utils.output import emit, emit_raw, get"
-     },
-     {
-      "target": "utils.prompts",
-      "evidence": "from utils.prompts import parse_grouping_response"
-     },
-     {
-      "target": "utils.token_utils",
-      "evidence": "from utils.token_utils import log_token_estimation"
+      "target": "collections.defaultdict",
+      "evidence": "from collections import Counter, defaultdict"
      },
      {
       "target": "yaml",
       "evidence": "import yaml"
+     },
+     {
+      "target": "utils.call_llm.call_llm",
+      "evidence": "from utils.call_llm import call_llm"
+     },
+     {
+      "target": "utils.chapter_check.USED_BY_MARKER",
+      "evidence": "from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check"
+     },
+     {
+      "target": "utils.chapter_check.parse_page",
+      "evidence": "from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check"
+     },
+     {
+      "target": "utils.chapter_check.run_chapter_check",
+      "evidence": "from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check"
+     },
+     {
+      "target": "utils.llm_common.LLMRefusalError",
+      "evidence": "from utils.llm_common import LLMRefusalError"
+     },
+     {
+      "target": "utils.output.emit",
+      "evidence": "from utils.output import emit, emit_raw, get"
+     },
+     {
+      "target": "utils.output.emit_raw",
+      "evidence": "from utils.output import emit, emit_raw, get"
+     },
+     {
+      "target": "utils.output.get",
+      "evidence": "from utils.output import emit, emit_raw, get"
+     },
+     {
+      "target": "utils.prompts.parse_grouping_response",
+      "evidence": "from utils.prompts import parse_grouping_response"
+     },
+     {
+      "target": "utils.token_utils.log_token_estimation",
+      "evidence": "from utils.token_utils import log_token_estimation"
+     },
+     {
+      "target": "markdown",
+      "evidence": "import markdown"
      }
     ],
     "config": [],
-    "errors": [],
+    "errors": [
+     {
+      "name": "ValueError",
+      "evidence": "raise ValueError(get(\"GROUP_NO_SECTIONS\"))"
+     },
+     {
+      "name": "LLMRefusalError",
+      "evidence": "except LLMRefusalError as e:"
+     }
+    ],
     "unparsed": 0
    }
   },
