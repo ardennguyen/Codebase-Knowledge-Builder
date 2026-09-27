@@ -130,6 +130,72 @@ _INDICATOR_VALUE_RE = re.compile(
 )
 
 
+_FACT_SIGNATURE_CHARS = 200  # a verified signature shown in the chapter prompt (whitespace collapsed)
+
+
+def build_verified_facts_block(facts: dict | None, doc_paths: dict) -> str:
+    """The ``{verified_facts}`` of an api-reference draft_chapters.md prompt: the file's verified symbols with
+    their signature text, the project files it imports (with their ``(doc: ...)`` paths, the See Also link
+    targets), the configuration it reads and the errors it raises or defines — all checked against the source by
+    ExtractFacts. ``""`` without facts: other modes, a file whose extraction failed (``claims`` None) or found
+    nothing.
+
+    A signature is shown on one line (whitespace collapsed, leading decorator / attribute lines dropped) in a
+    code span that its own backticks cannot close; one cut short (a truncated excerpt, unbalanced brackets or
+    longer than ``_FACT_SIGNATURE_CHARS``) ends with `` …`` and is marked as the start of the declaration, to be
+    copied in full from the source. *doc_paths*: module path → chapter filename. Importers are not listed: the
+    page gets a deterministic "Used by" line after writing (``add_used_by_lines``), so an importer's edit never
+    regenerates this page."""
+    if not facts or facts.get("claims") is None:
+        return ""
+    symbols = facts.get("symbols") or []
+    modules = list(dict.fromkeys(edge["module"] for edge in facts.get("depends_on") or []))
+    config = facts.get("config") or []
+    errors = list(dict.fromkeys(item["name"] for item in facts.get("errors") or [] if item.get("role", "raised") != "caught"))
+    if not (symbols or modules or config or errors):
+        return ""
+    lines = ["VERIFIED FACTS OF THIS FILE (extracted from it and checked against its source code):"]
+    if symbols:
+        lines.append(
+            "Symbols — document every one; copy each signature as written here (one marked 'start of the declaration' continues in the source: copy it in full from there):"
+        )
+        for symbol in symbols:
+            owner = f"{symbol['parent']}." if symbol.get("parent") else ""
+            visibility = f", {symbol['visibility']}" if symbol.get("visibility") else ""
+            signature, partial = _fact_signature(symbol)
+            marker = " — start of the declaration" if partial else ""
+            lines.append(
+                f"- {symbol.get('kind') or 'symbol'} {owner}{symbol['name']}{visibility} (line {symbol['line']}): {_code_span(signature)}{marker}"
+            )
+    if modules:
+        lines.append("Project files this file imports — See Also must link each of them:")
+        lines.extend(f"- {module} (doc: {doc_paths.get(module, module + '.md')})" for module in modules)
+    if config:
+        lines.append("Configuration it reads: " + ", ".join(f"{item['name']} ({item.get('kind') or 'config'})" for item in config))
+    if errors:
+        lines.append("Errors it raises or defines: " + ", ".join(errors))
+    return "\n".join(lines) + "\n"
+
+
+def _fact_signature(symbol: dict) -> tuple[str, bool]:
+    """A verified signature for the prompt: ``(one-line text, cut short)``."""
+    lines = str(symbol.get("signature", "")).split("\n")
+    while len(lines) > 1 and re.match(r"\s*(?:@|#\[|\[[A-Z])", lines[0]):  # @property, #[inline], [Obsolete]
+        lines = lines[1:]
+    text = " ".join(" ".join(lines).split())
+    code = re.sub(r"\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'", "", text)
+    partial = bool(symbol.get("truncated")) or code.count("(") > code.count(")") or code.count("[") > code.count("]")
+    if len(text) > _FACT_SIGNATURE_CHARS:
+        text, partial = text[:_FACT_SIGNATURE_CHARS].rstrip(), True
+    return (text + " …" if partial else text), partial
+
+
+def _code_span(text: str) -> str:
+    """*text* as inline code that its own backticks cannot close (a run one longer than any inside, padded)."""
+    fence = "`" * (max((len(run) for run in re.findall(r"`+", text)), default=0) + 1)
+    return f"{fence} {text} {fence}" if "`" in text else f"{fence}{text}{fence}"
+
+
 FACTS_FOCUS_LIMIT = 60  # lines one extract_facts.md follow-up asks about; the rest are only counted
 _FOCUS_LINE_CHARS = 200  # a minified or generated line is shown cut: the model quotes from the full source
 

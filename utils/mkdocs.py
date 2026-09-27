@@ -14,6 +14,7 @@ from collections import Counter, defaultdict
 import yaml
 
 from utils.call_llm import call_llm
+from utils.chapter_check import USED_BY_MARKER, parse_page, run_chapter_check
 from utils.output import emit, emit_raw, get
 from utils.prompts import parse_grouping_response
 from utils.token_utils import log_token_estimation
@@ -736,6 +737,45 @@ def normalize_chapter_links(chapter_files):
         emit_raw("DEBUG", f"LINK NORMALIZATION | fixed {fixed_count} cross-chapter links", dest="LOG")
 
 
+def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:
+    """End each api-reference chapter (its See Also section) with a "Used by" line built from the verified
+    importers in facts.json — deterministic, so an importer's edit never regenerates the page.
+
+    The line from an earlier run (cached pages are re-read from disk) is replaced: only a prose line outside code
+    blocks that starts with ``**`` and ends with ``USED_BY_MARKER`` counts, never a code or table line quoting the
+    marker. Link targets are written page-relative (``./``-pinned like ``normalize_chapter_links``) and in ``<…>``
+    when they hold spaces or parentheses (``app/(marketing)/page.tsx``). A page ending in a code block left open
+    (a truncated reply) gets the block closed first, so the line is not swallowed by it."""
+    doc_paths = {cf["original_path"]: cf["filename"] for cf in chapter_files if cf.get("original_path")}
+    filenames = set(doc_paths.values())
+    label = get("UI_USED_BY_LINE")
+    for cf in chapter_files:
+        facts = module_facts.get(cf.get("original_path") or "")
+        if not facts:
+            continue
+        parsed = parse_page(cf["content"])
+        generated = {number for number, text in parsed["prose"] if text.lstrip().startswith("**") and text.rstrip().endswith(USED_BY_MARKER)}
+        content = "\n".join(text for number, text in enumerate(cf["content"].split("\n"), start=1) if number not in generated).rstrip()
+        if parsed["unclosed"]:
+            opener = content.split("\n")[parsed["unclosed"][-1] - 1].strip()
+            content += "\n" + re.match(r"`{3,}|~{3,}", opener).group(0)
+        users = [user for user in sorted(facts.get("used_by") or []) if user in doc_paths and user != cf.get("original_path")]
+        if users:
+            links = ", ".join(f"[{md_link_text(user)}]({_page_link(cf['filename'], doc_paths[user], filenames)})" for user in users)
+            content += f"\n\n**{label}:** {links} {USED_BY_MARKER}"
+        cf["content"] = content + "\n\n"
+
+
+def _page_link(page: str, target: str, filenames: set) -> str:
+    """Link target from chapter *page* to chapter *target*, page-relative; ``./``-pinned when the relative path
+    is also another chapter's root-relative path; in ``<…>`` when it holds spaces or parentheses."""
+    directory = posixpath.dirname(page)
+    relative = posixpath.relpath(target, directory) if directory else target
+    if directory and relative in filenames and relative != target:
+        relative = f"./{relative}"
+    return f"<{relative}>" if re.search(r"[\s()]", relative) else relative
+
+
 def write_mkdocs_output(output_path, prep_res, chapter_files):
     """Write all MkDocs output: nav grouping, mkdocs.yml, index, homepage, chapters."""
     project_name = prep_res["project_name"]
@@ -978,7 +1018,8 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     if os.path.exists(legacy_nav_filepath):
         os.remove(legacy_nav_filepath)
 
-    # --- Normalize cross-chapter links ---
+    # --- Deterministic "Used by" line (verified importers), then normalize cross-chapter links ---
+    add_used_by_lines(chapter_files, prep_res.get("module_facts") or {})
     normalize_chapter_links(chapter_files)
 
     # --- Write chapter files ---
@@ -991,6 +1032,9 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
 
     # --- Remove pages left over from earlier runs ---
     prune_stale_pages(api_docs_path, chapter_files)
+
+    # --- Check the written chapters (no LLM; report next to mkdocs.yml, not published) ---
+    run_chapter_check(output_path, api_docs_path, chapter_files, prep_res)
 
 
 def prune_stale_pages(api_docs_path, chapter_files):
@@ -1035,12 +1079,14 @@ def write_standalone_output(output_path, prep_res, chapter_files, ui):
         f.write(index_content)
     emit("FILE_WROTE", path=index_filepath)
 
-    # Write chapter files
+    # Write chapter files (api-reference: with the deterministic "Used by" line)
+    add_used_by_lines(chapter_files, prep_res.get("module_facts") or {})
     for chapter_info in chapter_files:
         chapter_filepath = os.path.join(output_path, chapter_info["filename"])
         with open(chapter_filepath, "w", encoding="utf-8") as f:
             f.write(chapter_info["content"])
         emit("FILE_WROTE", path=chapter_filepath)
+    run_chapter_check(output_path, output_path, chapter_files, prep_res, standalone=True)  # no LLM; report only
 
     # Create full_content.md
     toc_lines = [f"# {ui['toc']}\n"]

@@ -33,7 +33,7 @@ Now the detailed rules:
 - Below the heading, state the source file path: `> **Source:** \`path/to/file.ext\``
 - The `## Technical Overview` section: 1-3 paragraphs on purpose, behavior, and system role. Include a mermaid diagram if the file has control flows, pipelines, or architectural patterns.
 
-- If this is not the first page in the API Index, begin with a brief transition noting how this file relates to the previous one. Reference the previous page with a proper Markdown link using its name{link_lang_note}.
+- If the previous page in the API Index documents a file this one imports (listed under "Project files this file imports" in VERIFIED FACTS), begin with a one-sentence transition linking it{link_lang_note}; otherwise do not claim a relation to the previous page.
 
 - This is an EXHAUSTIVE internal reference. Extract ALL classes, methods, functions, AND important class properties/fields defined in this file.
 - CRITICAL: You MUST include all private methods, protected methods (e.g., methods starting with `_` or `__`), and internal helper functions present in the Source Code Context above. Do not skip any classes or functions — document EVERYTHING in this file.
@@ -50,7 +50,7 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 
 ### `function_or_method_name()`
 **Visibility**: (Public, Protected, or Private)
-**Signature**: `def _function_name(arg1: type) -> type:` (or equivalent in the source language)
+**Signature**: `the declaration exactly as the source writes it`
 
 **Description**: Technical description of the behavior and internal implementation details. What does this actually do under the hood?
 
@@ -64,10 +64,14 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 * `ExceptionType`: When/why it is raised internally.
 
 **Example**:
-```python
+```lang
 # Show ACTUAL usage from the source code — extract a real call site, test case,
 # or the method's own implementation. NEVER invent example code.
 ```
+
+- SIGNATURES: Copy every signature exactly as the source writes it; when VERIFIED FACTS are given below, their signature text is verified source text (one marked "start of the declaration" continues in the source — copy it in full from there). NEVER add type annotations, return types, default values or modifiers the source does not have — describe types in **Parameters** and **Returns** instead.
+
+- CODE FENCES: Tag every code block with the source file's language (`python`, `go`, `typescript`, `java`, …) — the `lang` in the template above is a placeholder.
 
 - IMPORTANT: You MUST reference ACTUAL code from the provided Source Code Context — never invent examples. However, DO NOT dump the entire source file into one massive code block. Instead, extract method-by-method.
 
@@ -83,6 +87,7 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
   * A field-by-field table: `| Field | Type | Description |`
   * Example values where visible in the source code
   * If a function returns a complex dict/list/object (not a simple scalar), document its shape here even if there is no formal type definition.
+  * Name a structure only by a name the source declares (a class, struct, interface, enum, record or type alias). For a dict/tuple/object shape the source does not name, use a plain descriptive heading WITHOUT code formatting (e.g. `### Shared store keys`) — NEVER invent a CamelCase type name for it.
   Skip this section ONLY if every function in the file returns simple scalars (strings, numbers, booleans) or None/void.
 
 - DIAGRAM RULES (ABSOLUTE — applies to ALL visual diagrams in the document):
@@ -93,7 +98,7 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
   * `flowchart TD` — for decision logic, branching, pipeline stages, node architecture, or architectural overviews (MUST use TD direction)
   * `stateDiagram` — for entity lifecycle states
   Include diagrams when they add clarity; omit them for simple data-class or utility files.
-  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead (standard accented letters/diacritics are fully supported inside quotes). For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl.
+  MERMAID RENDERING RULES: All flowcharts MUST use `flowchart TD` (top-down). Never use LR, RL, or BT. All process nodes MUST use rectangular brackets with quoted labels: `nodeId["Label"]`. Never use rounded `("Label")`, stadium `(["Label"])`, hexagon, or other shapes. Decision nodes MAY use diamond shape: `nodeId{{"Decision?"}}`. Do not embed newlines inside node label quotes. Avoid special characters (`&`, `<`, `>`) in labels — use words instead (standard accented letters/diacritics are fully supported inside quotes). For diagrams with 6+ nodes, use `subgraph` blocks to group related nodes and prevent flat sprawl. Edges use Mermaid arrows only (`-->`, `-.->`, `==>`, `-->|label|`) — NEVER write code operators such as `>>`, `|>` or `=>` between nodes, even when the code itself chains objects with them.
   MERMAID STYLING RULES: For flowchart diagrams, define `classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5;` ONCE at the end of the diagram, then apply `class nodeId entryNode` to the first node of the overall flow AND the first node inside each subgraph. Leave ALL other nodes with default Mermaid styling — do NOT add custom colors, fills, or styles to non-entry nodes. Do NOT use `%%{{init}}%%` directives — the site handles theming automatically.
   MERMAID LANGUAGE RULES: All diagram text — node labels, decision diamond texts, edge labels, and subgraph titles — MUST be written in the same language as the rest of the document{mermaid_lang_note}. Node identifiers (IDs) MUST remain ASCII alphanumeric (e.g. `startNode`, `stepInit`), but the displayed label inside quotes MUST use the target language with proper diacritics.
 
@@ -102,7 +107,7 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 - PAGE LENGTH: Aim for 3,000-8,000 words per reference page. This limit includes prose AND code — use per-method extraction (not whole-file dumps) to stay within it. Only if the file defines more than 20 classes or 60+ methods should you fall back to a summary table for the least significant items:
   | Class/Function | Visibility | Responsibility | Key Methods |
 
-- End the page with the `## See Also` section listing related files with Markdown links{link_lang_note}, based on imports or call relationships visible in the source code. Copy link targets EXACTLY from the `(doc: ...)` annotations in the Index — they will be normalized automatically.
+- End the page with the `## See Also` section listing related files with Markdown links{link_lang_note}. When VERIFIED FACTS are given below, link EVERY file listed under "Project files this file imports"; link any other file only when this file's source visibly uses it, and say what this file uses it for. Do NOT link files this file does not use, and do NOT describe what another file does with this one — a "Used by" line listing the verified importers is added automatically. Copy link targets EXACTLY from the `(doc: ...)` annotations — they will be normalized automatically.
 
 - Return ONLY valid Markdown content. Do not include conversational filler.
 
@@ -121,6 +126,8 @@ Your documentation page location: {current_doc_path}
 
 Context from previous pages{prev_summary_note}:
 {previous_chapters_summary}
+
+{verified_facts}
 
 ═══════════════════════════════════════════════════════
 SOURCE CODE CONTEXT — START

@@ -9,6 +9,7 @@ from functools import wraps
 from pocketflow import BatchNode, Node
 
 from utils.call_llm import call_llm
+from utils.chapter_check import source_context
 from utils.crawl_github_files import crawl_github_files
 from utils.crawl_local_files import crawl_local_files
 from utils.facts import (
@@ -66,6 +67,7 @@ from utils.prompts import (
     build_chapter_summary_prompt,
     build_code_file_filter_prompt,
     build_facts_focus_note,
+    build_verified_facts_block,
     load_prompt_template,
     parse_facts_response,
     parse_file_index,
@@ -1350,6 +1352,15 @@ class WriteChapters(BatchNode):
         # Build flat chapter listing: SAME for all chapters (no per-chapter relative paths)
         full_chapter_listing = "\n".join(all_chapters)
 
+        # api-reference: each file's verified facts (ExtractFacts) go into its prompt, with the doc paths of its
+        # imports as See Also link targets
+        module_facts = shared.get("module_facts") or {} if mode == "api-reference" else {}
+        doc_paths = {
+            abstractions[index].get("original_path"): entry["filename"]
+            for index, entry in chapter_filenames.items()
+            if abstractions[index].get("original_path")
+        }
+
         items_to_process = []
         for i, abstraction_index in enumerate(chapter_order):
             if 0 <= abstraction_index < len(abstractions):
@@ -1391,6 +1402,7 @@ class WriteChapters(BatchNode):
                         "thinking_level": thinking_level,
                         "summary_thinking_level": summary_thinking_level,
                         "generation_signature": generation_signature,
+                        "verified_facts": build_verified_facts_block(module_facts.get(abstraction_details.get("original_path")), doc_paths),
                         # Manifest key: the source path is unique; bare names collide (e.g. several __init__.py)
                         "cache_key": abstraction_details.get("original_path") or abstraction_details["name"],
                         "advanced_mode": shared.get("advanced_mode", False),
@@ -1441,6 +1453,7 @@ class WriteChapters(BatchNode):
             hasher = hashlib.md5()
             hasher.update(item.get("generation_signature", "").encode("utf-8"))
             hasher.update(file_context_str.encode("utf-8"))
+            hasher.update(item.get("verified_facts", "").encode("utf-8"))  # a dependency re-resolved elsewhere changes the page
             current_hash = hasher.hexdigest()
 
             manifest_path = os.path.join(output_dir, project_name, ".doc_cache_manifest.json")
@@ -1626,6 +1639,7 @@ class WriteChapters(BatchNode):
             code_comment_note=code_comment_note,
             mermaid_lang_note=mermaid_lang_note,
             tone_note=tone_note,
+            verified_facts=item.get("verified_facts", ""),
         )
 
         # Compute token usage for diagnostics
@@ -1633,6 +1647,7 @@ class WriteChapters(BatchNode):
             "file_context": count_tokens(file_context_str),
             "prev_chapters": prev_chapters_tokens,
             "chapter_listing": count_tokens(item["full_chapter_listing"]),
+            "verified_facts": count_tokens(item.get("verified_facts", "")),
         }
         token_usage["overhead"] = count_tokens(prompt) - sum(token_usage.values())
         emit("LLM_CALL_WRITE_CHAPTER", chapter_num=chapter_num, name=abstraction_name.strip())
@@ -1805,6 +1820,8 @@ class CombineTutorial(Node):
         }
 
         is_mkdocs = shared.get("mkdocs", False)
+        # For the chapter check after writing: the documented files' text and every identifier in the code
+        sources, known_words = source_context(shared.get("files") or [])
 
         # --- Project overview: summary, source line, relationship diagram ---
         # Standalone index.md always shows it; the MkDocs landing page shows it except in api-reference,
@@ -1906,6 +1923,8 @@ class CombineTutorial(Node):
                 "overview": "" if mode == "api-reference" else overview,
                 "chapter_summaries": shared.get("chapter_summaries", []),
                 "module_facts": shared.get("module_facts") or {},  # ExtractFacts (api-reference): verified dependencies
+                "sources": sources,
+                "known_words": known_words,
                 "directory_tree": shared.get("directory_tree", ""),
                 "language": shared.get("language", "english"),
                 "use_cache": shared.get("use_cache", True),
@@ -1928,7 +1947,8 @@ class CombineTutorial(Node):
                 chapter_content = chapters_content[i]
                 if not chapter_content.endswith("\n\n"):
                     chapter_content += "\n\n"
-                chapter_files.append({"filename": filename, "content": chapter_content})
+                original_path = abstractions[abstraction_index].get("original_path", "")
+                chapter_files.append({"filename": filename, "content": chapter_content, "original_path": original_path})
             else:
                 emit("WARN_CHAPTER_MISMATCH", index=i)
 
@@ -1942,6 +1962,9 @@ class CombineTutorial(Node):
             "index_content": index_content,
             "chapter_files": chapter_files,
             "ui": ui,
+            "module_facts": shared.get("module_facts") or {},
+            "sources": sources,
+            "known_words": known_words,
         }
 
     @safe_exec
