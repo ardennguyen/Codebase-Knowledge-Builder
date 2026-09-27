@@ -1,15 +1,19 @@
 """Deterministic checks of written chapters — no LLM, report only (pages are never changed).
 
-Every page: links that point at no page, Mermaid blocks that will not render and code fences left open. Pages
-whose file has verified facts (api-reference, ExtractFacts): verified symbols the page never names, signatures
-that differ from the source, type names in headings that exist nowhere in the code, and See Also links compared
-with the verified dependencies. Language-agnostic like utils/facts.py: word tokens and the file's own text only.
+Every page: links that point at no page, Mermaid blocks that will not render and code fences left open. MkDocs
+output: Markdown the site's renderer reads differently than written (lists and tables shown as text, nested lists
+flattened, lists cut apart, code blocks not rendered), found by rendering the page with the site's own pipeline.
+Pages whose file has verified facts (api-reference, ExtractFacts): verified symbols the page never names,
+signatures that differ from the source, type names in headings that exist nowhere in the code, and See Also links
+compared with the verified dependencies. Language-agnostic like utils/facts.py: word tokens and the file's own
+text only.
 """
 
 import json
 import os
 import posixpath
 import re
+from html.parser import HTMLParser
 from urllib.parse import unquote
 
 from utils.facts import _DECLARATION_MODIFIERS, _DECLARATION_WORDS, _TOP_LEVEL_WORDS, _names_in
@@ -75,6 +79,49 @@ _DIAGRAM_KEYS = {
     "brackets": "CHAPTER_CHECK_DIAGRAM_BRACKETS",
     "label": "CHAPTER_CHECK_DIAGRAM_LABEL",
 }
+# Markdown the site renders differently than written (markup_problems)
+_LIST_ITEM_RE = re.compile(r"^( *)([*+-]|(\d{1,9})[.)])( +|$)")  # a CommonMark list item start (tabs expanded)
+_THEMATIC_BREAK_RE = re.compile(r"^ {0,3}(?:(?:-[ \t]*){3,}|(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|=+[ \t]*)$")  # also a setext underline
+_TABLE_DELIMITER_RE = re.compile(r"^ {0,3}\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$")
+_MARK = "{}"  # private-use characters: no Markdown meaning, kept as they are by the renderer
+_MARK_RE = re.compile("(\\d+)")
+_VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
+_BLOCK_TAGS = {"p", "li", "ul", "ol", "blockquote", "div", "pre", "table", "tr", "td", "th", "h1", "h2", "h3", "h4", "h5", "h6", "dd", "dt"}
+_VISIBLE_MARKER_RE = re.compile(r"^\s*(?:[*+-]|\d{1,9}[.)])(?:\s|$)")  # a rendered line still led by a list marker
+_QUOTE_RE = re.compile(r"^(?: {0,3}> ?)+")
+_CELL_PIPE_RE = re.compile(r"(?<!\\)\|")
+_HARD_BREAK_RE = re.compile(r"(?:[ \t]+|\\)?$")  # a line's trailing spaces or backslash (a hard line break)
+# CommonMark HTML blocks (raw on GitHub): those that run to an end marker, block-level tags, a tag alone on its line
+_HTML_RAW_BLOCKS = tuple(
+    (re.compile(start, re.IGNORECASE), re.compile(end, re.IGNORECASE))
+    for start, end in (
+        (r"^ {0,3}<(?:pre|script|style|textarea)(?:\s|>|$)", r"</(?:pre|script|style|textarea)>"),
+        (r"^ {0,3}<!--", r"-->"),
+        (r"^ {0,3}<\?", r"\?>"),
+        (r"^ {0,3}<!\[CDATA\[", r"\]\]>"),
+        (r"^ {0,3}<![A-Za-z]", r">"),
+    )
+)
+_HTML_BLOCK_RE = re.compile(
+    r"^ {0,3}</?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|"
+    r"fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|"
+    r"noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)(?:\s|/?>|$)",
+    re.IGNORECASE,
+)
+_HTML_TAG_LINE_RE = re.compile(
+    r"""^ {0,3}(?:<[A-Za-z][A-Za-z0-9-]*(?:\s+[A-Za-z_:][\w.:-]*(?:\s*=\s*(?:[^\s"'=<>`]+|'[^']*'|"[^"]*"))?)*\s*/?>"""
+    r"""|</[A-Za-z][A-Za-z0-9-]*\s*>)\s*$"""
+)
+_MARKUP_KEYS = {
+    "lists_as_text": "CHAPTER_CHECK_MARKUP_LISTS_AS_TEXT",
+    "lists_flattened": "CHAPTER_CHECK_MARKUP_LISTS_FLATTENED",
+    "lists_merged": "CHAPTER_CHECK_MARKUP_LISTS_MERGED",
+    "lists_split": "CHAPTER_CHECK_MARKUP_LISTS_SPLIT",
+    "tables_as_text": "CHAPTER_CHECK_MARKUP_TABLES_AS_TEXT",
+    "code_blocks_not_rendered": "CHAPTER_CHECK_MARKUP_CODE_BLOCKS",
+}
+_MARKUP_KINDS = tuple(_MARKUP_KEYS)
+_LIST_RUNS = ("lists_as_text", "lists_flattened", "lists_merged")  # reported once per list, with its item count
 # The deterministic "Used by" line (utils/mkdocs.py), built at run time so this source never holds it literally
 # (a page quoting this line must not look like the generated line)
 USED_BY_MARKER = "<!-- " + "used-by:auto" + " -->"
@@ -90,19 +137,23 @@ def _collapse(text: str) -> str:
 
 
 def parse_page(markdown: str) -> dict:
-    """``{"prose": [(line, text)], "blocks": [{"lang", "start", "text"}], "headings": [(line, level, text)],
+    """``{"prose": [(line, text)], "blocks": [{"lang", "start", "end", "text"}], "headings": [(line, level, text)],
     "unclosed": [line]}``.
 
-    Fenced code blocks (``` or ~~~, closed by a fence of the same character at least as long, at most three
-    spaces deeper than the opener) are separated from prose; line numbers are 1-based. A fence still open at the
-    end of the page is no block (as the MkDocs renderer reads it): its lines are prose again, and the opener is
-    listed in ``unclosed``."""
+    The page as written, read like CommonMark (GitHub): fenced code blocks (``` or ~~~ — a backtick fence's info
+    string holds no backtick — closed by a line of just a fence of the same character at least as long, at most
+    three spaces deeper than the opener) are separated from prose; line numbers are 1-based (``start`` / ``end``:
+    the opening and closing fence lines). A fence still open at the end of the page is no block: its lines are
+    prose again, and the opener is listed in ``unclosed``. Where the site's stricter renderer reads the page
+    differently is found by rendering it (``markup_problems``)."""
     lines = markdown.split("\n")
     prose, blocks, headings, unclosed = [], [], [], []
     number = 0
     while number < len(lines):
         line = lines[number]
         opener = _FENCE_RE.match(line)
+        if opener and opener.group(2)[0] == "`" and "`" in line[opener.end(2) :]:  # ```mermaid``` in prose: inline code
+            opener = None
         if opener:
             indent, fence = len(opener.group(1)), opener.group(2)
             for end in range(number + 1, len(lines)):
@@ -111,10 +162,10 @@ def parse_page(markdown: str) -> dict:
                     closer
                     and closer.group(2)[0] == fence[0]
                     and len(closer.group(2)) >= len(fence)
-                    and not closer.group(3)
+                    and not lines[end][closer.end(2) :].strip()
                     and len(closer.group(1)) <= indent + 3
                 ):
-                    blocks.append({"lang": opener.group(3).lower(), "start": number + 1, "text": "\n".join(lines[number + 1 : end])})
+                    blocks.append({"lang": opener.group(3).lower(), "start": number + 1, "end": end + 1, "text": "\n".join(lines[number + 1 : end])})
                     number = end + 1
                     break
             else:
@@ -210,6 +261,309 @@ def diagram_problems(parsed: dict) -> list[dict]:
         for number, block in enumerate(diagrams, start=1)
         for problem in mermaid_problems(block["text"])
     ]
+
+
+def _cells(row: str) -> int:
+    row = row.strip().removeprefix("|")
+    row = row[:-1] if row.endswith("|") and not row.endswith("\\|") else row
+    return len(re.split(r"(?<!\\)\|", row))
+
+
+def _cell_cut(line: str, start: int) -> int:
+    """Where a mark goes in a table header row: before the pipe that ends its first cell (an escaped ``\\|`` is
+    cell text), so the row keeps its cells; -1 when the row has no such pipe (the mark goes at the end)."""
+    body = line[start:]
+    offset = start + len(body) - len(body.lstrip()) + (1 if body.lstrip().startswith("|") else 0)
+    match = _CELL_PIPE_RE.search(line, offset)
+    return match.start() if match else -1
+
+
+def _html_block_end(lines: list[str], index: int, content: str, previous: str) -> int | None:
+    """Index of the first line after the CommonMark HTML block starting at *index* — raw HTML on GitHub too,
+    nothing to compare — or None when the line starts none: ``<pre>`` / ``<script>`` / ``<style>`` /
+    ``<textarea>``, comments and declarations run to their end marker, block-level tags (``<div>``,
+    ``<details>`` …) and a tag alone on its line (not right after a text line) to the next blank line."""
+    for start, end in _HTML_RAW_BLOCKS:
+        if start.match(content):
+            if end.search(content):
+                return index + 1
+            return next((line + 1 for line in range(index + 1, len(lines)) if end.search(lines[line])), len(lines))
+    if _HTML_BLOCK_RE.match(content) or (previous != "text" and _HTML_TAG_LINE_RE.match(content)):
+        return next((line for line in range(index + 1, len(lines)) if not lines[line].strip()), len(lines))
+    return None
+
+
+def _intended_marks(lines: list[str], blocks: list[dict]) -> list[tuple[int, str, dict]]:
+    """``(line index, kind, expectation)`` for the lines whose rendering is compared, read as CommonMark (GitHub)
+    reads them, blockquote contents included: list items (``item``: nesting ``depth``, ``numbered``; ``start``
+    when a numbered list begins past 1, ``continues`` for a numbered item of a list already open), paragraphs
+    that continue a list item after a blank line or a code block (``content``), table header rows (``table``:
+    GitHub splits one off a paragraph; ``item`` when inside a list item, ``cut`` where its mark goes), the first
+    code line of every fenced block (``code``: its ``opener`` line, ``item``) and the first line after a block
+    (``after``: prose a block not closed as written would swallow). HTML blocks are raw on GitHub: skipped."""
+    fences = {block["start"] - 1: block for block in blocks}
+    marks, stack = [], []  # stack: (content column, numbered) of the open list items, outermost first
+    previous, after, depth = "blank", None, 0
+    index = 0
+    while index < len(lines):
+        quote = _QUOTE_RE.match(lines[index])
+        prefix = quote.group(0) if quote else ""
+        if prefix.count(">") != depth:  # a quote starts or ends: its content is read on its own
+            depth, stack, previous = prefix.count(">"), [], "blank"
+        expanded = lines[index][len(prefix) :].expandtabs(4)
+        indent = len(expanded) - len(expanded.lstrip(" "))
+        if index in fences:
+            block = fences[index]
+            while stack and indent < stack[-1][0]:
+                stack.pop()
+            first = next((line for line in range(index + 1, block["end"] - 1) if lines[line].strip()), None)
+            if first is not None:
+                marks.append((first, "code", {"opener": index + 1, "item": bool(stack)}))
+            index, previous, after = block["end"], "other", index + 1
+            continue
+        if not expanded.strip():
+            index, previous = index + 1, "blank"
+            continue
+        base = stack[-1][0] if stack and indent >= stack[-1][0] else 0  # the open item's content column
+        following = _QUOTE_RE.sub("", lines[index + 1]).expandtabs(4) if index + 1 < len(lines) else ""
+        head, delimiter = expanded[base:], following[base:] if not following[:base].strip() else following
+        table = (
+            len(head) - len(head.lstrip()) <= 3
+            and "|" in head
+            and "|" in delimiter
+            and _TABLE_DELIMITER_RE.match(delimiter)
+            and _cells(head) == _cells(delimiter)
+        )
+        rule = indent <= 3 and _THEMATIC_BREAK_RE.match(expanded)  # a mark would make it text: the next line gets it
+        html = None if table or rule else _html_block_end(lines, index, expanded, previous)
+        if after and not (table or rule or html):  # a table's own mark shows where its header landed
+            marks.append((index, "after", {"opener": after}))
+        if not rule:
+            after = None
+        if html is not None:
+            while stack and indent < stack[-1][0]:
+                stack.pop()
+            index, previous = html, "other"
+            continue
+        if rule or (indent <= 3 and _HEADING_RE.match(expanded.lstrip())):
+            stack.clear()
+            index, previous = index + 1, "other"
+            continue
+        item = _LIST_ITEM_RE.match(expanded)
+        # an item nests at most 3 columns past its parent's content (more is indented code); outside a list, only
+        # a bullet or a list starting at 1, not empty, interrupts a paragraph
+        if (
+            item
+            and indent < (stack[-1][0] if stack else 0) + 4
+            and not (previous == "text" and not stack and (item.group(3) not in (None, "1") or not expanded[item.end() :].strip()))
+        ):
+            numbered, popped = item.group(3) is not None, None
+            while stack and indent < stack[-1][0]:
+                popped = stack.pop()
+            spaces = len(item.group(4))
+            stack.append((item.end(2) + (spaces if 1 <= spaces <= 4 else 1), numbered))
+            if expanded[item.end() :].strip():  # an empty item gets no mark: a lone "-" marked would stop being a setext underline
+                expect = {"depth": len(stack) - 1, "numbered": numbered}
+                if numbered:
+                    if popped is None or not popped[1]:  # no numbered sibling before it: a new list
+                        if item.group(3) != "1":
+                            expect["start"] = int(item.group(3))
+                    else:
+                        expect["continues"] = True
+                marks.append((index, "item", expect))
+            index, previous = index + 1, "item"
+            continue
+        if table:
+            if previous != "text":
+                while stack and indent < stack[-1][0]:
+                    stack.pop()
+            marks.append((index, "table", {"item": bool(stack), "cut": _cell_cut(lines[index], len(prefix))}))
+            index, previous = index + 2, "table"
+            continue
+        if previous == "table":  # table rows run until a blank line or another block
+            index += 1
+            continue
+        if previous in ("blank", "other"):
+            while stack and indent < stack[-1][0]:
+                stack.pop()
+            if stack and indent < stack[-1][0] + 4:  # 4 columns past the item's text: indented code there too
+                marks.append((index, "content", {}))
+        index, previous = index + 1, "text"
+    return marks
+
+
+class _MarkContexts(HTMLParser):
+    """Where each mark landed in the rendered page: ``found[mark] = {"li", "depth", "number", "list", "th", "code",
+    "marker"}`` — inside a list item (its list's nesting depth, the item's position in that list, the list's tag),
+    a table header cell, a code block (``code``: the block's number; ``<pre>`` or a Mermaid ``div``, its text read
+    whole since highlighting splits it into spans), and whether the rendered line still starts with a list marker
+    (a list shown as text, even inside an item)."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack, self.items, self.found = [], [], {}
+        self.code = None  # (stack depth, context, text parts) of the code block being read
+        self.blocks = 0  # code blocks seen
+        self.text = ""  # rendered text of the current block so far
+
+    def _context(self, code: int | None = None, marker: bool = False) -> dict:
+        tags = [tag for tag, _classes in self.stack]
+        lists = [tag for tag in tags if tag in ("ul", "ol")]
+        return {
+            "li": "li" in tags,
+            "depth": len(lists) - 1,
+            "number": self.items[-1] if self.items else 0,
+            "list": lists[-1] if lists else None,
+            "th": "th" in tags,
+            "code": code,
+            "marker": marker,
+        }
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "br":
+            self.text += "\n"
+        if tag in _VOID_TAGS:
+            return
+        if tag in _BLOCK_TAGS:
+            self.text = ""
+        classes = (dict(attrs).get("class") or "").split()
+        self.stack.append((tag, classes))
+        if tag in ("ul", "ol"):
+            self.items.append(0)
+        elif tag == "li" and self.items:
+            self.items[-1] += 1
+        if self.code is None and (tag == "pre" or "mermaid-raw" in classes):
+            self.blocks += 1
+            self.code = (len(self.stack), self._context(self.blocks), [])
+
+    def handle_endtag(self, tag):
+        depth = next((depth for depth in range(len(self.stack) - 1, -1, -1) if self.stack[depth][0] == tag), None)
+        if depth is None:
+            return
+        if tag in _BLOCK_TAGS:
+            self.text = ""
+        if self.code and depth < self.code[0]:
+            for match in _MARK_RE.finditer("".join(self.code[2])):
+                self.found[int(match.group(1))] = self.code[1]
+            self.code = None
+        for closed, _classes in self.stack[depth:]:
+            if closed in ("ul", "ol") and self.items:
+                self.items.pop()
+        del self.stack[depth:]
+
+    def handle_data(self, data):
+        if self.code:
+            self.code[2].append(data)
+            return
+        for match in _MARK_RE.finditer(data):
+            line = (self.text + data[: match.start()]).rsplit("\n", 1)[-1]
+            self.found[int(match.group(1))] = self._context(marker=bool(_VISIBLE_MARKER_RE.match(line)))
+        self.text += data
+
+
+def markup_problems(markdown: str, parsed: dict, render) -> dict:
+    """Markdown the site renders differently than written: ``{kind: [finding]}`` for ``_MARKUP_KINDS``.
+
+    The page is read as CommonMark (GitHub) reads it — what the writer means — and rendered with the site's own
+    Markdown pipeline (*render*: markdown → HTML, ``utils/mkdocs.site_renderer``), stricter than GitHub: a list or
+    table right after a text line, a label or a code block stays text; nested items and an item's paragraphs,
+    code and tables need 4 spaces; a numbered list right after a bulleted one (or the reverse) joins it; every
+    list is numbered from 1; the opening fence may hold only the language (and ``title`` / ``linenums`` /
+    ``hl_lines``), and closes only at the same fence and indentation. Each list item, table header row, first
+    code line, list-item paragraph and line after a code block gets an invisible mark, and where the mark lands in
+    the rendered HTML says how it rendered — exact, since it is the renderer itself. Findings: ``lists_as_text``
+    / ``lists_flattened`` (``{"line", "items"}``, one per list), ``lists_merged``, ``lists_split`` (an item's
+    paragraph, code or table shown after the list, or a numbered list not starting at its number),
+    ``tables_as_text``, ``code_blocks_not_rendered`` (``{"line", "opener"}``: also a block whose missing closer
+    swallows the text after it — reported once, and not again for the next block, whose opening fence the
+    renderer took as that closer)."""
+    # the renderer reads a lone \r as a line break (a mark after it would move to a line of its own); a page's own
+    # private-use characters must not read as marks — neither changes the line numbers
+    lines = markdown.replace("\r\n", "\n").replace("", "").replace("", "").split("\n")
+    marks = _intended_marks(lines, parsed["blocks"])
+    tagged = list(lines)
+    for number, (index, kind, expect) in enumerate(marks):
+        mark, line = _MARK.format(number), tagged[index]
+        cut = expect["cut"] if kind == "table" else _HARD_BREAK_RE.search(line).start()  # before a hard break's spaces / "\"
+        tagged[index] = line[:cut] + mark + line[cut:] if cut >= 0 else line + mark
+    contexts = _MarkContexts()
+    contexts.feed(render("\n".join(tagged)))
+    contexts.close()
+    found = contexts.found
+    owners = {}  # rendered code block -> [(mark, opener)] of the fenced blocks whose first code line it shows
+    for number, (_index, kind, expect) in enumerate(marks):
+        if kind == "code" and found.get(number) and found[number]["code"]:
+            owners.setdefault(found[number]["code"], []).append((number, expect["opener"]))
+    problems = {kind: [] for kind in _MARKUP_KINDS}
+    blamed = set()  # fenced blocks already reported
+
+    def blame(opener: int) -> None:
+        if opener not in blamed:
+            blamed.add(opener)
+            problems["code_blocks_not_rendered"].append({"line": opener, "opener": lines[opener - 1].strip()[:80]})
+
+    split_since_item, run, item_listed, last_block = False, None, True, None  # run: list items being folded
+    for number, (index, kind, expect) in enumerate(marks):
+        where = found.get(number)
+        if where is None:  # the mark vanished (raw HTML, a comment): nothing to compare
+            continue
+        if kind != "code" and where["code"]:
+            # swallowed by a code block: blame the fenced block that opened it (its first code line is there, before
+            # this mark); none when it is an indented or raw <pre> block, or opened by a stray fence of a block
+            # already reported
+            opened = [opener for mark, opener in owners.get(where["code"], []) if mark < number]
+            if opened:
+                blame(opened[-1])
+            run = None
+            continue
+        problem = None
+        if kind == "after":
+            continue
+        if kind == "item":
+            if not where["li"] or where["marker"]:
+                problem = "lists_as_text"
+            elif where["depth"] < expect["depth"]:
+                problem = "lists_flattened"
+            elif where["list"] != ("ol" if expect["numbered"] else "ul"):
+                problem = "lists_merged"
+            elif ("start" in expect or expect.get("continues")) and where["number"] == 1 and not split_since_item:
+                problem = "lists_split"
+            split_since_item, item_listed = False, where["li"] and not where["marker"]
+        elif kind == "content":
+            problem = None if where["li"] or not item_listed else "lists_split"
+        elif kind == "table":
+            if not where["th"]:
+                problem = "tables_as_text"
+            elif expect["item"] and not where["li"] and item_listed:
+                problem = "lists_split"
+        else:
+            knock_on, last_block = last_block in blamed, expect["opener"]
+            if not where["code"]:
+                if not knock_on:  # else its opening fence was taken as the closer of the block before, reported
+                    blame(expect["opener"])
+                run = None
+                continue
+            if expect["item"] and not where["li"] and item_listed:
+                problem = "lists_split"
+        if problem is None:
+            run = None
+            continue
+        if problem == "lists_split" and kind != "item":
+            split_since_item = True
+        if problem in _LIST_RUNS and run and run[0] == problem:
+            between = [line.strip() for line in lines[run[2] + 1 : index]]
+            if all(between) or not any(between):  # the same list, tight or loose
+                run[1]["items"] += 1
+                run = (problem, run[1], index)
+                continue
+        finding = {"line": expect["opener"] if kind == "code" else index + 1}
+        if problem in _LIST_RUNS:
+            finding["items"] = 1
+            run = (problem, finding, index)
+        else:
+            run = None
+        problems[problem].append(finding)
+    return problems
 
 
 def _page_text(parsed: dict) -> str:
@@ -452,10 +806,19 @@ def see_also_issues(page: str, parsed: dict, module: str, module_by_page: dict, 
 
 
 def check_chapter(
-    page: str, markdown: str, exists, module: str = "", facts: dict | None = None, source: str = "", known_words=None, module_by_page=None
+    page: str,
+    markdown: str,
+    exists,
+    module: str = "",
+    facts: dict | None = None,
+    source: str = "",
+    known_words=None,
+    module_by_page=None,
+    render=None,
 ) -> dict:
     """All checks for one written chapter → report dict (empty lists when nothing is wrong). Facts of a file
-    whose extraction failed (``claims`` None) are not used."""
+    whose extraction failed (``claims`` None) are not used. With *render* (the site's Markdown renderer, MkDocs
+    output) the ``markup_problems`` too."""
     parsed = parse_page(markdown)
     report = {
         "page": page,
@@ -464,6 +827,8 @@ def check_chapter(
         "diagram_problems": diagram_problems(parsed),
         "unclosed_fences": [{"line": line} for line in parsed["unclosed"]],
     }
+    if render:
+        report |= markup_problems(markdown, parsed, render)
     if facts and facts.get("claims") is not None:
         symbols = facts.get("symbols", [])
         mismatches, embellished = signature_issues(parsed, source, symbols)
@@ -483,18 +848,25 @@ _FACT_KINDS = (
     "missing_symbols", "signature_mismatches", "signatures_embellished", "unknown_type_names", "see_also_unrelated",
     "see_also_missing_dependencies",
 )  # fmt: skip
-_COUNTED = ("broken_links", "diagram_problems", "unclosed_fences", *_FACT_KINDS)
+_COUNTED = ("broken_links", "diagram_problems", "unclosed_fences", *_MARKUP_KINDS, *_FACT_KINDS)
 
 
-def run_chapter_check(output_path: str, site_dir: str, chapter_files: list, prep_res: dict, standalone: bool = False) -> dict:
+def _line_list(findings: list[dict], limit: int = 10) -> str:
+    lines = [str(finding["line"]) for finding in findings]
+    return ", ".join(lines[:limit]) + (" …" if len(lines) > limit else "")
+
+
+def run_chapter_check(output_path: str, site_dir: str, chapter_files: list, prep_res: dict, standalone: bool = False, render=None) -> dict:
     """Check every written chapter, write ``chapter_check.json`` next to the output (not published), emit a
-    summary plus a warning per broken link and per diagram that will not render, and return the report.
+    summary plus a warning per broken link, per diagram that will not render and per page and kind of Markdown
+    the site renders differently than written, and return the report.
 
     *site_dir*: folder the chapter filenames are relative to (``docs/api`` for MkDocs, the output folder
     for standalone). ``prep_res`` may carry ``module_facts`` (ExtractFacts), ``sources`` ({path: content}
     of the documented files) and ``known_words`` (identifier tokens of every crawled file). Standalone output is
     never pruned, so there a link to an ``.md`` file counts only when it is a current page (not a stale
-    ``NN_`` page of an earlier run)."""
+    ``NN_`` page of an earlier run). *render*: the site's Markdown renderer (MkDocs output, ``site_renderer``);
+    standalone pages are read by GitHub-style renderers, so they get no ``markup_problems``."""
     module_facts = prep_res.get("module_facts") or {}
     sources = prep_res.get("sources") or {}
     known_words = prep_res.get("known_words") or set()
@@ -513,7 +885,7 @@ def run_chapter_check(output_path: str, site_dir: str, chapter_files: list, prep
     for cf in chapter_files:
         module = cf.get("original_path") or ""
         report = check_chapter(
-            cf["filename"], cf["content"], exists, module, module_facts.get(module), sources.get(module, ""), known_words, module_by_page
+            cf["filename"], cf["content"], exists, module, module_facts.get(module), sources.get(module, ""), known_words, module_by_page, render
         )
         reports.append(report)
         for problem in report["broken_links"]:
@@ -523,6 +895,9 @@ def run_chapter_check(output_path: str, site_dir: str, chapter_files: list, prep
             grouped.setdefault((problem["diagram"], problem["problem"]), []).append(str(problem["line"]))
         for (diagram, problem), lines in grouped.items():  # one warning per diagram and kind, its lines listed
             emit(_DIAGRAM_KEYS[problem], page=cf["filename"], line=", ".join(lines), diagram=diagram)
+        for kind in _MARKUP_KINDS:  # one warning per page and kind, its lines listed
+            if report.get(kind):
+                emit(_MARKUP_KEYS[kind], page=cf["filename"], count=len(report[kind]), lines=_line_list(report[kind]))
         for kind in _FACT_KINDS:
             for item in report.get(kind, []):
                 emit("CHAPTER_CHECK_DETAIL", page=cf["filename"], kind=kind, detail=json.dumps(item, ensure_ascii=False))
@@ -540,6 +915,8 @@ def run_chapter_check(output_path: str, site_dir: str, chapter_files: list, prep
         diagram_problems=totals["diagrams_failing"],
         unclosed_fences=totals["unclosed_fences"],
     )
+    if render:
+        emit("CHAPTER_CHECK_MARKUP", **{kind: totals[kind] for kind in _MARKUP_KINDS})
     if any("missing_symbols" in report for report in reports):  # pages with verified facts
         emit("CHAPTER_CHECK_FACTS", **{kind: totals[kind] for kind in _FACT_KINDS})
     return document

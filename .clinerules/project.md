@@ -211,6 +211,7 @@ See `docs/design.md` Section 14 for the canonical specification. Key rules:
 - **Mermaid:** `flowchart TD` only, rectangular nodes, `classDef entryNode` styling, no `%%{{init}}%%`
 - **Data Structures:** Mandatory in api-reference, sdk, and advanced modes
 - **Code fidelity:** Preserve exact code and original comments — never translate inside code fences
+- **Markdown format:** The site renders with Python-Markdown, stricter than GitHub — blank line before and after every list, table and code block (also right under a `**Label**:` line), 4-space nesting, only the language after the opening fence. Keep the page layouts in `draft_chapters.md` that way; the chapter check reports what still renders differently
 - **Skeleton headings:** MUST be translated to the target `{language}`
 
 ---

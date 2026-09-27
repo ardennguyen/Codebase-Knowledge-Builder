@@ -46,6 +46,8 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear{code_comment_note}. Never translate, rephrase, or modify code or inline comments. Your own explanations belong in prose paragraphs outside the code fence.
 
+- MARKDOWN FORMAT: Write strict Markdown that renders the same everywhere (the documentation site is stricter than GitHub). Leave a blank line before and after every list, table and code block — also for a list right after a `**Label**:` line or after a sentence ending in a colon. Indent nested list items, and paragraphs or code blocks that belong to a list item, by 4 spaces. After the opening ``` write only the language name (the code starts on the next line), and close the block with the same fence at the same indentation.
+
 - CODE BLOCK SIZE: Keep each code block to 10-20 lines. The absolute maximum for any single code block is 30 lines — only when showing a tightly coupled struct/class definition that cannot be meaningfully split. Use `// ...` to skip boilerplate. NEVER exceed 30 lines in one code block.
 
 - EXPLANATION RATIO: For every code block, you MUST write at least one full paragraph (3-5 sentences minimum) of explanation immediately after it. The overall chapter should be at least 60% prose and at most 40% code by line count. If you find yourself showing code block after code block with only a single sentence between them, STOP and add more explanation — describe what the code achieves, why it's designed this way, what edge cases it handles, and how it connects to the next block.

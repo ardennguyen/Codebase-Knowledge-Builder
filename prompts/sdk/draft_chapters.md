@@ -40,17 +40,21 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 - Generate standard Markdown API documentation enforcing this exact structure for each public method/function:
 
 ### `function_or_method_name()`
+
 **Signature**: `def function_name(arg1: type) -> type:` (or equivalent in the source language)
 
 **Description**: What does this function do for the developer? Focus on usage, not internal implementation.
 
 **Parameters**:
+
 * `arg1` (type): Description of the argument.
 
 **Returns**:
+
 * `type`: Description of the return value.
 
 **Example**:
+
 ```python
 # Show a REAL-WORLD usage example derived from actual source code patterns.
 # Extract from tests, existing call sites, or construct from the method's
@@ -64,6 +68,8 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 - NO INVENTED CODE: Every code block, usage example, and snippet MUST be derived from the actual Source Code Context provided above. Extract real call sites, test cases, or construct examples strictly from the method's actual signature and visible behavior. Never fabricate hypothetical integration code that doesn't exist in the source.
 
 - CODE FIDELITY: Inside fenced code blocks, preserve ALL original source code and comments EXACTLY as they appear — in their original language, with original variable names, and original inline comments. Never translate, rephrase, or modify code or inline comments. Your own explanations belong in prose paragraphs outside the code fence.
+
+- MARKDOWN FORMAT: Write strict Markdown that renders the same everywhere (the documentation site is stricter than GitHub). Leave a blank line before and after every list, table and code block — also for a list right after a `**Label**:` line or after a sentence ending in a colon. Indent nested list items, and paragraphs or code blocks that belong to a list item, by 4 spaces. After the opening ``` write only the language name (the code starts on the next line), and close the block with the same fence at the same indentation.
 
 - CODE BLOCK SIZE: Keep individual code blocks to 10-50 lines each. Use `// ...` (or the language's comment syntax) to skip boilerplate, repetitive branches, or internal plumbing. NEVER exceed 50 lines in one code block. Follow each code block with a prose paragraph explaining the usage pattern and integration implications.
 

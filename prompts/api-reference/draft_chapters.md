@@ -49,21 +49,27 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 - Generate standard Markdown API documentation enforcing this exact structure for each method/function:
 
 ### `function_or_method_name()`
+
 **Visibility**: (Public, Protected, or Private)
+
 **Signature**: `the declaration exactly as the source writes it`
 
 **Description**: Technical description of the behavior and internal implementation details. What does this actually do under the hood?
 
 **Parameters**:
+
 * `arg1` (type): Description of the argument.
 
 **Returns**:
+
 * `type`: Description of the return value.
 
 **Raises**:
+
 * `ExceptionType`: When/why it is raised internally.
 
 **Example**:
+
 ```lang
 # Show ACTUAL usage from the source code — extract a real call site, test case,
 # or the method's own implementation. NEVER invent example code.
@@ -72,6 +78,8 @@ FUNCTION DOCUMENTATION DEPTH — scale proportionally to complexity:
 - SIGNATURES: Copy every signature exactly as the source writes it; when VERIFIED FACTS are given below, their signature text is verified source text (one marked "start of the declaration" continues in the source — copy it in full from there). NEVER add type annotations, return types, default values or modifiers the source does not have — describe types in **Parameters** and **Returns** instead.
 
 - CODE FENCES: Tag every code block with the source file's language (`python`, `go`, `typescript`, `java`, …) — the `lang` in the template above is a placeholder.
+
+- MARKDOWN FORMAT: Write strict Markdown that renders the same everywhere (the documentation site is stricter than GitHub). Leave a blank line before and after every list, table and code block — also for a list right after a `**Label**:` line or after a sentence ending in a colon. Indent nested list items, and paragraphs or code blocks that belong to a list item, by 4 spaces. After the opening ``` write only the language name (the code starts on the next line), and close the block with the same fence at the same indentation.
 
 - IMPORTANT: You MUST reference ACTUAL code from the provided Source Code Context — never invent examples. However, DO NOT dump the entire source file into one massive code block. Instead, extract method-by-method.
 

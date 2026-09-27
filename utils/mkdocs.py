@@ -153,6 +153,33 @@ def build_mermaid_init_js() -> str:
     return MERMAID_INIT_JS
 
 
+def site_renderer():
+    """``render(markdown) -> html`` with the Markdown pipeline of the generated site, for the chapter check: MkDocs'
+    built-in ``toc``, ``tables`` and ``fenced_code`` plus the ``markdown_extensions`` read from
+    ``build_mkdocs_config`` itself (its ``!!python/name`` tag resolved like MkDocs does), so the check never reads a
+    page differently from the site. None when Markdown or the extensions are not installed (they come with MkDocs)."""
+    try:
+        import markdown
+
+        config = yaml.load(build_mkdocs_config("", "nav:"), Loader=yaml.Loader)  # our own config
+        names, options = ["toc", "tables", "fenced_code"], {}
+        for entry in config["markdown_extensions"]:
+            name, settings = next(iter(entry.items())) if isinstance(entry, dict) else (entry, None)
+            if name not in names:
+                names.append(name)
+            if settings:
+                options[name] = settings
+        renderer = markdown.Markdown(extensions=names, extension_configs=options)
+    except Exception as e:
+        emit("CHAPTER_CHECK_NO_RENDERER", error=f"{type(e).__name__}: {e}")
+        return None
+
+    def render(text: str) -> str:
+        return renderer.reset().convert(text)
+
+    return render
+
+
 # ---------------------------------------------------------------------------
 # Chapter filenames and summary text helpers
 # ---------------------------------------------------------------------------
@@ -756,9 +783,9 @@ def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:
         parsed = parse_page(cf["content"])
         generated = {number for number, text in parsed["prose"] if text.lstrip().startswith("**") and text.rstrip().endswith(USED_BY_MARKER)}
         content = "\n".join(text for number, text in enumerate(cf["content"].split("\n"), start=1) if number not in generated).rstrip()
-        if parsed["unclosed"]:
-            opener = content.split("\n")[parsed["unclosed"][-1] - 1].strip()
-            content += "\n" + re.match(r"`{3,}|~{3,}", opener).group(0)
+        if parsed["unclosed"]:  # closed by the same fence at the same indentation (the only closer the site reads)
+            opener = re.match(r"\s*(?:`{3,}|~{3,})", cf["content"].split("\n")[parsed["unclosed"][-1] - 1]).group(0)
+            content += "\n" + opener
         users = [user for user in sorted(facts.get("used_by") or []) if user in doc_paths and user != cf.get("original_path")]
         if users:
             links = ", ".join(f"[{md_link_text(user)}]({_page_link(cf['filename'], doc_paths[user], filenames)})" for user in users)
@@ -1033,8 +1060,8 @@ def write_mkdocs_output(output_path, prep_res, chapter_files):
     # --- Remove pages left over from earlier runs ---
     prune_stale_pages(api_docs_path, chapter_files)
 
-    # --- Check the written chapters (no LLM; report next to mkdocs.yml, not published) ---
-    run_chapter_check(output_path, api_docs_path, chapter_files, prep_res)
+    # --- Check the written chapters (no LLM; report next to mkdocs.yml, not published), rendered like the site ---
+    run_chapter_check(output_path, api_docs_path, chapter_files, prep_res, render=site_renderer())
 
 
 def prune_stale_pages(api_docs_path, chapter_files):
