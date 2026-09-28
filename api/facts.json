@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "project": "Codebase-Knowledge-Builder",
- "commit": "f8021292e5714a85508d1f23254a014ae681e5d9",
+ "commit": "f1030acf5231156bcde31f61b1ab372635dd6673",
  "note": "Every symbol, dependency, config key and error below was found in the source at the given line. Presence is verified, completeness is not: 'coverage' compares verified to claimed facts per module.",
  "modules": {
   "flow.py": {
@@ -911,15 +911,24 @@
    }
   },
   "nodes.py": {
-   "source_sha256": "c4cbb3cc6a754b764d68814abb17efa7b4612661c06c99dfbdc69089b99154fc",
-   "lines": 2010,
+   "source_sha256": "a5fabc2e03506e49a5bfec558cc4708a87aac96f7e762fed2e24c930af8b4bb2",
+   "lines": 2056,
    "symbols": [
+    {
+     "name": "_retry_subject",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 45,
+     "signature": "def _retry_subject(item) -> str:",
+     "match": "exact"
+    },
     {
      "name": "safe_exec",
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 45,
+     "line": 63,
      "signature": "def safe_exec(func):",
      "match": "exact"
     },
@@ -928,7 +937,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 88,
+     "line": 112,
      "signature": "def emit_step_subtotals(*steps: str) -> None:",
      "match": "exact"
     },
@@ -937,7 +946,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 96,
+     "line": 120,
      "signature": "class DeterministicFileMapper(Node):",
      "match": "exact"
     },
@@ -946,7 +955,7 @@
      "kind": "method",
      "parent": "DeterministicFileMapper",
      "visibility": "public",
-     "line": 97,
+     "line": 121,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -955,7 +964,7 @@
      "kind": "method",
      "parent": "DeterministicFileMapper",
      "visibility": "public",
-     "line": 110,
+     "line": 134,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -964,7 +973,7 @@
      "kind": "method",
      "parent": "DeterministicFileMapper",
      "visibility": "public",
-     "line": 123,
+     "line": 147,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     },
@@ -973,7 +982,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 165,
+     "line": 189,
      "signature": "class ExtractFacts(BatchNode):",
      "match": "exact"
     },
@@ -982,7 +991,7 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 176,
+     "line": 200,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -991,7 +1000,7 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 234,
+     "line": 260,
      "signature": "def exec(self, item):",
      "match": "exact"
     },
@@ -1000,7 +1009,7 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "private",
-     "line": 266,
+     "line": 297,
      "signature": "def _exec_manifest(self, item):",
      "match": "exact"
     },
@@ -1009,8 +1018,17 @@
      "kind": "constant",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 285,
+     "line": 320,
      "signature": "FOLLOWUP_ROUNDS = 3  # follow-up calls per module at most, each on FACTS_FOCUS_LIMIT lines not asked before",
+     "match": "exact"
+    },
+    {
+     "name": "FOLLOWUP_ATTEMPTS",
+     "kind": "constant",
+     "parent": "ExtractFacts",
+     "visibility": "public",
+     "line": 321,
+     "signature": "FOLLOWUP_ATTEMPTS = 2  # a follow-up call that fails or does not parse is sent once more, uncached",
      "match": "exact"
     },
     {
@@ -1018,7 +1036,7 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "private",
-     "line": 287,
+     "line": 323,
      "signature": "def _follow_up(self, item, claims, asked=()):",
      "match": "exact"
     },
@@ -1027,7 +1045,7 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 327,
+     "line": 364,
      "signature": "def exec_fallback(self, item, exc):",
      "match": "exact"
     },
@@ -1036,7 +1054,7 @@
      "kind": "method",
      "parent": "ExtractFacts",
      "visibility": "public",
-     "line": 338,
+     "line": 375,
      "signature": "def post(self, shared, prep_res, exec_res_list):",
      "match": "exact"
     },
@@ -1045,7 +1063,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 427,
+     "line": 464,
      "signature": "class ContextRouter(Node):",
      "match": "exact"
     },
@@ -1054,7 +1072,7 @@
      "kind": "method",
      "parent": "ContextRouter",
      "visibility": "public",
-     "line": 428,
+     "line": 465,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1063,7 +1081,7 @@
      "kind": "method",
      "parent": "ContextRouter",
      "visibility": "public",
-     "line": 524,
+     "line": 561,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -1072,7 +1090,7 @@
      "kind": "method",
      "parent": "ContextRouter",
      "visibility": "public",
-     "line": 575,
+     "line": 612,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     },
@@ -1081,7 +1099,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 588,
+     "line": 625,
      "signature": "class MapAbstractions(BatchNode):",
      "match": "exact"
     },
@@ -1090,7 +1108,7 @@
      "kind": "method",
      "parent": "MapAbstractions",
      "visibility": "public",
-     "line": 589,
+     "line": 626,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1099,7 +1117,7 @@
      "kind": "method",
      "parent": "MapAbstractions",
      "visibility": "public",
-     "line": 606,
+     "line": 644,
      "signature": "def exec(self, item):",
      "match": "exact"
     },
@@ -1108,7 +1126,7 @@
      "kind": "method",
      "parent": "MapAbstractions",
      "visibility": "public",
-     "line": 660,
+     "line": 698,
      "signature": "def post(self, shared, prep_res, exec_res_list):",
      "match": "exact"
     },
@@ -1117,7 +1135,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 669,
+     "line": 707,
      "signature": "class ReduceAbstractions(Node):",
      "match": "exact"
     },
@@ -1126,7 +1144,7 @@
      "kind": "method",
      "parent": "ReduceAbstractions",
      "visibility": "public",
-     "line": 670,
+     "line": 708,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1135,7 +1153,7 @@
      "kind": "method",
      "parent": "ReduceAbstractions",
      "visibility": "public",
-     "line": 683,
+     "line": 722,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -1144,7 +1162,7 @@
      "kind": "method",
      "parent": "ReduceAbstractions",
      "visibility": "public",
-     "line": 726,
+     "line": 765,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     },
@@ -1153,7 +1171,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 730,
+     "line": 769,
      "signature": "class FetchRepo(Node):",
      "match": "exact"
     },
@@ -1162,7 +1180,7 @@
      "kind": "method",
      "parent": "FetchRepo",
      "visibility": "public",
-     "line": 731,
+     "line": 770,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1171,7 +1189,7 @@
      "kind": "method",
      "parent": "FetchRepo",
      "visibility": "public",
-     "line": 763,
+     "line": 802,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -1180,7 +1198,7 @@
      "kind": "method",
      "parent": "FetchRepo",
      "visibility": "public",
-     "line": 796,
+     "line": 835,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     },
@@ -1189,7 +1207,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 800,
+     "line": 839,
      "signature": "class IdentifyAbstractions(Node):",
      "match": "exact"
     },
@@ -1198,7 +1216,7 @@
      "kind": "method",
      "parent": "IdentifyAbstractions",
      "visibility": "public",
-     "line": 801,
+     "line": 840,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1207,7 +1225,7 @@
      "kind": "method",
      "parent": "IdentifyAbstractions",
      "visibility": "public",
-     "line": 854,
+     "line": 893,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -1216,7 +1234,7 @@
      "kind": "method",
      "parent": "IdentifyAbstractions",
      "visibility": "public",
-     "line": 956,
+     "line": 995,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     },
@@ -1225,7 +1243,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 960,
+     "line": 999,
      "signature": "class AnalyzeRelationships(Node):",
      "match": "exact"
     },
@@ -1234,7 +1252,7 @@
      "kind": "method",
      "parent": "AnalyzeRelationships",
      "visibility": "public",
-     "line": 961,
+     "line": 1000,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1243,7 +1261,7 @@
      "kind": "method",
      "parent": "AnalyzeRelationships",
      "visibility": "public",
-     "line": 1087,
+     "line": 1126,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -1252,7 +1270,7 @@
      "kind": "method",
      "parent": "AnalyzeRelationships",
      "visibility": "public",
-     "line": 1185,
+     "line": 1224,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     },
@@ -1261,7 +1279,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 1191,
+     "line": 1230,
      "signature": "class OrderChapters(Node):",
      "match": "exact"
     },
@@ -1270,7 +1288,7 @@
      "kind": "method",
      "parent": "OrderChapters",
      "visibility": "public",
-     "line": 1192,
+     "line": 1231,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1279,7 +1297,7 @@
      "kind": "method",
      "parent": "OrderChapters",
      "visibility": "public",
-     "line": 1240,
+     "line": 1279,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -1288,7 +1306,7 @@
      "kind": "method",
      "parent": "OrderChapters",
      "visibility": "public",
-     "line": 1303,
+     "line": 1342,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     },
@@ -1297,7 +1315,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 1308,
+     "line": 1347,
      "signature": "class WriteChapters(BatchNode):",
      "match": "exact"
     },
@@ -1306,7 +1324,7 @@
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1309,
+     "line": 1348,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1315,7 +1333,7 @@
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1425,
+     "line": 1464,
      "signature": "def exec(self, item):",
      "match": "exact"
     },
@@ -1324,7 +1342,7 @@
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1725,
+     "line": 1769,
      "signature": "def exec_fallback(self, item, exc):",
      "match": "exact"
     },
@@ -1333,7 +1351,7 @@
      "kind": "method",
      "parent": "WriteChapters",
      "visibility": "public",
-     "line": 1739,
+     "line": 1783,
      "signature": "def post(self, shared, prep_res, exec_res_list):",
      "match": "exact"
     },
@@ -1342,7 +1360,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 1764,
+     "line": 1810,
      "signature": "class CombineTutorial(Node):",
      "match": "exact"
     },
@@ -1351,7 +1369,7 @@
      "kind": "method",
      "parent": "CombineTutorial",
      "visibility": "public",
-     "line": 1765,
+     "line": 1811,
      "signature": "def prep(self, shared):",
      "match": "exact"
     },
@@ -1360,7 +1378,7 @@
      "kind": "method",
      "parent": "CombineTutorial",
      "visibility": "public",
-     "line": 1971,
+     "line": 2017,
      "signature": "def exec(self, prep_res):",
      "match": "exact"
     },
@@ -1369,7 +1387,7 @@
      "kind": "method",
      "parent": "CombineTutorial",
      "visibility": "public",
-     "line": 1997,
+     "line": 2043,
      "signature": "def post(self, shared, prep_res, exec_res):",
      "match": "exact"
     }
@@ -1435,34 +1453,34 @@
      "module": "utils/output.py",
      "target": "utils.output",
      "line": 42,
-     "evidence": "from utils.output import emit, emit_raw, get",
+     "evidence": "from utils.output import brief, emit, emit_raw, get",
      "via": "path"
     },
     {
      "module": "utils/llm_common.py",
      "target": "utils.llm_common",
-     "line": 64,
+     "line": 88,
      "evidence": "from utils.llm_common import get_step_summary",
      "via": "path"
     },
     {
      "module": "utils/prompts.py",
      "target": "utils.prompts",
-     "line": 65,
+     "line": 89,
      "evidence": "from utils.prompts import (",
      "via": "path"
     },
     {
      "module": "utils/thinking.py",
      "target": "utils.thinking",
-     "line": 77,
+     "line": 101,
      "evidence": "from utils.thinking import resolve_thinking_level",
      "via": "path"
     },
     {
      "module": "utils/token_utils.py",
      "target": "utils.token_utils",
-     "line": 78,
+     "line": 102,
      "evidence": "from utils.token_utils import (",
      "via": "path"
     }
@@ -1508,145 +1526,152 @@
    "errors": [
     {
      "name": "ValueError",
-     "line": 262,
+     "line": 291,
      "evidence": "raise ValueError(f\"only {checked['found']}/{checked['claimed']} claims found in the source\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 281,
+     "line": 314,
      "evidence": "raise ValueError(f\"{claims['unparsed']} manifest items are not valid YAML\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 791,
+     "line": 830,
      "evidence": "raise ValueError(\"No matching files found. Check your directory and include/exclude patterns.\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 907,
+     "line": 946,
      "evidence": "raise ValueError(\"LLM Output is not a list\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 912,
+     "line": 951,
      "evidence": "raise ValueError(f\"Missing keys in abstraction item: {item}\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 914,
+     "line": 953,
      "evidence": "raise ValueError(f\"Name is not a string in item: {item}\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 916,
+     "line": 955,
      "evidence": "raise ValueError(f\"Description is not a string in item: {item}\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 918,
+     "line": 957,
      "evidence": "raise ValueError(f\"file_indices is not a list in item: {item}\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1135,
+     "line": 1174,
      "evidence": "raise ValueError(\"LLM output is not a dict or missing keys ('summary', 'relationships')\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1137,
+     "line": 1176,
      "evidence": "raise ValueError(\"summary is not a string\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1139,
+     "line": 1178,
      "evidence": "raise ValueError(\"relationships is not a list\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1147,
+     "line": 1186,
      "evidence": "raise ValueError(f\"Missing keys (expected from_abstraction, to_abstraction, label) in relationship item: {rel}\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1150,
+     "line": 1189,
      "evidence": "raise ValueError(f\"Relationship label is not a string: {rel}\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1161,
+     "line": 1200,
      "evidence": "raise ValueError(\"Missing valid integer for from_abstraction or to_abstraction.\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1271,
+     "line": 1310,
      "evidence": "raise ValueError(\"LLM output is not a list\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1285,
+     "line": 1324,
      "evidence": "raise ValueError(f\"Invalid index {idx} in ordered list. Max index is {num_abstractions - 1}.\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1287,
+     "line": 1326,
      "evidence": "raise ValueError(f\"Duplicate index {idx} found in ordered list.\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1292,
+     "line": 1331,
      "evidence": "raise ValueError(f\"Could not parse index from ordered list entry: {entry}\") from e",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 1657,
+     "line": 1698,
      "evidence": "raise ValueError(f\"Empty chapter response for '{abstraction_name.strip()}'\")",
+     "match": "exact",
+     "role": "raised"
+    },
+    {
+     "name": "RuntimeError",
+     "line": 1749,
+     "evidence": "raise RuntimeError(get(\"ERR_CHAPTER_SUMMARY\", error=e)) from e",
      "match": "exact",
      "role": "raised"
     }
    ],
    "coverage": {
-    "claimed": 91,
-    "verified": 91
+    "claimed": 94,
+    "verified": 94
    },
    "completeness": {
     "import_lines": 21,
-    "declaration_lines": 51,
+    "declaration_lines": 53,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
@@ -1665,9 +1690,16 @@
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "46ee4f422289ee1983a619594254821c",
+   "facts_hash": "8a392d7c52b79a9117f5b2e5166bac55",
    "claims": {
     "symbols": [
+     {
+      "name": "_retry_subject",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _retry_subject(item) -> str:"
+     },
      {
       "name": "safe_exec",
       "kind": "function",
@@ -1744,6 +1776,13 @@
       "parent": "ExtractFacts",
       "visibility": "public",
       "signature": "FOLLOWUP_ROUNDS = 3  # follow-up calls per module at most, each on FACTS_FOCUS_LIMIT lines not asked before"
+     },
+     {
+      "name": "FOLLOWUP_ATTEMPTS",
+      "kind": "constant",
+      "parent": "ExtractFacts",
+      "visibility": "public",
+      "signature": "FOLLOWUP_ATTEMPTS = 2  # a follow-up call that fails or does not parse is sent once more, uncached"
      },
      {
       "name": "_follow_up",
@@ -2065,7 +2104,7 @@
      },
      {
       "target": "utils.output",
-      "evidence": "from utils.output import emit, emit_raw, get"
+      "evidence": "from utils.output import brief, emit, emit_raw, get"
      },
      {
       "target": "utils.llm_common",
@@ -2193,14 +2232,18 @@
      {
       "name": "ValueError",
       "evidence": "raise ValueError(f\"Empty chapter response for '{abstraction_name.strip()}'\")"
+     },
+     {
+      "name": "RuntimeError",
+      "evidence": "raise RuntimeError(get(\"ERR_CHAPTER_SUMMARY\", error=e)) from e"
      }
     ],
     "unparsed": 0
    }
   },
   "utils/call_llm.py": {
-   "source_sha256": "f2d7c47275a943571578f667d762876bb1ead28f56559f13d3af4e3e54d29096",
-   "lines": 381,
+   "source_sha256": "7e3cb9bbab1077d8d8f2fec3ce0cbb4d94b7baade3b58b2e057331f586f3877a",
+   "lines": 385,
    "symbols": [
     {
      "name": "cache_file",
@@ -2279,7 +2322,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 229,
+     "line": 233,
      "signature": "def _call_llm_anthropic(prompt: str, thinking_level: str | None = None) -> str:",
      "match": "exact"
     },
@@ -2288,7 +2331,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 237,
+     "line": 241,
      "signature": "def _call_llm_gemini(prompt: str, thinking_level: str | None = None) -> str:",
      "match": "exact"
     },
@@ -2297,7 +2340,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 245,
+     "line": 249,
      "signature": "def _call_llm_openrouter(prompt: str, thinking_level: str | None = None) -> str:",
      "match": "exact"
     },
@@ -2306,7 +2349,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 251,
+     "line": 255,
      "signature": "def _emit_call_usage(step: str, estimate: int, usage: dict, measured: int) -> None:",
      "match": "exact"
     },
@@ -2315,7 +2358,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 275,
+     "line": 279,
      "signature": "def call_llm(prompt: str, use_cache: bool = True, thinking_level: str | None = None, step: str | None = None) -> str:",
      "match": "exact"
     }
@@ -2359,21 +2402,21 @@
     {
      "module": "utils/llm_anthropic.py",
      "target": "utils.llm_anthropic",
-     "line": 231,
+     "line": 235,
      "evidence": "from utils.llm_anthropic import call_anthropic",
      "via": "path"
     },
     {
      "module": "utils/llm_gemini.py",
      "target": "utils.llm_gemini",
-     "line": 239,
+     "line": 243,
      "evidence": "from utils.llm_gemini import call_gemini",
      "via": "path"
     },
     {
      "module": "utils/llm_openrouter.py",
      "target": "utils.llm_openrouter",
-     "line": 246,
+     "line": 250,
      "evidence": "from utils.llm_openrouter import call_openrouter",
      "via": "path"
     }
@@ -2414,33 +2457,48 @@
      "line": 8
     }
    ],
-   "config": [],
+   "config": [
+    {
+     "name": "LLM_PROVIDER",
+     "line": 118,
+     "evidence": "raise ValueError(\"LLM_PROVIDER environment variable is required\")",
+     "match": "exact",
+     "kind": "env"
+    }
+   ],
    "errors": [
+    {
+     "name": "FileNotFoundError",
+     "line": 40,
+     "evidence": "except FileNotFoundError:",
+     "match": "exact",
+     "role": "caught"
+    },
+    {
+     "name": "json.JSONDecodeError",
+     "line": 42,
+     "evidence": "except (json.JSONDecodeError, OSError) as e:",
+     "match": "exact",
+     "role": "caught"
+    },
+    {
+     "name": "OSError",
+     "line": 42,
+     "evidence": "except (json.JSONDecodeError, OSError) as e:",
+     "match": "exact",
+     "role": "caught"
+    },
+    {
+     "name": "TypeError",
+     "line": 60,
+     "evidence": "except (OSError, TypeError) as e:",
+     "match": "exact",
+     "role": "caught"
+    },
     {
      "name": "ValueError",
      "line": 118,
      "evidence": "raise ValueError(\"LLM_PROVIDER environment variable is required\")",
-     "match": "exact",
-     "role": "raised"
-    },
-    {
-     "name": "ValueError",
-     "line": 132,
-     "evidence": "raise ValueError(f\"{model_var} environment variable is required\")",
-     "match": "exact",
-     "role": "raised"
-    },
-    {
-     "name": "ValueError",
-     "line": 134,
-     "evidence": "raise ValueError(f\"{base_url_var} environment variable is required\")",
-     "match": "exact",
-     "role": "raised"
-    },
-    {
-     "name": "ValueError",
-     "line": 177,
-     "evidence": "raise ValueError(f\"Provider returned invalid JSON. Status Code: {response.status_code}\") from None",
      "match": "exact",
      "role": "raised"
     },
@@ -2453,79 +2511,109 @@
     },
     {
      "name": "Exception",
-     "line": 218,
+     "line": 222,
      "evidence": "raise Exception(error_message) from e",
      "match": "exact",
      "role": "raised"
     },
     {
-     "name": "Exception",
-     "line": 220,
-     "evidence": "raise Exception(f\"Failed to connect to {provider} API. Check your network connection.\") from e",
+     "name": "requests.exceptions.HTTPError",
+     "line": 215,
+     "evidence": "except requests.exceptions.HTTPError as e:",
      "match": "exact",
-     "role": "raised"
+     "role": "caught"
     },
     {
-     "name": "Exception",
-     "line": 222,
-     "evidence": "raise Exception(f\"Request to {provider} API timed out.\") from e",
+     "name": "requests.exceptions.ConnectionError",
+     "line": 223,
+     "evidence": "except requests.exceptions.ConnectionError as e:",
      "match": "exact",
-     "role": "raised"
+     "role": "caught"
     },
     {
-     "name": "Exception",
-     "line": 224,
-     "evidence": "raise Exception(f\"An error occurred while making the request to {provider}: {e}\") from e",
+     "name": "requests.exceptions.Timeout",
+     "line": 225,
+     "evidence": "except requests.exceptions.Timeout as e:",
      "match": "exact",
-     "role": "raised"
+     "role": "caught"
     },
     {
-     "name": "Exception",
-     "line": 226,
-     "evidence": "raise Exception(f\"Failed to parse response as JSON from {provider}. The server might have returned an invalid response.\") from e",
+     "name": "requests.exceptions.RequestException",
+     "line": 227,
+     "evidence": "except requests.exceptions.RequestException as e:",
      "match": "exact",
-     "role": "raised"
+     "role": "caught"
+    },
+    {
+     "name": "requests.exceptions.JSONDecodeError",
+     "line": 169,
+     "evidence": "except (ValueError, requests.exceptions.JSONDecodeError):",
+     "match": "exact",
+     "role": "caught"
     },
     {
      "name": "ImportError",
-     "line": 233,
+     "line": 237,
      "evidence": "raise ImportError(\"LLM_PROVIDER=ANTHROPIC requires the 'anthropic' package: pip install -r requirements.txt\") from e",
      "match": "exact",
      "role": "raised"
     },
     {
-     "name": "ImportError",
-     "line": 241,
-     "evidence": "raise ImportError(\"LLM_PROVIDER=GEMINI requires the 'google-genai' package (>=1.56): pip install -r requirements.txt\") from e",
-     "match": "exact",
-     "role": "raised"
-    },
-    {
      "name": "LLMRefusalError",
-     "line": 337,
+     "line": 341,
      "evidence": "except LLMRefusalError as e:",
      "match": "exact",
      "role": "caught"
     }
    ],
    "coverage": {
-    "claimed": 48,
-    "verified": 48
+    "claimed": 53,
+    "verified": 50
    },
    "completeness": {
-    "import_lines": 29,
+    "import_lines": 30,
     "declaration_lines": 11,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
-     "status": "none",
-     "asked": []
+     "status": "done",
+     "asked": [
+      43,
+      61,
+      188,
+      207,
+      258,
+      259,
+      285,
+      286,
+      371,
+      373
+     ]
     }
    },
-   "rejected": [],
+   "rejected": [
+    {
+     "kind": "config",
+     "name": "<provider>_MODEL",
+     "evidence": "model_var = f\"{provider}_MODEL\"",
+     "reason": "name/evidence not in source"
+    },
+    {
+     "kind": "config",
+     "name": "<provider>_BASE_URL",
+     "evidence": "base_url_var = f\"{provider}_BASE_URL\"",
+     "reason": "name/evidence not in source"
+    },
+    {
+     "kind": "config",
+     "name": "<provider>_API_KEY",
+     "evidence": "api_key_var = f\"{provider}_API_KEY\"",
+     "reason": "name/evidence not in source"
+    }
+   ],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "3af2da24666972ce34619b6e335899de",
+   "facts_hash": "0975065b65bc1e579700188928b4412a",
    "claims": {
     "symbols": [
      {
@@ -2654,36 +2742,12 @@
       "evidence": "from utils.output import emit"
      },
      {
-      "target": "utils.output",
-      "evidence": "from utils.output import emit, emit_raw"
-     },
-     {
-      "target": "utils.output",
-      "evidence": "from utils.output import emit, get"
-     },
-     {
-      "target": "utils.output",
-      "evidence": "from utils.output import init as init_output"
-     },
-     {
       "target": "utils.llm_common",
       "evidence": "from utils.llm_common import ("
      },
      {
-      "target": "utils.llm_common",
-      "evidence": "from utils.llm_common import record_usage"
-     },
-     {
-      "target": "utils.llm_common",
-      "evidence": "from utils.llm_common import TruncatedResponse"
-     },
-     {
       "target": "utils.llm_config",
       "evidence": "from utils.llm_config import ("
-     },
-     {
-      "target": "utils.llm_config",
-      "evidence": "from utils.llm_config import check_llm_auth"
      },
      {
       "target": "utils.thinking",
@@ -2692,14 +2756,6 @@
      {
       "target": "utils.token_utils",
       "evidence": "from utils.token_utils import count_tokens_raw, observe_prompt_tokens"
-     },
-     {
-      "target": "utils.token_utils",
-      "evidence": "from utils.token_utils import format_cost"
-     },
-     {
-      "target": "utils.token_utils",
-      "evidence": "from utils.token_utils import count_tokens"
      },
      {
       "target": "utils.llm_anthropic",
@@ -2712,25 +2768,82 @@
      {
       "target": "utils.llm_openrouter",
       "evidence": "from utils.llm_openrouter import call_openrouter"
+     },
+     {
+      "target": "utils.output",
+      "evidence": "from utils.output import emit, emit_raw"
+     },
+     {
+      "target": "utils.llm_common",
+      "evidence": "from utils.llm_common import record_usage"
+     },
+     {
+      "target": "utils.llm_common",
+      "evidence": "from utils.llm_common import TruncatedResponse"
+     },
+     {
+      "target": "utils.output",
+      "evidence": "from utils.output import emit, get"
+     },
+     {
+      "target": "utils.token_utils",
+      "evidence": "from utils.token_utils import format_cost"
+     },
+     {
+      "target": "utils.token_utils",
+      "evidence": "from utils.token_utils import count_tokens"
+     },
+     {
+      "target": "utils.llm_config",
+      "evidence": "from utils.llm_config import check_llm_auth"
+     },
+     {
+      "target": "utils.output",
+      "evidence": "from utils.output import init as init_output"
      }
     ],
-    "config": [],
-    "errors": [
+    "config": [
      {
-      "name": "ValueError",
+      "name": "LLM_PROVIDER",
+      "kind": "env",
       "evidence": "raise ValueError(\"LLM_PROVIDER environment variable is required\")"
      },
      {
-      "name": "ValueError",
-      "evidence": "raise ValueError(f\"{model_var} environment variable is required\")"
+      "name": "<provider>_MODEL",
+      "kind": "env",
+      "evidence": "model_var = f\"{provider}_MODEL\""
+     },
+     {
+      "name": "<provider>_BASE_URL",
+      "kind": "env",
+      "evidence": "base_url_var = f\"{provider}_BASE_URL\""
+     },
+     {
+      "name": "<provider>_API_KEY",
+      "kind": "env",
+      "evidence": "api_key_var = f\"{provider}_API_KEY\""
+     }
+    ],
+    "errors": [
+     {
+      "name": "FileNotFoundError",
+      "evidence": "except FileNotFoundError:"
+     },
+     {
+      "name": "json.JSONDecodeError",
+      "evidence": "except (json.JSONDecodeError, OSError) as e:"
+     },
+     {
+      "name": "OSError",
+      "evidence": "except (json.JSONDecodeError, OSError) as e:"
+     },
+     {
+      "name": "TypeError",
+      "evidence": "except (OSError, TypeError) as e:"
      },
      {
       "name": "ValueError",
-      "evidence": "raise ValueError(f\"{base_url_var} environment variable is required\")"
-     },
-     {
-      "name": "ValueError",
-      "evidence": "raise ValueError(f\"Provider returned invalid JSON. Status Code: {response.status_code}\") from None"
+      "evidence": "raise ValueError(\"LLM_PROVIDER environment variable is required\")"
      },
      {
       "name": "RuntimeError",
@@ -2741,28 +2854,28 @@
       "evidence": "raise Exception(error_message) from e"
      },
      {
-      "name": "Exception",
-      "evidence": "raise Exception(f\"Failed to connect to {provider} API. Check your network connection.\") from e"
+      "name": "requests.exceptions.HTTPError",
+      "evidence": "except requests.exceptions.HTTPError as e:"
      },
      {
-      "name": "Exception",
-      "evidence": "raise Exception(f\"Request to {provider} API timed out.\") from e"
+      "name": "requests.exceptions.ConnectionError",
+      "evidence": "except requests.exceptions.ConnectionError as e:"
      },
      {
-      "name": "Exception",
-      "evidence": "raise Exception(f\"An error occurred while making the request to {provider}: {e}\") from e"
+      "name": "requests.exceptions.Timeout",
+      "evidence": "except requests.exceptions.Timeout as e:"
      },
      {
-      "name": "Exception",
-      "evidence": "raise Exception(f\"Failed to parse response as JSON from {provider}. The server might have returned an invalid response.\") from e"
+      "name": "requests.exceptions.RequestException",
+      "evidence": "except requests.exceptions.RequestException as e:"
+     },
+     {
+      "name": "requests.exceptions.JSONDecodeError",
+      "evidence": "except (ValueError, requests.exceptions.JSONDecodeError):"
      },
      {
       "name": "ImportError",
       "evidence": "raise ImportError(\"LLM_PROVIDER=ANTHROPIC requires the 'anthropic' package: pip install -r requirements.txt\") from e"
-     },
-     {
-      "name": "ImportError",
-      "evidence": "raise ImportError(\"LLM_PROVIDER=GEMINI requires the 'google-genai' package (>=1.56): pip install -r requirements.txt\") from e"
      },
      {
       "name": "LLMRefusalError",
@@ -4257,7 +4370,7 @@
    }
   },
   "utils/crawl_github_files.py": {
-   "source_sha256": "3ad6521526e3d166c2a1af6d3de2d3f134b78a5f619031a1ec77bb9b09f7e2e0",
+   "source_sha256": "0871e5a1f211e73c13b2de02d31c588e41fb81be15b451032898f14a52d97892",
    "lines": 568,
    "symbols": [
     {
@@ -4278,6 +4391,51 @@
      "end_line": 24,
      "signature": "def crawl_github_files(\n    repo_url,\n    token=None,\n    max_file_size: int = DEFAULT_MAX_FILE_SIZE,\n    use_relative_paths: bool = False,\n    include_patterns: str | set[str] | None = None,\n    exclude_patterns: str | set[str] | None = None,\n):",
      "match": "joined"
+    },
+    {
+     "name": "should_include_file",
+     "kind": "function",
+     "parent": "crawl_github_files",
+     "visibility": "private",
+     "line": 51,
+     "signature": "def should_include_file(file_path: str, file_name: str, gitignore_spec=None) -> bool:",
+     "match": "exact"
+    },
+    {
+     "name": "fetch_branches",
+     "kind": "function",
+     "parent": "crawl_github_files",
+     "visibility": "private",
+     "line": 226,
+     "signature": "def fetch_branches(owner: str, repo: str):",
+     "match": "exact"
+    },
+    {
+     "name": "check_tree",
+     "kind": "function",
+     "parent": "crawl_github_files",
+     "visibility": "private",
+     "line": 256,
+     "signature": "def check_tree(owner: str, repo: str, tree: str):",
+     "match": "exact"
+    },
+    {
+     "name": "join_parts",
+     "kind": "function",
+     "parent": "crawl_github_files",
+     "visibility": "private",
+     "line": 272,
+     "signature": "def join_parts(i):",
+     "match": "exact"
+    },
+    {
+     "name": "fetch_contents",
+     "kind": "function",
+     "parent": "crawl_github_files",
+     "visibility": "private",
+     "line": 331,
+     "signature": "def fetch_contents(path):",
+     "match": "exact"
     }
    ],
    "depends_on": [
@@ -4356,8 +4514,8 @@
     }
    ],
    "coverage": {
-    "claimed": 16,
-    "verified": 16
+    "claimed": 21,
+    "verified": 21
    },
    "completeness": {
     "import_lines": 11,
@@ -4374,7 +4532,7 @@
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "7338ae7b6c860c4a879c4f24da06425e",
+   "facts_hash": "6e1cdeb18131818a12b20381551126f8",
    "claims": {
     "symbols": [
      {
@@ -4390,6 +4548,41 @@
       "parent": "",
       "visibility": "public",
       "signature": "def crawl_github_files(\n    repo_url,\n    token=None,"
+     },
+     {
+      "name": "should_include_file",
+      "kind": "function",
+      "parent": "crawl_github_files",
+      "visibility": "private",
+      "signature": "def should_include_file(file_path: str, file_name: str, gitignore_spec=None) -> bool:"
+     },
+     {
+      "name": "fetch_branches",
+      "kind": "function",
+      "parent": "crawl_github_files",
+      "visibility": "private",
+      "signature": "def fetch_branches(owner: str, repo: str):"
+     },
+     {
+      "name": "check_tree",
+      "kind": "function",
+      "parent": "crawl_github_files",
+      "visibility": "private",
+      "signature": "def check_tree(owner: str, repo: str, tree: str):"
+     },
+     {
+      "name": "join_parts",
+      "kind": "function",
+      "parent": "crawl_github_files",
+      "visibility": "private",
+      "signature": "def join_parts(i):"
+     },
+     {
+      "name": "fetch_contents",
+      "kind": "function",
+      "parent": "crawl_github_files",
+      "visibility": "private",
+      "signature": "def fetch_contents(path):"
      }
     ],
     "dependencies": [
@@ -7460,15 +7653,15 @@
    }
   },
   "utils/llm_anthropic.py": {
-   "source_sha256": "cd51c37970dc2eb45bba1c8343fd8ede153839ceae535b58825e0647355a698a",
-   "lines": 436,
+   "source_sha256": "43f3efa34aa285bfd1a974f73a5df2bea5b01e823b476e12b3132261d9805686",
+   "lines": 467,
    "symbols": [
     {
      "name": "EFFORT_LEVELS",
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 55,
+     "line": 57,
      "signature": "EFFORT_LEVELS = ANTHROPIC_EFFORT_LEVELS",
      "match": "exact"
     },
@@ -7477,7 +7670,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 60,
+     "line": 62,
      "signature": "_ADAPTIVE_PREFIXES = ANTHROPIC_ADAPTIVE_PREFIXES",
      "match": "exact"
     },
@@ -7486,7 +7679,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 61,
+     "line": 63,
      "signature": "_NO_XHIGH_PREFIXES = ANTHROPIC_NO_XHIGH_PREFIXES",
      "match": "exact"
     },
@@ -7495,7 +7688,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 62,
+     "line": 64,
      "signature": "_THINKING_BY_DEFAULT_PREFIXES = ANTHROPIC_THINKING_BY_DEFAULT_PREFIXES",
      "match": "exact"
     },
@@ -7504,7 +7697,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 68,
+     "line": 70,
      "signature": "_FALLBACK_PREFIXES = (\"claude-opus-5\", \"claude-fable-5\")",
      "match": "exact"
     },
@@ -7513,7 +7706,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 69,
+     "line": 71,
      "signature": "_FALLBACK_DEFAULT_BETA = \"server-side-fallback-2026-07-01\"",
      "match": "exact"
     },
@@ -7522,7 +7715,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 70,
+     "line": 72,
      "signature": "_FALLBACK_LIST_BETA = \"server-side-fallback-2026-06-01\"",
      "match": "exact"
     },
@@ -7531,17 +7724,16 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 73,
-     "end_line": 75,
-     "signature": "_MODEL_LIMITS = {\n    \"claude-haiku-4-5\": (200_000, 64_000),\n}",
-     "match": "joined"
+     "line": 75,
+     "signature": "_MODEL_LIMITS = {",
+     "match": "exact"
     },
     {
      "name": "_DEFAULT_LIMITS",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 76,
+     "line": 78,
      "signature": "_DEFAULT_LIMITS = (1_000_000, 128_000)",
      "match": "exact"
     },
@@ -7550,7 +7742,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 81,
+     "line": 83,
      "signature": "_BUDGET_BY_LEVEL = ANTHROPIC_BUDGET_BY_LEVEL",
      "match": "exact"
     },
@@ -7559,7 +7751,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 83,
+     "line": 85,
      "signature": "_TRUNCATION_STOPS = (\"max_tokens\", \"model_context_window_exceeded\")",
      "match": "exact"
     },
@@ -7568,18 +7760,25 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 87,
-     "end_line": 100,
-     "signature": "_PRICING = { \"claude-opus-5-5\": (4.00, 20.00, 0.20), \"claude-opus-5\": (5.00, 25.00, 0.50), \"claude-fable-5-1\": (10.00, 50.00, 0.25), \"claude-fable-5\": (10.00, 50.00, 1.00), \"claude-mythos-5-1\": (10.00, 50.00, 0.25), \"claude-mythos-5\": (10.00, 50.00, 1.00), \"claude-sonnet-5\": (2.00, 10.00, 0.20), \"cl",
-     "match": "joined",
-     "truncated": true
+     "line": 89,
+     "signature": "_PRICING = {",
+     "match": "exact"
+    },
+    {
+     "name": "__all__",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 107,
+     "signature": "__all__ = [\"LLMRefusalError\", \"TruncatedResponse\", \"call_anthropic\", \"get_model_limits\"]",
+     "match": "exact"
     },
     {
      "name": "_client",
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 111,
+     "line": 113,
      "signature": "_client = None",
      "match": "exact"
     },
@@ -7588,7 +7787,7 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 112,
+     "line": 114,
      "signature": "_model_limits_cache = {}",
      "match": "exact"
     },
@@ -7597,8 +7796,44 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 113,
+     "line": 115,
      "signature": "_fallbacks_disabled = False",
+     "match": "exact"
+    },
+    {
+     "name": "_SDK_MAX_RETRIES",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 118,
+     "signature": "_SDK_MAX_RETRIES = 3  # the client's own retries (408/409/429/5xx, connection errors, timeouts)",
+     "match": "exact"
+    },
+    {
+     "name": "_SdkRetryRecords",
+     "kind": "class",
+     "parent": "",
+     "visibility": "private",
+     "line": 121,
+     "signature": "class _SdkRetryRecords:",
+     "match": "exact"
+    },
+    {
+     "name": "__init__",
+     "kind": "method",
+     "parent": "_SdkRetryRecords",
+     "visibility": "public",
+     "line": 126,
+     "signature": "def __init__(self):",
+     "match": "exact"
+    },
+    {
+     "name": "__call__",
+     "kind": "method",
+     "parent": "_SdkRetryRecords",
+     "visibility": "public",
+     "line": 129,
+     "signature": "def __call__(self, record):",
      "match": "exact"
     },
     {
@@ -7606,7 +7841,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 116,
+     "line": 146,
      "signature": "def _get_client():",
      "match": "exact"
     },
@@ -7615,7 +7850,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 126,
+     "line": 157,
      "signature": "def get_model() -> str:",
      "match": "exact"
     },
@@ -7624,7 +7859,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 130,
+     "line": 161,
      "signature": "def _matches(model: str, prefixes) -> bool:",
      "match": "exact"
     },
@@ -7633,7 +7868,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 134,
+     "line": 165,
      "signature": "def uses_adaptive_thinking(model: str) -> bool:",
      "match": "exact"
     },
@@ -7642,7 +7877,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 138,
+     "line": 169,
      "signature": "def get_model_limits(model: str) -> tuple[int, int]:",
      "match": "exact"
     },
@@ -7651,7 +7886,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 154,
+     "line": 185,
      "signature": "def normalize_effort(model: str, level: str | None) -> str | None:",
      "match": "exact"
     },
@@ -7660,7 +7895,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 162,
+     "line": 193,
      "signature": "def _fallback_config(model: str) -> tuple[list[str], dict]:",
      "match": "exact"
     },
@@ -7669,7 +7904,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 175,
+     "line": 206,
      "signature": "def _build_request(prompt: str, model: str, effort: str | None, max_tokens: int) -> tuple[dict, list[str]]:",
      "match": "exact"
     },
@@ -7678,7 +7913,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 204,
+     "line": 235,
      "signature": "def _resolve_max_tokens(prompt_tokens: int, model: str, effort: str | None) -> tuple[int, int]:",
      "match": "exact"
     },
@@ -7687,7 +7922,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 226,
+     "line": 257,
      "signature": "def _stream_message(params: dict, betas: list[str]):",
      "match": "exact"
     },
@@ -7696,7 +7931,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 235,
+     "line": 266,
      "signature": "def _fallback_rejected(error_text: str, params: dict) -> bool:",
      "match": "exact"
     },
@@ -7705,7 +7940,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 244,
+     "line": 275,
      "signature": "def _send(params: dict, betas: list[str]):",
      "match": "exact"
     },
@@ -7714,7 +7949,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 258,
+     "line": 289,
      "signature": "def _price(model: str, tokens_in: int, tokens_out: int, cache_read: int, cache_write: int) -> float | None:",
      "match": "exact"
     },
@@ -7723,7 +7958,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 266,
+     "line": 297,
      "signature": "def _tokens(usage) -> tuple[int, int, int, int]:",
      "match": "exact"
     },
@@ -7732,7 +7967,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 275,
+     "line": 306,
      "signature": "def _thinking_tokens(usage) -> int:",
      "match": "exact"
     },
@@ -7741,7 +7976,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 280,
+     "line": 311,
      "signature": "def _declined_before_output(message) -> bool:",
      "match": "exact"
     },
@@ -7750,7 +7985,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 285,
+     "line": 316,
      "signature": "def _billed_entries(message) -> list:",
      "match": "exact"
     },
@@ -7759,7 +7994,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 294,
+     "line": 325,
      "signature": "def _billed_tokens(message) -> tuple[int, int, int, int, int]:",
      "match": "exact"
     },
@@ -7768,7 +8003,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 308,
+     "line": 339,
      "signature": "def _message_cost(message, served_model: str) -> float | None:",
      "match": "exact"
     },
@@ -7777,7 +8012,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 328,
+     "line": 359,
      "signature": "def _record_usage(message, raw_prompt_tokens: int, effort: str | None, elapsed: float, model: str = \"\", observe: bool = True) -> None:",
      "match": "exact"
     },
@@ -7786,7 +8021,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 370,
+     "line": 401,
      "signature": "def _log_thinking(message) -> None:",
      "match": "exact"
     },
@@ -7795,7 +8030,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 376,
+     "line": 407,
      "signature": "def _served_by_fallback(message) -> bool:",
      "match": "exact"
     },
@@ -7804,7 +8039,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 383,
+     "line": 414,
      "signature": "def _extract_text(message) -> str:",
      "match": "exact"
     },
@@ -7813,7 +8048,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 387,
+     "line": 418,
      "signature": "def call_anthropic(prompt: str, thinking_level: str | None = None) -> str:",
      "match": "exact"
     }
@@ -7822,28 +8057,28 @@
     {
      "module": "utils/llm_common.py",
      "target": "utils.llm_common",
-     "line": 40,
-     "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, record_usage",
+     "line": 42,
+     "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, open_sdk_logger, record_usage",
      "via": "path"
     },
     {
      "module": "utils/llm_config.py",
      "target": "utils.llm_config",
-     "line": 41,
+     "line": 43,
      "evidence": "from utils.llm_config import (",
      "via": "path"
     },
     {
      "module": "utils/output.py",
      "target": "utils.output",
-     "line": 53,
-     "evidence": "from utils.output import emit, emit_raw, is_debug",
+     "line": 55,
+     "evidence": "from utils.output import brief, emit, emit_raw, is_debug",
      "via": "path"
     },
     {
      "module": "utils/token_utils.py",
      "target": "utils.token_utils",
-     "line": 329,
+     "line": 360,
      "evidence": "from utils.token_utils import observe_prompt_tokens",
      "via": "path"
     }
@@ -7854,36 +8089,44 @@
    ],
    "external": [
     {
-     "name": "os",
+     "name": "logging",
      "line": 35
     },
     {
-     "name": "time",
+     "name": "os",
      "line": 36
     },
     {
-     "name": "anthropic",
+     "name": "re",
+     "line": 37
+    },
+    {
+     "name": "time",
      "line": 38
+    },
+    {
+     "name": "anthropic",
+     "line": 40
     }
    ],
    "config": [
     {
      "name": "ANTHROPIC_MODEL",
-     "line": 127,
+     "line": 158,
      "evidence": "return os.getenv(\"ANTHROPIC_MODEL\") or DEFAULT_ANTHROPIC_MODEL",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "ANTHROPIC_FALLBACKS",
-     "line": 164,
+     "line": 195,
      "evidence": "setting = (os.getenv(\"ANTHROPIC_FALLBACKS\") or \"default\").strip()",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "ANTHROPIC_PROMPT_CACHE",
-     "line": 195,
+     "line": 226,
      "evidence": "if (os.getenv(\"ANTHROPIC_PROMPT_CACHE\") or \"off\").strip().lower() == \"on\":",
      "match": "exact",
      "kind": "env"
@@ -7892,46 +8135,44 @@
    "errors": [
     {
      "name": "anthropic.APIError",
-     "line": 147,
+     "line": 178,
      "evidence": "except anthropic.APIError as e:",
      "match": "exact",
      "role": "caught"
     },
     {
      "name": "anthropic.BadRequestError",
-     "line": 249,
+     "line": 280,
      "evidence": "except anthropic.BadRequestError as e:",
      "match": "exact",
      "role": "caught"
     },
     {
      "name": "LLMRefusalError",
-     "line": 427,
+     "line": 458,
      "evidence": "raise LLMRefusalError(model, category, provider=\"ANTHROPIC\")",
      "match": "exact",
      "role": "raised"
     }
    ],
    "coverage": {
-    "claimed": 53,
-    "verified": 53
+    "claimed": 60,
+    "verified": 60
    },
    "completeness": {
-    "import_lines": 8,
-    "declaration_lines": 36,
+    "import_lines": 10,
+    "declaration_lines": 40,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
-     "status": "done",
-     "asked": [
-      389
-     ]
+     "status": "none",
+     "asked": []
     }
    },
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "3a7a6a2c431a38091bcf5067e7028516",
+   "facts_hash": "7a12e782bee755ae6c82ea00a8e4b13e",
    "claims": {
     "symbols": [
      {
@@ -7988,7 +8229,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_MODEL_LIMITS = {\n    \"claude-haiku-4-5\": (200_000, 64_000),\n}"
+      "signature": "_MODEL_LIMITS = {"
      },
      {
       "name": "_DEFAULT_LIMITS",
@@ -8016,7 +8257,14 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_PRICING = {\n    \"claude-opus-5-5\": (4.00, 20.00, 0.20),\n    \"claude-opus-5\": (5.00, 25.00, 0.50),\n    \"claude-fable-5-1\": (10.00, 50.00, 0.25),\n    \"claude-fable-5\": (10.00, 50.00, 1.00),\n    \"claude-mythos-5-1\": (10.00, 50.00, 0.25),\n    \"claude-mythos-5\": (10.00, 50.00, 1.00),\n    \"claude-sonnet-5\": (2.00, 10.00, 0.20),\n    \"claude-opus-4-8\": (5.00, 25.00, 0.50),\n    \"claude-opus-4-7\": (5.00, 25.00, 0.50),\n    \"claude-opus-4-6\": (5.00, 25.00, 0.50),\n    \"claude-sonnet-4-6\": (3.00, 15.00, 0.30),\n    \"claude-haiku-4-5\": (1.00, 5.00, 0.10),\n}"
+      "signature": "_PRICING = {"
+     },
+     {
+      "name": "__all__",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "__all__ = [\"LLMRefusalError\", \"TruncatedResponse\", \"call_anthropic\", \"get_model_limits\"]"
      },
      {
       "name": "_client",
@@ -8038,6 +8286,34 @@
       "parent": "",
       "visibility": "private",
       "signature": "_fallbacks_disabled = False"
+     },
+     {
+      "name": "_SDK_MAX_RETRIES",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SDK_MAX_RETRIES = 3  # the client's own retries (408/409/429/5xx, connection errors, timeouts)"
+     },
+     {
+      "name": "_SdkRetryRecords",
+      "kind": "class",
+      "parent": "",
+      "visibility": "private",
+      "signature": "class _SdkRetryRecords:"
+     },
+     {
+      "name": "__init__",
+      "kind": "method",
+      "parent": "_SdkRetryRecords",
+      "visibility": "public",
+      "signature": "def __init__(self):"
+     },
+     {
+      "name": "__call__",
+      "kind": "method",
+      "parent": "_SdkRetryRecords",
+      "visibility": "public",
+      "signature": "def __call__(self, record):"
      },
      {
       "name": "_get_client",
@@ -8210,8 +8486,16 @@
     ],
     "dependencies": [
      {
+      "target": "logging",
+      "evidence": "import logging"
+     },
+     {
       "target": "os",
       "evidence": "import os"
+     },
+     {
+      "target": "re",
+      "evidence": "import re"
      },
      {
       "target": "time",
@@ -8223,7 +8507,7 @@
      },
      {
       "target": "utils.llm_common",
-      "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, record_usage"
+      "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, open_sdk_logger, record_usage"
      },
      {
       "target": "utils.llm_config",
@@ -8231,7 +8515,7 @@
      },
      {
       "target": "utils.output",
-      "evidence": "from utils.output import emit, emit_raw, is_debug"
+      "evidence": "from utils.output import brief, emit, emit_raw, is_debug"
      },
      {
       "target": "utils.token_utils",
@@ -8277,15 +8561,15 @@
    }
   },
   "utils/llm_common.py": {
-   "source_sha256": "443ea09d96122080641c0d798ade2c1778108991c8e519f871c40377ec5ff867",
-   "lines": 197,
+   "source_sha256": "6ae49b0f7436f403f5beb754f4ae1b86d61d026a3d344fa37687e7da56998a35",
+   "lines": 228,
    "symbols": [
     {
      "name": "TruncatedResponse",
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 19,
+     "line": 20,
      "signature": "class TruncatedResponse(str):",
      "match": "exact"
     },
@@ -8294,7 +8578,7 @@
      "kind": "variable",
      "parent": "TruncatedResponse",
      "visibility": "public",
-     "line": 22,
+     "line": 23,
      "signature": "truncated = True",
      "match": "exact"
     },
@@ -8303,7 +8587,7 @@
      "kind": "class",
      "parent": "",
      "visibility": "public",
-     "line": 25,
+     "line": 26,
      "signature": "class LLMRefusalError(RuntimeError):",
      "match": "exact"
     },
@@ -8312,7 +8596,7 @@
      "kind": "method",
      "parent": "LLMRefusalError",
      "visibility": "public",
-     "line": 34,
+     "line": 35,
      "signature": "def __init__(self, model: str, category: str | None, provider: str = \"ANTHROPIC\", retryable: bool = False):",
      "match": "exact"
     },
@@ -8321,7 +8605,7 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 46,
+     "line": 47,
      "signature": "_refused = {}",
      "match": "exact"
     },
@@ -8330,7 +8614,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 49,
+     "line": 50,
      "signature": "def request_key(provider: str, model: str, thinking_level: str | None, prompt: str) -> str:",
      "match": "exact"
     },
@@ -8339,7 +8623,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 54,
+     "line": 55,
      "signature": "def remember_refusal(key: str, error: LLMRefusalError) -> None:",
      "match": "exact"
     },
@@ -8348,7 +8632,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 58,
+     "line": 59,
      "signature": "def previous_refusal(key: str) -> LLMRefusalError | None:",
      "match": "exact"
     },
@@ -8357,7 +8641,7 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 68,
+     "line": 69,
      "signature": "_usage = {}",
      "match": "exact"
     },
@@ -8366,7 +8650,7 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 69,
+     "line": 70,
      "signature": "_steps = {}",
      "match": "exact"
     },
@@ -8375,7 +8659,7 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 70,
+     "line": 71,
      "signature": "_current_step = contextvars.ContextVar(\"llm_usage_step\", default=\"other\")",
      "match": "exact"
     },
@@ -8384,7 +8668,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 73,
+     "line": 74,
      "signature": "def _new_entry() -> dict:",
      "match": "exact"
     },
@@ -8393,8 +8677,8 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 93,
-     "end_line": 94,
+     "line": 94,
+     "end_line": 95,
      "signature": "@contextlib.contextmanager\ndef usage_step(step: str | None):",
      "match": "joined"
     },
@@ -8403,7 +8687,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 103,
+     "line": 104,
      "signature": "def current_step() -> str:",
      "match": "exact"
     },
@@ -8412,8 +8696,8 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 107,
-     "end_line": 118,
+     "line": 108,
+     "end_line": 119,
      "signature": "def record_usage(\n    provider: str,\n    model: str,\n    *,\n    input_tokens: int = 0,\n    output_tokens: int = 0,\n    thinking_tokens: int = 0,\n    cache_read: int = 0,\n    cache_write: int = 0,\n    cost: float | None = None,\n    measured: bool = True,\n) -> None:",
      "match": "joined"
     },
@@ -8422,7 +8706,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 140,
+     "line": 141,
      "signature": "def count_event(provider: str, event: str) -> None:",
      "match": "exact"
     },
@@ -8431,7 +8715,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 146,
+     "line": 147,
      "signature": "def record_estimate(step: str, estimated_input: int, *, cache_hit: bool = False) -> None:",
      "match": "exact"
     },
@@ -8440,7 +8724,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 155,
+     "line": 156,
      "signature": "def usage_snapshot(provider: str) -> dict:",
      "match": "exact"
     },
@@ -8449,7 +8733,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 161,
+     "line": 162,
      "signature": "def usage_delta(before: dict, after: dict) -> dict:",
      "match": "exact"
     },
@@ -8458,7 +8742,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 165,
+     "line": 166,
      "signature": "def _public(entry: dict) -> dict:",
      "match": "exact"
     },
@@ -8467,7 +8751,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 169,
+     "line": 170,
      "signature": "def get_usage_summary() -> dict:",
      "match": "exact"
     },
@@ -8476,7 +8760,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 174,
+     "line": 175,
      "signature": "def get_step_summary() -> dict:",
      "match": "exact"
     },
@@ -8485,7 +8769,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 179,
+     "line": 180,
      "signature": "def reset_usage() -> None:",
      "match": "exact"
     },
@@ -8494,8 +8778,44 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 188,
+     "line": 189,
      "signature": "_warned = set()",
+     "match": "exact"
+    },
+    {
+     "name": "_SdkLogBridge",
+     "kind": "class",
+     "parent": "",
+     "visibility": "private",
+     "line": 192,
+     "signature": "class _SdkLogBridge(logging.Handler):",
+     "match": "exact"
+    },
+    {
+     "name": "__init__",
+     "kind": "method",
+     "parent": "_SdkLogBridge",
+     "visibility": "public",
+     "line": 199,
+     "signature": "def __init__(self, logger: logging.Logger, passthrough: int, on_record):",
+     "match": "exact"
+    },
+    {
+     "name": "emit",
+     "kind": "method",
+     "parent": "_SdkLogBridge",
+     "visibility": "public",
+     "line": 203,
+     "signature": "def emit(self, record):",
+     "match": "exact"
+    },
+    {
+     "name": "open_sdk_logger",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 210,
+     "signature": "def open_sdk_logger(name: str, level: int, on_record) -> None:",
      "match": "exact"
     },
     {
@@ -8503,7 +8823,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 191,
+     "line": 222,
      "signature": "def warn_once(key: str, *parts) -> bool:",
      "match": "exact"
     }
@@ -8531,25 +8851,36 @@
     {
      "name": "hashlib",
      "line": 16
+    },
+    {
+     "name": "logging",
+     "line": 17
     }
    ],
    "config": [],
    "errors": [
     {
      "name": "LLMRefusalError",
-     "line": 25,
+     "line": 26,
+     "evidence": "class LLMRefusalError(RuntimeError):",
+     "match": "exact",
+     "role": "mentioned"
+    },
+    {
+     "name": "RuntimeError",
+     "line": 26,
      "evidence": "class LLMRefusalError(RuntimeError):",
      "match": "exact",
      "role": "mentioned"
     }
    ],
    "coverage": {
-    "claimed": 29,
-    "verified": 29
+    "claimed": 35,
+    "verified": 35
    },
    "completeness": {
-    "import_lines": 3,
-    "declaration_lines": 19,
+    "import_lines": 4,
+    "declaration_lines": 23,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
@@ -8560,7 +8891,7 @@
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "6318c3a5c61321a794376d7eae491e89",
+   "facts_hash": "751175b3ceebc84ed84954e1034a2d87",
    "claims": {
     "symbols": [
      {
@@ -8732,6 +9063,34 @@
       "signature": "_warned = set()"
      },
      {
+      "name": "_SdkLogBridge",
+      "kind": "class",
+      "parent": "",
+      "visibility": "private",
+      "signature": "class _SdkLogBridge(logging.Handler):"
+     },
+     {
+      "name": "__init__",
+      "kind": "method",
+      "parent": "_SdkLogBridge",
+      "visibility": "public",
+      "signature": "def __init__(self, logger: logging.Logger, passthrough: int, on_record):"
+     },
+     {
+      "name": "emit",
+      "kind": "method",
+      "parent": "_SdkLogBridge",
+      "visibility": "public",
+      "signature": "def emit(self, record):"
+     },
+     {
+      "name": "open_sdk_logger",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def open_sdk_logger(name: str, level: int, on_record) -> None:"
+     },
+     {
       "name": "warn_once",
       "kind": "function",
       "parent": "",
@@ -8751,6 +9110,10 @@
      {
       "target": "hashlib",
       "evidence": "import hashlib"
+     },
+     {
+      "target": "logging",
+      "evidence": "import logging"
      }
     ],
     "config": [],
@@ -8758,14 +9121,18 @@
      {
       "name": "LLMRefusalError",
       "evidence": "class LLMRefusalError(RuntimeError):"
+     },
+     {
+      "name": "RuntimeError",
+      "evidence": "class LLMRefusalError(RuntimeError):"
      }
     ],
     "unparsed": 0
    }
   },
   "utils/llm_config.py": {
-   "source_sha256": "0fa743adb5ee5c7515bf2a9c1f59009f43edf15a2259d0b12b6fd7b3fefd6403",
-   "lines": 759,
+   "source_sha256": "2907512bfe9ae1a050be408e288f069d7f40cb4539aa5026a98769abf88b8a54",
+   "lines": 779,
    "symbols": [
     {
      "name": "DEFAULT_GEMINI_MODEL",
@@ -9263,7 +9630,7 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 376,
+     "line": 378,
      "signature": "_openrouter_models_cache = None",
      "match": "exact"
     },
@@ -9272,8 +9639,26 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 377,
+     "line": 379,
      "signature": "_openrouter_last_failure = 0.0",
+     "match": "exact"
+    },
+    {
+     "name": "_openrouter_failures",
+     "kind": "variable",
+     "parent": "",
+     "visibility": "private",
+     "line": 380,
+     "signature": "_openrouter_failures = 0  # failed fetches so far (each announced)",
+     "match": "exact"
+    },
+    {
+     "name": "_openrouter_gave_up",
+     "kind": "variable",
+     "parent": "",
+     "visibility": "private",
+     "line": 381,
+     "signature": "_openrouter_gave_up = False",
      "match": "exact"
     },
     {
@@ -9281,8 +9666,17 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 378,
+     "line": 382,
      "signature": "_OPENROUTER_RETRY_COOLDOWN = 60.0",
+     "match": "exact"
+    },
+    {
+     "name": "_OPENROUTER_MAX_COOLDOWN",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 383,
+     "signature": "_OPENROUTER_MAX_COOLDOWN = 900.0",
      "match": "exact"
     },
     {
@@ -9290,7 +9684,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 379,
+     "line": 384,
      "signature": "_OPENROUTER_ROUTING_SUFFIXES = (\":nitro\", \":floor\", \":online\", \":thinking\", \":extended\", \":exacto\")",
      "match": "exact"
     },
@@ -9299,8 +9693,17 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 382,
+     "line": 387,
      "signature": "def openrouter_catalog_cached() -> bool:",
+     "match": "exact"
+    },
+    {
+     "name": "_catalog_cooldown",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 392,
+     "signature": "def _catalog_cooldown() -> float:",
      "match": "exact"
     },
     {
@@ -9308,7 +9711,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 387,
+     "line": 396,
      "signature": "def openrouter_catalog() -> list | None:",
      "match": "exact"
     },
@@ -9317,7 +9720,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 414,
+     "line": 434,
      "signature": "def openrouter_model_info(model_id: str) -> dict | None:",
      "match": "exact"
     },
@@ -9326,7 +9729,7 @@
      "kind": "variable",
      "parent": "",
      "visibility": "private",
-     "line": 438,
+     "line": 458,
      "signature": "_get_openrouter_model_info = openrouter_model_info  # backward-compatible name",
      "match": "exact"
     },
@@ -9335,7 +9738,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 441,
+     "line": 461,
      "signature": "def get_model_context_length(endpoint_url: str, model_name: str, api_key: str = \"\") -> int:",
      "match": "exact"
     },
@@ -9344,7 +9747,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 482,
+     "line": 502,
      "signature": "def _ui(key: str, **kwargs) -> str:",
      "match": "exact"
     },
@@ -9353,7 +9756,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 488,
+     "line": 508,
      "signature": "def describe_thinking_support(provider: str, model: str) -> str:",
      "match": "exact"
     },
@@ -9362,7 +9765,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 532,
+     "line": 552,
      "signature": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")",
      "match": "exact"
     },
@@ -9371,7 +9774,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 533,
+     "line": 553,
      "signature": "_TOKEN_PATTERN = re.compile(r\"sk-ant-[A-Za-z0-9_-]*(?:\\.\\.\\.)?\")",
      "match": "exact"
     },
@@ -9380,7 +9783,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 536,
+     "line": 556,
      "signature": "def _env_set(name: str) -> bool:",
      "match": "exact"
     },
@@ -9389,7 +9792,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 540,
+     "line": 560,
      "signature": "def _anthropic_sdk_installed() -> bool:",
      "match": "exact"
     },
@@ -9398,7 +9801,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 547,
+     "line": 567,
      "signature": "def _anthropic_config_dir() -> str:",
      "match": "exact"
     },
@@ -9407,7 +9810,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 556,
+     "line": 576,
      "signature": "def _redact(text: str) -> str:",
      "match": "exact"
     },
@@ -9416,7 +9819,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 561,
+     "line": 581,
      "signature": "def parse_ant_auth_status(output: str) -> tuple[str | None, str | None]:",
      "match": "exact"
     },
@@ -9425,7 +9828,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 588,
+     "line": 608,
      "signature": "def _emit_auth_help(ant_installed: bool) -> None:",
      "match": "exact"
     },
@@ -9434,7 +9837,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 601,
+     "line": 621,
      "signature": "def check_anthropic_auth() -> bool:",
      "match": "exact"
     },
@@ -9443,7 +9846,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "public",
-     "line": 672,
+     "line": 692,
      "signature": "GEMINI_MIN_SDK = (1, 56, 0)",
      "match": "exact"
     },
@@ -9452,7 +9855,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 675,
+     "line": 695,
      "signature": "def _installed_version(dist: str) -> tuple[int, ...] | None:",
      "match": "exact"
     },
@@ -9461,7 +9864,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 689,
+     "line": 709,
      "signature": "def check_gemini_config() -> bool:",
      "match": "exact"
     },
@@ -9470,7 +9873,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 732,
+     "line": 752,
      "signature": "def check_openrouter_config() -> bool:",
      "match": "exact"
     },
@@ -9479,37 +9882,37 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 749,
+     "line": 769,
      "signature": "def check_llm_auth() -> bool:",
      "match": "exact"
     }
    ],
    "depends_on": [
     {
-     "module": "utils/llm_common.py",
-     "target": "utils.llm_common",
-     "line": 404,
-     "evidence": "from utils.llm_common import warn_once",
+     "module": "utils/output.py",
+     "target": "utils.output",
+     "line": 406,
+     "evidence": "from utils.output import brief, emit",
      "via": "path"
     },
     {
-     "module": "utils/output.py",
-     "target": "utils.output",
-     "line": 405,
-     "evidence": "from utils.output import emit, emit_raw",
+     "module": "utils/llm_common.py",
+     "target": "utils.llm_common",
+     "line": 419,
+     "evidence": "from utils.llm_common import warn_once",
      "via": "path"
     },
     {
      "module": "utils/llm_anthropic.py",
      "target": "utils.llm_anthropic",
-     "line": 453,
+     "line": 473,
      "evidence": "from utils.llm_anthropic import get_model_limits",
      "via": "path"
     },
     {
      "module": "utils/llm_gemini.py",
      "target": "utils.llm_gemini",
-     "line": 465,
+     "line": 485,
      "evidence": "from utils.llm_gemini import get_model_limits as gemini_limits",
      "via": "path"
     }
@@ -9565,12 +9968,12 @@
      "line": 22
     },
     {
-     "name": "importlib.metadata",
-     "line": 676
+     "name": "importlib",
+     "line": 696
     },
     {
      "name": "google.auth",
-     "line": 717
+     "line": 737
     }
    ],
    "config": [
@@ -9694,57 +10097,57 @@
      "kind": "env"
     },
     {
-     "name": "ANTHROPIC_FEDERATION_RULE_ID",
-     "line": 532,
-     "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")",
-     "match": "exact",
-     "kind": "env"
-    },
-    {
-     "name": "ANTHROPIC_ORGANIZATION_ID",
-     "line": 532,
-     "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")",
-     "match": "exact",
-     "kind": "env"
-    },
-    {
-     "name": "ANTHROPIC_SERVICE_ACCOUNT_ID",
-     "line": 532,
-     "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")",
-     "match": "exact",
-     "kind": "env"
-    },
-    {
      "name": "ANTHROPIC_CONFIG_DIR",
-     "line": 549,
+     "line": 569,
      "evidence": "if os.getenv(\"ANTHROPIC_CONFIG_DIR\"):",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "APPDATA",
-     "line": 552,
+     "line": 572,
      "evidence": "return os.path.join(os.getenv(\"APPDATA\", os.path.expanduser(\"~\")), \"Anthropic\")",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "ANTHROPIC_AUTH_TOKEN",
-     "line": 617,
+     "line": 637,
      "evidence": "if _env_set(\"ANTHROPIC_API_KEY\") and _env_set(\"ANTHROPIC_AUTH_TOKEN\"):",
      "match": "exact",
      "kind": "env"
     },
     {
+     "name": "ANTHROPIC_FEDERATION_RULE_ID",
+     "line": 552,
+     "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")",
+     "match": "exact",
+     "kind": "env"
+    },
+    {
+     "name": "ANTHROPIC_ORGANIZATION_ID",
+     "line": 552,
+     "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")",
+     "match": "exact",
+     "kind": "env"
+    },
+    {
+     "name": "ANTHROPIC_SERVICE_ACCOUNT_ID",
+     "line": 552,
+     "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")",
+     "match": "exact",
+     "kind": "env"
+    },
+    {
      "name": "ANTHROPIC_IDENTITY_TOKEN_FILE",
-     "line": 625,
+     "line": 645,
      "evidence": "if all(_env_set(v) for v in _FEDERATION_VARS) and (_env_set(\"ANTHROPIC_IDENTITY_TOKEN_FILE\") or _env_set(\"ANTHROPIC_IDENTITY_TOKEN\")):",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "ANTHROPIC_IDENTITY_TOKEN",
-     "line": 625,
+     "line": 645,
      "evidence": "if all(_env_set(v) for v in _FEDERATION_VARS) and (_env_set(\"ANTHROPIC_IDENTITY_TOKEN_FILE\") or _env_set(\"ANTHROPIC_IDENTITY_TOKEN\")):",
      "match": "exact",
      "kind": "env"
@@ -9753,36 +10156,37 @@
    "errors": [
     {
      "name": "ValueError",
-     "line": 400,
+     "line": 413,
      "evidence": "raise ValueError(\"OpenRouter model catalog response has no 'data' list\")",
      "match": "exact",
      "role": "raised"
     }
    ],
    "coverage": {
-    "claimed": 122,
-    "verified": 122
+    "claimed": 128,
+    "verified": 128
    },
    "completeness": {
     "import_lines": 22,
-    "declaration_lines": 76,
+    "declaration_lines": 78,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
      "status": "done",
      "asked": [
-      475,
-      483,
-      590,
-      691,
-      734
+      495,
+      503,
+      610,
+      629,
+      711,
+      754
      ]
     }
    },
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "35f303cbe3654e289a3eb072e3114889",
+   "facts_hash": "916f398fae1ba106a4f8ddc7aa04a454",
    "claims": {
     "symbols": [
      {
@@ -10178,11 +10582,32 @@
       "signature": "_openrouter_last_failure = 0.0"
      },
      {
+      "name": "_openrouter_failures",
+      "kind": "variable",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_openrouter_failures = 0  # failed fetches so far (each announced)"
+     },
+     {
+      "name": "_openrouter_gave_up",
+      "kind": "variable",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_openrouter_gave_up = False"
+     },
+     {
       "name": "_OPENROUTER_RETRY_COOLDOWN",
       "kind": "constant",
       "parent": "",
       "visibility": "private",
       "signature": "_OPENROUTER_RETRY_COOLDOWN = 60.0"
+     },
+     {
+      "name": "_OPENROUTER_MAX_COOLDOWN",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_OPENROUTER_MAX_COOLDOWN = 900.0"
      },
      {
       "name": "_OPENROUTER_ROUTING_SUFFIXES",
@@ -10197,6 +10622,13 @@
       "parent": "",
       "visibility": "public",
       "signature": "def openrouter_catalog_cached() -> bool:"
+     },
+     {
+      "name": "_catalog_cooldown",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _catalog_cooldown() -> float:"
      },
      {
       "name": "openrouter_catalog",
@@ -10381,12 +10813,12 @@
       "evidence": "import requests"
      },
      {
-      "target": "utils.llm_common",
-      "evidence": "from utils.llm_common import warn_once"
+      "target": "utils.output",
+      "evidence": "from utils.output import brief, emit"
      },
      {
-      "target": "utils.output",
-      "evidence": "from utils.output import emit, emit_raw"
+      "target": "utils.llm_common",
+      "evidence": "from utils.llm_common import warn_once"
      },
      {
       "target": "utils.llm_anthropic",
@@ -10397,7 +10829,7 @@
       "evidence": "from utils.llm_gemini import get_model_limits as gemini_limits"
      },
      {
-      "target": "importlib.metadata",
+      "target": "importlib",
       "evidence": "from importlib import metadata"
      },
      {
@@ -10411,6 +10843,10 @@
      {
       "target": "utils.output",
       "evidence": "from utils.output import get"
+     },
+     {
+      "target": "utils.output",
+      "evidence": "from utils.output import emit, emit_raw"
      }
     ],
     "config": [
@@ -10500,21 +10936,6 @@
       "evidence": "return _ratio_from_env(\"LLM_TOKEN_RATIO\", 1.0)"
      },
      {
-      "name": "ANTHROPIC_FEDERATION_RULE_ID",
-      "kind": "env",
-      "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")"
-     },
-     {
-      "name": "ANTHROPIC_ORGANIZATION_ID",
-      "kind": "env",
-      "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")"
-     },
-     {
-      "name": "ANTHROPIC_SERVICE_ACCOUNT_ID",
-      "kind": "env",
-      "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")"
-     },
-     {
       "name": "ANTHROPIC_CONFIG_DIR",
       "kind": "env",
       "evidence": "if os.getenv(\"ANTHROPIC_CONFIG_DIR\"):"
@@ -10528,6 +10949,21 @@
       "name": "ANTHROPIC_AUTH_TOKEN",
       "kind": "env",
       "evidence": "if _env_set(\"ANTHROPIC_API_KEY\") and _env_set(\"ANTHROPIC_AUTH_TOKEN\"):"
+     },
+     {
+      "name": "ANTHROPIC_FEDERATION_RULE_ID",
+      "kind": "env",
+      "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")"
+     },
+     {
+      "name": "ANTHROPIC_ORGANIZATION_ID",
+      "kind": "env",
+      "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")"
+     },
+     {
+      "name": "ANTHROPIC_SERVICE_ACCOUNT_ID",
+      "kind": "env",
+      "evidence": "_FEDERATION_VARS = (\"ANTHROPIC_FEDERATION_RULE_ID\", \"ANTHROPIC_ORGANIZATION_ID\", \"ANTHROPIC_SERVICE_ACCOUNT_ID\")"
      },
      {
       "name": "ANTHROPIC_IDENTITY_TOKEN_FILE",
@@ -10550,15 +10986,15 @@
    }
   },
   "utils/llm_gemini.py": {
-   "source_sha256": "078123b5800f281f545bae11ca10244e635da9f15feb3d43ec17fd0bdd099740",
-   "lines": 287,
+   "source_sha256": "d510e781623e4677f3d21fe869dc6d25a505fd070d50a24726528e3cac6f7abf",
+   "lines": 316,
    "symbols": [
     {
      "name": "_RETRYABLE_FINISH_REASONS",
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 53,
+     "line": 55,
      "signature": "_RETRYABLE_FINISH_REASONS = {\"SAFETY\", \"RECITATION\", \"LANGUAGE\", \"OTHER\"}",
      "match": "exact"
     },
@@ -10567,8 +11003,8 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 54,
-     "end_line": 56,
+     "line": 56,
+     "end_line": 58,
      "signature": "_BLOCK_FINISH_REASONS = _RETRYABLE_FINISH_REASONS | {\n    \"PROHIBITED_CONTENT\",\n    \"BLOCKLIST\",",
      "match": "joined"
     },
@@ -10577,7 +11013,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 63,
+     "line": 65,
      "signature": "_TRUNCATION_FINISH_REASONS = {\"MAX_TOKENS\"}",
      "match": "exact"
     },
@@ -10586,8 +11022,8 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 68,
-     "end_line": 70,
+     "line": 70,
+     "end_line": 72,
      "signature": "_PRICING = {\n    \"gemini-3.8-flash-cyber\": (1.50, 7.50, 0.15),  # Vertex only (allowlisted)\n    \"gemini-3.8-flash\": (1.50, 7.50, 0.15),",
      "match": "joined"
     },
@@ -10596,7 +11032,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 84,
+     "line": 86,
      "signature": "_INTRO_PRICING = {\"gemini-3.8-flash\": (0.75, 3.75, 0.075), \"gemini-3.7-flash\": (0.75, 3.75, 0.075), \"gemini-3.6-flash\": (0.75, 3.75, 0.075)}",
      "match": "exact"
     },
@@ -10605,7 +11041,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 85,
+     "line": 87,
      "signature": "_INTRO_PRICING_UNTIL = datetime.date(2026, 12, 31)",
      "match": "exact"
     },
@@ -10614,7 +11050,7 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 86,
+     "line": 88,
      "signature": "_REGIONAL_UPLIFT = 1.10",
      "match": "exact"
     },
@@ -10623,35 +11059,8 @@
      "kind": "constant",
      "parent": "",
      "visibility": "private",
-     "line": 87,
-     "signature": "_LONG_CONTEXT_THRESHOLD = 200_000",
-     "match": "exact"
-    },
-    {
-     "name": "_client",
-     "kind": "variable",
-     "parent": "",
-     "visibility": "private",
      "line": 89,
-     "signature": "_client = None",
-     "match": "exact"
-    },
-    {
-     "name": "_model_limits_cache",
-     "kind": "variable",
-     "parent": "",
-     "visibility": "private",
-     "line": 90,
-     "signature": "_model_limits_cache = {}",
-     "match": "exact"
-    },
-    {
-     "name": "_thinking_rejected",
-     "kind": "variable",
-     "parent": "",
-     "visibility": "private",
-     "line": 91,
-     "signature": "_thinking_rejected = set()  # models that answered 400 to our thinking_config: sent without it afterwards",
+     "signature": "_LONG_CONTEXT_THRESHOLD = 200_000",
      "match": "exact"
     },
     {
@@ -10659,7 +11068,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 94,
+     "line": 96,
      "signature": "def get_model() -> str:",
      "match": "exact"
     },
@@ -10668,8 +11077,35 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 99,
+     "line": 101,
      "signature": "def _timeout_ms() -> int:",
+     "match": "exact"
+    },
+    {
+     "name": "_SDK_ATTEMPTS",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 110,
+     "signature": "_SDK_ATTEMPTS = 2  # the client's own attempts on transient errors",
+     "match": "exact"
+    },
+    {
+     "name": "_TENACITY_RETRY_RE",
+     "kind": "constant",
+     "parent": "",
+     "visibility": "private",
+     "line": 111,
+     "signature": "_TENACITY_RETRY_RE = re.compile(r\"^Retrying \\S+ in (?P<wait>[\\d.]+) seconds as it (?:raised|returned) (?P<cause>.*?)\\.?$\", re.DOTALL)",
+     "match": "exact"
+    },
+    {
+     "name": "_sdk_retry_record",
+     "kind": "function",
+     "parent": "",
+     "visibility": "private",
+     "line": 115,
+     "signature": "def _sdk_retry_record(record) -> None:",
      "match": "exact"
     },
     {
@@ -10677,7 +11113,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 108,
+     "line": 132,
      "signature": "def _get_client():",
      "match": "exact"
     },
@@ -10686,7 +11122,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 127,
+     "line": 152,
      "signature": "def get_model_limits(model: str) -> tuple[int, int]:",
      "match": "exact"
     },
@@ -10695,7 +11131,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 144,
+     "line": 171,
      "signature": "def _thinking_config(model: str, level: str | None):",
      "match": "exact"
     },
@@ -10704,7 +11140,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 167,
+     "line": 194,
      "signature": "def _max_output_tokens(model: str, level: str | None) -> int:",
      "match": "exact"
     },
@@ -10713,7 +11149,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 174,
+     "line": 201,
      "signature": "def _name(value) -> str:",
      "match": "exact"
     },
@@ -10722,7 +11158,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 179,
+     "line": 206,
      "signature": "def _price(model: str, prompt_tokens: int, cached: int, output_tokens: int, today: datetime.date | None = None) -> float | None:",
      "match": "exact"
     },
@@ -10731,7 +11167,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 194,
+     "line": 221,
      "signature": "def _record(model: str, usage, raw_prompt_tokens: int, level_desc: str, finish: str, elapsed: float) -> None:",
      "match": "exact"
     },
@@ -10740,7 +11176,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 214,
+     "line": 241,
      "signature": "def _stream(model: str, prompt: str, config) -> dict:",
      "match": "exact"
     },
@@ -10749,7 +11185,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 235,
+     "line": 264,
      "signature": "def call_gemini(prompt: str, thinking_level: str | None = None) -> str:",
      "match": "exact"
     }
@@ -10758,35 +11194,35 @@
     {
      "module": "utils/llm_common.py",
      "target": "utils.llm_common",
-     "line": 38,
-     "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, record_usage, warn_once",
+     "line": 40,
+     "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, open_sdk_logger, record_usage, warn_once",
      "via": "path"
     },
     {
      "module": "utils/llm_config.py",
      "target": "utils.llm_config",
-     "line": 39,
+     "line": 41,
      "evidence": "from utils.llm_config import (",
      "via": "path"
     },
     {
      "module": "utils/output.py",
      "target": "utils.output",
-     "line": 48,
-     "evidence": "from utils.output import emit, emit_raw, is_debug",
+     "line": 50,
+     "evidence": "from utils.output import brief, emit, emit_raw, is_debug",
      "via": "path"
     },
     {
      "module": "utils/thinking.py",
      "target": "utils.thinking",
-     "line": 49,
+     "line": 51,
      "evidence": "from utils.thinking import clamp_level",
      "via": "path"
     },
     {
      "module": "utils/token_utils.py",
      "target": "utils.token_utils",
-     "line": 203,
+     "line": 230,
      "evidence": "from utils.token_utils import observe_prompt_tokens",
      "via": "path"
     }
@@ -10801,51 +11237,59 @@
      "line": 30
     },
     {
-     "name": "os",
+     "name": "logging",
      "line": 31
     },
     {
-     "name": "time",
+     "name": "os",
      "line": 32
     },
     {
-     "name": "google.genai",
+     "name": "re",
+     "line": 33
+    },
+    {
+     "name": "time",
      "line": 34
     },
     {
+     "name": "google.genai",
+     "line": 36
+    },
+    {
      "name": "google.genai.errors",
-     "line": 35
+     "line": 37
     },
     {
      "name": "google.genai.types",
-     "line": 36
+     "line": 38
     }
    ],
    "config": [
     {
      "name": "GEMINI_MODEL",
-     "line": 96,
+     "line": 98,
      "evidence": "return gemini_model_id(os.getenv(\"GEMINI_MODEL\") or DEFAULT_GEMINI_MODEL)",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "GEMINI_TIMEOUT_SECONDS",
-     "line": 102,
+     "line": 104,
      "evidence": "seconds = float(os.getenv(\"GEMINI_TIMEOUT_SECONDS\", \"1800\"))",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "GEMINI_PROJECT_ID",
-     "line": 116,
+     "line": 141,
      "evidence": "if os.getenv(\"GEMINI_PROJECT_ID\"):",
      "match": "exact",
      "kind": "env"
     },
     {
      "name": "GEMINI_API_KEY",
-     "line": 118,
+     "line": 143,
      "evidence": "elif os.getenv(\"GEMINI_API_KEY\"):",
      "match": "exact",
      "kind": "env"
@@ -10854,123 +11298,57 @@
    "errors": [
     {
      "name": "ValueError",
-     "line": 123,
+     "line": 148,
      "evidence": "raise ValueError(\"Either GEMINI_PROJECT_ID or GEMINI_API_KEY must be set in the environment\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "genai_errors.ClientError",
-     "line": 255,
+     "line": 284,
      "evidence": "except genai_errors.ClientError as e:",
      "match": "exact",
      "role": "caught"
     },
     {
      "name": "LLMRefusalError",
-     "line": 280,
+     "line": 309,
      "evidence": "raise LLMRefusalError(model, category, provider=\"GEMINI\", retryable=retryable)",
      "match": "exact",
      "role": "raised"
     }
    ],
    "coverage": {
-    "claimed": 41,
-    "verified": 41
+    "claimed": 43,
+    "verified": 43
    },
    "completeness": {
-    "import_lines": 12,
-    "declaration_lines": 19,
+    "import_lines": 14,
+    "declaration_lines": 22,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
-     "status": "none",
-     "asked": []
+     "status": "done",
+     "asked": [
+      55,
+      56,
+      65,
+      70,
+      86,
+      87,
+      88,
+      89,
+      110,
+      111
+     ]
     }
    },
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "2ac3cd2452d904c75a5d387d955de959",
+   "facts_hash": "e52854849b1287556eae314bfe07de01",
    "claims": {
     "symbols": [
-     {
-      "name": "_RETRYABLE_FINISH_REASONS",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_RETRYABLE_FINISH_REASONS = {\"SAFETY\", \"RECITATION\", \"LANGUAGE\", \"OTHER\"}"
-     },
-     {
-      "name": "_BLOCK_FINISH_REASONS",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_BLOCK_FINISH_REASONS = _RETRYABLE_FINISH_REASONS | {\n    \"PROHIBITED_CONTENT\",\n    \"BLOCKLIST\","
-     },
-     {
-      "name": "_TRUNCATION_FINISH_REASONS",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_TRUNCATION_FINISH_REASONS = {\"MAX_TOKENS\"}"
-     },
-     {
-      "name": "_PRICING",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_PRICING = {\n    \"gemini-3.8-flash-cyber\": (1.50, 7.50, 0.15),  # Vertex only (allowlisted)\n    \"gemini-3.8-flash\": (1.50, 7.50, 0.15),"
-     },
-     {
-      "name": "_INTRO_PRICING",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_INTRO_PRICING = {\"gemini-3.8-flash\": (0.75, 3.75, 0.075), \"gemini-3.7-flash\": (0.75, 3.75, 0.075), \"gemini-3.6-flash\": (0.75, 3.75, 0.075)}"
-     },
-     {
-      "name": "_INTRO_PRICING_UNTIL",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_INTRO_PRICING_UNTIL = datetime.date(2026, 12, 31)"
-     },
-     {
-      "name": "_REGIONAL_UPLIFT",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_REGIONAL_UPLIFT = 1.10"
-     },
-     {
-      "name": "_LONG_CONTEXT_THRESHOLD",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_LONG_CONTEXT_THRESHOLD = 200_000"
-     },
-     {
-      "name": "_client",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_client = None"
-     },
-     {
-      "name": "_model_limits_cache",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_model_limits_cache = {}"
-     },
-     {
-      "name": "_thinking_rejected",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_thinking_rejected = set()  # models that answered 400 to our thinking_config: sent without it afterwards"
-     },
      {
       "name": "get_model",
       "kind": "function",
@@ -10984,6 +11362,13 @@
       "parent": "",
       "visibility": "private",
       "signature": "def _timeout_ms() -> int:"
+     },
+     {
+      "name": "_sdk_retry_record",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _sdk_retry_record(record) -> None:"
      },
      {
       "name": "_get_client",
@@ -11047,6 +11432,76 @@
       "parent": "",
       "visibility": "public",
       "signature": "def call_gemini(prompt: str, thinking_level: str | None = None) -> str:"
+     },
+     {
+      "name": "_RETRYABLE_FINISH_REASONS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_RETRYABLE_FINISH_REASONS = {\"SAFETY\", \"RECITATION\", \"LANGUAGE\", \"OTHER\"}"
+     },
+     {
+      "name": "_BLOCK_FINISH_REASONS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_BLOCK_FINISH_REASONS = _RETRYABLE_FINISH_REASONS | {\n    \"PROHIBITED_CONTENT\",\n    \"BLOCKLIST\","
+     },
+     {
+      "name": "_TRUNCATION_FINISH_REASONS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_TRUNCATION_FINISH_REASONS = {\"MAX_TOKENS\"}"
+     },
+     {
+      "name": "_PRICING",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_PRICING = {\n    \"gemini-3.8-flash-cyber\": (1.50, 7.50, 0.15),  # Vertex only (allowlisted)\n    \"gemini-3.8-flash\": (1.50, 7.50, 0.15),"
+     },
+     {
+      "name": "_INTRO_PRICING",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_INTRO_PRICING = {\"gemini-3.8-flash\": (0.75, 3.75, 0.075), \"gemini-3.7-flash\": (0.75, 3.75, 0.075), \"gemini-3.6-flash\": (0.75, 3.75, 0.075)}"
+     },
+     {
+      "name": "_INTRO_PRICING_UNTIL",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_INTRO_PRICING_UNTIL = datetime.date(2026, 12, 31)"
+     },
+     {
+      "name": "_REGIONAL_UPLIFT",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_REGIONAL_UPLIFT = 1.10"
+     },
+     {
+      "name": "_LONG_CONTEXT_THRESHOLD",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_LONG_CONTEXT_THRESHOLD = 200_000"
+     },
+     {
+      "name": "_SDK_ATTEMPTS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SDK_ATTEMPTS = 2  # the client's own attempts on transient errors"
+     },
+     {
+      "name": "_TENACITY_RETRY_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_TENACITY_RETRY_RE = re.compile(r\"^Retrying \\S+ in (?P<wait>[\\d.]+) seconds as it (?:raised|returned) (?P<cause>.*?)\\.?$\", re.DOTALL)"
      }
     ],
     "dependencies": [
@@ -11055,8 +11510,16 @@
       "evidence": "import datetime"
      },
      {
+      "target": "logging",
+      "evidence": "import logging"
+     },
+     {
       "target": "os",
       "evidence": "import os"
+     },
+     {
+      "target": "re",
+      "evidence": "import re"
      },
      {
       "target": "time",
@@ -11076,7 +11539,7 @@
      },
      {
       "target": "utils.llm_common",
-      "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, record_usage, warn_once"
+      "evidence": "from utils.llm_common import LLMRefusalError, TruncatedResponse, count_event, open_sdk_logger, record_usage, warn_once"
      },
      {
       "target": "utils.llm_config",
@@ -11084,7 +11547,7 @@
      },
      {
       "target": "utils.output",
-      "evidence": "from utils.output import emit, emit_raw, is_debug"
+      "evidence": "from utils.output import brief, emit, emit_raw, is_debug"
      },
      {
       "target": "utils.thinking",
@@ -11139,8 +11602,8 @@
    }
   },
   "utils/llm_openrouter.py": {
-   "source_sha256": "dfcbffa1f531cfe7e09bfb1d0647b6af1d437e366c0c6387968fdc7c541fe0c7",
-   "lines": 386,
+   "source_sha256": "e009b8751056a6ea224f6e2638983a254a409dfe97ded80aaa444e3ddb18da2a",
+   "lines": 388,
    "symbols": [
     {
      "name": "_RETRYABLE_STATUS",
@@ -11318,7 +11781,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 228,
+     "line": 230,
      "signature": "def _consume(resp) -> dict:",
      "match": "exact"
     },
@@ -11327,7 +11790,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 259,
+     "line": 261,
      "signature": "def _apply_chunk(out: dict, chunk: dict) -> None:",
      "match": "exact"
     },
@@ -11336,7 +11799,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 284,
+     "line": 286,
      "signature": "def _record(model: str, result: dict, raw_prompt_tokens: int, desc: str, elapsed: float, generation_id: str | None) -> None:",
      "match": "exact"
     },
@@ -11345,7 +11808,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 328,
+     "line": 330,
      "signature": "def call_openrouter(prompt: str, thinking_level: str | None = None) -> str:",
      "match": "exact"
     }
@@ -11369,7 +11832,7 @@
      "module": "utils/output.py",
      "target": "utils.output",
      "line": 49,
-     "evidence": "from utils.output import emit, emit_raw, is_debug",
+     "evidence": "from utils.output import brief, emit, emit_raw, is_debug",
      "via": "path"
     },
     {
@@ -11382,7 +11845,7 @@
     {
      "module": "utils/token_utils.py",
      "target": "utils.token_utils",
-     "line": 316,
+     "line": 318,
      "evidence": "from utils.token_utils import observe_prompt_tokens",
      "via": "path"
     }
@@ -11439,7 +11902,7 @@
     },
     {
      "name": "OPENROUTER_API_KEY",
-     "line": 335,
+     "line": 337,
      "evidence": "api_key = os.getenv(\"OPENROUTER_API_KEY\", \"\").strip()",
      "match": "exact",
      "kind": "env"
@@ -11455,14 +11918,14 @@
     },
     {
      "name": "LLMRefusalError",
-     "line": 222,
+     "line": 224,
      "evidence": "raise LLMRefusalError(model, category, provider=\"OPENROUTER\")",
      "match": "exact",
      "role": "raised"
     },
     {
      "name": "ValueError",
-     "line": 334,
+     "line": 336,
      "evidence": "raise ValueError(\"OPENROUTER_MODEL environment variable is required\")",
      "match": "exact",
      "role": "raised"
@@ -11480,14 +11943,14 @@
     "followup": {
      "status": "done",
      "asked": [
-      330
+      332
      ]
     }
    },
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "4c30623859d9e7c0ead125c54c5700ee",
+   "facts_hash": "4c77ee837b5674127dcf91c7980f7fc5",
    "claims": {
     "symbols": [
      {
@@ -11679,7 +12142,7 @@
      },
      {
       "target": "utils.output",
-      "evidence": "from utils.output import emit, emit_raw, is_debug"
+      "evidence": "from utils.output import brief, emit, emit_raw, is_debug"
      },
      {
       "target": "utils.thinking",
@@ -11739,8 +12202,8 @@
    }
   },
   "utils/mkdocs.py": {
-   "source_sha256": "76aa087f8b79b2dc6a1fb6aa33bfbd38712314e2b792ca5fbcf170ed6fcc446b",
-   "lines": 1449,
+   "source_sha256": "17067ebcb3c2efb4806b841d849908924ad0cddc2a1d245495caf03d3517d856",
+   "lines": 1454,
    "symbols": [
     {
      "name": "yaml_str",
@@ -11789,7 +12252,7 @@
     },
     {
      "name": "_FRONTMATTER_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 190,
@@ -11798,7 +12261,7 @@
     },
     {
      "name": "_SUMMARY_HEADER_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 191,
@@ -11807,7 +12270,7 @@
     },
     {
      "name": "_SUMMARY_LABEL_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 193,
@@ -11816,7 +12279,7 @@
     },
     {
      "name": "_POINT_MARKER_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 194,
@@ -11825,7 +12288,7 @@
     },
     {
      "name": "_MD_ESCAPE_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 195,
@@ -11834,7 +12297,7 @@
     },
     {
      "name": "_POINT_PAREN_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 197,
@@ -11843,7 +12306,7 @@
     },
     {
      "name": "_POINT_PLAIN_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 198,
@@ -11861,7 +12324,7 @@
     },
     {
      "name": "_SENTENCE_END_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 201,
@@ -11879,7 +12342,7 @@
     },
     {
      "name": "_CODE_SPAN_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 203,
@@ -12212,7 +12675,7 @@
     },
     {
      "name": "_ITEM_START_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 880,
@@ -12221,7 +12684,7 @@
     },
     {
      "name": "_FENCE_LINE_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 881,
@@ -12293,13 +12756,13 @@
     },
     {
      "name": "_SEE_ALSO_ITEM_RE",
-     "kind": "variable",
+     "kind": "constant",
      "parent": "",
      "visibility": "private",
      "line": 1039,
      "end_line": 1042,
      "signature": "_SEE_ALSO_ITEM_RE = re.compile(\n    r\"^(?P<prefix>\\s*[-*+]\\s+)(?P<open>\\*\\*|__)?\\[(?P<text>[^\\]\\n]+)\\]\\((?P<target><[^>\\n]+>|[^)\\s]+)\\)(?P<close>\\*\\*|__)?\"\n    r\"(?P<sep>\\s*(?::|\\s[-\\u2013\\u2014]|\\u2014|\\u2013)\\s*|\\s+)?(?P<rest>.*)$\"  # separator: a colon, a hyphen, an en or em dash\n)",
-     "match": "exact"
+     "match": "joined"
     },
     {
      "name": "_see_also_lines",
@@ -12351,7 +12814,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1376,
+     "line": 1381,
      "signature": "def prune_stale_pages(api_docs_path, chapter_files):",
      "match": "exact"
     },
@@ -12360,7 +12823,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 1406,
+     "line": 1411,
      "signature": "def write_standalone_output(output_path, prep_res, chapter_files, ui):",
      "match": "exact"
     }
@@ -12457,18 +12920,18 @@
    "config": [],
    "errors": [
     {
-     "name": "ValueError",
-     "line": 713,
-     "evidence": "raise ValueError(get(\"GROUP_NO_SECTIONS\"))",
-     "match": "exact",
-     "role": "raised"
-    },
-    {
      "name": "LLMRefusalError",
      "line": 715,
      "evidence": "except LLMRefusalError as e:",
      "match": "exact",
      "role": "caught"
+    },
+    {
+     "name": "ValueError",
+     "line": 713,
+     "evidence": "raise ValueError(get(\"GROUP_NO_SECTIONS\"))",
+     "match": "exact",
+     "role": "raised"
     }
    ],
    "coverage": {
@@ -12481,14 +12944,46 @@
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
-     "status": "none",
-     "asked": []
+     "status": "done",
+     "asked": [
+      190,
+      191,
+      193,
+      194,
+      195,
+      197,
+      198,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      267,
+      280,
+      291,
+      461,
+      483,
+      879,
+      880,
+      881,
+      882,
+      885,
+      890,
+      901,
+      953,
+      958,
+      1039,
+      1045,
+      1061,
+      1092
+     ]
     }
    },
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "3eb10479a977547f4f2e95b2c754833d",
+   "facts_hash": "259df486f1481de10e6b1c36e3adf03b",
    "claims": {
     "symbols": [
      {
@@ -12527,97 +13022,6 @@
       "signature": "def site_renderer():"
      },
      {
-      "name": "_FRONTMATTER_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_FRONTMATTER_RE = re.compile(r\"^-{3}[ \\t]*\\n(.*?\\n)(?:\\.{3}|-{3})[ \\t]*\\n\", re.DOTALL)"
-     },
-     {
-      "name": "_SUMMARY_HEADER_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_SUMMARY_HEADER_RE = re.compile(r\"^.+ \\d+ — .+:$\")"
-     },
-     {
-      "name": "_SUMMARY_LABEL_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_SUMMARY_LABEL_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)]\\W{0,3}[^:\\uff1a\\n]{1,80}[:\\uff1a]\\**\\s*\")"
-     },
-     {
-      "name": "_POINT_MARKER_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_POINT_MARKER_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)][\\s*_]*\")"
-     },
-     {
-      "name": "_MD_ESCAPE_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_MD_ESCAPE_RE = re.compile(r\"([\\\\`*_\\[\\]|])\")"
-     },
-     {
-      "name": "_POINT_PAREN_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_POINT_PAREN_RE = re.compile(r\"(?m)^[ \\t#>*_]*\\(([1-4])\\)\")"
-     },
-     {
-      "name": "_POINT_PLAIN_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_POINT_PLAIN_RE = re.compile(r\"(?m)^[ \\t#>*_]*([1-4])[.)]\\s\")"
-     },
-     {
-      "name": "_CJK_STOPS",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_CJK_STOPS = (\"\\u3002\", \"\\uff01\", \"\\uff1f\")"
-     },
-     {
-      "name": "_SENTENCE_END_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_SENTENCE_END_RE = re.compile(r\"(?<=[.!?])\\s+|(?<=[\\u3002\\uff01\\uff1f])\\s*\")"
-     },
-     {
-      "name": "_ABBREVIATIONS",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_ABBREVIATIONS = (\"e.g.\", \"i.e.\", \"vs.\", \"etc.\", \"cf.\", \"approx.\", \"incl.\", \"resp.\", \"no.\", \"fig.\")"
-     },
-     {
-      "name": "_CODE_SPAN_RE",
-      "kind": "variable",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(?!`).+?(?<!`)\\1(?!`)\")"
-     },
-     {
-      "name": "_ENTRY_NODE_CLASSDEF",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_ENTRY_NODE_CLASSDEF = \"    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5\""
-     },
-     {
-      "name": "_MODULE_GRAPH_MAX_MODULES",
-      "kind": "constant",
-      "parent": "",
-      "visibility": "private",
-      "signature": "_MODULE_GRAPH_MAX_MODULES = 80"
-     },
-     {
       "name": "build_chapter_filenames",
       "kind": "function",
       "parent": "",
@@ -12637,27 +13041,6 @@
       "parent": "",
       "visibility": "public",
       "signature": "def strip_summary_header(summary: str) -> str:"
-     },
-     {
-      "name": "_sentences",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _sentences(text: str):"
-     },
-     {
-      "name": "_ends_with_abbreviation",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _ends_with_abbreviation(piece: str) -> bool:"
-     },
-     {
-      "name": "_is_prose",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _is_prose(text: str) -> bool:"
      },
      {
       "name": "clip_sentences",
@@ -12723,20 +13106,6 @@
       "signature": "def verified_dependencies(module_facts: dict, chapter_files: list) -> dict:"
      },
      {
-      "name": "_section_members",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _section_members(sections: list) -> list[tuple[str, list]]:"
-     },
-     {
-      "name": "_mermaid_label",
-      "kind": "function",
-      "parent": "",
-      "visibility": "private",
-      "signature": "def _mermaid_label(text) -> str:"
-     },
-     {
       "name": "build_section_map",
       "kind": "function",
       "parent": "",
@@ -12797,14 +13166,14 @@
       "kind": "constant",
       "parent": "",
       "visibility": "public",
-      "signature": "GROUPING_ATTEMPTS = 3"
+      "signature": "GROUPING_ATTEMPTS = 3  # like the pipeline's LLM nodes: a stream cut off upstream must not cost the grouped nav"
      },
      {
       "name": "GROUPING_WAIT",
       "kind": "constant",
       "parent": "",
       "visibility": "public",
-      "signature": "GROUPING_WAIT = 20"
+      "signature": "GROUPING_WAIT = 20  # seconds between attempts"
      },
      {
       "name": "request_grouping",
@@ -12849,6 +13218,167 @@
       "signature": "def add_used_by_lines(chapter_files: list, module_facts: dict) -> None:"
      },
      {
+      "name": "repair_markup",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def repair_markup(markdown: str, render) -> tuple[str, Counter]:"
+     },
+     {
+      "name": "normalize_see_also",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def normalize_see_also(chapter_files: list) -> int:"
+     },
+     {
+      "name": "write_mkdocs_output",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def write_mkdocs_output(output_path, prep_res, chapter_files):"
+     },
+     {
+      "name": "prune_stale_pages",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def prune_stale_pages(api_docs_path, chapter_files):"
+     },
+     {
+      "name": "write_standalone_output",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def write_standalone_output(output_path, prep_res, chapter_files, ui):"
+     },
+     {
+      "name": "_FRONTMATTER_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_FRONTMATTER_RE = re.compile(r\"^-{3}[ \\t]*\\n(.*?\\n)(?:\\.{3}|-{3})[ \\t]*\\n\", re.DOTALL)  # same block MkDocs' meta parser reads"
+     },
+     {
+      "name": "_SUMMARY_HEADER_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SUMMARY_HEADER_RE = re.compile(r\"^.+ \\d+ — .+:$\")"
+     },
+     {
+      "name": "_SUMMARY_LABEL_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SUMMARY_LABEL_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)]\\W{0,3}[^:\\uff1a\\n]{1,80}[:\\uff1a]\\**\\s*\")"
+     },
+     {
+      "name": "_POINT_MARKER_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_POINT_MARKER_RE = re.compile(r\"^[\\s#>*_]*\\(?1[.)][\\s*_]*\")  # the bare \"(1)\" / \"### (1)\" / \"**1.\" marker"
+     },
+     {
+      "name": "_MD_ESCAPE_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_MD_ESCAPE_RE = re.compile(r\"([\\\\`*_\\[\\]|])\")"
+     },
+     {
+      "name": "_POINT_PAREN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_POINT_PAREN_RE = re.compile(r\"(?m)^[ \\t#>*_]*\\(([1-4])\\)\")"
+     },
+     {
+      "name": "_POINT_PLAIN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_POINT_PLAIN_RE = re.compile(r\"(?m)^[ \\t#>*_]*([1-4])[.)]\\s\")"
+     },
+     {
+      "name": "_CJK_STOPS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_CJK_STOPS = (\"\\u3002\", \"\\uff01\", \"\\uff1f\")"
+     },
+     {
+      "name": "_SENTENCE_END_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_SENTENCE_END_RE = re.compile(r\"(?<=[.!?])\\s+|(?<=[\\u3002\\uff01\\uff1f])\\s*\")"
+     },
+     {
+      "name": "_ABBREVIATIONS",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_ABBREVIATIONS = (\"e.g.\", \"i.e.\", \"vs.\", \"etc.\", \"cf.\", \"approx.\", \"incl.\", \"resp.\", \"no.\", \"fig.\")"
+     },
+     {
+      "name": "_CODE_SPAN_RE",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_CODE_SPAN_RE = re.compile(r\"(`+)(?!`).+?(?<!`)\\1(?!`)\")"
+     },
+     {
+      "name": "_ENTRY_NODE_CLASSDEF",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_ENTRY_NODE_CLASSDEF = \"    classDef entryNode stroke:#d33,stroke-width:3px,fill:#fff5f5\""
+     },
+     {
+      "name": "_MODULE_GRAPH_MAX_MODULES",
+      "kind": "constant",
+      "parent": "",
+      "visibility": "private",
+      "signature": "_MODULE_GRAPH_MAX_MODULES = 80  # beyond this a module-level graph is unreadable; the section map still shows"
+     },
+     {
+      "name": "_sentences",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _sentences(text: str):"
+     },
+     {
+      "name": "_ends_with_abbreviation",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _ends_with_abbreviation(piece: str) -> bool:"
+     },
+     {
+      "name": "_is_prose",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _is_prose(text: str) -> bool:"
+     },
+     {
+      "name": "_section_members",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _section_members(sections: list) -> list[tuple[str, list]]:"
+     },
+     {
+      "name": "_mermaid_label",
+      "kind": "function",
+      "parent": "",
+      "visibility": "private",
+      "signature": "def _mermaid_label(text) -> str:"
+     },
+     {
       "name": "_REPAIRED_KINDS",
       "kind": "constant",
       "parent": "",
@@ -12857,14 +13387,14 @@
      },
      {
       "name": "_ITEM_START_RE",
-      "kind": "variable",
+      "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_ITEM_START_RE = re.compile(r\"^( *)([*+-]|\\d{1,9}[.)])( +|$)\")"
+      "signature": "_ITEM_START_RE = re.compile(r\"^( *)([*+-]|\\d{1,9}[.)])( +|$)\")  # a list item line (tabs expanded): indent, marker, spaces"
      },
      {
       "name": "_FENCE_LINE_RE",
-      "kind": "variable",
+      "kind": "constant",
       "parent": "",
       "visibility": "private",
       "signature": "_FENCE_LINE_RE = re.compile(r\"^\\s*(`{3,}|~{3,})\")"
@@ -12874,7 +13404,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_REPAIR_RENDERS = 40"
+      "signature": "_REPAIR_RENDERS = 40  # renders one page's repairs may take (each candidate is rendered)"
      },
      {
       "name": "_indent_of",
@@ -12912,18 +13442,11 @@
       "signature": "def _code_blocks(text: str) -> list[str]:"
      },
      {
-      "name": "repair_markup",
-      "kind": "function",
-      "parent": "",
-      "visibility": "public",
-      "signature": "def repair_markup(markdown: str, render) -> tuple[str, Counter]:"
-     },
-     {
       "name": "_SEE_ALSO_ITEM_RE",
-      "kind": "variable",
+      "kind": "constant",
       "parent": "",
       "visibility": "private",
-      "signature": "_SEE_ALSO_ITEM_RE = re.compile("
+      "signature": "_SEE_ALSO_ITEM_RE = re.compile(\n    r\"^(?P<prefix>\\s*[-*+]\\s+)(?P<open>\\*\\*|__)?\\[(?P<text>[^\\]\\n]+)\\]\\((?P<target><[^>\\n]+>|[^)\\s]+)\\)(?P<close>\\*\\*|__)?\"\n    r\"(?P<sep>\\s*(?::|\\s[-\\u2013\\u2014]|\\u2014|\\u2013)\\s*|\\s+)?(?P<rest>.*)$\"  # separator: a colon, a hyphen, an en or em dash"
      },
      {
       "name": "_see_also_lines",
@@ -12940,39 +13463,11 @@
       "signature": "def _resolve_page(page: str, target: str) -> str:"
      },
      {
-      "name": "normalize_see_also",
-      "kind": "function",
-      "parent": "",
-      "visibility": "public",
-      "signature": "def normalize_see_also(chapter_files: list) -> int:"
-     },
-     {
       "name": "_page_link",
       "kind": "function",
       "parent": "",
       "visibility": "private",
       "signature": "def _page_link(page: str, target: str, filenames: set) -> str:"
-     },
-     {
-      "name": "write_mkdocs_output",
-      "kind": "function",
-      "parent": "",
-      "visibility": "public",
-      "signature": "def write_mkdocs_output(output_path, prep_res, chapter_files):"
-     },
-     {
-      "name": "prune_stale_pages",
-      "kind": "function",
-      "parent": "",
-      "visibility": "public",
-      "signature": "def prune_stale_pages(api_docs_path, chapter_files):"
-     },
-     {
-      "name": "write_standalone_output",
-      "kind": "function",
-      "parent": "",
-      "visibility": "public",
-      "signature": "def write_standalone_output(output_path, prep_res, chapter_files, ui):"
      }
     ],
     "dependencies": [
@@ -13044,20 +13539,20 @@
     "config": [],
     "errors": [
      {
-      "name": "ValueError",
-      "evidence": "raise ValueError(get(\"GROUP_NO_SECTIONS\"))"
-     },
-     {
       "name": "LLMRefusalError",
       "evidence": "except LLMRefusalError as e:"
+     },
+     {
+      "name": "ValueError",
+      "evidence": "raise ValueError(get(\"GROUP_NO_SECTIONS\"))"
      }
     ],
     "unparsed": 0
    }
   },
   "utils/output.py": {
-   "source_sha256": "22fc1649dffc3fe8b69b16f740b2e01f6bbfe64242634d1e7446de93b0ba03e7",
-   "lines": 287,
+   "source_sha256": "db13d7621e514ba9dbafca6080739cceca6595231bf5536aacc06c410da4098e",
+   "lines": 294,
    "symbols": [
     {
      "name": "COLORS",
@@ -13065,9 +13560,8 @@
      "parent": "",
      "visibility": "public",
      "line": 24,
-     "end_line": 26,
-     "signature": "COLORS = {\n    \"PROGRESS\": \"\\033[96m\",  # Cyan — LLM calls, active steps\n    \"SUCCESS\": \"\\033[92m\",  # Green — completions, cache hits",
-     "match": "joined"
+     "signature": "COLORS = {",
+     "match": "exact"
     },
     {
      "name": "RESET",
@@ -13214,11 +13708,20 @@
      "match": "exact"
     },
     {
-     "name": "get",
+     "name": "brief",
      "kind": "function",
      "parent": "",
      "visibility": "public",
      "line": 146,
+     "signature": "def brief(value, limit: int = 300) -> str:",
+     "match": "exact"
+    },
+    {
+     "name": "get",
+     "kind": "function",
+     "parent": "",
+     "visibility": "public",
+     "line": 153,
      "signature": "def get(key, **kwargs):",
      "match": "exact"
     },
@@ -13227,7 +13730,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 158,
+     "line": 165,
      "signature": "def configure_logging(project_name=\"project\", mode=\"tutorial\"):",
      "match": "exact"
     },
@@ -13236,7 +13739,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "public",
-     "line": 195,
+     "line": 202,
      "signature": "def shutdown():",
      "match": "exact"
     },
@@ -13245,7 +13748,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 207,
+     "line": 214,
      "signature": "def _write_log(level, text):",
      "match": "exact"
     },
@@ -13254,7 +13757,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 225,
+     "line": 232,
      "signature": "def _ensure_utf8_streams():",
      "match": "exact"
     },
@@ -13263,7 +13766,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 238,
+     "line": 245,
      "signature": "def _format_safe(template, kwargs):",
      "match": "exact"
     },
@@ -13272,7 +13775,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 246,
+     "line": 253,
      "signature": "def _load_strings():",
      "match": "exact"
     },
@@ -13281,7 +13784,7 @@
      "kind": "function",
      "parent": "",
      "visibility": "private",
-     "line": 281,
+     "line": 288,
      "signature": "def _auto_translate():",
      "match": "exact"
     }
@@ -13290,7 +13793,7 @@
     {
      "module": "utils/i18n.py",
      "target": "utils.i18n",
-     "line": 283,
+     "line": 290,
      "evidence": "from utils.i18n import auto_translate",
      "via": "path"
     }
@@ -13326,14 +13829,14 @@
      "line": 18
     },
     {
-     "name": "datetime",
+     "name": "datetime.datetime",
      "line": 19
     }
    ],
    "config": [
     {
      "name": "LOG_DIR",
-     "line": 168,
+     "line": 175,
      "evidence": "log_directory = os.getenv(\"LOG_DIR\", \"logs\")",
      "match": "exact",
      "kind": "env"
@@ -13341,12 +13844,12 @@
    ],
    "errors": [],
    "coverage": {
-    "claimed": 31,
-    "verified": 31
+    "claimed": 32,
+    "verified": 32
    },
    "completeness": {
     "import_lines": 5,
-    "declaration_lines": 16,
+    "declaration_lines": 17,
     "unreported_lines": [],
     "declined_lines": [],
     "followup": {
@@ -13357,7 +13860,7 @@
    "rejected": [],
    "missed_imports": [],
    "unexplained_names": [],
-   "facts_hash": "9fd31c5377c7af1900270f5ff42729f2",
+   "facts_hash": "a6bff8749e8456db4553b959166cd2be",
    "claims": {
     "symbols": [
      {
@@ -13365,7 +13868,7 @@
       "kind": "constant",
       "parent": "",
       "visibility": "public",
-      "signature": "COLORS = {\n    \"PROGRESS\": \"\\033[96m\",  # Cyan — LLM calls, active steps\n    \"SUCCESS\": \"\\033[92m\",  # Green — completions, cache hits"
+      "signature": "COLORS = {"
      },
      {
       "name": "RESET",
@@ -13480,6 +13983,13 @@
       "signature": "def is_debug():"
      },
      {
+      "name": "brief",
+      "kind": "function",
+      "parent": "",
+      "visibility": "public",
+      "signature": "def brief(value, limit: int = 300) -> str:"
+     },
+     {
       "name": "get",
       "kind": "function",
       "parent": "",
@@ -13550,7 +14060,7 @@
       "evidence": "import sys"
      },
      {
-      "target": "datetime",
+      "target": "datetime.datetime",
       "evidence": "from datetime import datetime"
      },
      {
